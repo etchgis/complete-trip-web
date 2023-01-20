@@ -1,0 +1,61 @@
+{
+  "name": "buffalo-web",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": ".",
+  "dependencies": {
+    "@chakra-ui/icons": "^2.0.16",
+    "@chakra-ui/react": "^2.4.7",
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "@fontsource/open-sans": "^4.5.13",
+    "@hookform/resolvers": "^2.9.10",
+    "@saas-ui/react": "^1.7.4",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.0.1",
+    "@testing-library/user-event": "^14.1.0",
+    "@turf/distance": "^6.5.0",
+    "@turf/helpers": "^6.5.0",
+    "axios": "^1.2.2",
+    "chakra-ui-steps": "^2.0.1",
+    "framer-motion": "^6.2.9",
+    "history": "^5.3.0",
+    "jwt-decode": "^3.1.2",
+    "mapbox-gl": "^2.12.0",
+    "mobx": "^6.7.0",
+    "mobx-react-lite": "^3.4.0",
+    "nanoid": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.7.1",
+    "react-lorem-ipsum": "^1.4.10",
+    "react-router-dom": "^6.6.2",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4",
+    "yup": "^0.32.11",
+    "zustand": "^4.3.1"
+  },
+  "scripts": {
+    "dev": "react-scripts start",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\web-sandbox\\blitzwing /E /S /COPY:DAT /MT:16 /XF"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

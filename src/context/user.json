@@ -1,0 +1,51 @@
+{
+  "email": "jesseglascock+10@gmail.com",
+  "password": "Test1234",
+  "profile": {
+    "name": "jesse",
+    "address": {
+      "title": "NBT Bank #674",
+      "description": "2966 State Route 30, Speculator",
+      "distance": null,
+      "point": {
+        "lng": -74.364732,
+        "lat": 43.502757
+      },
+      "text": "NBT Bank #674, 2966 State Route 30, Speculator"
+    },
+    "caretakers": [
+      {
+        "name": "darci",
+        "email": "darci@etchgis.com",
+        "phone": "555-555-5555"
+      }
+    ],
+    "favorites": [
+      {
+        "name": "Home",
+        "title": "NBT Bank #674",
+        "description": "2966 State Route 30, Speculator",
+        "distance": null,
+        "point": {
+          "lng": -74.364732,
+          "lat": 43.502757
+        },
+        "text": "NBT Bank #674, 2966 State Route 30, Speculator"
+      },
+      {
+        "name": "Work",
+        "title": "somewhere else",
+        "description": "123 West 4th St East",
+        "distance": null,
+        "point": {
+          "lng": -74.364732,
+          "lat": 43.502757
+        },
+        "text": "whatever"
+      }
+    ]
+  },
+  "phone": "513-305-3408",
+  "role": "rider",
+  "organization": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486"
+}

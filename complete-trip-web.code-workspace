@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../complete-trip"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "prettier.printWidth": 180,
+    "html.format.wrapLineLength": 160
+  }
+}
