@@ -75,7 +75,6 @@ export const useAuthenticationStore = create(
       },
 
       register: async (email, phone, organization, password, profile) => {
-        console.log(email, phone, organization, password, profile);
         try {
           get().clearError();
           const newUser = await authRegister(
@@ -87,12 +86,15 @@ export const useAuthenticationStore = create(
           );
           return set({ user: newUser, loggedIn: true });
         } catch (error) {
+          console.log(error);
           return set(() => ({ user: null, error: 'Trouble logging in.' }));
         }
       },
 
       setStagedUser: update =>
-        set(state => ({ stagedUser: Object.assign(state.stagedUser, update) })),
+        set(state => ({
+          stagedUser: !update ? {} : Object.assign(state.stagedUser, update),
+        })),
       clearStagedUser: () => set(() => ({ statgedIser: {} })),
 
       logout: () => set(() => ({ user: null, loggedIn: false })),

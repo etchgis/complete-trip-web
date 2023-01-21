@@ -25,9 +25,9 @@ export const App = () => {
 
   return (
     <Flex
-      id='app'
+      id="app"
       backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
-      flexDir='column'
+      flexDir="column"
     >
       {/* NAV */}
       <Navbar action1={showLogin} action2={showAccount}></Navbar>
@@ -40,18 +40,15 @@ export const App = () => {
         isOpen={loginIsOpen}
         onOpen={showLogin}
         onClose={hideLogin}
-        size='lg'
+        size="lg"
       >
-        <LoginRegisterStepForm
-          isLogin={true}
-          hideModal={hideLogin}
-        ></LoginRegisterStepForm>
+        <LoginRegisterStepForm hideModal={hideLogin}></LoginRegisterStepForm>
       </CustomModal>
       <CustomModal
         isOpen={accountIsOpen}
         onOpen={showAccount}
         onClose={hideAccount}
-        size='3xl'
+        size="3xl"
       >
         <AccountCard />
       </CustomModal>

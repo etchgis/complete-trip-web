@@ -43,9 +43,13 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
     login: authLogin,
     error: authError,
   } = useAuthenticationStore(state => state);
-  console.log({ stagedUser });
-  console.log({ user });
+  if (stagedUser && Object.keys(stagedUser).length) console.log(stagedUser);
+  if (user && Object.keys(user).length) console.log({ user });
   const [activeView, setActiveView] = useState('init');
+
+  useEffect(() => {
+    setStagedUser();
+  }, [setStagedUser]);
 
   useEffect(() => {
     if (loggedIn) hideModal();
@@ -209,8 +213,8 @@ const CreateAccountOrLogin = ({
   // FORM STATES
   const [firstName, setFirstName] = useState('John');
   const [lastName, setLastName] = useState('Doe');
-  const [email, setEmail] = useState('malcolm+1@getbounds.com');
-  const [password, setPassword] = useState('test123');
+  const [email, setEmail] = useState('malcolm+2@getbounds.com');
+  const [password, setPassword] = useState('Test123');
 
   useEffect(() => {
     setLoginHasError(false);
@@ -397,11 +401,7 @@ const SocialLogins = ({ setActiveView }) => {
 };
 
 const RegisterStepThroughForm = ({ hideModal }) => {
-  const {
-    // stagedUser,
-    setStagedUser,
-    // register
-  } = useAuthenticationStore();
+  const { stagedUser, setStagedUser, register } = useAuthenticationStore();
   return (
     <StepThroughForm
       content={[
@@ -427,11 +427,36 @@ const RegisterStepThroughForm = ({ hideModal }) => {
         {
           title: 'address',
           content: <HomeAddress></HomeAddress>,
+          action: e => {
+            const data = new FormData(e.target);
+            setStagedUser({
+              address: {
+                title: data.get('address'),
+                description: data.get('description'),
+                distance: null,
+                point: {
+                  lng: data.get('lng'),
+                  lat: data.get('lat'),
+                },
+              },
+            });
+          },
           skip: true,
         },
         {
           title: 'caretaker',
           content: <Caretaker></Caretaker>,
+          action: e => {
+            const data = new FormData(e.target);
+            setStagedUser({
+              caretakers: [
+                {
+                  name: data.get('firstName') + ' ' + data.get('lastName'),
+                  phone: data.get('phone'),
+                },
+              ],
+            });
+          },
           skip: true,
         },
         {
@@ -448,30 +473,35 @@ const RegisterStepThroughForm = ({ hideModal }) => {
             console.log(data.get('smsAlerts'));
             console.log(data.get('emailAlerts'));
             setStagedUser({
-              sms: data.get('smsAlerts'),
-              email: data.get('emailAlerts'),
+              notifications: {
+                sms: data.get('smsAlerts') ? true : false,
+                email: data.get('emailAlerts') ? true : false,
+              },
             });
           },
         },
         {
           title: 'terms',
           content: <Terms></Terms>,
-          action: async () => {
+          action: async e => {
+            const data = new FormData(e.target);
+            const newUser = await register(
+              stagedUser.email,
+              '1' + stagedUser.phone.replace(/-/g, ''),
+              '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
+              stagedUser.password,
+              {
+                name: stagedUser.firstName && ' ' && stagedUser.lastName,
+                address: stagedUser.address,
+                caretakers: stagedUser.caretakers,
+                favorites: [],
+                notifications: stagedUser.notifications,
+                terms: data.get('terms'),
+              }
+            );
+            console.log(newUser);
             console.log('registered');
-            // const newUser = await register(
-            //   stagedUser.email,
-            //   stagedUser.phone,
-            //   '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
-            //   stagedUser.password,
-            //   {
-            //     name: stagedUser.firstName && ' ' && stagedUser.lastName,
-            //     address: {},
-            //     caretakers: [],
-            //     favorites: [],
-            //   }
-            // );
-            // console.log(newUser);
-            hideModal();
+            if (newUser) hideModal();
           },
         },
       ]}
@@ -513,15 +543,7 @@ const ContactInfo = () => {
           name="tel"
           onChange={e => {
             const input = e.target.value.length ? e.target.value : null;
-            if (input) {
-              const digits = [];
-              if (input.length > 0) digits.push(input.substring(0, 3));
-              if (input.length >= 4)
-                digits.push(input.replace(/-/g, '').substring(3, 6));
-              if (input.length >= 7)
-                digits.push(input.replace(/-/g, '').substring(6, 10));
-              return setPhone(digits.join('-'));
-            }
+            if (input) return setPhone(phoneFormatter(input));
             return setPhone();
           }}
           value={phone || ''}
@@ -535,9 +557,15 @@ const ContactInfo = () => {
 
 const HomeAddress = () => {
   const [address, setAddress] = useState();
+  const [description, setDescription] = useState();
   const [lng, setLng] = useState([]);
   const [lat, setLat] = useState([]);
   const { colorMode } = useColorMode();
+
+  //NOTE placeholder
+  useEffect(() => {
+    setDescription('2530 BIS RD SW, Lancaster');
+  }, [address]);
 
   const getAddress = async query => {
     const center = lng && lat ? { lng: lng, lat: lat } : null;
@@ -613,7 +641,6 @@ const HomeAddress = () => {
             name="lng"
             value={lng || ''}
             readOnly
-            disabled
             required
           ></Input>
           <Input
@@ -621,10 +648,17 @@ const HomeAddress = () => {
             name="lat"
             value={lat || ''}
             readOnly
-            disabled
             required
           ></Input>
         </HStack>
+      </FormControl>
+      <FormControl>
+        <Input
+          type="text"
+          name="description"
+          value={description || ''}
+          readOnly
+        ></Input>
       </FormControl>
       <Checkbox onChange={e => getUserLocation(e.target.checked)}>
         Allow us to know your location information to provide accurate route
@@ -638,9 +672,7 @@ const Caretaker = () => {
   const { colorMode } = useColorMode();
   const [firstName, setFirstName] = useState('Jane');
   const [lastName, setLastName] = useState('Doe');
-  const [email, setEmail] = useState('malcolm+2@getbounds.com');
-  const [password, setPassword] = useState('test123');
-  const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState();
 
   return (
     <Stack spacing={4}>
@@ -661,6 +693,7 @@ const Caretaker = () => {
             <FormLabel>First Name</FormLabel>
             <Input
               type="text"
+              name="firstName"
               onChange={e => setFirstName(e.target.value)}
               value={firstName || ''}
             />
@@ -671,44 +704,25 @@ const Caretaker = () => {
             <FormLabel>Last Name</FormLabel>
             <Input
               type="text"
+              name="lastName"
               onChange={e => setLastName(e.target.value)}
               value={lastName || ''}
             />
           </FormControl>
         </Box>
       </HStack>
-      <FormControl isRequired>
-        <FormLabel>Email address</FormLabel>
-        <Input
-          type="email"
-          onChange={e => setEmail(e.target.value)}
-          value={email || ''}
-        />
-      </FormControl>
-      <FormControl id="password" isRequired>
-        <FormLabel>Password</FormLabel>
-        <InputGroup>
-          <Input
-            type={showPassword ? 'text' : 'password'}
-            onChange={e => setPassword(e.target.value)}
-            value={password || ''}
-          />
-          <InputRightElement h={'full'}>
-            <Button
-              color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
-              _hover={{
-                opacity: 0.9,
-              }}
-              w="100%"
-              type="button"
-              variant={'link'}
-              onClick={() => setShowPassword(showPassword => !showPassword)}
-            >
-              {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
+      <Input
+        type="tel"
+        name="phone"
+        onChange={e => {
+          const input = e.target.value.length ? e.target.value : null;
+          if (input) return setPhone(phoneFormatter(input));
+          return setPhone();
+        }}
+        value={phone || ''}
+        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+        placeholder="000-000-0000"
+      />
     </Stack>
   );
 };
@@ -853,3 +867,11 @@ const Terms = () => {
     </Stack>
   );
 };
+
+function phoneFormatter(input) {
+  const digits = [];
+  if (input.length > 0) digits.push(input.substring(0, 3));
+  if (input.length >= 4) digits.push(input.replace(/-/g, '').substring(3, 6));
+  if (input.length >= 8) digits.push(input.replace(/-/g, '').substring(6, 10));
+  return digits.join('-');
+}
