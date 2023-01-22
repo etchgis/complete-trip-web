@@ -1,4 +1,5 @@
 import {
+  Box,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -8,29 +9,46 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 
+import { useEffect } from 'react';
+import { useState } from 'react';
+
 export const CustomModal = ({
   isOpen,
   // onOpen,
   onClose,
+  warning,
   title,
   size,
   children,
   rest,
 }) => {
+  const [alerted, setAlerted] = useState(false);
+  const handleOnClose = () => {
+    if (warning) {
+      setAlerted(true);
+      return warning;
+    }
+    onClose();
+  };
+  useEffect(() => {
+    console.log('alerted');
+  }, [alerted]);
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleOnClose}
       size={{ base: 'full', sm: size ? size : 'lg' }}
       {...rest}
       isCentered
       scrollBehavior={'inside'}
+      // closeOnOverlayClick={false}
     >
-      <ModalOverlay />
+      <ModalOverlay className="js-custom-modal" />
       <ModalContent m={0}>
         {title ? <ModalHeader>{title}</ModalHeader> : ''}
         <ModalCloseButton style={{ filter: 'invert(1)' }} />
-        <ModalBody p={0} id='modal--body'>
+        <ModalBody p={0} id="modal--body">
           {children}
         </ModalBody>
         <ModalFooter>

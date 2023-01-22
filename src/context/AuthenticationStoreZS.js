@@ -30,9 +30,7 @@ const defaultState = {
 export const useAuthenticationStore = create(
   persist(
     (set, get) => ({
-      user: {
-        profile: { firstName: 'Test User' },
-      },
+      user: {},
       stagedUser: {},
       loggedIn: false,
       // loggingIn: false,
@@ -48,10 +46,10 @@ export const useAuthenticationStore = create(
         try {
           const { accessToken } = get().user;
           if (!accessToken || !validateJWT(accessToken))
-            return set(() => ({ user: null, loggedIn: null }));
+            return set(() => ({ user: {}, loggedIn: false }));
           set(() => ({ loggedIn: true }));
         } catch (error) {
-          return set(() => ({ user: null, loggedIn: null }));
+          return set(() => ({ user: {}, loggedIn: false }));
         }
 
         //TODO add refresh token
@@ -63,6 +61,8 @@ export const useAuthenticationStore = create(
         // }
         //TODO add error on validate
       },
+
+      setLoggedIn: e => set(() => ({ loggedIn: e })),
 
       login: async (email, password) => {
         try {
@@ -87,7 +87,7 @@ export const useAuthenticationStore = create(
           return set({ user: newUser, loggedIn: true });
         } catch (error) {
           console.log(error);
-          return set(() => ({ user: null, error: 'Trouble logging in.' }));
+          return set(() => ({ user: {}, error: 'Trouble logging in.' }));
         }
       },
 
@@ -95,9 +95,8 @@ export const useAuthenticationStore = create(
         set(state => ({
           stagedUser: !update ? {} : Object.assign(state.stagedUser, update),
         })),
-      clearStagedUser: () => set(() => ({ statgedIser: {} })),
 
-      logout: () => set(() => ({ user: null, loggedIn: false })),
+      logout: () => set(() => ({ user: {}, loggedIn: false })),
 
       reset: () => set(() => defaultState),
 

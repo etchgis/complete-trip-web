@@ -2,9 +2,12 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { useEffect, useRef, useState } from 'react';
 
+import { Loader } from '../Loader/Loader';
 import config from '../../config';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import { useColorMode } from '@chakra-ui/react';
+import { useMapStore } from '../../context/MapStore';
+
+// import { useColorMode } from '@chakra-ui/react';
 
 mapboxgl.accessToken = config.MAP.MAPBOX_TOKEN;
 
@@ -36,25 +39,13 @@ const layers = [
 ];
 
 export const MapboxMap = () => {
-  const { colorMode } = useColorMode();
+  const { mapStyle: mode } = useMapStore();
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const [lng, setLng] = useState(-78.863241);
   const [lat, setLat] = useState(42.882341);
   const [zoom, setZoom] = useState(9.5);
   const [mapIsLoaded, setMapIsLoaded] = useState(false);
-  const [mode, setMode] = useState(() =>
-    colorMode === 'light' ? 'DAY' : 'NIGHT'
-  );
-
-  useEffect(() => {
-    setMode(() => (colorMode === 'light' ? 'DAY' : 'NIGHT'));
-    console.log('[map] color mode switch');
-  }, [colorMode]);
-
-  useEffect(() => {
-    console.log(lat, lng, zoom);
-  }, [lat, lng, zoom]);
 
   useEffect(() => {
     if (mapRef.current && mapIsLoaded) {
@@ -122,6 +113,7 @@ export const MapboxMap = () => {
 
   return (
     <div style={{ flex: 1 }}>
+      <Loader isOpen={!mapIsLoaded}></Loader>
       <div ref={mapContainer} className="mapbox" style={{ height: '100%' }} />
     </div>
   );

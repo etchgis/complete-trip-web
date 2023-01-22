@@ -1,33 +1,43 @@
 import {
+  AddIcon,
+  DeleteIcon,
+  SearchIcon,
+  ViewIcon,
+  ViewOffIcon,
+} from '@chakra-ui/icons';
+import {
   Box,
   Button,
   Center,
+  Checkbox,
   Flex,
   FormControl,
   FormLabel,
   HStack,
+  Heading,
+  Icon,
+  IconButton,
   Image,
   Input,
   InputGroup,
+  InputLeftElement,
   InputRightElement,
   Stack,
+  Switch,
+  Text,
+  VStack,
   useColorMode,
   useColorModeValue,
-  Text,
-  Icon,
-  Heading,
-  InputLeftElement,
-  Checkbox,
-  Switch,
 } from '@chakra-ui/react';
-import { AddIcon, SearchIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { BsFacebook, BsGoogle } from 'react-icons/bs';
+import { useEffect, useState } from 'react';
 
 import { StepThroughForm } from '../Forms/StepThroughForm';
+import { _alive } from '../../helpers/helpers';
+import geocode from '../../services/transport/geocode';
 import { nanoid } from 'nanoid';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
-import { useEffect, useState } from 'react';
-import { BsFacebook, BsGoogle } from 'react-icons/bs';
-import geocode from '../../services/transport/geocode';
+
 // import { Link as RouterLink } from 'react-router-dom';
 
 //TODO hide init form if staged user exists and move directly to the register form
@@ -43,8 +53,8 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
     login: authLogin,
     error: authError,
   } = useAuthenticationStore(state => state);
-  if (stagedUser && Object.keys(stagedUser).length) console.log(stagedUser);
-  if (user && Object.keys(user).length) console.log({ user });
+  if (_alive(stagedUser)) console.log(stagedUser);
+  if (_alive(user)) console.log({ user });
   const [activeView, setActiveView] = useState('init');
 
   useEffect(() => {
@@ -415,7 +425,7 @@ const RegisterStepThroughForm = ({ hideModal }) => {
         // },
         {
           title: 'contact',
-          content: <ContactInfo></ContactInfo>,
+          content: <ContactInfo stagedUser={stagedUser}></ContactInfo>,
           action: e => {
             const data = new FormData(e.target);
             setStagedUser({
@@ -426,7 +436,7 @@ const RegisterStepThroughForm = ({ hideModal }) => {
         },
         {
           title: 'address',
-          content: <HomeAddress></HomeAddress>,
+          content: <HomeAddress stagedUser={stagedUser}></HomeAddress>,
           action: e => {
             const data = new FormData(e.target);
             setStagedUser({
@@ -445,7 +455,7 @@ const RegisterStepThroughForm = ({ hideModal }) => {
         },
         {
           title: 'caretaker',
-          content: <Caretaker></Caretaker>,
+          content: <Caretaker stagedUser={stagedUser}></Caretaker>,
           action: e => {
             const data = new FormData(e.target);
             setStagedUser({
@@ -461,13 +471,13 @@ const RegisterStepThroughForm = ({ hideModal }) => {
         },
         {
           title: 'mobility',
-          content: <MobilityOptions></MobilityOptions>,
+          content: <MobilityOptions stagedUser={stagedUser}></MobilityOptions>,
           skip: true,
           buttonText: 'Check Email Address',
         },
         {
           title: 'sms',
-          content: <Notifications></Notifications>,
+          content: <Notifications stagedUser={stagedUser}></Notifications>,
           action: e => {
             const data = new FormData(e.target);
             console.log(data.get('smsAlerts'));
@@ -509,10 +519,9 @@ const RegisterStepThroughForm = ({ hideModal }) => {
   );
 };
 
-const ContactInfo = () => {
-  const { stagedUser } = useAuthenticationStore(state => state);
-  const [email, setEmail] = useState(stagedUser.email);
-  const [phone, setPhone] = useState();
+const ContactInfo = ({ stagedUser }) => {
+  const [email, setEmail] = useState(stagedUser.email ? stagedUser.email : '');
+  const [phone, setPhone] = useState(stagedUser.phone ? stagedUser.phone : '');
   const { colorMode } = useColorMode();
   return (
     <Stack spacing={4}>
@@ -555,11 +564,31 @@ const ContactInfo = () => {
   );
 };
 
-const HomeAddress = () => {
-  const [address, setAddress] = useState();
-  const [description, setDescription] = useState();
-  const [lng, setLng] = useState([]);
-  const [lat, setLat] = useState([]);
+const HomeAddress = ({ stagedUser }) => {
+  const [address, setAddress] = useState(
+    stagedUser.address && stagedUser.address.title
+      ? stagedUser.address.title
+      : ''
+  );
+  const [description, setDescription] = useState(
+    stagedUser.address && stagedUser.address.description
+      ? stagedUser.address.description
+      : ''
+  );
+  const [lng, setLng] = useState(
+    stagedUser.address &&
+      stagedUser.address.point &&
+      stagedUser.address.point.lng
+      ? stagedUser.address.point.lng
+      : ''
+  );
+  const [lat, setLat] = useState(
+    stagedUser.address &&
+      stagedUser.address.point &&
+      stagedUser.address.point.lat
+      ? stagedUser.address.point.lat
+      : ''
+  );
   const { colorMode } = useColorMode();
 
   //NOTE placeholder
@@ -572,7 +601,8 @@ const HomeAddress = () => {
     const result = await geocode.forward(query, center);
     console.log(result);
     if (!result) setAddress(query);
-    setAddress(result[0].title);
+    // setAddress(result[0].title);
+    return;
   };
 
   const getUserLocation = allow => {
@@ -625,7 +655,7 @@ const HomeAddress = () => {
             type="address"
             name="address"
             onChange={e =>
-              e.target.value > 1000
+              e.target.value.length > 1000
                 ? getAddress(e.target.value)
                 : setAddress(e.target.value)
             }
@@ -668,10 +698,18 @@ const HomeAddress = () => {
   );
 };
 
-const Caretaker = () => {
+const Caretaker = ({ stagedUser }) => {
   const { colorMode } = useColorMode();
-  const [firstName, setFirstName] = useState('Jane');
-  const [lastName, setLastName] = useState('Doe');
+  const [firstName, setFirstName] = useState(
+    stagedUser.caretakers && stagedUser.caretakers.length
+      ? stagedUser.caretakers[0].name
+      : ''
+  );
+  const [lastName, setLastName] = useState(
+    stagedUser.caretakers && stagedUser.caretakers.length
+      ? stagedUser.caretakers[0].name
+      : ''
+  );
   const [phone, setPhone] = useState();
 
   return (
@@ -727,9 +765,13 @@ const Caretaker = () => {
   );
 };
 
-const MobilityOptions = () => {
+const MobilityOptions = ({ stagedUser }) => {
   const { colorMode } = useColorMode();
-  const [email, setEmail] = useState('malcolm+2@getbounds.com');
+  const [email, setEmail] = useState();
+  const [email2, setEmail2] = useState();
+  const [email3, setEmail3] = useState();
+  const [hasEmail2, setHasEmail2] = useState(false);
+  const [hasEmail3, setHasEmail3] = useState(false);
 
   return (
     <Stack spacing={4}>
@@ -745,7 +787,7 @@ const MobilityOptions = () => {
         Enter in your email to find enhanced mobility options you are registered
         with such as [x]
       </Text>
-      <FormControl isRequired>
+      <FormControl>
         <FormLabel>Email address</FormLabel>
         <Input
           type="email"
@@ -754,27 +796,78 @@ const MobilityOptions = () => {
           value={email || ''}
         />
       </FormControl>
-      <Button
-        color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
-        _hover={{
-          opacity: 0.9,
-        }}
-        w="100%"
-        type="button"
-        variant={'link'}
-        leftIcon={<AddIcon />}
-        justifyContent="start"
-      >
-        Add Another email address
-      </Button>
+      {hasEmail2 ? (
+        <FormControl>
+          <HStack justifyContent={'space-between'}>
+            <FormLabel>Second Email address</FormLabel>
+            <IconButton
+              aria-label="Remove Email"
+              icon={<DeleteIcon />}
+              onClick={() => setHasEmail2(false)}
+              variant="ghost"
+            />
+          </HStack>
+          <Input
+            type="email"
+            name="email2"
+            onChange={e => setEmail2(e.target.value)}
+            value={email2 || ''}
+          />
+        </FormControl>
+      ) : null}
+      {hasEmail3 ? (
+        <FormControl>
+          <HStack justifyContent={'space-between'}>
+            <FormLabel>
+              {hasEmail2 ? 'Third' : 'Second'} Email address
+            </FormLabel>
+            <IconButton
+              aria-label="Remove Email"
+              icon={<DeleteIcon />}
+              onClick={() => setHasEmail3(false)}
+            />
+          </HStack>
+
+          <Input
+            type="email"
+            name="email3"
+            onChange={e => setEmail3(e.target.value)}
+            value={email3 || ''}
+          />
+        </FormControl>
+      ) : null}
+      {!hasEmail3 || !hasEmail2 ? (
+        <Button
+          color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
+          _hover={{
+            opacity: 0.9,
+          }}
+          w="100%"
+          type="button"
+          variant={'link'}
+          leftIcon={<AddIcon />}
+          justifyContent="start"
+          onClick={() => {
+            if (!hasEmail2) {
+              setHasEmail2(true);
+            } else if (!hasEmail3) {
+              setHasEmail3(true);
+            } else return;
+          }}
+        >
+          Add Another email address
+        </Button>
+      ) : (
+        ''
+      )}
     </Stack>
   );
 };
 
-const Notifications = () => {
+const Notifications = ({ stagedUser }) => {
   const { colorMode } = useColorMode();
-  const [sms, setSMS] = useState(false);
-  const [email, setEmail] = useState(true);
+  const [sms, setSMS] = useState(stagedUser.smsAlerts ? true : false);
+  const [email, setEmail] = useState(stagedUser.emailAlerts ? true : false);
 
   return (
     <Stack spacing={4}>

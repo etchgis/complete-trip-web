@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Icon,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -15,7 +16,7 @@ import {
 import { BsCircleFill } from 'react-icons/bs';
 import { useState } from 'react';
 
-export const StepThroughForm = ({ content }) => {
+export const StepThroughForm = ({ content, cancelAction }) => {
   const { colorMode } = useColorMode();
   const steps = content || [
     { id: 'form1', content: <Box>1</Box>, step: 1 },
@@ -48,7 +49,7 @@ export const StepThroughForm = ({ content }) => {
               }}
             >
               {s.content}
-              <Flex mt={6}>
+              <Stack mt={6} spacing={4}>
                 <Button
                   bg={'brand'}
                   color="white"
@@ -64,7 +65,27 @@ export const StepThroughForm = ({ content }) => {
                     ? 'Next'
                     : 'Submit'}
                 </Button>
-              </Flex>
+                {i > 0 ? (
+                  <Button
+                    borderColor={
+                      colorMode === 'light' ? 'brandDark' : 'gray.400'
+                    }
+                    color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
+                    _hover={{
+                      // backgroundColor: 'gray.100',
+                      opacity: 0.9,
+                    }}
+                    variant="outline"
+                    w="100%"
+                    type="button"
+                    onClick={() => setTabIndex(i - 1)}
+                  >
+                    Prev
+                  </Button>
+                ) : (
+                  ''
+                )}
+              </Stack>
               {s.skip ? (
                 <Flex mt={6}>
                   <Button
@@ -87,7 +108,12 @@ export const StepThroughForm = ({ content }) => {
           </TabPanel>
         ))}
       </TabPanels>
-      <TabList display="flex" justifyContent="center" pointerEvents="none">
+      <TabList
+        display="flex"
+        justifyContent="center"
+        // onChange={index => setTabIndex(index)}
+        pointerEvents={'none'}
+      >
         {steps.map((s, i) => (
           <Tab key={i.toString()}>
             <Flex

@@ -6,6 +6,11 @@ import { LoginRegisterStepForm } from './Auth/LoginForms';
 import { MapboxMap } from './Map/MapboxMap';
 import Navbar from './Navbar/Navbar';
 
+// import { Loader } from './Loader/Loader';
+
+
+
+
 export const App = () => {
   const { colorMode } = useColorMode();
 

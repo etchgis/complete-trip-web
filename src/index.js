@@ -11,7 +11,7 @@ import {
 import React, { StrictMode } from 'react';
 
 import { BrowserRouter as Router } from 'react-router-dom';
-import Routes from './Routes';
+import Routes from './routes';
 // import { SaasProvider } from '@saas-ui/react';
 import { StepsTheme as Steps } from 'chakra-ui-steps';
 
@@ -44,13 +44,17 @@ const customTheme = {
     heading: `'Open Sans', sans-serif`,
     body: `'Open Sans', sans-serif`,
   },
+  initialColorMode: localStorage.getItem('chakra-ui-color-mode')
+    ? localStorage.getItem('chakra-ui-color-mode')
+    : 'light',
+  useSystemColorMode: false,
 };
 
 const theme = extendTheme(customTheme);
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
-console.log('[env----------]', process.env.NODE_ENV);
+console.log('[env]', process.env.NODE_ENV);
 
 root.render(
   <StrictMode>
@@ -59,7 +63,7 @@ root.render(
       basename={process.env.NODE_ENV === 'production' ? '/blitzwing/' : '/'}
     >
       <ChakraProvider theme={theme}>
-        <Grid id='shell' fontSize='xl' minH='100vh' flexDir='column'>
+        <Grid id="shell" fontSize="xl" minH="100vh" flexDir="column">
           <Routes />
         </Grid>
       </ChakraProvider>
