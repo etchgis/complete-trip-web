@@ -1,15 +1,12 @@
 import { Flex, useColorMode, useDisclosure } from '@chakra-ui/react';
 
-import { AccountCard } from './Auth/AccountCard';
+import { AccountSettings } from './Auth/AccountSettings';
 import { CustomModal } from './Modals/CustomModal';
 import { LoginRegisterStepForm } from './Auth/LoginForms';
 import { MapboxMap } from './Map/MapboxMap';
 import Navbar from './Navbar/Navbar';
 
 // import { Loader } from './Loader/Loader';
-
-
-
 
 export const App = () => {
   const { colorMode } = useColorMode();
@@ -49,14 +46,7 @@ export const App = () => {
       >
         <LoginRegisterStepForm hideModal={hideLogin}></LoginRegisterStepForm>
       </CustomModal>
-      <CustomModal
-        isOpen={accountIsOpen}
-        onOpen={showAccount}
-        onClose={hideAccount}
-        size="3xl"
-      >
-        <AccountCard />
-      </CustomModal>
+      <AccountSettings isOpen={accountIsOpen} onClose={hideAccount} />
     </Flex>
   );
 };

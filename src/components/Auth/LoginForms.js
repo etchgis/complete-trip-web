@@ -25,7 +25,6 @@ import {
   Stack,
   Switch,
   Text,
-  VStack,
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
@@ -36,6 +35,7 @@ import { StepThroughForm } from '../Forms/StepThroughForm';
 import { _alive } from '../../helpers/helpers';
 import geocode from '../../services/transport/geocode';
 import { nanoid } from 'nanoid';
+import { phoneFormatter } from '../../helpers/helpers';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
 
 // import { Link as RouterLink } from 'react-router-dom';
@@ -497,7 +497,7 @@ const RegisterStepThroughForm = ({ hideModal }) => {
             const data = new FormData(e.target);
             const newUser = await register(
               stagedUser.email,
-              '1' + stagedUser.phone.replace(/-/g, ''),
+              stagedUser.phone,
               '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
               stagedUser.password,
               {
@@ -960,11 +960,3 @@ const Terms = () => {
     </Stack>
   );
 };
-
-function phoneFormatter(input) {
-  const digits = [];
-  if (input.length > 0) digits.push(input.substring(0, 3));
-  if (input.length >= 4) digits.push(input.replace(/-/g, '').substring(3, 6));
-  if (input.length >= 8) digits.push(input.replace(/-/g, '').substring(6, 10));
-  return digits.join('-');
-}

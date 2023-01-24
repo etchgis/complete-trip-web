@@ -106,7 +106,7 @@ export default function Navbar({ action1, action2 }) {
                 onClick={action2}
                 leftIcon={<SettingsIcon />}
               >
-                Account
+                Settings
               </Button>
               <Button
                 variant={'outline'}
