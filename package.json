@@ -1,5 +1,5 @@
 {
-  "name": "buffalo-web",
+  "name": "complete-trip-web",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
@@ -17,7 +17,9 @@
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
     "axios": "^1.2.2",
+    "chakra-ui-autocomplete": "^1.4.5",
     "chakra-ui-steps": "^2.0.1",
+    "downshift": "^7.2.0",
     "framer-motion": "^6.2.9",
     "history": "^5.3.0",
     "jwt-decode": "^3.1.2",
@@ -26,11 +28,13 @@
     "mobx-react-lite": "^3.4.0",
     "nanoid": "^4.0.0",
     "react": "^18.2.0",
+    "react-aria": "^3.22.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.7.1",
     "react-lorem-ipsum": "^1.4.10",
     "react-router-dom": "^6.6.2",
     "react-scripts": "5.0.1",
+    "react-stately": "^3.20.0",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11",
     "zustand": "^4.3.1"
@@ -41,7 +45,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\web-sandbox\\blitzwing /E /S /COPY:DAT /MT:16 /XF"
+    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\web-sandbox\\mobility-app /E /S /COPY:DAT /MT:16 /XF"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -1,28 +1,53 @@
-{
-  "email": "jesseglascock+10@gmail.com",
-  "password": "Test1234",
-  "profile": {
-    "name": "jesse",
-    "address": {
-      "title": "NBT Bank #674",
-      "description": "2966 State Route 30, Speculator",
-      "distance": null,
-      "point": {
-        "lng": -74.364732,
-        "lat": 43.502757
+[
+  {
+    "email": "jesseglascock+10@gmail.com",
+    "password": "Test1234",
+
+    "profile": {
+      "name": "jesse",
+      "address": {
+        "title": "75th Avenue",
+        "description": "Forest Hills, Queens, New York",
+        "distance": null,
+        "point": {
+          "lng": -73.837324,
+          "lat": 40.718331
+        },
+        "text": "75th Avenue, Forest Hills, Queens, New York"
       },
-      "text": "NBT Bank #674, 2966 State Route 30, Speculator"
+      "caretakers": [
+        {
+          "name": "Darci Eiseman",
+          "email": "darcieiseman@gmail.com",
+          "phone": "555-555-5555"
+        }
+      ],
+      "preferences": {
+        "language": "en",
+        "wheelchair": false,
+        "maxCost": 10,
+        "maxTransfers": 4,
+        "minimizeWalking": false,
+        "preferredModes": [
+          "personal bike",
+          "rental bike",
+          "public transit",
+          "ride hail",
+          "avl"
+        ],
+        "notifications": ["push", "sms", "email"],
+        "shareWithConcierge": false
+      },
+      "terms": true
     },
-    "caretakers": [
-      {
-        "name": "darci",
-        "email": "darci@etchgis.com",
-        "phone": "555-555-5555"
-      }
-    ],
-    "favorites": [
-      {
-        "name": "Home",
+    "phone": "513-305-3408",
+    "role": "rider",
+    "organization": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486"
+  },
+  {
+    "profile": {
+      "name": "jesse",
+      "address": {
         "title": "NBT Bank #674",
         "description": "2966 State Route 30, Speculator",
         "distance": null,
@@ -32,20 +57,21 @@
         },
         "text": "NBT Bank #674, 2966 State Route 30, Speculator"
       },
-      {
-        "name": "Work",
-        "title": "somewhere else",
-        "description": "123 West 4th St East",
-        "distance": null,
-        "point": {
-          "lng": -74.364732,
-          "lat": 43.502757
-        },
-        "text": "whatever"
+      "caretakers": [
+        {
+          "name": "darci",
+          "email": "darci@etchgis.com",
+          "phone": "555-555-5555"
+        }
+      ],
+      "terms": true,
+      "tripPreferences": {
+        "minimizeWalking": false,
+        "wheelchair": false,
+        "maxCost": 10,
+        "maxTransfers": 2,
+        "modes": ["public", "rideshare"]
       }
-    ]
-  },
-  "phone": "513-305-3408",
-  "role": "rider",
-  "organization": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486"
-}
+    }
+  }
+]

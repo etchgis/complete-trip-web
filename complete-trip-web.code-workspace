@@ -10,6 +10,7 @@
   "settings": {
     "editor.formatOnSave": true,
     "prettier.printWidth": 180,
-    "html.format.wrapLineLength": 160
+    "html.format.wrapLineLength": 160,
+    "prettier.trailingComma": "none"
   }
 }

@@ -15,7 +15,11 @@ const validateJWT = token => {
   }
 };
 
-const { login: authLogin, register: authRegister } = authentication;
+const {
+  login: authLogin,
+  register: authRegister,
+  update: authUpdateProfile,
+} = authentication;
 
 const defaultState = {
   user: {},
@@ -35,21 +39,31 @@ export const useAuthenticationStore = create(
       loggedIn: false,
       // loggingIn: false,
       // registering: false,
+      inTransaction: false,
+      setInTransaction: e => set(() => ({ inTransaction: e })),
+      test: null,
       error: null,
       // accessTokenPromise: null,
 
       setError: e => set(() => ({ error: e })),
-      clearError: () => set(() => ({ error: null })),
 
       validateUser: async () => {
         console.log('[validate-user]');
         try {
           const { accessToken } = get().user;
           if (!accessToken || !validateJWT(accessToken))
-            return set(() => ({ user: {}, loggedIn: false }));
-          set(() => ({ loggedIn: true }));
+            return set(() => ({
+              user: {},
+              loggedIn: false,
+              inTransaction: false,
+            }));
+          set(() => ({ loggedIn: true, inTransaction: false }));
         } catch (error) {
-          return set(() => ({ user: {}, loggedIn: false }));
+          return set(() => ({
+            user: {},
+            loggedIn: false,
+            inTransaction: false,
+          }));
         }
 
         //TODO add refresh token
@@ -66,17 +80,21 @@ export const useAuthenticationStore = create(
 
       login: async (email, password) => {
         try {
-          get().clearError();
+          get().setError(null);
           const newUser = await authLogin(email, password);
-          return set({ user: newUser, loggedIn: true });
+          return set({ user: newUser, loggedIn: true, inTransaction: false });
         } catch (error) {
-          return set(() => ({ error: 'Trouble logging in.' }));
+          return set(() => ({
+            error: 'Trouble logging in.',
+            inTransaction: false,
+          }));
         }
       },
 
       register: async (email, phone, organization, password, profile) => {
         try {
-          get().clearError();
+          get().setError(null);
+          // console.log({ profile });
           const newUser = await authRegister(
             email,
             phone,
@@ -84,19 +102,28 @@ export const useAuthenticationStore = create(
             password,
             profile
           );
-          return set({ user: newUser, loggedIn: true });
+          set({ user: newUser, loggedIn: true, inTransaction: false });
+          return get().user;
         } catch (error) {
-          console.log(error);
-          return set(() => ({ user: {}, error: 'Trouble logging in.' }));
+          console.log({ error });
+          return set(() => ({
+            user: {},
+            error:
+              error?.reason && error.reason === 'Conflict'
+                ? 'This email is already in use. Return to the login screen if you forgot your password.'
+                : 'Trouble registering.',
+            inTransaction: false,
+          }));
         }
       },
 
       setStagedUser: update =>
-        set(state => ({
-          stagedUser: !update ? {} : Object.assign(state.stagedUser, update),
+        set(() => ({
+          stagedUser: !update ? {} : Object.assign(get().stagedUser, update),
         })),
 
-      logout: () => set(() => ({ user: {}, loggedIn: false })),
+      logout: () =>
+        set(() => ({ user: {}, loggedIn: false, inTransaction: false })),
 
       reset: () => set(() => defaultState),
 
@@ -104,8 +131,29 @@ export const useAuthenticationStore = create(
 
       updateUser: update =>
         set(state => ({ user: Object.assign(state.user, update) })),
-      updateUserProfile: update =>
-        set(state => ({ user: Object.assign(state.user, update) })),
+
+      updateUserProfile: async update => {
+        try {
+          get().setError(null);
+          const { profile, accessToken } = get().user;
+          const newProfile = Object.assign(profile, update);
+          console.log(newProfile);
+          const updatedUser = await authUpdateProfile(
+            { profile: newProfile },
+            accessToken
+          );
+          return set({
+            user: Object.assign(get().user, updatedUser),
+            inTransaction: false,
+          });
+        } catch (error) {
+          console.log({ error });
+          return set(() => ({
+            error: 'Trouble updating profile.',
+            inTransaction: false,
+          }));
+        }
+      },
     }),
     {
       name: '__mba_auth',

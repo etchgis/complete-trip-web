@@ -8,11 +8,16 @@
 
 ## Task List
 
-- [X] Login
-- [X] Error Msg on login
+- [x] Login
+- [x] Error Msg on login
 - [ ] Check token on launch - autologin
 - [ ] Error Msg on check token on launch
 - [ ] Set refresh token
 - [ ] Error Msg on set refresh token
 - [ ] Account Page/Sidebar
 - [ ] Revisit MobX
+
+## Logins
+
+malcolm@getbounds.com
+pass: normal

@@ -11,7 +11,7 @@ import {
 import React, { StrictMode } from 'react';
 
 import { BrowserRouter as Router } from 'react-router-dom';
-import Routes from './routes';
+import { AppRoutes as Routes } from './routes/Routes';
 // import { SaasProvider } from '@saas-ui/react';
 import { StepsTheme as Steps } from 'chakra-ui-steps';
 
@@ -32,13 +32,15 @@ const customTheme = {
       baseStyle: {
         cursor: 'pointer',
         fontWeight: 500,
+        fontSize: '18px',
       },
     },
   },
   colors: {
-    brand: '#3C8AFF',
-    brandDark: '#165BC1',
-    base: '#3C8AFF',
+    // brand: '#3C8AFF',
+    // brandDark: '#165BC1',
+    brand: '#2465B1',
+    brandDark: '#1d5290',
   },
   fonts: {
     heading: `'Open Sans', sans-serif`,
@@ -60,7 +62,7 @@ root.render(
   <StrictMode>
     <ColorModeScript />
     <Router
-      basename={process.env.NODE_ENV === 'production' ? '/blitzwing/' : '/'}
+      basename={process.env.NODE_ENV === 'production' ? '/mobility-app/' : '/'}
     >
       <ChakraProvider theme={theme}>
         <Grid id="shell" fontSize="xl" minH="100vh" flexDir="column">

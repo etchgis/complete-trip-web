@@ -25,6 +25,7 @@ import {
   Stack,
   Switch,
   Text,
+  VisuallyHiddenInput,
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
@@ -32,7 +33,6 @@ import { BsFacebook, BsGoogle } from 'react-icons/bs';
 import { useEffect, useState } from 'react';
 
 import { StepThroughForm } from '../Forms/StepThroughForm';
-import { _alive } from '../../helpers/helpers';
 import geocode from '../../services/transport/geocode';
 import { nanoid } from 'nanoid';
 import { phoneFormatter } from '../../helpers/helpers';
@@ -46,15 +46,16 @@ import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
 //TODO register - when submitting the registration please use "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486" for the organization
 export const LoginRegisterStepForm = ({ hideModal }) => {
   const {
-    user,
     loggedIn,
     stagedUser,
     setStagedUser,
+    setInTransaction,
     login: authLogin,
     error: authError,
+    setError: authSetError,
   } = useAuthenticationStore(state => state);
-  if (_alive(stagedUser)) console.log(stagedUser);
-  if (_alive(user)) console.log({ user });
+
+  if (!!stagedUser?.firstName) console.log(stagedUser);
   const [activeView, setActiveView] = useState('init');
 
   useEffect(() => {
@@ -84,6 +85,9 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
           isLogin={true}
           login={authLogin}
           error={authError}
+          setError={authSetError}
+          setInTransaction={setInTransaction}
+          setStagedUser={setStagedUser}
         ></CreateAccountOrLogin>
       ),
     },
@@ -94,6 +98,7 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
           setActiveView={setActiveView}
           isLogin={false}
           setStagedUser={setStagedUser}
+          setError={authSetError}
         ></CreateAccountOrLogin>
       ),
     },
@@ -122,6 +127,7 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
           hideModal={hideModal}
           setActiveView={setActiveView}
           setStagedUser={setStagedUser}
+          setInTransaction={setInTransaction}
         ></RegisterStepThroughForm>
       ),
     },
@@ -143,8 +149,8 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
         bg={useColorModeValue('white', 'gray.700')}
         // boxShadow={'lg'}
       >
-        <Center bg={useColorModeValue('base', 'transparent')} p={8}>
-          <Image src={'./assets/images/logo.png'}></Image>
+        <Center bg={useColorModeValue('white', 'white')} p={8}>
+          <Image src={'./buffalo_logo_full.png'} h={'200px'} />
         </Center>
         <Stack spacing={4} p={8}>
           {views.find(v => v.id === activeView).view}
@@ -208,7 +214,9 @@ const CreateAccountOrLogin = ({
   setActiveView,
   login,
   setStagedUser,
+  setInTransaction,
   error,
+  setError,
 }) => {
   const { colorMode } = useColorMode();
   const [showPassword, setShowPassword] = useState(false);
@@ -221,13 +229,14 @@ const CreateAccountOrLogin = ({
   }, [error]);
 
   // FORM STATES
-  const [firstName, setFirstName] = useState('John');
-  const [lastName, setLastName] = useState('Doe');
-  const [email, setEmail] = useState('malcolm+2@getbounds.com');
-  const [password, setPassword] = useState('Test123');
+  const [firstName, setFirstName] = useState();
+  const [lastName, setLastName] = useState();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
 
   useEffect(() => {
     setLoginHasError(false);
+    setError(null);
   }, [firstName, lastName, password, email]);
 
   return (
@@ -237,30 +246,31 @@ const CreateAccountOrLogin = ({
       onSubmit={async e => {
         e.preventDefault();
         if (showLogin) {
+          setInTransaction(true);
           login(email, password);
         } else {
           setStagedUser({
             email: email,
             password: password,
+            firstName: firstName,
+            lastName: lastName,
           });
           setActiveView('setup');
         }
       }}
     >
       {!showLogin ? (
-        <HStack>
-          <Box>
-            <FormControl id="firstName">
-              <FormLabel>First Name</FormLabel>
+        <Box>
+          <HStack>
+            <FormControl id="name">
+              <FormLabel>Name</FormLabel>
               <Input
                 type="text"
                 onChange={e => setFirstName(e.target.value)}
                 value={firstName || ''}
               />
             </FormControl>
-          </Box>
-          <Box>
-            <FormControl id="lastName">
+            <FormControl id="name">
               <FormLabel>Last Name</FormLabel>
               <Input
                 type="text"
@@ -268,8 +278,8 @@ const CreateAccountOrLogin = ({
                 value={lastName || ''}
               />
             </FormControl>
-          </Box>
-        </HStack>
+          </HStack>
+        </Box>
       ) : (
         ''
       )}
@@ -319,7 +329,7 @@ const CreateAccountOrLogin = ({
         ''
       )}
       <Button
-        bg={'base'}
+        bg={'brand'}
         color={'white'}
         _hover={{
           bg: 'blue.500',
@@ -410,7 +420,7 @@ const SocialLogins = ({ setActiveView }) => {
   );
 };
 
-const RegisterStepThroughForm = ({ hideModal }) => {
+const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
   const { stagedUser, setStagedUser, register } = useAuthenticationStore();
   return (
     <StepThroughForm
@@ -461,8 +471,10 @@ const RegisterStepThroughForm = ({ hideModal }) => {
             setStagedUser({
               caretakers: [
                 {
-                  name: data.get('firstName') + ' ' + data.get('lastName'),
-                  phone: data.get('phone'),
+                  firstName: data.get('caretakerFirstName'),
+                  lastName: data.get('caretakerLastName'),
+                  email: data.get('caretakerEmail'),
+                  phone: data.get('caretakerPhone'),
                 },
               ],
             });
@@ -475,43 +487,76 @@ const RegisterStepThroughForm = ({ hideModal }) => {
           skip: true,
           buttonText: 'Check Email Address',
         },
-        {
-          title: 'sms',
-          content: <Notifications stagedUser={stagedUser}></Notifications>,
-          action: e => {
-            const data = new FormData(e.target);
-            console.log(data.get('smsAlerts'));
-            console.log(data.get('emailAlerts'));
-            setStagedUser({
-              notifications: {
-                sms: data.get('smsAlerts') ? true : false,
-                email: data.get('emailAlerts') ? true : false,
-              },
-            });
-          },
-        },
+        // {
+        //   title: 'sms',
+        //   content: <Notifications stagedUser={stagedUser}></Notifications>,
+        //   action: e => {
+        //     const data = new FormData(e.target);
+        //     // console.log(...data);
+        //     const notifications = [];
+        //     if (data.get('smsAlerts')) notifications.push('sms');
+        //     if (data.get('emailAlerts')) notifications.push('email');
+        //     setStagedUser({
+        //       notifications: notifications,
+        //     });
+        //   },
+        // },
         {
           title: 'terms',
           content: <Terms></Terms>,
           action: async e => {
             const data = new FormData(e.target);
-            const newUser = await register(
-              stagedUser.email,
-              stagedUser.phone,
-              '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
-              stagedUser.password,
-              {
-                name: stagedUser.firstName && ' ' && stagedUser.lastName,
-                address: stagedUser.address,
-                caretakers: stagedUser.caretakers,
-                favorites: [],
-                notifications: stagedUser.notifications,
-                terms: data.get('terms'),
-              }
-            );
-            console.log(newUser);
-            console.log('registered');
-            if (newUser) hideModal();
+            const terms = [...data];
+            console.log(terms[0]);
+            // const profile = {
+            //   profile: {
+            //     firstName: stagedUser.firstName,
+            //     lastName: stagedUser.lastName,
+            //     address: stagedUser.address,
+            //     caretakers: stagedUser.caretakers,
+            //     preferences: {
+            //       language: 'en',
+            //       wheelchair: false,
+            //       maxCost: 10,
+            //       maxTransfers: 4,
+            //       preferredModes: [],
+            //       notifications: stagedUser?.notifications || [],
+            //       shareWithConcierge: false,
+            //     },
+            //     terms: terms[0].includes('terms') ? true : false,
+            //   },
+            // };
+            // console.log({ profile });
+            setInTransaction(true);
+            try {
+              const newUser = await register(
+                stagedUser.email,
+                stagedUser.phone,
+                '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
+                stagedUser.password,
+                {
+                  firstName: stagedUser.firstName,
+                  lastName: stagedUser.lastName,
+                  address: stagedUser.address,
+                  caretakers: stagedUser.caretakers,
+                  preferences: {
+                    language: 'en',
+                    wheelchair: false,
+                    maxCost: 10,
+                    maxTransfers: 4,
+                    modes: [],
+                    notifications: stagedUser?.notifications || [],
+                    shareWithConcierge: false,
+                  },
+                  terms: terms[0].includes('terms') ? true : false,
+                }
+              );
+              console.log(newUser);
+              console.log('registered');
+              if (newUser) hideModal();
+            } catch (error) {
+              console.log(error);
+            }
           },
         },
       ]}
@@ -520,8 +565,8 @@ const RegisterStepThroughForm = ({ hideModal }) => {
 };
 
 const ContactInfo = ({ stagedUser }) => {
-  const [email, setEmail] = useState(stagedUser.email ? stagedUser.email : '');
-  const [phone, setPhone] = useState(stagedUser.phone ? stagedUser.phone : '');
+  const [email, setEmail] = useState(stagedUser?.email || '');
+  const [phone, setPhone] = useState(stagedUser?.phone || '');
   const { colorMode } = useColorMode();
   return (
     <Stack spacing={4}>
@@ -565,35 +610,17 @@ const ContactInfo = ({ stagedUser }) => {
 };
 
 const HomeAddress = ({ stagedUser }) => {
-  const [address, setAddress] = useState(
-    stagedUser.address && stagedUser.address.title
-      ? stagedUser.address.title
-      : ''
-  );
+  const [address, setAddress] = useState(stagedUser?.address?.title || '');
   const [description, setDescription] = useState(
-    stagedUser.address && stagedUser.address.description
-      ? stagedUser.address.description
-      : ''
+    stagedUser?.address?.description || ''
   );
-  const [lng, setLng] = useState(
-    stagedUser.address &&
-      stagedUser.address.point &&
-      stagedUser.address.point.lng
-      ? stagedUser.address.point.lng
-      : ''
-  );
-  const [lat, setLat] = useState(
-    stagedUser.address &&
-      stagedUser.address.point &&
-      stagedUser.address.point.lat
-      ? stagedUser.address.point.lat
-      : ''
-  );
+  const [lng, setLng] = useState(stagedUser?.address?.point?.lng || '');
+  const [lat, setLat] = useState(stagedUser?.address?.point?.lat || '');
   const { colorMode } = useColorMode();
 
   //NOTE placeholder
   useEffect(() => {
-    setDescription('2530 BIS RD SW, Lancaster');
+    setDescription(address);
   }, [address]);
 
   const getAddress = async query => {
@@ -664,7 +691,15 @@ const HomeAddress = ({ stagedUser }) => {
           />
         </InputGroup>
       </FormControl>
-      <FormControl>
+      <VisuallyHiddenInput
+        type="text"
+        name="description"
+        value={description || ''}
+        onChange={event => {
+          console.log(event.target.value);
+        }}
+      ></VisuallyHiddenInput>
+      {/* <FormControl>
         <HStack spacing={2}>
           <Input
             type="number"
@@ -681,36 +716,31 @@ const HomeAddress = ({ stagedUser }) => {
             required
           ></Input>
         </HStack>
-      </FormControl>
-      <FormControl>
-        <Input
-          type="text"
-          name="description"
-          value={description || ''}
-          readOnly
-        ></Input>
-      </FormControl>
-      <Checkbox onChange={e => getUserLocation(e.target.checked)}>
+      </FormControl> */}
+      {/* <Checkbox onChange={e => getUserLocation(e.target.checked)}>
         Allow us to know your location information to provide accurate route
         estimates, pricing, and tracking. (Required)
-      </Checkbox>
+      </Checkbox> */}
     </Stack>
   );
 };
 
 const Caretaker = ({ stagedUser }) => {
   const { colorMode } = useColorMode();
-  const [firstName, setFirstName] = useState(
+  const [caretakerFirstName, setCaretakerFirstName] = useState(
     stagedUser.caretakers && stagedUser.caretakers.length
-      ? stagedUser.caretakers[0].name
+      ? stagedUser.caretakers[0].firstName
       : ''
   );
-  const [lastName, setLastName] = useState(
+  const [caretakerLastName, setCaretakerLastName] = useState(
     stagedUser.caretakers && stagedUser.caretakers.length
-      ? stagedUser.caretakers[0].name
+      ? stagedUser.caretakers[0].lastName
       : ''
   );
-  const [phone, setPhone] = useState();
+  const [caretakerEmail, setCaretakerEmail] = useState(
+    (stagedUser?.caretakers && stagedUser.caretakers[0]?.email) || ''
+  );
+  const [caretakerPhone, setCaretakerPhone] = useState();
 
   return (
     <Stack spacing={4}>
@@ -726,41 +756,50 @@ const Caretaker = ({ stagedUser }) => {
         Notify your companions in 1-touch for any of your trips.
       </Text>
       <HStack>
-        <Box>
-          <FormControl id="firstName">
-            <FormLabel>First Name</FormLabel>
-            <Input
-              type="text"
-              name="firstName"
-              onChange={e => setFirstName(e.target.value)}
-              value={firstName || ''}
-            />
-          </FormControl>
-        </Box>
-        <Box>
-          <FormControl id="lastName">
-            <FormLabel>Last Name</FormLabel>
-            <Input
-              type="text"
-              name="lastName"
-              onChange={e => setLastName(e.target.value)}
-              value={lastName || ''}
-            />
-          </FormControl>
-        </Box>
+        <FormControl>
+          <FormLabel>First Name</FormLabel>
+          <Input
+            type="text"
+            name="caretakerFirstName"
+            onChange={e => setCaretakerFirstName(e.target.value)}
+            value={caretakerFirstName || ''}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Last Name</FormLabel>
+          <Input
+            type="text"
+            name="caretakerLastName"
+            onChange={e => setCaretakerLastName(e.target.value)}
+            value={caretakerLastName || ''}
+          />
+        </FormControl>
       </HStack>
-      <Input
-        type="tel"
-        name="phone"
-        onChange={e => {
-          const input = e.target.value.length ? e.target.value : null;
-          if (input) return setPhone(phoneFormatter(input));
-          return setPhone();
-        }}
-        value={phone || ''}
-        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-        placeholder="000-000-0000"
-      />
+
+      <FormControl>
+        <FormLabel>Email</FormLabel>
+        <Input
+          type="email"
+          name="caretakerEmail"
+          onChange={e => setCaretakerEmail(e.target.value)}
+          value={caretakerEmail || ''}
+        />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Phone</FormLabel>
+        <Input
+          type="tel"
+          name="caretakerPhone"
+          onChange={e => {
+            const input = e.target.value.length ? e.target.value : null;
+            if (input) return setCaretakerPhone(phoneFormatter(input));
+            return setCaretakerPhone();
+          }}
+          value={caretakerPhone || ''}
+          pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+          placeholder="000-000-0000"
+        />
+      </FormControl>
     </Stack>
   );
 };
@@ -854,6 +893,7 @@ const MobilityOptions = ({ stagedUser }) => {
               setHasEmail3(true);
             } else return;
           }}
+          isDisabled
         >
           Add Another email address
         </Button>
@@ -864,10 +904,15 @@ const MobilityOptions = ({ stagedUser }) => {
   );
 };
 
-const Notifications = ({ stagedUser }) => {
+export const Notifications = ({ stagedUser }) => {
   const { colorMode } = useColorMode();
   const [sms, setSMS] = useState(stagedUser.smsAlerts ? true : false);
-  const [email, setEmail] = useState(stagedUser.emailAlerts ? true : false);
+  const [emailAlerts, setEmailAlerts] = useState(
+    stagedUser.emailAlerts ? true : false
+  );
+  // const [pushAlerts, setPushAlerts] = useState(
+  //   stagedUser.pushAlerts ? true : false
+  // );
 
   return (
     <Stack spacing={4}>
@@ -896,7 +941,7 @@ const Notifications = ({ stagedUser }) => {
             onChange={e => (e.target.checked ? setSMS(true) : setSMS(false))}
             value={sms}
             isChecked={sms}
-            isRequired={!sms && !email}
+            isRequired={!sms && !emailAlerts}
           />
         </FormControl>
         <FormControl display="flex" alignItems="center" pl={10}>
@@ -907,11 +952,11 @@ const Notifications = ({ stagedUser }) => {
             id="emailAlerts"
             name="emailAlerts"
             onChange={e =>
-              e.target.checked ? setEmail(true) : setEmail(false)
+              e.target.checked ? setEmailAlerts(true) : setEmailAlerts(false)
             }
-            value={email}
-            isChecked={email}
-            isRequired={!sms && !email}
+            value={emailAlerts}
+            isChecked={emailAlerts}
+            isRequired={!sms && !emailAlerts}
           />
         </FormControl>
       </Box>
@@ -921,6 +966,7 @@ const Notifications = ({ stagedUser }) => {
 
 const Terms = () => {
   const { colorMode } = useColorMode();
+  const { error } = useAuthenticationStore();
   return (
     <Stack spacing={4}>
       <Heading
@@ -954,6 +1000,7 @@ const Terms = () => {
         urna nibh id magna. Nam eget dolor vestibulum, gravida magna ut, rhoncus
         libero.
       </Box>
+      {error ? <Box color="red.400">{error}</Box> : ''}
       <Checkbox isRequired name="terms">
         I have read the terms and conditions.
       </Checkbox>

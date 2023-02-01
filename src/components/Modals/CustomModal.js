@@ -1,5 +1,4 @@
 import {
-  Box,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -36,6 +35,7 @@ export const CustomModal = ({
 
   return (
     <Modal
+      id="_modal1"
       isOpen={isOpen}
       onClose={handleOnClose}
       size={{ base: 'full', sm: size ? size : 'lg' }}
@@ -48,7 +48,7 @@ export const CustomModal = ({
       <ModalContent m={0}>
         {title ? <ModalHeader>{title}</ModalHeader> : ''}
         <ModalCloseButton style={{ filter: 'invert(1)' }} />
-        <ModalBody p={0} id="modal--body">
+        <ModalBody p={0} id="modal--body" borderRadius={'10px'}>
           {children}
         </ModalBody>
         <ModalFooter>
