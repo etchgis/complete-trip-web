@@ -4,7 +4,7 @@ import { CustomModal } from './Modals/CustomModal';
 import { Loader } from './Loader/Loader';
 import { LoginRegisterStepForm } from './Auth/LoginForms';
 import { MapboxMap } from './Map/MapboxMap';
-import Navbar from './Navbar/Navbar';
+import { Navbar } from './Navbar/Navbar';
 import { ResponsiveSidebar } from './Sidebar/Sidebar';
 
 // import { useEffect, useMemo } from 'react';

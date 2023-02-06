@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react';
 import { Loader } from '../Loader/Loader';
 import config from '../../config';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import { useLocation } from 'react-router-dom';
 import { useMapStore } from '../../context/MapStore';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
@@ -42,6 +43,7 @@ const layers = [
 ];
 
 export const MapboxMap = ({ showMap }) => {
+  const { pathname } = useLocation();
   const { mapStyle: mode } = useMapStore();
 
   const mapRef = useRef(null);
@@ -56,6 +58,8 @@ export const MapboxMap = ({ showMap }) => {
   });
 
   useEffect(() => {
+    console.log(pathname);
+    if (pathname.replace('map', '') !== '/') return;
     if (mapRef.current && showMap) {
       console.log('resizing map');
       mapRef.current.resize();
@@ -124,7 +128,7 @@ export const MapboxMap = ({ showMap }) => {
     }
 
     //eslint-disable-next-line
-  }, [mode]);
+  }, [mode, pathname]);
 
   // useEffect(() => {
   //   mapContainer.current = document.createElement('div');

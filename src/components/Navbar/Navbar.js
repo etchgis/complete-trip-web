@@ -15,7 +15,7 @@ import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
 
 // import logo from '../../assets/images/logo.png';
 
-export default function Navbar({ isOpen, onToggle, action1 }) {
+export const Navbar = ({ isOpen, onToggle, action1 }) => {
   const { loggedIn, logout } = useAuthenticationStore(state => state);
   return (
     <Flex
@@ -105,4 +105,4 @@ export default function Navbar({ isOpen, onToggle, action1 }) {
       </Flex>
     </Flex>
   );
-}
+};

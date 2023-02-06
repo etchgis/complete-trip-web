@@ -1,9 +1,11 @@
-import { Route, Router, Routes } from 'react-router-dom';
+// import { Route, Router, Routes } from 'react-router-dom';
+
 import { render, screen } from '@testing-library/react';
 
-import { App } from '../../src/components/App';
-import { AppRoutes } from '../../src/routes/Routes';
 import { ChakraProvider } from '@chakra-ui/react';
+import { Navbar } from '../components/Navbar/Navbar';
+
+// import { AppRoutes } from './Routes';
 
 // import { Settings } from '../components/Settings/Settings';
 // import { Trips } from '../components/Trips/Trips';
@@ -16,9 +18,7 @@ test('renders the landing page', () => {
   // }));
   render(
     <ChakraProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <Navbar />
     </ChakraProvider>
   );
 });
