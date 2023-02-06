@@ -112,7 +112,7 @@ export const AppRoutes = () => {
           />
         </>
       ) : (
-        <Route path="/settings" element={<Navigate to={'/'}></Navigate>} />
+        <Route path="/settings/*" element={<Navigate to={'/'}></Navigate>} />
       )}
       {/* default redirect to home page */}
       {/* <Route path="*" element={<Navigate to="/" />} /> */}
