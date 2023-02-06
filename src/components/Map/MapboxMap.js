@@ -1,12 +1,11 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-import * as mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-
 import { useEffect, useRef, useState } from 'react';
 
 import { Box } from '@chakra-ui/react';
 import { Loader } from '../Loader/Loader';
 import config from '../../config';
+import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { useMapStore } from '../../context/MapStore';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
