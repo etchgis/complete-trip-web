@@ -117,7 +117,7 @@ export const CaretakerCard = ({ action, caretaker }) => {
 
 export const TermsOfUse = () => {
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} fontSize="16px">
       <Text>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor,
         magna id congue commodo, ipsum velit sollicitudin velit, vel tincidunt
@@ -145,7 +145,7 @@ export const TermsOfUse = () => {
 };
 export const PrivacyPolicy = () => {
   return (
-    <Text>
+    <Text fontSize={'16px'}>
       Privacy Policy We respect your privacy and are committed to protecting it.
       This Privacy Policy explains what information we collect, how we use it,
       and how you can control it.

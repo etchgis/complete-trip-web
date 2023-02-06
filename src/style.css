@@ -1,0 +1,42 @@
+.etch-calendar button,
+.etch-calendar button,
+.etch-calendar button:hover,
+.etch-calendar button:active,
+.etch-calendar button:focus {
+  border-radius: 50%;
+}
+
+.etch-calendar button[data-selected] {
+  background-color: #2465B1;
+}
+
+.etch-calendar table {
+  width: 100%
+}
+
+
+@media screen and (min-width: 900px) {
+
+  .etch-calendar h5 {
+    font-size: 2rem;
+  }
+
+  .etch-calendar svg {
+    transform: scale(2);
+  }
+
+  .etch-calendar table tr th {
+    font-size: 1.2rem;
+    opacity: 0.7;
+  }
+
+  .etch-calendar button,
+  .etch-calendar button:hover,
+  .etch-calendar button:active,
+  .etch-calendar button:focus {
+    font-size: 1.5rem;
+    padding: 2rem 0.5rem !important;
+    height: unset;
+  }
+
+}

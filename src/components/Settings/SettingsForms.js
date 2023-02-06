@@ -106,7 +106,7 @@ export const EditProfile = () => {
     />
   );
 };
-export const Caretakers = () => {
+export const EditCaretakers = () => {
   const { user } = useAuthenticationStore();
   console.log(user);
 
@@ -131,7 +131,7 @@ export const Caretakers = () => {
     />
   );
 };
-export const TripPreferences = () => {
+export const EditTripPreferences = () => {
   const { user } = useAuthenticationStore();
   const updateProfile = useUpdateProfile();
   const preferences = user?.profile?.preferences || {};
@@ -744,9 +744,9 @@ function RadioCard(props) {
           color: 'white',
           // borderColor: 'teal.600',
         }}
-        // _focus={{
-        //   boxShadow: 'outline',
-        // }}
+        _focus={{
+          boxShadow: 'inset 0 0 8px',
+        }}
         px={3}
         py={1}
       >

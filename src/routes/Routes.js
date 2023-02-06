@@ -4,11 +4,11 @@
 //   DropdownSelect,
 // } from '../components/Shared/Autocomplete';
 
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { App } from '../components/App';
 import { Settings } from '../components/Settings/Settings';
-import { Trips } from '../views/Views';
+import { Trips } from '../components/Trips/Trips';
 import { _alive } from '../helpers/helpers';
 import { useAuthenticationStore } from '../context/AuthenticationStoreZS';
 import { useEffect } from 'react';
@@ -20,7 +20,7 @@ export const AppRoutes = () => {
 
   const { user, loggedIn, validateUser, inTransaction } =
     useAuthenticationStore(state => state);
-
+  const { pathname } = useLocation();
   //NOTE validate user on initial load of app - the loggedIn value is not persisted
   useEffect(() => {
     if (_alive(user) && !loggedIn) validateUser(user);
@@ -33,11 +33,11 @@ export const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* SPA Method - No routes */}
-
-      {/* TEST */}
-      {/* <Route path={'/test'} element={<DropdownSelect />} /> */}
-
+      {/* Redirect all trailing slashes */}
+      <Route
+        path={'/:url(/+)'}
+        element={<Navigate to={pathname.slice(0, -1)} />}
+      />
       {/* Home */}
       <Route
         path={'/'}
@@ -77,7 +77,7 @@ export const AppRoutes = () => {
       {loggedIn ? (
         <>
           <Route
-            path={'/profile'}
+            path={'/settings/profile'}
             element={
               <App
                 isLoggedIn={loggedIn}
@@ -87,13 +87,35 @@ export const AppRoutes = () => {
             }
           />
           <Route
-            path="/profile/caretakers"
+            path="/settings/caretakers"
             element={<App children={<Settings view="caretakers" />} />}
+          />
+          <Route
+            path="/settings/preferences"
+            element={<App children={<Settings view="preferences" />} />}
+          />
+          <Route
+            path="/settings/accessibility"
+            element={<App children={<Settings view="accessibility" />} />}
+          />
+          <Route
+            path="/settings/notifications"
+            element={<App children={<Settings view="notifications" />} />}
+          />
+          <Route
+            path="/settings/terms"
+            element={<App children={<Settings view="terms" />} />}
+          />
+          <Route
+            path="/settings/privacy"
+            element={<App children={<Settings view="privacy" />} />}
           />
         </>
       ) : (
-        <Route path="/profile" element={<Navigate to={'/'}></Navigate>} />
+        <Route path="/settings" element={<Navigate to={'/'}></Navigate>} />
       )}
+      {/* default redirect to home page */}
+      {/* <Route path="*" element={<Navigate to="/" />} /> */}
     </Routes>
   );
 };

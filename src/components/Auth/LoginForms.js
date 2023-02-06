@@ -37,6 +37,9 @@ import geocode from '../../services/transport/geocode';
 import { nanoid } from 'nanoid';
 import { phoneFormatter } from '../../helpers/helpers';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
+import { validators } from '../../helpers/validators';
+
+const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
 // import { Link as RouterLink } from 'react-router-dom';
 
@@ -150,7 +153,7 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
         // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
-          <Image src={'./buffalo_logo_full.png'} h={'200px'} />
+          <Image src={'/buffalo_logo_full.png'} h={'200px'} />
         </Center>
         <Stack spacing={4} p={8}>
           {views.find(v => v.id === activeView).view}
@@ -222,7 +225,11 @@ const CreateAccountOrLogin = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showLogin, setShowLogin] = useState(isLogin);
   const [loginError, setLoginHasError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
   useEffect(() => {
+    console.log(error);
+
     if (error) return setLoginHasError(true);
     setLoginHasError(false);
     //eslint-disable-next-line
@@ -237,6 +244,7 @@ const CreateAccountOrLogin = ({
   useEffect(() => {
     setLoginHasError(false);
     setError(null);
+    //eslint-disable-next-line
   }, [firstName, lastName, password, email]);
 
   return (
@@ -298,11 +306,35 @@ const CreateAccountOrLogin = ({
       </FormControl>
       <FormControl id="password" isRequired>
         <FormLabel>Password</FormLabel>
+        {passwordError ? (
+          <Box opacity={0.8} fontSize={'sm'} mb={2}>
+            Passwords must be 8 characters long and contain at least one
+            uppercase letter, one lowercase letter, and one number.
+          </Box>
+        ) : (
+          ''
+        )}
         <InputGroup>
           <Input
             type={showPassword ? 'text' : 'password'}
-            onChange={e => setPassword(e.target.value)}
+            onChange={e => {
+              setPassword(e.target.value);
+              if (
+                e.target.value.length >= 8 &&
+                (!hasUpperCase(e.target.value) ||
+                  !hasLowerCase(e.target.value) ||
+                  !hasNumber(e.target.value))
+              ) {
+                setPasswordError(true);
+              } else {
+                setPasswordError(false);
+              }
+            }}
             value={password || ''}
+            placeholder="Enter 8 character password"
+            pattern={
+              '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
+            }
           />
           <InputRightElement h={'full'}>
             <Button

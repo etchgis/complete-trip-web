@@ -19,6 +19,7 @@ export default function Navbar({ isOpen, onToggle, action1 }) {
   const { loggedIn, logout } = useAuthenticationStore(state => state);
   return (
     <Flex
+      //BUG too dark
       bg={useColorModeValue('white', 'gray.800')}
       color={useColorModeValue('gray.600', 'white')}
       minH={'60px'}
@@ -47,7 +48,7 @@ export default function Navbar({ isOpen, onToggle, action1 }) {
           p={1}
           borderRadius={'sm'}
         >
-          <Image src={'./buffalo_logo_full.png'} h={8} />
+          <Image src={'/buffalo_logo_full.png'} h={8} />
         </Box>
       </Flex>
 
@@ -73,11 +74,11 @@ export default function Navbar({ isOpen, onToggle, action1 }) {
             <HStack>
               <Button
                 variant={'outline'}
-                color={'brand'}
-                // bg={'base'}
-                // _hover={{
-                //   opacity: '0.8',
-                // }}
+                color={'white'}
+                bg={'brand'}
+                _hover={{
+                  opacity: '0.8',
+                }}
                 onClick={logout}
               >
                 Logout

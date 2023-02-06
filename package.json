@@ -2,7 +2,7 @@
   "name": "complete-trip-web",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "/",
   "dependencies": {
     "@chakra-ui/icons": "^2.0.16",
     "@chakra-ui/react": "^2.4.7",
@@ -10,6 +10,7 @@
     "@emotion/styled": "^11.0.0",
     "@fontsource/open-sans": "^4.5.13",
     "@hookform/resolvers": "^2.9.10",
+    "@saas-ui/date-picker": "^0.8.2",
     "@saas-ui/react": "^1.7.4",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.0.1",
@@ -45,7 +46,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\web-sandbox\\mobility-app /E /S /COPY:DAT /MT:16 /XF"
+    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\mobility-app /E /S /COPY:DAT /MT:16 /XF"
   },
   "eslintConfig": {
     "extends": "react-app"

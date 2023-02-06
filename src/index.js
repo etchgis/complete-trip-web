@@ -1,4 +1,5 @@
 import '@fontsource/open-sans';
+import './style.css';
 
 import * as ReactDOM from 'react-dom/client';
 
@@ -61,9 +62,7 @@ console.log('[env]', process.env.NODE_ENV);
 root.render(
   <StrictMode>
     <ColorModeScript />
-    <Router
-      basename={process.env.NODE_ENV === 'production' ? '/mobility-app/' : '/'}
-    >
+    <Router>
       <ChakraProvider theme={theme}>
         <Grid id="shell" fontSize="xl" minH="100vh" flexDir="column">
           <Routes />

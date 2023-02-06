@@ -15,17 +15,17 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import {
-  Caretakers,
   EditAccessibility,
+  EditCaretakers,
   EditProfile,
+  EditTripPreferences,
   Notifications,
-  TripPreferences,
 } from './SettingsForms';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import { SettingsPanel } from './SettingsPanel';
+import { SettingsModal } from './SettingsModal';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 
 //TODO form logic for each form
 //TODO actual Terms
@@ -35,50 +35,35 @@ import { useState } from 'react';
 export const Settings = ({ view }) => {
   const navigate = useNavigate();
   const { user } = useAuthenticationStore();
-  const { colorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activePanel, setActivePanel] = useState();
 
-  const panels = [
+  useEffect(() => {
+    if (activePanel) onOpen();
+  }, [activePanel, onOpen]);
+
+  useEffect(() => {
+    if (!isOpen) setActivePanel(null);
+  }, [isOpen]);
+
+  const views = [
     {
       title: 'Profile Information',
+      path: 'profile',
       type: 'account',
-      // el: <ProfileInformation action={() => setActivePanel('Edit Profile')} />,
-      action: () => navigate('/profile/'),
-    },
-    {
-      title: 'Edit Profile',
-      type: 'hidden',
-      el: <EditProfile />,
+      action: () => navigate('/settings/profile'),
     },
     {
       title: 'Caretakers',
+      path: 'caretakers',
       type: 'account',
-      // el: (
-      //   <CaretakerCards
-      //     caretakers={
-      //       user?.profile?.caretakers || [
-      //         {
-      //           name: 'Jane Apple',
-      //           phone: '555-555-5555',
-      //           email: 'jane@example.com',
-      //         },
-      //       ]
-      //     }
-      //     action={() => Navigate('/profile/caretakers')}
-      //   />
-      // ),
-      action: () => navigate('/profile/caretakers'),
-    },
-    {
-      title: 'Edit Caretakers',
-      type: 'hidden',
-      el: <Caretakers />,
+      action: () => navigate('/settings/caretakers'),
     },
     {
       title: 'Trip Preferences',
+      path: 'preferences',
       type: 'account',
-      el: <TripPreferences />,
+      action: () => navigate('/settings/preferences'),
     },
     // {
     //   title: 'Password',
@@ -88,116 +73,148 @@ export const Settings = ({ view }) => {
     {
       title: 'Accessibility',
       type: 'setting',
-      el: <Accessibility action={() => setActivePanel('Edit Accessibility')} />,
-    },
-    {
-      title: 'Edit Accessibility',
-      type: 'hidden',
-      el: <EditAccessibility />,
+      action: () => navigate('/settings/accessibility'),
     },
     {
       title: 'Notifications',
       type: 'setting',
-      el: <Notifications />,
+      action: () => navigate('/settings/notifications'),
     },
     {
       title: 'Terms of Use',
+      path: 'terms',
       type: 'setting',
-      el: <TermsOfUse />,
+      action: () => navigate('/settings/terms'),
     },
     {
       title: 'Privacy Policy',
+      path: 'privacy',
       type: 'setting',
-      el: <PrivacyPolicy />,
-      disabled: true,
+      action: () => navigate('/settings/privacy'),
+    },
+  ];
+
+  const settingsForms = [
+    {
+      title: 'Edit Profile Information',
+      el: <EditProfile />,
+    },
+    {
+      title: 'Edit Caretakers',
+      el: <EditCaretakers />,
+    },
+    {
+      title: 'Trip Preferences',
+      el: <EditTripPreferences />,
+    },
+    {
+      title: 'Edit Accessibility',
+      el: <EditAccessibility />,
     },
   ];
 
   return (
     <>
-      <Grid p={8} gridTemplateColumns={{ base: '1fr', md: '340px 1fr' }}>
-        <Box id="leftSettingsPanel">
-          {/* <Stack direction="row" spacing={4} mb={4}>
-            <Avatar size="lg"></Avatar>
-            <Box>
-              <Box fontWeight={900} fontSize={22}>
-                Taylor Smith
-              </Box>
-              <Box>000-000-0000</Box>
-            </Box>
-          </Stack> */}
-          <Stack spacing={2} ml={1}>
-            <Heading as="h2" size="sm" py={4}>
+      <Grid p={0} gridTemplateColumns={{ base: '1fr', md: '340px 1fr' }}>
+        <Box
+          id="leftSettingsPanel"
+          borderRightColor={'brand'}
+          borderRightWidth={'3px'}
+        >
+          <Stack spacing={4}>
+            <Heading as="h2" size="sm" pt={8} px={8} ml={1}>
               ACCOUNT
             </Heading>
-            {panels.map((l, i) => {
+            {views.map((l, i) => {
+              l['id'] = i;
               if (l.type === 'account') {
-                return (
-                  <Button
-                    variant={'link'}
-                    justifyContent="flex-start"
-                    color={colorMode === 'light' ? 'brand' : 'white'}
-                    width="200px"
-                    key={i.toString()}
-                    py={1}
-                    onClick={() => {
-                      if (l.action) return l.action();
-                      setActivePanel(l.title);
-                      onOpen();
-                    }}
-                    disabled={l.disabled ? true : false}
-                  >
-                    {l.title}
-                  </Button>
-                );
+                return <LinkButton item={l} key={i.toString()} />;
               } else {
                 return '';
               }
             })}
-            <Heading as="h2" size="sm" py={4}>
+            <Heading as="h2" size="sm" px={8} ml={2}>
               SETTINGS
             </Heading>
-            {panels.map((l, i) => {
+            {views.map((l, i) => {
+              l['id'] = i;
               if (l.type === 'setting') {
-                return (
-                  <Button
-                    variant={'link'}
-                    justifyContent="flex-start"
-                    color={colorMode === 'light' ? 'brand' : 'white'}
-                    width="200px"
-                    key={i.toString()}
-                    py={1}
-                    onClick={() => {
-                      setActivePanel(l.title);
-                      onOpen();
-                    }}
-                    isDisabled={l.disabled ? true : false}
-                  >
-                    {l.title}
-                  </Button>
-                );
+                return <LinkButton item={l} key={i.toString()} />;
               } else {
                 return '';
               }
             })}
           </Stack>
         </Box>
-        <Box id="rightSettingsPanel" py={5}>
-          {view && view === 'caretakers' ? (
-            <CaretakerCards caretakers={user?.profile?.caretakers || []} />
-          ) : (
-            <ProfileInformation></ProfileInformation>
-          )}
+        <Box id="rightSettingsPanel" p={10} maxW={'600px'}>
+          {switchViews({ view, user, setActivePanel })}
         </Box>
       </Grid>
-      <SettingsPanel
+      <SettingsModal
         isOpen={isOpen}
         onClose={onClose}
         title={activePanel}
         children={
-          activePanel ? panels.find(l => l.title === activePanel).el : ''
+          activePanel ? settingsForms.find(l => l.title === activePanel).el : ''
         }
       />
     </>
   );
 };
+
+function switchViews({ view, user, setActivePanel }) {
+  console.log(view);
+  switch (view) {
+    case 'caretakers':
+      return <CaretakerCards caretakers={user?.profile?.caretakers || []} />;
+    case 'preferences':
+      return <EditTripPreferences />;
+    case 'accessibility':
+      return (
+        <Accessibility action={() => setActivePanel('Edit Accessibility')} />
+      );
+    case 'notifications':
+      return <Notifications />;
+    case 'terms':
+      return <TermsOfUse />;
+    case 'privacy':
+      return <PrivacyPolicy />;
+    default:
+      return <ProfileInformation></ProfileInformation>;
+  }
+}
+
+function LinkButton({ item }) {
+  const l = item;
+  const { pathname } = useLocation();
+  const { colorMode } = useColorMode();
+  return (
+    <Button
+      borderRadius={0}
+      variant={'link'}
+      justifyContent="flex-start"
+      width="100%"
+      key={l.id.toString()}
+      py={2}
+      pl={8}
+      onClick={() => {
+        if (l.action) return l.action();
+      }}
+      disabled={l.disabled ? true : false}
+      bg={
+        pathname.includes(l.path) || pathname.includes(l.title.toLowerCase())
+          ? 'brand'
+          : 'transparent'
+      }
+      color={
+        pathname.includes(l.path) || pathname.includes(l.title.toLowerCase())
+          ? 'white'
+          : colorMode === 'light'
+          ? 'brand'
+          : 'white'
+      }
+    >
+      {l.title}
+    </Button>
+  );
+}

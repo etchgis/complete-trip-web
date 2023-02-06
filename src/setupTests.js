@@ -3,3 +3,10 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+
+// import React from "react";
+// import { ThemeProvider } from "@chakra-ui/core/dist";
+
+// export const ThemeWrapper = ({ children }) => (
+//   <ThemeProvider>{children}</ThemeProvider>
+// );

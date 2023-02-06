@@ -124,24 +124,14 @@ const SidebarContent = ({ onClose }) => {
             color={
               colorMode === 'dark'
                 ? 'white'
-                : location === '/profile' ||
-                  location === '/profile/' ||
-                  location === '/profile/caretakers' ||
-                  location === '/profile/caretakers/'
+                : location.includes('/settings')
                 ? 'brandDark'
                 : 'brand'
             }
-            fontWeight={
-              location === '/profile' ||
-              location === '/profile/' ||
-              location === '/profile/caretakers' ||
-              location === '/profile/caretakers/'
-                ? '600'
-                : 400
-            }
+            fontWeight={location.includes('/settings') ? '600' : 400}
             onClick={() => {
               if (onClose) onClose();
-              return navigate('/profile');
+              return navigate('/settings/profile');
             }}
           >
             Profile and Settings
