@@ -33,7 +33,7 @@ import { BsFacebook, BsGoogle } from 'react-icons/bs';
 import { useEffect, useState } from 'react';
 
 import { StepThroughForm } from '../Forms/StepThroughForm';
-import geocode from '../../services/transport/geocode';
+import geocode from '../../services/transport/geocoder';
 import { nanoid } from 'nanoid';
 import { phoneFormatter } from '../../helpers/helpers';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
@@ -385,7 +385,9 @@ const CreateAccountOrLogin = ({
           {showLogin ? 'Create Account' : 'Login'}
         </Button>
       </Center>
-      <SocialLogins setActiveView={setActiveView}></SocialLogins>
+      {/* <SocialLogins
+        setActiveView={setActiveView}
+      ></SocialLogins> */}
     </Stack>
   );
 };
@@ -422,35 +424,35 @@ const ForgotPassword = ({ setActiveView, hideModal }) => {
   );
 };
 
-const SocialLogins = ({ setActiveView }) => {
-  const { colorMode } = useColorMode();
-  return (
-    <Stack alignItems={'center'} flexDir="column" spacing={4}>
-      <HStack>
-        <Icon as={BsFacebook} w={5} h={5}></Icon>
-        <Button
-          color={colorMode === 'light' ? 'brandDark' : 'white'}
-          as="span"
-          variant={'link'}
-          onClick={() => setActiveView('facebook')}
-        >
-          Login with Facebok
-        </Button>
-      </HStack>
-      <HStack>
-        <Icon as={BsGoogle} w={5} h={5}></Icon>
-        <Button
-          color={colorMode === 'light' ? 'brandDark' : 'white'}
-          as="span"
-          variant={'link'}
-          onClick={() => setActiveView('google')}
-        >
-          Login with Google
-        </Button>
-      </HStack>
-    </Stack>
-  );
-};
+// const SocialLogins = ({ setActiveView, rest }) => {
+//   const { colorMode } = useColorMode();
+//   return (
+//     <Stack alignItems={'center'} flexDir="column" spacing={4} {...rest}>
+//       <HStack>
+//         <Icon as={BsFacebook} w={5} h={5}></Icon>
+//         <Button
+//           color={colorMode === 'light' ? 'brandDark' : 'white'}
+//           as="span"
+//           variant={'link'}
+//           onClick={() => setActiveView('facebook')}
+//         >
+//           Login with Facebok
+//         </Button>
+//       </HStack>
+//       <HStack>
+//         <Icon as={BsGoogle} w={5} h={5}></Icon>
+//         <Button
+//           color={colorMode === 'light' ? 'brandDark' : 'white'}
+//           as="span"
+//           variant={'link'}
+//           onClick={() => setActiveView('google')}
+//         >
+//           Login with Google
+//         </Button>
+//       </HStack>
+//     </Stack>
+//   );
+// };
 
 const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
   const { stagedUser, setStagedUser, register } = useAuthenticationStore();

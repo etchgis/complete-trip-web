@@ -1,11 +1,16 @@
 import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
 
 import { CustomModal } from './Modals/CustomModal';
-import { Loader } from './Loader/Loader';
+import Loader from './Loader';
 import { LoginRegisterStepForm } from './Auth/LoginForms';
 import { MapboxMap } from './Map/MapboxMap';
 import { Navbar } from './Navbar/Navbar';
 import { ResponsiveSidebar } from './Sidebar/Sidebar';
+
+// import { useEffect } from 'react';
+// import { useStore } from '../context/mobx/RootStore';
+
+// import { observer } from 'mobx-react-lite';
 
 // import { useEffect, useMemo } from 'react';
 // import { useLocation, useNavigate } from 'react-router-dom';
@@ -25,6 +30,15 @@ export const App = ({ inTransaction, showMap, forceLogin, children }) => {
   // const { loggedIn } = useAuthenticationStore();
   // const navigate = useNavigate();
   // const search = useQuery();
+
+  // const store = useStore();
+  // const { user, updateUser } = store.authentication;
+
+  // console.log('test', user?.name);
+
+  // useEffect(() => {
+  //   updateUser({ name: 'new user' });
+  // }, []);
 
   //Sidebar
   const { isOpen, onOpen, onClose, onToggle } = useDisclosure();

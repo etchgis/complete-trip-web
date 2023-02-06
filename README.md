@@ -25,3 +25,7 @@ pass: normal
 ## Test Idea
 
 [https://github.com/alex3165/react-mapbox-gl/blob/master/src/**tests**/map.test.tsx](https://github.com/alex3165/react-mapbox-gl/blob/master/src/__tests__/map.test.tsx)
+
+## Notes
+
+- `git commit -m "feat: description"`

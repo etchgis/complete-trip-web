@@ -7,20 +7,27 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { App } from '../components/App';
-import { Settings } from '../components/Settings/Settings';
+import Settings from '../components/Settings';
 import { Trips } from '../components/Trips/Trips';
 import { _alive } from '../helpers/helpers';
 import { useAuthenticationStore } from '../context/AuthenticationStoreZS';
 import { useEffect } from 'react';
 
+// import RootStore, { StoreProvider } from '../context/mobx/RootStore';
+
+// import { observer } from 'mobx-react-lite';
+
 // import { AccountPage } from '../components/Auth/AccountPage';
 
 export const AppRoutes = () => {
   console.log('[routes]');
+  const { pathname } = useLocation();
+
+  // const store = new RootStore();
 
   const { user, loggedIn, validateUser, inTransaction } =
     useAuthenticationStore(state => state);
-  const { pathname } = useLocation();
+
   //NOTE validate user on initial load of app - the loggedIn value is not persisted
   useEffect(() => {
     if (_alive(user) && !loggedIn) validateUser(user);
@@ -32,6 +39,7 @@ export const AppRoutes = () => {
   }, [user]);
 
   return (
+    // <StoreProvider store={store}>
     <Routes>
       {/* Redirect all trailing slashes */}
       <Route
@@ -117,6 +125,7 @@ export const AppRoutes = () => {
       {/* default redirect to home page */}
       {/* <Route path="*" element={<Navigate to="/" />} /> */}
     </Routes>
+    // </StoreProvider>
   );
 };
 
