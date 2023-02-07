@@ -613,7 +613,8 @@ const ContactInfo = ({ stagedUser }) => {
         Add Contact Information
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        Etiam at pretium tellus. Aenean pharetra mauris id odio bibendum mattis.
+        Your email and phone number are used for two-step verification, password
+        recovery, and notifications about your trips.
       </Text>
       <FormControl isRequired>
         <FormLabel>Email address</FormLabel>
