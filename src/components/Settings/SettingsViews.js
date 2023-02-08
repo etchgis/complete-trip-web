@@ -57,7 +57,10 @@ export const Accessibility = ({ action }) => {
         Display Language
       </Box>
       <Box pb={4}>
-        {user.profile.preferences.language === 'en' ? 'English' : 'Spanish'}
+        {user?.profile?.preferences?.language === 'en' ||
+        !user?.profile?.preferences?.language
+          ? 'English'
+          : 'Spanish'}
       </Box>
       <Button
         bg="brand"
