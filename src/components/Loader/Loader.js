@@ -16,6 +16,7 @@ export const Loader = ({ isOpen }) => {
           display={'flex'}
           alignItems={'center'}
           justifyContent={'center'}
+          data-testid="loader"
         >
           <Flex>
             <Spinner

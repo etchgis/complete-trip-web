@@ -32,12 +32,16 @@ import {
 import { BsFacebook, BsGoogle } from 'react-icons/bs';
 import { useEffect, useState } from 'react';
 
+import AddressSearchForm from '../AddressSearchForm';
 import { StepThroughForm } from '../Forms/StepThroughForm';
-import geocode from '../../services/transport/geocoder';
-import { nanoid } from 'nanoid';
+import geocoder from '../../services/transport/geocoder';
+import { observer } from 'mobx-react-lite';
 import { phoneFormatter } from '../../helpers/helpers';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
+import { useStore } from '../../context/mobx/RootStore';
 import { validators } from '../../helpers/validators';
+
+// import { nanoid } from 'nanoid';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
@@ -47,7 +51,7 @@ const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 //TODO push all state to the parent element and flow down to other forms so they are each dumb forms
 //TODO add resetStagedUser for all cancel operations
 //TODO register - when submitting the registration please use "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486" for the organization
-export const LoginRegisterStepForm = ({ hideModal }) => {
+export const LoginRegisterStepForm = observer(({ hideModal, testStore }) => {
   const {
     loggedIn,
     stagedUser,
@@ -60,6 +64,8 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
 
   if (!!stagedUser?.firstName) console.log(stagedUser);
   const [activeView, setActiveView] = useState('init');
+
+  const { user: testUser } = testStore || useStore().authentication;
 
   useEffect(() => {
     setStagedUser();
@@ -155,15 +161,16 @@ export const LoginRegisterStepForm = ({ hideModal }) => {
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image src={'/buffalo_logo_full.png'} h={'200px'} />
         </Center>
+        <Box bg="red">MoBx Testing: {testUser?.name}</Box>
         <Stack spacing={4} p={8}>
           {views.find(v => v.id === activeView).view}
         </Stack>
       </Stack>
     </Flex>
   );
-};
+});
 
-const Init = ({ setActiveView, setStagedUser, hideModal }) => {
+const Init = ({ setActiveView, hideModal }) => {
   let { colorMode } = useColorMode();
 
   return (
@@ -202,7 +209,7 @@ const Init = ({ setActiveView, setStagedUser, hideModal }) => {
           hideModal();
           setTimeout(() => {
             setActiveView('login');
-            setStagedUser({ id: nanoid(10) });
+            // setStagedUser({ id: nanoid(10) });
           }, 500);
         }}
       >
@@ -226,6 +233,7 @@ const CreateAccountOrLogin = ({
   const [showLogin, setShowLogin] = useState(isLogin);
   const [loginError, setLoginHasError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const { updateUser } = useStore().authentication;
 
   useEffect(() => {
     console.log(error);
@@ -244,6 +252,7 @@ const CreateAccountOrLogin = ({
   useEffect(() => {
     setLoginHasError(false);
     setError(null);
+
     //eslint-disable-next-line
   }, [firstName, lastName, password, email]);
 
@@ -469,7 +478,9 @@ const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
         // },
         {
           title: 'contact',
-          content: <ContactInfo stagedUser={stagedUser}></ContactInfo>,
+          content: index => (
+            <ContactInfo stagedUser={stagedUser} index={index}></ContactInfo>
+          ),
           action: e => {
             const data = new FormData(e.target);
             setStagedUser({
@@ -480,7 +491,9 @@ const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
         },
         {
           title: 'address',
-          content: <HomeAddress stagedUser={stagedUser}></HomeAddress>,
+          content: index => (
+            <HomeAddress stagedUser={stagedUser} index={index}></HomeAddress>
+          ),
           action: e => {
             const data = new FormData(e.target);
             setStagedUser({
@@ -499,7 +512,7 @@ const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
         },
         {
           title: 'caretaker',
-          content: <Caretaker stagedUser={stagedUser}></Caretaker>,
+          content: index => <Caretaker stagedUser={stagedUser}></Caretaker>,
           action: e => {
             const data = new FormData(e.target);
             setStagedUser({
@@ -517,7 +530,9 @@ const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
         },
         {
           title: 'mobility',
-          content: <MobilityOptions stagedUser={stagedUser}></MobilityOptions>,
+          content: index => (
+            <MobilityOptions stagedUser={stagedUser}></MobilityOptions>
+          ),
           skip: true,
           buttonText: 'Check Email Address',
         },
@@ -537,7 +552,7 @@ const RegisterStepThroughForm = ({ hideModal, setInTransaction }) => {
         // },
         {
           title: 'terms',
-          content: <Terms></Terms>,
+          content: index => <Terms></Terms>,
           action: async e => {
             const data = new FormData(e.target);
             const terms = [...data];
@@ -644,54 +659,45 @@ const ContactInfo = ({ stagedUser }) => {
   );
 };
 
-const HomeAddress = ({ stagedUser }) => {
+//TODO push point to staged user from address
+const HomeAddress = ({ stagedUser, index }) => {
   const [address, setAddress] = useState(stagedUser?.address?.title || '');
-  const [description, setDescription] = useState(
-    stagedUser?.address?.description || ''
-  );
-  const [lng, setLng] = useState(stagedUser?.address?.point?.lng || '');
-  const [lat, setLat] = useState(stagedUser?.address?.point?.lat || '');
+  const [geocoderResult, setGeocoderResult] = useState({});
+  const [center, setCenter] = useState({ lat: '', lng: '' }); //add staged user point lat/lng
+  const [defaultAddress, setDefaultAddress] = useState('');
   const { colorMode } = useColorMode();
 
-  //NOTE placeholder
-  useEffect(() => {
-    setDescription(address);
-  }, [address]);
-
-  const getAddress = async query => {
-    const center = lng && lat ? { lng: lng, lat: lat } : null;
-    const result = await geocode.forward(query, center);
-    console.log(result);
-    if (!result) setAddress(query);
-    // setAddress(result[0].title);
-    return;
-  };
-
-  const getUserLocation = allow => {
-    if (!allow) {
-      setLng();
-      setLat();
-      return;
-    }
+  const getUserLocation = () => {
     const success = async position => {
       console.log(position);
-      setLat(position.coords.latitude);
-      setLng(position.coords.longitude);
-      const location = await geocode.reverse({
+      const _center = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
-      });
+      };
+      setCenter(_center);
+      const location = await geocoder.reverse(_center);
       console.log(location);
+      if (location.length) {
+        setDefaultAddress(location[0].title);
+        setGeocoderResult(location[0]);
+      }
     };
 
     const error = error => {
       console.log(error);
     };
+
     navigator.geolocation.getCurrentPosition(success, error, {
       enableHighAccuracy: true,
       timeout: 10000,
     });
   };
+
+  useEffect(() => {
+    if (index !== 1) return;
+    console.log('[home-address] getting user gps location');
+    getUserLocation();
+  }, [index]);
 
   return (
     <Stack spacing={4}>
@@ -707,51 +713,39 @@ const HomeAddress = ({ stagedUser }) => {
         This helps create routes from your home with ease.
       </Text>
       <FormControl isRequired>
-        <InputGroup>
-          <InputLeftElement
-            pointerEvents="none"
-            children={<SearchIcon color="gray.500" />}
-          />
-          <Input
-            id="address"
-            type="address"
-            name="address"
-            onChange={e =>
-              e.target.value.length > 1000
-                ? getAddress(e.target.value)
-                : setAddress(e.target.value)
-            }
-            value={address || ''}
-            placeholder="Start typing address here..."
-          />
-        </InputGroup>
+        <AddressSearchForm
+          saveAddress={setAddress}
+          center={center}
+          defaultAddress={defaultAddress || ''}
+          setGeocoderResult={setGeocoderResult}
+        ></AddressSearchForm>
       </FormControl>
       <VisuallyHiddenInput
         type="text"
         name="description"
-        value={description || ''}
+        value={geocoderResult?.title + ', ' + geocoderResult?.description || ''}
         onChange={event => {
           console.log(event.target.value);
         }}
       ></VisuallyHiddenInput>
-      {/* <FormControl>
+      <FormControl>
         <HStack spacing={2}>
           <Input
             type="number"
             name="lng"
-            value={lng || ''}
+            value={geocoderResult?.point?.lng || ''}
             readOnly
             required
           ></Input>
           <Input
             type="number"
             name="lat"
-            value={lat || ''}
+            value={geocoderResult?.point?.lat || ''}
             readOnly
             required
           ></Input>
         </HStack>
-      </FormControl> */}
+      </FormControl>
       {/* <Checkbox onChange={e => getUserLocation(e.target.checked)}>
         Allow us to know your location information to provide accurate route
         estimates, pricing, and tracking. (Required)
@@ -1010,7 +1004,7 @@ const Terms = () => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Terms and Coniditions
+        Terms and Conditions
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         Please read and accept the terms and conditions.

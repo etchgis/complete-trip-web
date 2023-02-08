@@ -9,8 +9,8 @@ import {
 import { useEffect } from 'react';
 import { useState } from 'react';
 
-export const Trips = () => {
-  const [value, setValue] = useState(today(getLocalTimeZone()));
+export const Trips = ({ testDate }) => {
+  const [value, setValue] = useState(testDate || today(getLocalTimeZone()));
   console.log(value);
   useEffect(() => {
     const days = document.querySelectorAll('tr th');

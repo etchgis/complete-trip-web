@@ -6,24 +6,25 @@
 
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
-import { App } from '../components/App';
+import App from '../components';
 import Settings from '../components/Settings';
-import { Trips } from '../components/Trips/Trips';
+import Trips from '../components/Trips';
 import { _alive } from '../helpers/helpers';
+import { observer } from 'mobx-react-lite';
 import { useAuthenticationStore } from '../context/AuthenticationStoreZS';
 import { useEffect } from 'react';
-
-// import RootStore, { StoreProvider } from '../context/mobx/RootStore';
-
-// import { observer } from 'mobx-react-lite';
+import { useStore } from '../context/mobx/RootStore';
 
 // import { AccountPage } from '../components/Auth/AccountPage';
 
-export const AppRoutes = () => {
+export const AppRoutes = observer(() => {
   console.log('[routes]');
-  const { pathname } = useLocation();
 
-  // const store = new RootStore();
+  const { pathname } = useLocation();
+  const store = useStore();
+  const { user: testUser, updateUser } = store.authentication;
+
+  console.log('mobx', testUser?.name);
 
   const { user, loggedIn, validateUser, inTransaction } =
     useAuthenticationStore(state => state);
@@ -38,8 +39,10 @@ export const AppRoutes = () => {
     if (_alive(user)) console.log({ user });
   }, [user]);
 
+  useEffect(() => {
+    if (loggedIn) updateUser({ name: 'new user2' });
+  }, [loggedIn, updateUser]);
   return (
-    // <StoreProvider store={store}>
     <Routes>
       {/* Redirect all trailing slashes */}
       <Route
@@ -125,9 +128,8 @@ export const AppRoutes = () => {
       {/* default redirect to home page */}
       {/* <Route path="*" element={<Navigate to="/" />} /> */}
     </Routes>
-    // </StoreProvider>
   );
-};
+});
 
 /*const [startTransition, isPending] = useTransition({
   timeoutMs: 3000,

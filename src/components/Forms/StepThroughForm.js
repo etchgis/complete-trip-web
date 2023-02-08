@@ -48,7 +48,7 @@ export const StepThroughForm = ({ content, cancelAction }) => {
                 }
               }}
             >
-              {s.content}
+              {s.content(tabIndex)}
               <Stack mt={6} spacing={4}>
                 <Button
                   bg={'brand'}

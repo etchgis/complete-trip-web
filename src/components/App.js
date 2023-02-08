@@ -1,44 +1,14 @@
 import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
 
-import { CustomModal } from './Modals/CustomModal';
+import CustomModal from './Modal';
 import Loader from './Loader';
-import { LoginRegisterStepForm } from './Auth/LoginForms';
-import { MapboxMap } from './Map/MapboxMap';
-import { Navbar } from './Navbar/Navbar';
-import { ResponsiveSidebar } from './Sidebar/Sidebar';
-
-// import { useEffect } from 'react';
-// import { useStore } from '../context/mobx/RootStore';
-
-// import { observer } from 'mobx-react-lite';
-
-// import { useEffect, useMemo } from 'react';
-// import { useLocation, useNavigate } from 'react-router-dom';
-
-// import { useAuthenticationStore } from '../context/AuthenticationStoreZS';
-
-// import { Loader } from './Loader/Loader';
-
-// function useQuery() {
-//   const { search } = useLocation();
-
-//   return useMemo(() => new URLSearchParams(search), [search]);
-// }
+import LoginRegisterStepForm from './LoginRegisterStepForm';
+import MapboxMap from './Map';
+import Navbar from './Navbar';
+import ResponsiveSidebar from './Sidebar';
 
 export const App = ({ inTransaction, showMap, forceLogin, children }) => {
   const { colorMode } = useColorMode();
-  // const { loggedIn } = useAuthenticationStore();
-  // const navigate = useNavigate();
-  // const search = useQuery();
-
-  // const store = useStore();
-  // const { user, updateUser } = store.authentication;
-
-  // console.log('test', user?.name);
-
-  // useEffect(() => {
-  //   updateUser({ name: 'new user' });
-  // }, []);
 
   //Sidebar
   const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
@@ -49,14 +19,6 @@ export const App = ({ inTransaction, showMap, forceLogin, children }) => {
     onOpen: showLogin,
     onClose: hideLogin,
   } = useDisclosure();
-
-  // useEffect(() => {
-  //   if ((search.get('login') || forceLogin) && !loggedIn) {
-  //     showLogin();
-  //     // navigate('/', { replace: true });
-  //   }
-  //   //eslint-disable-next-line
-  // }, []);
 
   return (
     <Flex
@@ -72,15 +34,15 @@ export const App = ({ inTransaction, showMap, forceLogin, children }) => {
         onClose={onClose}
         action1={showLogin}
       ></Navbar>
-      {/* <SimpleSidebar /> */}
-      {/* SHELL */}
+
+      {/* MAIN SHELL */}
       <Grid gridTemplateColumns={{ base: '1fr', md: '300px 1fr' }} flex="1">
         {/* SIDEBAR */}
-
         <ResponsiveSidebar
           isOpen={isOpen}
           onClose={onClose}
         ></ResponsiveSidebar>
+        {/* MAP */}
         <MapboxMap showMap={showMap}></MapboxMap>
         {children}
       </Grid>
@@ -92,9 +54,11 @@ export const App = ({ inTransaction, showMap, forceLogin, children }) => {
         onClose={hideLogin}
         size="lg"
       >
+        {/* LOGIN/REGISTER MODAL */}
         <LoginRegisterStepForm hideModal={hideLogin}></LoginRegisterStepForm>
       </CustomModal>
 
+      {/* LOADER */}
       <Loader isOpen={inTransaction}></Loader>
     </Flex>
   );

@@ -1,33 +1,16 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-
 import * as React from 'react';
 
 import { Box, List, ListItem, Spinner } from '@chakra-ui/react';
-import type { LoadingState, Node } from '@react-types/shared';
 import { useListBox, useOption } from 'react-aria';
 
-import type { AriaListBoxOptions } from '@react-aria/listbox';
 import { CheckIcon } from '@chakra-ui/icons';
-import type { ListState } from 'react-stately';
 
-interface ListBoxProps extends AriaListBoxOptions<unknown> {
-  listBoxRef?: React.RefObject<HTMLUListElement>;
-  state: ListState<unknown>;
-  loadingState?: LoadingState;
-  onLoadMore?: () => void;
-}
-
-interface OptionProps {
-  item: Node<unknown>;
-  state: ListState<unknown>;
-}
-
-export function ListBox(props: ListBoxProps) {
-  let ref = React.useRef < HTMLUListElement > null;
+export function ListBox(props) {
+  let ref = React.useRef(null);
   let { listBoxRef = ref, state } = props;
   let { listBoxProps } = useListBox(props, state, listBoxRef);
 
-  let onScroll = (e: React.UIEvent) => {
+  let onScroll = e => {
     let scrollOffset =
       e.currentTarget.scrollHeight - e.currentTarget.clientHeight * 2;
     if (e.currentTarget.scrollTop > scrollOffset && props.onLoadMore) {
@@ -62,8 +45,8 @@ export function ListBox(props: ListBoxProps) {
   );
 }
 
-function Option({ item, state }: OptionProps) {
-  let ref = React.useRef < HTMLLIElement > null;
+function Option({ item, state }) {
+  let ref = React.useRef(null);
   let { optionProps, isSelected, isFocused } = useOption(
     {
       key: item.key,

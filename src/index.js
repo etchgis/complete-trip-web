@@ -9,12 +9,14 @@ import {
   Grid,
   extendTheme,
 } from '@chakra-ui/react';
-import React, { StrictMode } from 'react';
+import RootStore, { StoreProvider } from './context/mobx/RootStore';
 
+import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AppRoutes as Routes } from './routes/Routes';
-// import { SaasProvider } from '@saas-ui/react';
 import { StepsTheme as Steps } from 'chakra-ui-steps';
+
+// import { SaasProvider } from '@saas-ui/react';
 
 // import * as serviceWorker from './serviceWorker';
 
@@ -54,22 +56,26 @@ const customTheme = {
 };
 
 const theme = extendTheme(customTheme);
-
+const store = new RootStore();
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
 console.log('[env]', process.env.NODE_ENV);
 
 root.render(
-  <StrictMode>
+  // <StrictMode>
+  <>
     <ColorModeScript />
     <Router>
       <ChakraProvider theme={theme}>
-        <Grid id="shell" fontSize="xl" minH="100vh" flexDir="column">
-          <Routes />
-        </Grid>
+        <StoreProvider store={store}>
+          <Grid id="shell" fontSize="xl" minH="100vh" flexDir="column">
+            <Routes />
+          </Grid>
+        </StoreProvider>
       </ChakraProvider>
     </Router>
-  </StrictMode>
+  </>
+  // </StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change

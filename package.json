@@ -13,7 +13,6 @@
     "@saas-ui/date-picker": "^0.8.2",
     "@saas-ui/react": "^1.7.4",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.0.1",
     "@testing-library/user-event": "^14.1.0",
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
@@ -63,5 +62,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@testing-library/react": "^13.4.0"
   }
 }

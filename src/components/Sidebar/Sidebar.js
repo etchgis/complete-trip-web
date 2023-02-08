@@ -25,7 +25,7 @@ export const ResponsiveSidebar = ({ isOpen, onClose, setView }) => {
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         display={{ base: 'none', md: 'block' }}
       >
-        <SidebarContent />
+        <SidebarContent data-testid="desktop-sidebar" />
       </Box>
       <Drawer
         autoFocus={false}
@@ -37,20 +37,24 @@ export const ResponsiveSidebar = ({ isOpen, onClose, setView }) => {
         size="full"
       >
         <DrawerContent>
-          <SidebarContent onClose={onClose} setView={setView} />
+          <SidebarContent
+            onClose={onClose}
+            setView={setView}
+            data-testid="mobile-sidebar"
+          />
         </DrawerContent>
       </Drawer>
     </>
   );
 };
 
-const SidebarContent = ({ onClose }) => {
+const SidebarContent = ({ onClose, rest }) => {
   const { loggedIn } = useAuthenticationStore();
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const { pathname: location } = useLocation();
   return (
-    <Flex flexDir={'column'}>
+    <Flex flexDir={'column'} {...rest}>
       <CloseButton
         display={{ base: 'flex', md: 'none' }}
         onClick={onClose}

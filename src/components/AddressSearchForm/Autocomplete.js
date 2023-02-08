@@ -18,7 +18,7 @@ import { useComboBoxState } from 'react-stately';
 
 export { Item, Section } from 'react-stately';
 
-export const Autocomplete = () => {
+export const Autocomplete = props => {
   let { contains } = useFilter({ sensitivity: 'base' });
   let state = useComboBoxState({ ...props, defaultFilter: contains });
 
@@ -37,7 +37,7 @@ export const Autocomplete = () => {
   );
 
   return (
-    <Box display="inline-block" position="relative">
+    <Box display="inline-block" position="relative" width="100%">
       <FormLabel {...labelProps}>{props.label}</FormLabel>
       <InputGroup>
         <InputLeftElement>
@@ -52,6 +52,7 @@ export const Autocomplete = () => {
         </InputRightElement>
       </InputGroup>
       {state.isOpen && (
+        // <></>
         <Popover
           popoverRef={popoverRef}
           triggerRef={inputRef}
@@ -65,6 +66,7 @@ export const Autocomplete = () => {
             state={state}
             loadingState={props.loadingState}
             onLoadMore={props.onLoadMore}
+            width="100%"
           />
         </Popover>
       )}

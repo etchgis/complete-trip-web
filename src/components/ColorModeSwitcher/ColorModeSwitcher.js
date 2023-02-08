@@ -14,6 +14,7 @@ export const ColorModeSwitcher = props => {
       size="md"
       fontSize="lg"
       aria-label={`Switch to ${text} mode`}
+      data-testid="color-mode-switcher"
       variant="ghost"
       // color={'current'}
       marginLeft="2"
