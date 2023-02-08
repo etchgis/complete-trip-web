@@ -1010,7 +1010,7 @@ const Terms = () => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Terms and Coniditions
+        Terms and Conditions
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         Please read and accept the terms and conditions.
