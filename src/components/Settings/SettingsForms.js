@@ -396,6 +396,7 @@ export const PasswordReset = () => {
     />
   );
 };
+
 export const EditAccessibility = () => {
   const { user } = useAuthenticationStore();
   const [language, setLanguage] = useState(
@@ -421,6 +422,7 @@ export const EditAccessibility = () => {
     </Box>
   );
 };
+
 export const Notifications = () => {
   const { user } = useAuthenticationStore();
   const updateProfile = useUpdateProfile();
