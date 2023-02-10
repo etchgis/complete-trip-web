@@ -1,0 +1,27 @@
+import '@testing-library/jest-dom';
+
+import * as React from 'react';
+
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
+
+import { ChakraProvider } from '@chakra-ui/react';
+import { MapboxMap } from './MapboxMap';
+import { createMemoryHistory } from 'history';
+
+test('Renders the Navbar', () => {
+  const history = createMemoryHistory({
+    initialEntries: ['/'],
+  });
+  render(
+    <ChakraProvider>
+      <Router history={history}>
+        <Routes>
+          <Route path="/" element={<MapboxMap />} />
+        </Routes>
+      </Router>
+    </ChakraProvider>
+  );
+  // verify page content for default route
+  expect(screen.getByText(/login\/sign up/i)).toBeInTheDocument();
+});

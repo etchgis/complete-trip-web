@@ -15,7 +15,13 @@ import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
 
-export const ResponsiveSidebar = ({ isOpen, onClose, setView }) => {
+export const ResponsiveSidebar = ({
+  isOpen,
+  onClose,
+  setView,
+  testContent,
+  testUser,
+}) => {
   const { colorMode } = useColorMode();
 
   return (
@@ -25,7 +31,7 @@ export const ResponsiveSidebar = ({ isOpen, onClose, setView }) => {
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         display={{ base: 'none', md: 'block' }}
       >
-        <SidebarContent data-testid="desktop-sidebar" />
+        <SidebarContent data-testid="desktop-sidebar" testUser={testUser} />
       </Box>
       <Drawer
         autoFocus={false}
@@ -41,14 +47,16 @@ export const ResponsiveSidebar = ({ isOpen, onClose, setView }) => {
             onClose={onClose}
             setView={setView}
             data-testid="mobile-sidebar"
+            testUser={testUser}
           />
+          {testContent ? testContent : null}
         </DrawerContent>
       </Drawer>
     </>
   );
 };
 
-const SidebarContent = ({ onClose, rest }) => {
+const SidebarContent = ({ onClose, rest, testUser }) => {
   const { loggedIn } = useAuthenticationStore();
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
@@ -120,7 +128,7 @@ const SidebarContent = ({ onClose, rest }) => {
         >
           Map
         </Button>
-        {loggedIn ? (
+        {loggedIn || testUser?.loggedIn ? (
           <Button
             leftIcon={<BsPerson />}
             variant={'ghost'}
