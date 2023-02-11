@@ -1,6 +1,5 @@
 import {} from '../../helpers/helpers';
 
-import { AddIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -14,7 +13,6 @@ import {
   InputGroup,
   InputRightElement,
   Select,
-  Skeleton,
   Slider,
   SliderFilledTrack,
   SliderMark,
@@ -27,6 +25,7 @@ import {
   useRadio,
   useRadioGroup,
 } from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 import { FaExchangeAlt } from 'react-icons/fa';
 import { HiCurrencyDollar } from 'react-icons/hi';

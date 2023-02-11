@@ -1,10 +1,4 @@
-import {
-  AddIcon,
-  DeleteIcon,
-  SearchIcon,
-  ViewIcon,
-  ViewOffIcon,
-} from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -15,12 +9,10 @@ import {
   FormLabel,
   HStack,
   Heading,
-  Icon,
   IconButton,
   Image,
   Input,
   InputGroup,
-  InputLeftElement,
   InputRightElement,
   Stack,
   Switch,
@@ -29,7 +21,6 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { BsFacebook, BsGoogle } from 'react-icons/bs';
 import { useEffect, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
@@ -40,6 +31,8 @@ import { phoneFormatter } from '../../helpers/helpers';
 import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
 import { useStore } from '../../context/mobx/RootStore';
 import { validators } from '../../helpers/validators';
+
+// import { BsFacebook, BsGoogle } from 'react-icons/bs';
 
 // import { nanoid } from 'nanoid';
 
@@ -233,7 +226,7 @@ const CreateAccountOrLogin = ({
   const [showLogin, setShowLogin] = useState(isLogin);
   const [loginError, setLoginHasError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const { updateUser } = useStore().authentication;
+  // const { updateUser } = useStore().authentication;
 
   useEffect(() => {
     console.log(error);
@@ -661,7 +654,7 @@ const ContactInfo = ({ stagedUser }) => {
 
 //TODO push point to staged user from address
 const HomeAddress = ({ stagedUser, index }) => {
-  const [address, setAddress] = useState(stagedUser?.address?.title || '');
+  const [setAddress] = useState(stagedUser?.address?.title || '');
   const [geocoderResult, setGeocoderResult] = useState({});
   const [center, setCenter] = useState({ lat: '', lng: '' }); //add staged user point lat/lng
   const [defaultAddress, setDefaultAddress] = useState('');
