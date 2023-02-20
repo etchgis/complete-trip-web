@@ -52,6 +52,14 @@ const defaults = {
     VIEWBOX: [-74.3878, 43.0283, -74.2989, 43.0755],
   },
   ORGANIZATION: '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
+  VERIFY: {
+    SID: 'VA716caeea7edda3401dc5f4e9a2e4bc99',
+    CHANNEL_CONFIGURATION: {
+      template_id: 'd-731f00a0bfbd472fa144d863869d145d',
+      from: 'team@etchgis.com',
+      from_name: 'Etch',
+    },
+  },
 };
 
 const config = { ...defaults, defaults };

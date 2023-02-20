@@ -93,6 +93,67 @@ class Authentication {
     });
   };
 
+  verifyUser = (channel, to) => {
+    runInAction(() => {
+      this.inTransaction = true;
+    });
+    return new Promise((resolve, reject) => {
+      authentication
+        .verify(channel, to)
+        .then(result => {
+          runInAction(() => {
+            this.error = null;
+          });
+          resolve(result);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e.message || e.reason;
+            console.log(e);
+          });
+          reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
+        });
+    });
+  };
+
+  confirmUser = (to, code) => {
+    runInAction(() => {
+      this.registering = true;
+      this.inTransaction = true;
+    });
+    return new Promise((resolve, reject) => {
+      authentication
+        .confirm(config.VERIFY.SID, to, code)
+        .then(result => {
+          console.log('result', result);
+          if (!result || !result.valid) throw new Error('Invalid code.');
+          runInAction(() => {
+            this.error = null;
+            this.registering = false;
+          });
+          resolve(result);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e;
+            this.errorToastMessage = 'Possible invalid code.';
+            this.registering = false;
+          });
+          reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
+        });
+    });
+  };
+
   /************************* */
 
   accessTokenPromise = null;

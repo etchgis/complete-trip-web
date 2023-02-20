@@ -78,14 +78,18 @@ const authentication = {
       });
   },
 
-  verify(to) {
+  verify(channel, to) {
+    var data = {
+      channel,
+      to,
+      sid: config.VERIFY.SID,
+    };
+    if (channel === 'email') {
+      data.channelConfiguration = config.VERIFY.CHANNEL_CONFIGURATION;
+    }
     return fetch(`${config.SERVICES.auth.url}/verify`, {
       method: 'POST',
-      body: JSON.stringify({
-        channel: 'sms',
-        to: `+${to}`,
-        friendlyName: 'Rural Verification Service',
-      }),
+      body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': config.SERVICES.auth.xApiKey,
@@ -96,7 +100,7 @@ const authentication = {
         if (response.status === 200) {
           return json;
         }
-        throw json?.error;
+        throw json?.message || json?.error.reason;
       })
       .catch(err => {
         throw err;
@@ -104,11 +108,12 @@ const authentication = {
   },
 
   confirm(sid, to, code) {
+    console.log({ sid, to, code });
     return fetch(`${config.SERVICES.auth.url}/confirm`, {
       method: 'POST',
       body: JSON.stringify({
         sid,
-        to: `+${to}`,
+        to,
         code,
       }),
       headers: {
@@ -117,12 +122,11 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got confirm response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
         }
-        throw json?.error;
+        throw json?.message || json?.error.reason;
       })
       .catch(err => {
         throw err;

@@ -40,6 +40,7 @@ export const LoginRegister = observer(({ hideModal }) => {
     login: authLogin,
     error: authError,
     setError: authSetError,
+    verifyUser,
   } = useStore().authentication;
 
   const [stagedUser, setStagedUser] = useState({});
@@ -66,6 +67,7 @@ export const LoginRegister = observer(({ hideModal }) => {
           setError={authSetError}
           loginMessage={loginMessage}
           setStagedUser={setStagedUser}
+          verifyUser={verifyUser}
         ></CreateAccountOrLogin>
       ),
     },
@@ -80,6 +82,7 @@ export const LoginRegister = observer(({ hideModal }) => {
           setError={authSetError}
           loginMessage={loginMessage}
           setStagedUser={setStagedUser}
+          verifyUser={verifyUser}
         ></CreateAccountOrLogin>
       ),
     },
@@ -196,6 +199,7 @@ const CreateAccountOrLogin = ({
   setError,
   loginMessage,
   setStagedUser,
+  verifyUser,
 }) => {
   const { colorMode } = useColorMode();
   const [showPassword, setShowPassword] = useState(false);
@@ -244,7 +248,9 @@ const CreateAccountOrLogin = ({
                 password: password,
               });
               //send verify email to twilio
-              //verifyEmail(email);
+              const verified = await verifyUser('email', email);
+              if (!verified || verified.error) return;
+              console.log({ verified });
               setActiveView('verify');
             }
           }}
@@ -568,7 +574,7 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
 };
 
 const VerifyEmail = ({ stagedUser, setActiveView, setLoginMessage }) => {
-  const { registerUser } = useStore().authentication;
+  const { confirmUser, registerUser } = useStore().authentication;
   const [verifyError, setVerifyError] = useState(false);
 
   return (
@@ -584,17 +590,17 @@ const VerifyEmail = ({ stagedUser, setActiveView, setLoginMessage }) => {
         for the six-digit verification code and enter it below. You can copy and
         past the code into the first box.
       </Text>
-      <Center>
-        <Text as="code">123456</Text>
-      </Center>
       <Center flexDirection={'column'}>
         <HStack py={20}>
           <PinInput
             otp
             onChange={() => setVerifyError(false)}
             onComplete={async e => {
-              if (e !== '123456') return setVerifyError(true);
-              console.log(e);
+              const valid = await confirmUser(stagedUser.email, e);
+              if (!valid || valid.error) {
+                setVerifyError(true);
+                return;
+              }
               const newUser = await registerUser(stagedUser);
               if (!newUser.error) {
                 setActiveView('login');

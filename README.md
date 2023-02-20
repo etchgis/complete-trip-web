@@ -12,10 +12,10 @@
 
 #### Registration
 
-- [ ] Create Account with email and password
-- [ ] Terms and Conditions (move to front)
+- [x] Create Account with email and password
+- [x] Terms and Conditions (move to front)
 - [ ] Password Checker & Icons
-- [ ] Email Verify
+- [x] Email Verify (fake)
 
 #### Wizard
 
