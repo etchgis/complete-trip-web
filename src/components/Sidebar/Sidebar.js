@@ -13,7 +13,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
-import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
+import { observer } from 'mobx-react-lite';
+import { useStore } from '../../context/mobx/RootStore';
 
 export const ResponsiveSidebar = ({
   isOpen,
@@ -29,7 +30,7 @@ export const ResponsiveSidebar = ({
       <Box
         borderRight="solid thin lightgray"
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
-        display={{ base: 'none', md: 'block' }}
+        display={{ base: 'none', lg: 'block' }}
       >
         <SidebarContent data-testid="desktop-sidebar" testUser={testUser} />
       </Box>
@@ -56,15 +57,15 @@ export const ResponsiveSidebar = ({
   );
 };
 
-const SidebarContent = ({ onClose, rest, testUser }) => {
-  const { loggedIn } = useAuthenticationStore();
+const SidebarContent = observer(({ onClose, rest, testUser }) => {
+  const { loggedIn } = useStore().authentication;
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const { pathname: location } = useLocation();
   return (
     <Flex flexDir={'column'} {...rest}>
       <CloseButton
-        display={{ base: 'flex', md: 'none' }}
+        display={{ base: 'flex', lg: 'none' }}
         onClick={onClose}
         alignSelf="flex-end"
         size="lg"
@@ -154,4 +155,4 @@ const SidebarContent = ({ onClose, rest, testUser }) => {
       </Stack>
     </Flex>
   );
-};
+});

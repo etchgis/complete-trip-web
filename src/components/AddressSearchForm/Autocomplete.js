@@ -20,7 +20,11 @@ export { Item, Section } from 'react-stately';
 
 export const Autocomplete = props => {
   let { contains } = useFilter({ sensitivity: 'base' });
-  let state = useComboBoxState({ ...props, defaultFilter: contains });
+  let state = useComboBoxState({
+    ...props,
+    defaultFilter: contains,
+    allowsCustomValue: true,
+  });
 
   let inputRef = React.useRef(null);
   let listBoxRef = React.useRef(null);

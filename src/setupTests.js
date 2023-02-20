@@ -4,9 +4,15 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
-// import React from "react";
-// import { ThemeProvider } from "@chakra-ui/core/dist";
+import RootStore, { StoreProvider } from './context/mobx/RootStore';
 
-// export const ThemeWrapper = ({ children }) => (
-//   <ThemeProvider>{children}</ThemeProvider>
-// );
+// import React from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+
+const store = new RootStore();
+
+export const TestWrapper = ({ children }) => (
+  <StoreProvider store={store}>
+    <ChakraProvider>{children}</ChakraProvider>
+  </StoreProvider>
+);

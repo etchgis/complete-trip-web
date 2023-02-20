@@ -4,6 +4,7 @@ import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import { authentication } from '../../services/transport';
+import config from '../../config';
 import jwtDecode from 'jwt-decode';
 
 const validateJWT = token => {
@@ -23,6 +24,76 @@ class Authentication {
   loggingIn = false;
   registering = false;
   error = null;
+  inTransaction = false;
+
+  /** NOTE malcolm additions */
+  stagedUser = {};
+  errorToastMessage = null;
+  setStagedUser = user => {
+    runInAction(() => {
+      this.stagedUser = user;
+    });
+  };
+
+  setError = error => {
+    runInAction(() => {
+      this.error = error;
+    });
+  };
+
+  setErrorToastMessage = message => {
+    runInAction(() => {
+      this.errorToastMessage = message;
+    });
+  };
+
+  registerUser = user => {
+    runInAction(() => {
+      this.inTransaction = true;
+    });
+    return new Promise((resolve, reject) => {
+      if (!user.email || !user.firstName || !user.lastName || !user.password) {
+        this.error = 'Missing required fields.';
+        this.errorToastMessage = 'Missing required fields.';
+        this.inTransaction = false;
+        reject({ error: true, message: 'Please fill out all fields' });
+      }
+
+      const profile = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mfa: false,
+        onboarded: false,
+      };
+      console.log({ user });
+      console.log({ profile });
+      authentication
+        .register(
+          user.email,
+          '+15555555555',
+          config.ORGANIZATION,
+          user.password,
+          profile
+        )
+        .then(result => {
+          runInAction(() => {
+            this.error = null;
+            this.inTransaction = false;
+            resolve(result);
+          });
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e.message || e.reason;
+            this.errorToastMessage = e.message || e.reason;
+            this.inTransaction = false;
+            reject(e);
+          });
+        });
+    });
+  };
+
+  /************************* */
 
   accessTokenPromise = null;
 
@@ -43,11 +114,11 @@ class Authentication {
     }
   }
 
-  clearError() {
+  clearError = () => {
     runInAction(() => {
       this.error = null;
     });
-  }
+  };
 
   /**
    * Get the user's access token, renewing if necessary.
@@ -55,7 +126,11 @@ class Authentication {
    * each one.
    * @returns {Promise} - the user access token.
    */
-  fetchAccessToken() {
+  //NOTE all these this.loggingIn = false are probably not necessary, there is prob a better way to do this
+  fetchAccessToken = () => {
+    // runInAction(() => {
+    //   this.loggingIn = true;
+    // });
     if (this.accessTokenPromise) {
       return this.accessTokenPromise;
     }
@@ -79,10 +154,13 @@ class Authentication {
         }
         throw new Error('user access failed');
       });
+    runInAction(() => {
+      this.loggingIn = false;
+    });
     return this.accessTokenPromise;
-  }
+  };
 
-  login(email, password) {
+  login = (email, password) => {
     runInAction(() => {
       this.loggingIn = true;
     });
@@ -92,16 +170,17 @@ class Authentication {
         .then(async result => {
           runInAction(() => {
             this.user = result;
-            if (result?.profile?.preferences) {
-              var prefs = result.profile.preferences;
-              for (var key in prefs) {
-                this.rootStore.preferences.updateProperty(
-                  key,
-                  prefs[key],
-                  false
-                );
-              }
-            }
+            //BUG temp disabled
+            // if (result?.profile?.preferences) {
+            //   var prefs = result.profile.preferences;
+            //   for (var key in prefs) {
+            //     this.rootStore.preferences.updateProperty(
+            //       key,
+            //       prefs[key],
+            //       false
+            //     );
+            //   }
+            // }
             this.error = null;
             this.loggingIn = false;
             this.loggedIn = true;
@@ -111,33 +190,41 @@ class Authentication {
         .catch(e => {
           runInAction(() => {
             this.error = 'Incorrect email or password';
-            this.loggingIn = false;
           });
           reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.loggingIn = false;
+          });
         });
     });
-  }
+  };
 
-  logout() {
+  logout = () => {
     this.reset();
-  }
+  };
 
-  setLoggedIn(loggedIn) {
+  setLoggedIn = loggedIn => {
     runInAction(() => {
       this.loggedIn = loggedIn;
+      this.loggingIn = false;
     });
-  }
+    if (!loggedIn) {
+      this.reset();
+    }
+  };
 
-  reset() {
+  reset = () => {
     runInAction(() => {
-      this.rootStore.mapManager.hide();
+      // this.rootStore.mapManager.hide();
       this.user = {};
       this.error = null;
       this.loggingIn = false;
       this.loggedIn = false;
       this.registering = false;
     });
-  }
+  };
 
   updateUser = user => {
     runInAction(() => {
@@ -145,7 +232,10 @@ class Authentication {
     });
   };
 
-  updateUserProfile(profile) {
+  updateUserProfile = profile => {
+    runInAction(() => {
+      this.inTransaction = true;
+    });
     return new Promise(resolve => {
       authentication
         .update({ profile }, this.user.accessToken)
@@ -157,10 +247,78 @@ class Authentication {
         })
         .catch(e => {
           console.warn(e);
+          runInAction(() => {
+            this.errorToastMessage = 'Error updating profile';
+          });
           resolve({ error: e });
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
         });
     });
-  }
+  };
+
+  updateUserPassword = (oldPassword, password) => {
+    runInAction(() => {
+      this.inTransaction = true;
+    });
+    return new Promise(async (resolve, reject) => {
+      await this.fetchAccessToken();
+      authentication
+        .updatePassword(oldPassword, password, this.user.accessToken)
+        .then(() => {
+          runInAction(() => {
+            this.error = null;
+          });
+          resolve(true);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e;
+            this.errorToastMessage =
+              'Error updating password - did you enter the correct old password?';
+          });
+          reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
+        });
+    });
+  };
+
+  updateUserPhone = phone => {
+    runInAction(() => {
+      this.inTransaction = true;
+    });
+    return new Promise(async (resolve, reject) => {
+      await this.fetchAccessToken();
+      authentication
+        .updatePhone(phone, this.user.accessToken)
+        .then(() => {
+          runInAction(() => {
+            this.error = null;
+            this.user.phone = phone;
+          });
+          resolve(true);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e;
+            this.errorToastMessage = 'Error updating phone number';
+          });
+          reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
+        });
+    });
+  };
 }
 
 export default Authentication;

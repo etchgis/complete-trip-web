@@ -8,14 +8,41 @@
 
 ## Task List
 
-- [x] Login
-- [x] Error Msg on login
-- [ ] Check token on launch - autologin
-- [ ] Error Msg on check token on launch
-- [ ] Set refresh token
-- [ ] Error Msg on set refresh token
-- [ ] Account Page/Sidebar
-- [ ] Revisit MobX
+### User Functions
+
+#### Registration
+
+- [ ] Create Account with email and password
+- [ ] Terms and Conditions (move to front)
+- [ ] Password Checker & Icons
+- [ ] Email Verify
+
+#### Wizard
+
+- [ ] Add Phone Number
+- [ ] Add Address
+- [ ] Add 1 Caretaker
+- [ ] Add email to Enhanced Mobility
+
+#### Update Settings
+
+- [x] Profile
+  - [x] Update Profile Name Address
+
+- [x] Caretakers
+  - [x] Update Caretaker
+  - [x] Add Caretaker
+  - [x] Delete Caretaker
+
+- [x] Trip Preferences
+  - [x] Walking
+  - [x] Cost
+  - [x] Transfers
+  - [x] Wheelchair
+  - [x] Modes
+
+- [x] Language
+- [x] SMS/Email
 
 ## Logins
 

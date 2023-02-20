@@ -29,8 +29,9 @@ export const CustomModal = ({
     }
     onClose();
   };
+
   useEffect(() => {
-    console.log('alerted');
+    console.log('[modal] alerted', alerted);
   }, [alerted]);
 
   return (

@@ -6,42 +6,58 @@
 
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
-import App from '../components';
+import { Box } from '@chakra-ui/react';
+import Layout from '../components/Layout';
 import Settings from '../components/Settings';
 import Trips from '../components/Trips';
-import { _alive } from '../helpers/helpers';
 import { observer } from 'mobx-react-lite';
-import { useAuthenticationStore } from '../context/AuthenticationStoreZS';
+import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/mobx/RootStore';
 
-// import { AccountPage } from '../components/Auth/AccountPage';
-
 export const AppRoutes = observer(() => {
-  console.log('[routes]');
-
   const { pathname } = useLocation();
-  const store = useStore();
-  const { user: testUser, updateUser } = store.authentication;
+  const {
+    user,
+    // updateUserProfile,
+    loggedIn,
+    fetchAccessToken,
+    setLoggedIn,
+    loggingIn,
+  } = useStore().authentication;
 
-  console.log('mobx', testUser?.name);
+  console.log('[routes] loggedIn', loggedIn, loggingIn);
+  console.log(toJS(user?.profile));
 
-  const { user, loggedIn, validateUser, inTransaction } =
-    useAuthenticationStore(state => state);
+  // useEffect(() => {
+  //   console.log(toJS(user));
+  // }, [user]);
 
-  //NOTE validate user on initial load of app - the loggedIn value is not persisted
+  // useEffect(() => {
+  //   if (!user?.profile) return;
+  //   updateUserProfile(Object.assign({}, user?.profile, { onboarded: false }));
+  // }, []);
+
   useEffect(() => {
-    if (_alive(user) && !loggedIn) validateUser(user);
-    //eslint-disable-next-line
-  }, []);
+    if (user?.accessToken && !loggedIn) {
+      console.log('[routes] verifying accessToken');
+      try {
+        fetchAccessToken();
+        console.log('[routes] success veryfing accessToken');
+        setLoggedIn(true);
+      } catch (error) {
+        console.log(error);
+        setLoggedIn(false);
+      }
+    } else if (user?.accessToken && loggedIn) {
+      return;
+    } else {
+      console.log('[routes] no user or missing accessToken');
+      setLoggedIn(false);
+    }
+    // eslint-disable-next-line
+  }, [loggedIn]);
 
-  useEffect(() => {
-    if (_alive(user)) console.log({ user });
-  }, [user]);
-
-  useEffect(() => {
-    if (loggedIn) updateUser({ name: 'new user2' });
-  }, [loggedIn, updateUser]);
   return (
     <Routes>
       {/* Redirect all trailing slashes */}
@@ -50,80 +66,64 @@ export const AppRoutes = observer(() => {
         element={<Navigate to={pathname.slice(0, -1)} />}
       />
       {/* Home */}
-      <Route
-        path={'/'}
-        element={
-          <App
-            isLoggedIn={loggedIn}
-            inTransaction={inTransaction}
-            showMap={true}
-          ></App>
-        }
-      />
+      <Route path={'/'} element={<Layout showMap={true}></Layout>} />
 
       {/* Trips */}
-      <Route
-        path={'/trips'}
-        element={
-          <App
-            isLoggedIn={loggedIn}
-            inTransaction={inTransaction}
-            children={<Trips />}
-          />
-        }
-      />
+      <Route path={'/trips'} element={<Layout children={<Trips />} />} />
 
       {/* Map */}
       <Route
         path={'/map'}
-        element={
-          <App
-            isLoggedIn={loggedIn}
-            inTransaction={inTransaction}
-            showMap={true}
-          ></App>
-        }
+        element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
       />
       {/* Profile */}
-      {loggedIn ? (
+      {loggedIn || user?.accessToken ? (
         <>
           <Route
             path={'/settings/profile'}
             element={
-              <App
-                isLoggedIn={loggedIn}
-                inTransaction={inTransaction}
-                children={<Settings />}
-              ></App>
+              <Layout isLoggedIn={loggedIn} children={<Settings />}></Layout>
             }
           />
           <Route
             path="/settings/caretakers"
-            element={<App children={<Settings view="caretakers" />} />}
+            element={<Layout children={<Settings view="caretakers" />} />}
           />
           <Route
             path="/settings/preferences"
-            element={<App children={<Settings view="preferences" />} />}
+            element={<Layout children={<Settings view="preferences" />} />}
           />
           <Route
             path="/settings/accessibility"
-            element={<App children={<Settings view="accessibility" />} />}
+            element={<Layout children={<Settings view="accessibility" />} />}
           />
           <Route
             path="/settings/notifications"
-            element={<App children={<Settings view="notifications" />} />}
+            element={<Layout children={<Settings view="notifications" />} />}
+          />
+          <Route
+            path="/settings/password"
+            element={<Layout children={<Settings view="password" />} />}
           />
           <Route
             path="/settings/terms"
-            element={<App children={<Settings view="terms" />} />}
+            element={<Layout children={<Settings view="terms" />} />}
           />
           <Route
             path="/settings/privacy"
-            element={<App children={<Settings view="privacy" />} />}
+            element={<Layout children={<Settings view="privacy" />} />}
           />
         </>
       ) : (
-        <Route path="/settings/*" element={<Navigate to={'/'}></Navigate>} />
+        <Route
+          path="/settings/*"
+          element={
+            <Layout
+              children={<Box p={10}>Please Login to access user settings.</Box>}
+            />
+          }
+        />
+        // <Route path="/settings/*" element={<Navigate to={'/'}></Navigate>} />
       )}
       {/* default redirect to home page */}
       {/* <Route path="*" element={<Navigate to="/" />} /> */}

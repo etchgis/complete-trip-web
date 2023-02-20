@@ -36,7 +36,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got login response');
+        console.log('{services-transport-auth} got login response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
@@ -140,7 +140,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got patch auth response');
+        console.log('{services-transport-auth} got patch auth response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
@@ -229,6 +229,50 @@ const authentication = {
       .catch(err => {
         console.warn('removeDeviceIfRegistered', err);
         return null;
+      });
+  },
+
+  updatePassword(oldPassword, password, accessToken) {
+    return fetch(`${config.SERVICES.auth.url}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ oldPassword, password }),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        throw json?.message || json?.error.reason;
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
+
+  updatePhone(phone, accessToken) {
+    return fetch(`${config.SERVICES.auth.url}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ phone }),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        throw json?.message || json?.error.reason;
+      })
+      .catch(err => {
+        throw err;
       });
   },
 };

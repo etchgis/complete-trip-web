@@ -5,6 +5,9 @@
     },
     {
       "path": "../complete-trip"
+    },
+    {
+      "path": "../complete-trip-web-archive"
     }
   ],
   "settings": {

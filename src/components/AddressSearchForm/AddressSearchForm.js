@@ -18,7 +18,8 @@ export const SearchForm = ({
 
   useEffect(() => {
     setAddress(defaultAddress);
-  }, [defaultAddress]);
+    // eslint-disable-next-line
+  }, []);
 
   let list = useAsyncList({
     async load({ signal, cursor, filterText }) {
@@ -52,7 +53,7 @@ export const SearchForm = ({
         )
           return;
         keys.push(item.childKey);
-        item['name'] = item.title + ', ' + item.description;
+        item['name'] = item?.title + ', ' + item?.description;
         unique.push(item);
       });
 
@@ -73,9 +74,15 @@ export const SearchForm = ({
       inputValue={address || list.filterText}
       onInputChange={e => {
         list.setFilterText(e);
-        setAddress('');
+        console.log(list);
+        if (!list.selectedKeys.length) {
+          setAddress(e);
+        } else {
+          setAddress('');
+        }
       }}
       onSelectionChange={item => {
+        if (!item) return;
         setAddress(list.items.filter(e => e.childKey === item)[0]?.title);
         setGeocoderResult(list.items.find(e => e.childKey === item));
       }}
@@ -83,7 +90,7 @@ export const SearchForm = ({
       onLoadMore={list.loadMore}
       name="address"
     >
-      {item => <Item key={item.childKey}>{item.title}</Item>}
+      {item => <Item key={item.childKey}>{item?.name}</Item>}
     </Autocomplete>
   );
 };

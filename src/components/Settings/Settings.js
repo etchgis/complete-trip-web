@@ -8,35 +8,32 @@ import {
 import {
   Box,
   Button,
+  Divider,
   Grid,
   Heading,
   Stack,
   useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
-import {
-  EditAccessibility,
-  EditCaretakers,
-  EditProfile,
-  EditTripPreferences,
-  Notifications,
-} from './SettingsForms';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { EditAccessibility } from './EditAccessibility';
+import { EditCaretaker } from './EditCaretaker';
+import { EditNotifications } from './EditNotifications';
+import { EditPassword } from './EditPassword';
+import { EditProfile } from './EditProfile';
+import { EditTripPreferences } from './EditTripPreferences';
 import { SettingsModal } from './SettingsModal';
-import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
+import { observer } from 'mobx-react-lite';
+import { useStore } from '../../context/mobx/RootStore';
 
-//TODO form logic for each form
-//TODO actual Terms
-//TODO actual Privacy Policy
-//TODO actual values for user settings
-
-export const Settings = ({ view }) => {
+export const Settings = observer(({ view }) => {
   const navigate = useNavigate();
-  const { user } = useAuthenticationStore();
+  const { user } = useStore().authentication;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activePanel, setActivePanel] = useState();
+  const [caretakerId, setCaretakerId] = useState();
 
   useEffect(() => {
     if (activePanel) onOpen();
@@ -65,13 +62,14 @@ export const Settings = ({ view }) => {
       type: 'account',
       action: () => navigate('/settings/preferences'),
     },
-    // {
-    //   title: 'Password',
-    //   type: 'setting',
-    //   el: <PasswordReset />,
-    // },
     {
-      title: 'Accessibility',
+      title: 'Password',
+      path: 'password',
+      type: 'setting',
+      action: () => navigate('/settings/password'),
+    },
+    {
+      title: 'App Accessibility',
       type: 'setting',
       action: () => navigate('/settings/accessibility'),
     },
@@ -97,25 +95,37 @@ export const Settings = ({ view }) => {
   const settingsForms = [
     {
       title: 'Edit Profile Information',
-      el: <EditProfile />,
+      el: <EditProfile onClose={onClose} />,
     },
     {
-      title: 'Edit Caretakers',
-      el: <EditCaretakers />,
+      title: 'Edit Caretaker',
+      el: <EditCaretaker id={caretakerId} onClose={onClose} />,
+    },
+    {
+      title: 'Add Caretaker',
+      el: <EditCaretaker onClose={onClose} />,
     },
     {
       title: 'Trip Preferences',
       el: <EditTripPreferences />,
     },
     {
-      title: 'Edit Accessibility',
+      title: 'Password',
+      el: <EditPassword />,
+    },
+    {
+      title: 'App Accessibility',
       el: <EditAccessibility />,
     },
   ];
 
   return (
     <>
-      <Grid p={0} gridTemplateColumns={{ base: '1fr', md: '340px 1fr' }}>
+      <Grid
+        p={0}
+        gridTemplateColumns={{ base: '1fr', md: '340px 1fr' }}
+        height={{ base: 'fit-content', md: 'auto' }}
+      >
         <Box
           id="leftSettingsPanel"
           borderRightColor={'brand'}
@@ -145,9 +155,16 @@ export const Settings = ({ view }) => {
               }
             })}
           </Stack>
+          <Box mt={6} display={{ base: 'block', md: 'none' }}>
+            <Divider />
+          </Box>
         </Box>
-        <Box id="rightSettingsPanel" p={10} maxW={'600px'}>
-          {switchViews({ view, user, setActivePanel })}
+        <Box
+          id="rightSettingsPanel"
+          p={{ base: 10, md: 10 }}
+          maxW={{ base: '100%', md: '600px' }}
+        >
+          {switchViews({ view, user, setActivePanel, setCaretakerId })}
         </Box>
       </Grid>
       <SettingsModal
@@ -155,32 +172,51 @@ export const Settings = ({ view }) => {
         onClose={onClose}
         title={activePanel}
         children={
-          activePanel ? settingsForms.find(l => l.title === activePanel).el : ''
+          activePanel
+            ? settingsForms.find(l => l.title === activePanel)?.el
+            : ''
         }
       />
     </>
   );
-};
+});
 
-function switchViews({ view, user, setActivePanel }) {
-  console.log(view);
+function switchViews({ view, user, setActivePanel, setCaretakerId }) {
+  console.log('[settings]', view);
   switch (view) {
     case 'caretakers':
-      return <CaretakerCards caretakers={user?.profile?.caretakers || []} />;
+      return (
+        <CaretakerCards
+          action={id => {
+            if (!id && id !== 0) {
+              return setActivePanel('Add Caretaker');
+            }
+            setActivePanel('Edit Caretaker');
+            setCaretakerId(id);
+          }}
+          caretakers={user?.profile?.caretakers || []}
+        />
+      );
     case 'preferences':
       return <EditTripPreferences />;
+    case 'password':
+      return <EditPassword />;
     case 'accessibility':
       return (
-        <Accessibility action={() => setActivePanel('Edit Accessibility')} />
+        <Accessibility action={() => setActivePanel('App Accessibility')} />
       );
     case 'notifications':
-      return <Notifications />;
+      return <EditNotifications />;
     case 'terms':
       return <TermsOfUse />;
     case 'privacy':
       return <PrivacyPolicy />;
     default:
-      return <ProfileInformation></ProfileInformation>;
+      return (
+        <ProfileInformation
+          action={() => setActivePanel('Edit Profile Information')}
+        ></ProfileInformation>
+      );
   }
 }
 

@@ -11,10 +11,12 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
+import { AddIcon } from '@chakra-ui/icons';
+import formatters from '../../utils/formatters';
+import { useStore } from '../../context/mobx/RootStore';
 
 export const ProfileInformation = ({ action }) => {
-  const { user } = useAuthenticationStore();
+  const { user } = useStore().authentication;
   return (
     <Stack p={4}>
       <Avatar size="xl" mb={4}></Avatar>
@@ -25,10 +27,10 @@ export const ProfileInformation = ({ action }) => {
         {user?.profile?.firstName} {user?.profile?.lastName}
       </Box>
       <Box>{user?.email}</Box>
-      <Box>{user?.phone}</Box>
+      <Box> {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}</Box>
       <Box p={4}></Box>
       <Box>
-        <Box pb={4}>{user?.profile?.address?.title}</Box>
+        <Box pb={4}>{user?.profile?.address?.text}</Box>
         {/* <Box pb={4}>Columbus OH, 00000</Box> */}
       </Box>
 
@@ -39,7 +41,6 @@ export const ProfileInformation = ({ action }) => {
         }}
         color="white"
         onClick={action}
-        disabled
         maxWidth={'200px'}
       >
         Edit Profile
@@ -49,7 +50,7 @@ export const ProfileInformation = ({ action }) => {
 };
 
 export const Accessibility = ({ action }) => {
-  const { user } = useAuthenticationStore();
+  const { user } = useStore().authentication;
 
   return (
     <Stack p={4}>
@@ -79,13 +80,31 @@ export const Accessibility = ({ action }) => {
 export const CaretakerCards = ({ action, caretakers }) => {
   return (
     <>
-      {caretakers.map((caretaker, i) => (
-        <CaretakerCard
-          key={i.toString()}
-          caretaker={caretaker}
-          action={action}
-        />
-      ))}
+      <Stack spacing={6}>
+        {caretakers.map((caretaker, i) => (
+          <CaretakerCard
+            key={i.toString()}
+            caretaker={caretaker}
+            action={() => {
+              action(i);
+            }}
+          />
+        ))}
+      </Stack>
+
+      <Button
+        mt={6}
+        variant={'outline'}
+        color={'brand'}
+        // bg={'brand'}
+        // _hover={{
+        //   opacity: '0.8',
+        // }}
+        leftIcon={<AddIcon />}
+        onClick={() => action(null)}
+      >
+        Add Caretaker
+      </Button>
     </>
   );
 };
@@ -98,18 +117,19 @@ export const CaretakerCard = ({ action, caretaker }) => {
           <Heading size="md">
             {caretaker?.firstName} {caretaker?.lastName}
           </Heading>
-          <Text>{caretaker?.phone}</Text>
+          <Text>{formatters.phone.asDomestic(caretaker?.phone.slice(2))}</Text>
           <Text>{caretaker?.email}</Text>
         </Stack>
       </CardBody>
       <Divider />
       <CardFooter p={2}>
         <Button
-          variant="ghost"
-          color="brandDark"
-          fontWeight={'bold'}
+          bg="brand"
+          _hover={{
+            opacity: '0.8',
+          }}
+          color="white"
           onClick={action}
-          disabled
         >
           Edit
         </Button>

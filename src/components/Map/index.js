@@ -1,3 +1,3 @@
-import { MapboxMap } from './MapboxMap';
+import { MapView } from './MapView';
 
-export default MapboxMap;
+export default MapView;

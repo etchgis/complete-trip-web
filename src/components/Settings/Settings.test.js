@@ -5,7 +5,6 @@ import * as React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 
-import { ChakraProvider } from '@chakra-ui/react';
 import { Settings } from './Settings';
 import { createMemoryHistory } from 'history';
 
@@ -15,13 +14,13 @@ test('Renders the Settings Page', () => {
   });
 
   render(
-    <ChakraProvider>
-      <Router history={history}>
-        <Routes>
-          <Route path="/" element={<Settings />} />
-        </Routes>
-      </Router>
-    </ChakraProvider>
+
+    <Router history={history}>
+      <Routes>
+        <Route path="/" element={<Settings />} />
+      </Routes>
+    </Router>
+
   );
   const exists = screen.getByText(/Account/i);
   expect(exists).toBeInTheDocument();

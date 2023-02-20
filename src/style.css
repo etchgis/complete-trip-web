@@ -38,5 +38,12 @@
     padding: 2rem 0.5rem !important;
     height: unset;
   }
+}
 
+.chakra-ui-dark .mapboxgl-popup-content {
+  background-color: #1A202C;
+}
+
+.chakra-ui-dark .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: #1A202C;
 }

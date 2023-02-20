@@ -11,12 +11,13 @@ import {
 import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
 
 import { ColorModeSwitcher } from '../ColorModeSwitcher/ColorModeSwitcher';
-import { useAuthenticationStore } from '../../context/AuthenticationStoreZS';
+import { observer } from 'mobx-react-lite';
+import { useStore } from '../../context/mobx/RootStore';
 
 // import logo from '../../assets/images/logo.png';
 
-export const Navbar = ({ isOpen, onToggle, action1 }) => {
-  const { loggedIn, logout } = useAuthenticationStore(state => state);
+export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
+  const { loggedIn, logout } = useStore().authentication;
   return (
     <Flex
       //BUG too dark
@@ -40,7 +41,7 @@ export const Navbar = ({ isOpen, onToggle, action1 }) => {
           variant={'ghost'}
           aria-label={'Toggle Navigation'}
           mr={2}
-          display={{ base: 'inline-flex', md: 'none' }}
+          display={{ base: 'inline-flex', lg: 'none' }}
         />
         <Box
           as="span"
@@ -54,7 +55,7 @@ export const Navbar = ({ isOpen, onToggle, action1 }) => {
 
       <Flex>
         <Stack
-          flex={{ base: 1, md: 0 }}
+          flex={{ base: 1, lg: 0 }}
           justify={'flex-end'}
           direction={'row'}
           spacing={6}
@@ -105,4 +106,4 @@ export const Navbar = ({ isOpen, onToggle, action1 }) => {
       </Flex>
     </Flex>
   );
-};
+});

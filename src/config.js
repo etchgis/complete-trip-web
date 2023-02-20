@@ -41,6 +41,7 @@ const BASEMAPS = {
 };
 
 const defaults = {
+  DEBUG: false,
   SERVICES: API[ENV],
   MAP: {
     BASEMAPS,
@@ -48,7 +49,11 @@ const defaults = {
       'pk.eyJ1IjoiZXRjaGpvbiIsImEiOiJjamk3dmVwcjcwZm13M2twYTFjbm11OHM4In0.WLemp1TfP09gg0DRl_q0hg',
     ZOOM: 3,
     CENTER: [-99.02475, 39.28159],
+    VIEWBOX: [-74.3878, 43.0283, -74.2989, 43.0755],
   },
+  ORGANIZATION: '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
 };
-const Config = { ...defaults, defaults };
-export default Config;
+
+const config = { ...defaults, defaults };
+
+export default config;
