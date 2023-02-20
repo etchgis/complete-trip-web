@@ -392,7 +392,8 @@ const CreateAccountOrLogin = ({
                 color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
                 as="span"
                 variant={'link'}
-                onClick={() => setActiveView('forgot')}
+                // onClick={() => setActiveView('forgot')}
+                onClick={() => {}}
               >
                 Forgot Password?
               </Button>
