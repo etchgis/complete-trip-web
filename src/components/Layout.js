@@ -65,7 +65,12 @@ const Layout = observer(({ showMap, children }) => {
 
       {/* ONBOARD WIZARD */}
       <CustomModal
-        isOpen={loggedIn && user?.profile?.onboarded === false ? true : false}
+        isOpen={
+          (loggedIn && !user?.profile?.onboarded) ||
+          user?.profile?.onboarded === false
+            ? true
+            : false
+        }
         onOpen={showLogin}
         onClose={hideLogin}
         size="lg"
