@@ -12,8 +12,7 @@ import { useStore } from '../context/mobx/RootStore';
 
 const Layout = observer(({ showMap, children }) => {
   const { colorMode } = useColorMode();
-  const { user, loggedIn, loggingIn, inTransaction } =
-    useStore().authentication;
+  const { user, loggedIn, inTransaction } = useStore().authentication;
   //Sidebar
   const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
 
@@ -79,7 +78,7 @@ const Layout = observer(({ showMap, children }) => {
       </CustomModal>
 
       {/* LOADER */}
-      <Loader isOpen={loggingIn || inTransaction}></Loader>
+      <Loader isOpen={inTransaction}></Loader>
     </Flex>
   );
 });

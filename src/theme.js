@@ -22,6 +22,7 @@ const customTheme = {
     // brandDark: '#165BC1',
     brand: '#2465B1',
     brandDark: '#1d5290',
+    brandText: '#1B69DC',
   },
   fonts: {
     heading: `'Open Sans', sans-serif`,

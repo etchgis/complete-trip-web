@@ -20,12 +20,15 @@ import {
 
 import { FaExchangeAlt } from 'react-icons/fa';
 import { HiCurrencyDollar } from 'react-icons/hi';
+import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../context/mobx/RootStore';
 
-export const EditTripPreferences = () => {
+export const EditTripPreferences = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
-  const preferences = Object.assign({}, user?.profile?.preferences);
+  // const [preferences, setPreferences] = useState(user?.profile?.preferences);
+  // const preferences = Object.assign({}, user?.profile?.preferences);
+  const preferences = user?.profile?.preferences;
 
   const [minimizeWalking, setMinimizeWalking] = useState(
     preferences?.minimizeWalking || false
@@ -242,7 +245,7 @@ export const EditTripPreferences = () => {
       </FormControl> */}
     </Stack>
   );
-};
+});
 
 function SliderThumbWithTooltipLength({ action, initialValue }) {
   const [sliderValue, setSliderValue] = useState(initialValue);
@@ -331,7 +334,6 @@ function SliderThumbWithTooltipCost({ action, initialValue }) {
   );
 }
 
-// 1. Create a component that consumes the `useRadio` hook
 function RadioCard(props) {
   const { getInputProps, getCheckboxProps } = useRadio(props);
 

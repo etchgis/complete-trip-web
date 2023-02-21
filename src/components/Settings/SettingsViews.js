@@ -13,9 +13,10 @@ import {
 
 import { AddIcon } from '@chakra-ui/icons';
 import formatters from '../../utils/formatters';
+import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/mobx/RootStore';
 
-export const ProfileInformation = ({ action }) => {
+export const ProfileInformation = observer(({ action }) => {
   const { user } = useStore().authentication;
   return (
     <Stack p={4}>
@@ -47,9 +48,9 @@ export const ProfileInformation = ({ action }) => {
       </Button>
     </Stack>
   );
-};
+});
 
-export const Accessibility = ({ action }) => {
+export const Accessibility = observer(({ action }) => {
   const { user } = useStore().authentication;
 
   return (
@@ -75,7 +76,7 @@ export const Accessibility = ({ action }) => {
       </Button>
     </Stack>
   );
-};
+});
 
 export const CaretakerCards = ({ action, caretakers }) => {
   return (
@@ -166,6 +167,7 @@ export const TermsOfUse = () => {
     </Stack>
   );
 };
+
 export const PrivacyPolicy = () => {
   return (
     <Text fontSize={'16px'}>

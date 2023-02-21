@@ -48,7 +48,8 @@
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
-    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\mobility-app /E /S /COPY:DAT /MT:16 /XF"
+    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\linux-server-projects\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
+    "copy": "robocopy build \\\\server\\Projects\\linux-server-projects\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF"
   },
   "eslintConfig": {
     "extends": "react-app"

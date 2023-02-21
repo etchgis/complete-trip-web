@@ -21,13 +21,12 @@ export const AppRoutes = observer(() => {
     user,
     // updateUserProfile,
     loggedIn,
-    fetchAccessToken,
-    setLoggedIn,
     loggingIn,
+    fetchAccessToken,
   } = useStore().authentication;
 
-  console.log('[routes] loggedIn', loggedIn, loggingIn);
-  console.log(toJS(user?.profile));
+  console.log('[routes] loggedIn', loggedIn);
+  if (user?.profile) console.log(toJS(user));
 
   // useEffect(() => {
   //   console.log(toJS(user));
@@ -39,22 +38,22 @@ export const AppRoutes = observer(() => {
   // }, []);
 
   useEffect(() => {
-    if (user?.accessToken && !loggedIn) {
-      console.log('[routes] verifying accessToken');
-      try {
-        fetchAccessToken();
-        console.log('[routes] success veryfing accessToken');
-        setLoggedIn(true);
-      } catch (error) {
-        console.log(error);
-        setLoggedIn(false);
+    (async () => {
+      if (user?.accessToken && !loggedIn) {
+        console.log('[routes] verifying accessToken');
+        try {
+          await fetchAccessToken();
+          console.log('[routes] success veryfing accessToken');
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (user?.accessToken && loggedIn) {
+        return;
+      } else {
+        console.log('[routes] no user or missing accessToken');
       }
-    } else if (user?.accessToken && loggedIn) {
-      return;
-    } else {
-      console.log('[routes] no user or missing accessToken');
-      setLoggedIn(false);
-    }
+    })();
+
     // eslint-disable-next-line
   }, [loggedIn]);
 
@@ -77,7 +76,7 @@ export const AppRoutes = observer(() => {
         element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
       />
       {/* Profile */}
-      {loggedIn || user?.accessToken ? (
+      {loggedIn ? (
         <>
           <Route
             path={'/settings/profile'}
@@ -118,9 +117,7 @@ export const AppRoutes = observer(() => {
         <Route
           path="/settings/*"
           element={
-            <Layout
-              children={<Box p={10}>Please Login to access user settings.</Box>}
-            />
+            <Layout children={<Box p={10}>{loggingIn ? '' : ''}</Box>} />
           }
         />
         // <Route path="/settings/*" element={<Navigate to={'/'}></Navigate>} />

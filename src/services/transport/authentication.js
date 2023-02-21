@@ -19,6 +19,30 @@ const authentication = {
         throw json?.error;
       })
       .catch(err => {
+        console.log(err);
+        throw err;
+      });
+  },
+
+  refreshUser(accessToken) {
+    return fetch(`${config.SERVICES.auth.url}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        console.log('got refresh user response');
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        console.log({ json });
+        throw json?.error;
+      })
+      .catch(err => {
         throw err;
       });
   },

@@ -18,6 +18,7 @@ const validateJWT = token => {
     return false;
   }
 };
+
 class Authentication {
   user = {};
   loggedIn = false;
@@ -187,25 +188,56 @@ class Authentication {
    * each one.
    * @returns {Promise} - the user access token.
    */
-  //NOTE all these this.loggingIn = false are probably not necessary, there is prob a better way to do this
   fetchAccessToken = () => {
-    // runInAction(() => {
-    //   this.loggingIn = true;
-    // });
+    runInAction(() => {
+      this.inTransaction = true;
+      this.loggingIn = true;
+    });
     if (this.accessTokenPromise) {
       return this.accessTokenPromise;
     }
     if (!this.user?.refreshToken) {
       return Promise.reject(new Error('not logged in'));
     }
+
+    //NOTE this will refresh the user on each page load
     if (validateJWT(this.user.accessToken)) {
-      return Promise.resolve(this.user.accessToken);
+      const accessToken = this.user.accessToken;
+      return new Promise((resolve, reject) => {
+        authentication
+          .refreshUser(accessToken)
+          .then(result => {
+            runInAction(() => {
+              this.user = Object.assign({}, result, {
+                accessToken: accessToken,
+              });
+              this.loggedIn = true;
+            });
+            resolve(result);
+          })
+          .catch(e => {
+            runInAction(() => {
+              this.error = e.message || e.reason;
+              this.errorToastMessage = 'An error occurred. Please try again.';
+              this.loggedIn = false;
+            });
+            reject(e);
+          })
+          .finally(() => {
+            runInAction(() => {
+              this.inTransaction = false;
+              this.loggingIn = false;
+            });
+          });
+      });
     }
+
     this.accessTokenPromise = authentication
       .refreshAccessToken(this.user.refreshToken)
       .then(result => {
         this.accessTokenPromise = null;
         if (result.accessToken) {
+          console.log({ result });
           const refreshedUser = this.user;
           refreshedUser.accessToken = result.accessToken;
           runInAction(() => {
@@ -215,15 +247,19 @@ class Authentication {
         }
         throw new Error('user access failed');
       });
+
     runInAction(() => {
       this.loggingIn = false;
+      this.inTransaction = false;
     });
+
     return this.accessTokenPromise;
   };
 
   login = (email, password) => {
     runInAction(() => {
       this.loggingIn = true;
+      this.inTransaction = true;
     });
     return new Promise((resolve, reject) => {
       authentication
@@ -243,7 +279,6 @@ class Authentication {
             //   }
             // }
             this.error = null;
-            this.loggingIn = false;
             this.loggedIn = true;
           });
           resolve(true);
@@ -257,6 +292,7 @@ class Authentication {
         .finally(() => {
           runInAction(() => {
             this.loggingIn = false;
+            this.inTransaction = false;
           });
         });
     });

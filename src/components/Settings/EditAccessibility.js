@@ -1,9 +1,10 @@
 import { Box, FormControl, FormLabel, Select } from '@chakra-ui/react';
 
+import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../context/mobx/RootStore';
 
-export const EditAccessibility = () => {
+export const EditAccessibility = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
   const preferences = user?.profile?.preferences || {};
   const [language, setLanguage] = useState(
@@ -30,4 +31,4 @@ export const EditAccessibility = () => {
       </FormControl>
     </Box>
   );
-};
+});

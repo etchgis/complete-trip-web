@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Flex,
-  HStack,
   IconButton,
   Image,
   Stack,
@@ -17,7 +16,7 @@ import { useStore } from '../../context/mobx/RootStore';
 // import logo from '../../assets/images/logo.png';
 
 export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
-  const { loggedIn, logout } = useStore().authentication;
+  const { loggedIn, logout, loggingIn } = useStore().authentication;
   return (
     <Flex
       //BUG too dark
@@ -60,32 +59,19 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
           direction={'row'}
           spacing={6}
         >
-          {!loggedIn ? (
-            <Button
-              color={'white'}
-              bg={'brand'}
-              _hover={{
-                opacity: '0.8',
-              }}
-              onClick={action1}
-            >
-              Login/Sign Up
-            </Button>
-          ) : (
-            <HStack>
-              <Button
-                variant={'outline'}
-                color={'white'}
-                bg={'brand'}
-                _hover={{
-                  opacity: '0.8',
-                }}
-                onClick={logout}
-              >
-                Logout
-              </Button>
-            </HStack>
-          )}
+          <Button
+            color={'white'}
+            bg={'brand'}
+            _hover={{
+              opacity: '0.8',
+            }}
+            minWidth={'135px'}
+            isLoading={loggingIn}
+            // loadingText={'Logging In'}
+            onClick={e => (loggedIn ? logout() : action1(e))}
+          >
+            {loggedIn ? 'Logout' : 'Login/Sign Up'}
+          </Button>
 
           {/* <Button
             display={{ base: 'none', sm: 'inline-flex' }}

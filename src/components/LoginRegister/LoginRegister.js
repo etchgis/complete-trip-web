@@ -277,7 +277,19 @@ const CreateAccountOrLogin = ({
               </HStack>
             </Box>
           ) : (
-            <Text>{loginMessage}</Text>
+            <>
+              {/* <Heading
+                as="h1"
+                size="2xl"
+                fontWeight={400}
+                color="brandText"
+                textAlign={'center'}
+                mb={8}
+              >
+                Welcome Back
+              </Heading> */}
+              <Text>{loginMessage}</Text>
+            </>
           )}
           {loginError && showLogin ? (
             <Box color="red.500">An error occurred logging in.</Box>
