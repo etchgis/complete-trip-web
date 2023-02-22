@@ -71,22 +71,24 @@ export const WizardStepThroughForm = ({ content, cancelAction }) => {
               </FormControl>
               {s.content(tabIndex, setTabIndex)}
               <Stack mt={6} spacing={4}>
-                <Button
-                  bg={i === steps.length - 1 ? 'green.400' : 'brand'}
-                  color="white"
-                  _hover={{
-                    opacity: 0.9,
-                  }}
-                  w="100%"
-                  type="submit"
-                >
-                  {i < steps.length - 1 && s.buttonText
-                    ? s.buttonText
-                    : i < steps.length - 1
-                    ? 'Next'
-                    : 'Complete Setup Wizard'}
-                </Button>
-                {i > 0 ? (
+                {!s.hideButton ? (
+                  <Button
+                    bg={i === steps.length - 1 ? 'green.400' : 'brand'}
+                    color="white"
+                    _hover={{
+                      opacity: 0.9,
+                    }}
+                    w="100%"
+                    type="submit"
+                  >
+                    {i < steps.length - 1 && s.buttonText
+                      ? s.buttonText
+                      : i < steps.length - 1
+                      ? 'Next'
+                      : 'Verify Phone Number and Complete Setup'}
+                  </Button>
+                ) : null}
+                {i > 0 && !s.hideButton ? (
                   <Button
                     borderColor={
                       colorMode === 'light' ? 'brandDark' : 'gray.400'

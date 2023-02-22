@@ -208,7 +208,7 @@ export const EditTripPreferences = observer(() => {
             isChecked={modes.includes('avl')}
             onChange={handleModeChange}
           >
-            AV Shuttle
+            AVL Shuttle
           </Checkbox>
         </Stack>
       </FormControl>
@@ -255,7 +255,7 @@ function SliderThumbWithTooltipLength({ action, initialValue }) {
       id="slider"
       defaultValue={initialValue}
       min={0}
-      max={6}
+      max={8}
       colorScheme="blue"
       onChange={v => setSliderValue(v)}
       onChangeEnd={action}
@@ -269,6 +269,9 @@ function SliderThumbWithTooltipLength({ action, initialValue }) {
       </SliderMark>
       <SliderMark value={4} mt={3} ml="-1" fontSize="sm">
         4
+      </SliderMark>
+      <SliderMark value={6} mt={3} ml="-1" fontSize="sm">
+        6
       </SliderMark>
       <SliderTrack>
         <SliderFilledTrack />

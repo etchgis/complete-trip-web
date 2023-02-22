@@ -12,8 +12,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  PinInput,
-  PinInputField,
   Stack,
   Text,
   VStack,
@@ -28,6 +26,7 @@ import {
 } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 
+import { VerifyPin } from '../Shared/VerifyPin';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/mobx/RootStore';
 import { validators } from '../../utils/validators';
@@ -89,11 +88,12 @@ export const LoginRegister = observer(({ hideModal }) => {
     {
       id: 'verify',
       view: (
-        <VerifyEmail
+        <VerifyPin
+          channel={'email'}
           stagedUser={stagedUser}
           setActiveView={setActiveView}
           setLoginMessage={setLoginMessage}
-        ></VerifyEmail>
+        ></VerifyPin>
       ),
     },
     {
@@ -581,56 +581,6 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
           Decline
         </Button>
       </Flex>
-    </Stack>
-  );
-};
-
-const VerifyEmail = ({ stagedUser, setActiveView, setLoginMessage }) => {
-  const { confirmUser, registerUser } = useStore().authentication;
-  const [verifyError, setVerifyError] = useState(false);
-
-  return (
-    <Stack>
-      <Heading as="h2" size="lg" color="brand" fontWeight="400" mb={4}>
-        Enter the Verification Code
-      </Heading>
-      <Text as={'em'}>
-        Check{' '}
-        <strong>
-          {stagedUser?.email || 'the email you used on the registration form'}
-        </strong>{' '}
-        for the six-digit verification code and enter it below. You can copy and
-        past the code into the first box.
-      </Text>
-      <Center flexDirection={'column'}>
-        <HStack py={20}>
-          <PinInput
-            otp
-            onChange={() => setVerifyError(false)}
-            onComplete={async e => {
-              const valid = await confirmUser(stagedUser.email, e);
-              if (!valid || valid.error) {
-                setVerifyError(true);
-                return;
-              }
-              const newUser = await registerUser(stagedUser);
-              if (!newUser.error) {
-                setActiveView('login');
-                setLoginMessage('Your account has been created. Please login.');
-              }
-            }}
-            size="lg"
-          >
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-          </PinInput>
-        </HStack>
-        {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
-      </Center>
     </Stack>
   );
 };

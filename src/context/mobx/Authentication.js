@@ -267,17 +267,6 @@ class Authentication {
         .then(async result => {
           runInAction(() => {
             this.user = result;
-            //BUG temp disabled
-            // if (result?.profile?.preferences) {
-            //   var prefs = result.profile.preferences;
-            //   for (var key in prefs) {
-            //     this.rootStore.preferences.updateProperty(
-            //       key,
-            //       prefs[key],
-            //       false
-            //     );
-            //   }
-            // }
             this.error = null;
             this.loggedIn = true;
           });

@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
+import { VerifyPin } from '../Shared/VerifyPin';
 import { WizardStepThroughForm } from './WizardStepThroughForm';
 import formatters from '../../utils/formatters';
 import geocoder from '../../services/transport/geocoder';
@@ -65,7 +66,7 @@ export const Wizard = observer(({ hideModal }) => {
 });
 
 const WizardStepThrough = observer(() => {
-  const { user, updateUserProfile, updateUserPhone } =
+  const { user, updateUserProfile, updateUserPhone, verifyUser } =
     useStore().authentication;
 
   return (
@@ -147,20 +148,24 @@ const WizardStepThrough = observer(() => {
           buttonText: 'Check Email Address',
         },
         {
-          title: 'complete',
+          title: 'verify',
           content: () => <Complete></Complete>,
           skip: false,
-          buttonText: 'Click Here to Complete the Wizard',
+          buttonText: 'Verify your phone number to complete the setup.',
           action: async () => {
-            const profile = Object.assign({}, user?.profile, {
-              onboarded: true,
-            });
-            const updated = await updateUserProfile(profile);
-            //NOTE step through form will not advance if action returns an error
-            if (!updated || updated.error) {
+            const verified = verifyUser('sms', user?.phone);
+            if (!verified || verified.error) {
               return false;
             }
-            return updated;
+            return true;
+          },
+        },
+        {
+          title: 'finalize',
+          content: () => <VerifyPin channel="sms"></VerifyPin>,
+          hideButton: true,
+          action: async () => {
+            return;
           },
         },
         // {
