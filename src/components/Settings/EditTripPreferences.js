@@ -28,7 +28,7 @@ export const EditTripPreferences = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
   // const [preferences, setPreferences] = useState(user?.profile?.preferences);
   // const preferences = Object.assign({}, user?.profile?.preferences);
-  const preferences = user?.profile?.preferences;
+  const preferences = user?.profile?.preferences || {};
 
   const [minimizeWalking, setMinimizeWalking] = useState(
     preferences?.minimizeWalking || false
