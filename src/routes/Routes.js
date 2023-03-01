@@ -8,6 +8,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { Box } from '@chakra-ui/react';
 import Layout from '../components/Layout';
+import ScheduleTrip from '../components/ScheduleTrip';
 import Settings from '../components/Settings';
 import Trips from '../components/Trips';
 import { observer } from 'mobx-react-lite';
@@ -65,7 +66,10 @@ export const AppRoutes = observer(() => {
         element={<Navigate to={pathname.slice(0, -1)} />}
       />
       {/* Home */}
-      <Route path={'/'} element={<Layout showMap={true}></Layout>} />
+      <Route
+        path={'/'}
+        element={<Layout children={<ScheduleTrip />}></Layout>}
+      />
 
       {/* Trips */}
       <Route path={'/trips'} element={<Layout children={<Trips />} />} />

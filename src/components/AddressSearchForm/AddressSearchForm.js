@@ -9,6 +9,8 @@ export const SearchForm = ({
   center,
   defaultAddress,
   setGeocoderResult,
+  name,
+  label,
 }) => {
   const [address, setAddress] = useState(defaultAddress || '');
 
@@ -23,7 +25,7 @@ export const SearchForm = ({
 
   let list = useAsyncList({
     async load({ signal, cursor, filterText }) {
-      if (!filterText || filterText.length < 3) return { items: [] };
+      if (!filterText || filterText.length < 2) return { items: [] };
       if (cursor) {
         cursor = cursor.replace(/^http:\/\//i, 'https://');
       }
@@ -57,7 +59,7 @@ export const SearchForm = ({
         unique.push(item);
       });
 
-      console.log(items);
+      // console.log(items);
 
       return {
         items: items,
@@ -68,13 +70,13 @@ export const SearchForm = ({
 
   return (
     <Autocomplete
-      label="Home Address"
+      label={label || 'Home Address'}
       placeholder="Start typing an address..."
       items={list.items}
       inputValue={address || list.filterText}
       onInputChange={e => {
         list.setFilterText(e);
-        console.log(list);
+        // console.log(list);
         if (!list.selectedKeys.length) {
           setAddress(e);
         } else {
@@ -88,7 +90,7 @@ export const SearchForm = ({
       }}
       loadingState={list.loadingState}
       onLoadMore={list.loadMore}
-      name="address"
+      name={name || 'address'}
     >
       {item => <Item key={item.childKey}>{item?.name}</Item>}
     </Autocomplete>

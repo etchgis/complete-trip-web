@@ -28,8 +28,9 @@ export function Popover(props) {
         border="1px solid lightgray"
         borderRadius="md"
         zIndex="10"
-        width="416px"
-        maxW="calc(100vw - 94px)"
+        width="100%"
+        maxW="465px"
+        // maxW="calc(100vw - 94px)"
         boxShadow="lg"
       >
         {!isNonModal && <DismissButton onDismiss={state.close} />}
