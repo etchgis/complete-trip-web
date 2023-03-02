@@ -6,12 +6,14 @@ import {
   CardHeader,
   Checkbox,
   CheckboxGroup,
+  Divider,
   Flex,
   FormControl,
   FormLabel,
   Grid,
   Heading,
   Icon,
+  Image,
   Input,
   Modal,
   ModalBody,
@@ -26,6 +28,7 @@ import {
   StatHelpText,
   StatLabel,
   StatNumber,
+  Text,
   VStack,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -34,16 +37,21 @@ import {
   FaBus,
   FaChevronRight,
   FaCircle,
+  FaGenderless,
   FaWalking,
 } from 'react-icons/fa';
 
 import AddressSearchForm from '../AddressSearchForm';
 import { ChevronRightIcon } from '@chakra-ui/icons';
+import config from '../../config';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/mobx/RootStore';
 
+// TODO on coming from a favorite - add in Leave By and Number of Riders to Trip Options
+// TODO add Leave Now, Leave By and Arrive By
+// TODO sort by start time for results
 export const ScheduleTrip = observer(() => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -61,9 +69,7 @@ export const ScheduleTrip = observer(() => {
           New Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
         </Button>
       </Flex>
-      <Box>
-        Map Section in Background - image with trip calendar in foreground
-      </Box>
+      <Box>Map</Box>
       <TripModal isOpen={isOpen} onClose={onClose}></TripModal>
       {/* </> */}
       {/* // )} */}
@@ -134,7 +140,12 @@ const TripModal = observer(({ isOpen, onClose }) => {
             : 'Trip Details'}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody width="lg" maxW="100%" margin="0 auto">
+        <ModalBody
+          width="auto"
+          minW={{ base: '100%', md: 'lg' }}
+          maxW="100%"
+          margin="0 auto"
+        >
           {Wizard.find((w, i) => i === step).component}
         </ModalBody>
         <ModalFooter>
@@ -352,27 +363,95 @@ const Third = observer(({ setStep, trip, setTrip }) => {
 
 const Fourth = observer(({ setStep, trip }) => {
   const { loggedIn } = useStore().authentication;
+
+  const geojson = {
+    type: 'Feature',
+    properties: {
+      stroke: '#00aaff',
+      'stroke-width': 4,
+    },
+    geometry: {
+      type: 'LineString',
+      coordinates: [
+        [-78.82027684802185, 42.872201000486314],
+        [-78.83891247993591, 42.87929370916919],
+        [-78.8723363874973, 42.88502014614832],
+        [-78.86921041053135, 42.895062152056255],
+        [-78.86722661745672, 42.90061098021232],
+        [-78.86536305426509, 42.90061098021232],
+      ],
+    },
+  };
   return (
     <Stack
       as="form"
       spacing={6}
-      maxWidth="lg"
+      width={{ base: '100%', md: '1000px' }}
+      maxWidth="2xl"
       margin={'0 auto'}
       textAlign={'left'}
     >
-      <Heading as="h3" size="md">
-        Final
-      </Heading>
-      <Grid gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
-        <Box>Map</Box>
+      <Grid
+        gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+        gap={6}
+        position="relative"
+      >
+        <Box
+          position={'relative'}
+          width={{ base: '100%', md: '324px' }}
+          maxW="100%"
+        >
+          <Heading as="h3" size="md" mb={2}>
+            Mon, Jan 30, 2023
+          </Heading>
+          <Text>Home to Hospital</Text>
+          <Flex
+            position="absolute"
+            zIndex={2}
+            w={{ base: '324px', md: '100%' }}
+            maxW="100%"
+          >
+            <Box
+              borderRadius={'2xl'}
+              h="80px"
+              w="80%"
+              background={
+                'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
+              }
+              mt={'40px'}
+              mx="auto"
+            ></Box>
+          </Flex>
+
+          <Image
+            src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodeURIComponent(
+              JSON.stringify(geojson)
+            )})/auto/324x400?padding=50,10&before_layer=waterway-label&access_token=${
+              config.MAP.MAPBOX_TOKEN
+            }`}
+            alt="map"
+            borderRadius={'md'}
+            margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
+          />
+        </Box>
         <TripCardDetail trip={trip}></TripCardDetail>
       </Grid>
-
-      <Button onClick={() => {}} colorScheme="blue" isDisabled={!loggedIn}>
-        Schedule Trip
-      </Button>
-
-      <Button onClick={() => setStep(current => current - 1)}>Back</Button>
+      <Stack spacing={6} alignItems="center">
+        <Button
+          onClick={() => {}}
+          colorScheme="blue"
+          isDisabled={!loggedIn}
+          width={{ base: '100%', md: '65%' }}
+        >
+          Schedule Trip
+        </Button>
+        <Button
+          width={{ base: '100%', md: '65%' }}
+          onClick={() => setStep(current => current - 1)}
+        >
+          Back
+        </Button>
+      </Stack>
     </Stack>
   );
 });
@@ -465,15 +544,60 @@ const TripCard = observer(({ setTrip, setStep }) => {
 });
 
 const TripCardDetail = observer(({ trip }) => {
+  const legs = [
+    {
+      time: '6:20 AM',
+      directions: 'Walk to Stop A',
+      mode: 'WALK',
+    },
+    {
+      time: '6:31 AM',
+      directions: 'Bus 1 to Hospital',
+      mode: 'BUS',
+    },
+    {
+      time: '7:01 AM',
+      directions: 'Walk to Hospital',
+      mode: 'WALK',
+      destination: "John R. Oishei Children's Hospital",
+      address: '818 Ellicott St, Buffalo, NY 14203',
+    },
+  ];
   return (
-    <Card size={'lg'} width="100%" borderRadius={'md'}>
-      <CardHeader>
-        <Heading size="sm" as="h4">
-          Heading
+    <Card size="lg" borderRadius={'md'}>
+      <CardHeader pb={2}>
+        <Heading size="sm" as="h4" mb={2}>
+          Directions
         </Heading>
+        <Text>{legs[legs.length - 1]?.destination}</Text>
+        <Text>{legs[legs.length - 1]?.address}</Text>
       </CardHeader>
-      <CardBody>
-        <pre>{JSON.stringify(trip?.trip, 0, 2)}</pre>
+      <CardBody fontWeight={'bold'}>
+        <Text display={'flex'} alignItems="center" px={2}>
+          <Icon as={FaGenderless} boxSize={6} mr={2} />
+          Leave By {legs[0].time}
+        </Text>
+        <Box py={4}>
+          <Divider />
+        </Box>
+        {legs.map((leg, i) => (
+          <Stack key={i.toString()} spacing={0}>
+            <Flex alignItems={'center'} justifyContent={'space-between'} p={2}>
+              <Flex alignItems={'center'}>
+                <Icon
+                  as={leg.mode === 'WALK' ? FaWalking : FaBus}
+                  boxSize={6}
+                  mr={2}
+                />
+                <Text>{leg.directions}</Text>
+              </Flex>
+              <Text>{leg.time}</Text>
+            </Flex>
+            <Box py={4}>
+              <Divider />
+            </Box>
+          </Stack>
+        ))}
       </CardBody>
     </Card>
   );

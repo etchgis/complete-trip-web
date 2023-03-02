@@ -8,6 +8,11 @@
 
 ## Task List
 
+- [ ] Add Leave By to Trip Wizard
+- [ ] Add transport to trip wizard
+- [ ] Add map to final result trip wizard
+- [ ] add formatted result to trip wizard
+
 ### User Functions
 
 #### Registration
@@ -19,22 +24,25 @@
 
 #### Wizard
 
-- [ ] Add Phone Number
-- [ ] Add Address
-- [ ] Add 1 Caretaker
-- [ ] Add email to Enhanced Mobility
+- [x] Add Phone Number
+- [x] Add Address
+- [x] Add 1 Caretaker
+- [x] Add email to Enhanced Mobility
 
 #### Update Settings
 
 - [x] Profile
+
   - [x] Update Profile Name Address
 
 - [x] Caretakers
+
   - [x] Update Caretaker
   - [x] Add Caretaker
   - [x] Delete Caretaker
 
 - [x] Trip Preferences
+
   - [x] Walking
   - [x] Cost
   - [x] Transfers
