@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {
-  Box,
+  FormControl,
   FormLabel,
   Input,
   InputGroup,
@@ -41,8 +41,13 @@ export const Autocomplete = props => {
   );
 
   return (
-    <Box display="inline-block" position="relative" width="100%">
-      <FormLabel {...labelProps}>{props.label}</FormLabel>
+    <FormControl
+      display="inline-block"
+      position="relative"
+      width="100%"
+      isRequired={props.required}
+    >
+      <FormLabel {...labelProps}>{props.label} </FormLabel>
       <InputGroup>
         <InputLeftElement>
           <Search2Icon color="gray.500" />
@@ -74,6 +79,6 @@ export const Autocomplete = props => {
           />
         </Popover>
       )}
-    </Box>
+    </FormControl>
   );
 };

@@ -8,7 +8,7 @@ import Navbar from './Navbar';
 import ResponsiveSidebar from './Sidebar';
 import Wizard from './Wizard';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../context/mobx/RootStore';
+import { useStore } from '../context/RootStore';
 
 const Layout = observer(({ showMap, children }) => {
   const { colorMode } = useColorMode();

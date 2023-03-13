@@ -24,7 +24,7 @@ import { useColorMode } from '@chakra-ui/color-mode';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 import { validators } from '../../utils/validators';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;

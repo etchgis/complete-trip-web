@@ -2,7 +2,7 @@ import { Box, FormControl, FormLabel, Select } from '@chakra-ui/react';
 
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const EditAccessibility = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;

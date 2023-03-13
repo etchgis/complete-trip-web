@@ -14,7 +14,7 @@ import {
 import { AddIcon } from '@chakra-ui/icons';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const ProfileInformation = observer(({ action }) => {
   const { user } = useStore().authentication;

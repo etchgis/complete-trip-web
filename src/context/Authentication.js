@@ -3,8 +3,8 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { authentication } from '../../services/transport';
-import config from '../../config';
+import { authentication } from '../services/transport';
+import config from '../config';
 import jwtDecode from 'jwt-decode';
 
 const validateJWT = token => {
@@ -211,6 +211,24 @@ class Authentication {
               this.user = Object.assign({}, result, {
                 accessToken: accessToken,
               });
+              if (result?.profile) {
+                const p = result.profile;
+                for (let key in p) {
+                  if (key !== 'preferences') {
+                    this.rootStore.profile.updateProperty(key, p[key], false);
+                  }
+                }
+              }
+              if (result?.profile?.preferences) {
+                const prefs = result.profile.preferences;
+                for (let key in prefs) {
+                  this.rootStore.profile.updatePreference(
+                    key,
+                    prefs[key],
+                    false
+                  );
+                }
+              }
               this.loggedIn = true;
             });
             resolve(result);

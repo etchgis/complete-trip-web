@@ -11,7 +11,7 @@ import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
 
 import { ColorModeSwitcher } from '../ColorModeSwitcher/ColorModeSwitcher';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 // import logo from '../../assets/images/logo.png';
 

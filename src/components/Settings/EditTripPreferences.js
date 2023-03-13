@@ -20,9 +20,10 @@ import {
 
 import { FaExchangeAlt } from 'react-icons/fa';
 import { HiCurrencyDollar } from 'react-icons/hi';
+import config from '../../config';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const EditTripPreferences = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -170,46 +171,20 @@ export const EditTripPreferences = observer(() => {
           <Checkbox name="mode_autonomous_shuttle">Autonomous Shuttle</Checkbox>
           <Checkbox name="mode_rideshare">Rideshare</Checkbox>
           <Checkbox name="mode_scooter">Scooter</Checkbox> */}
-          <Checkbox
-            name="modeBicycle"
-            value="personal bike"
-            isChecked={modes.includes('personal bike')}
-            onChange={handleModeChange}
-          >
-            Bike
-          </Checkbox>
-          <Checkbox
-            name="modeBikeRental"
-            value="rental bike"
-            isChecked={modes.includes('rental bike')}
-            onChange={handleModeChange}
-          >
-            Bike Rental
-          </Checkbox>
-          <Checkbox
-            name="moddePublicTransit"
-            value="public transit"
-            isChecked={modes.includes('public transit')}
-            onChange={handleModeChange}
-          >
-            Public Transit
-          </Checkbox>
-          <Checkbox
-            name="modeRideShare"
-            value="ride hail"
-            isChecked={modes.includes('ride hail')}
-            onChange={handleModeChange}
-          >
-            Ride Share
-          </Checkbox>
-          <Checkbox
-            name="modeAVShuttle"
-            value="avl"
-            isChecked={modes.includes('avl')}
-            onChange={handleModeChange}
-          >
-            AVL Shuttle
-          </Checkbox>
+          {config.MODES.map(mode => {
+            if (mode.id === 'walk') return '';
+            return (
+              <Checkbox
+                key={mode.id}
+                name={`mode_${mode}`}
+                value={mode.mode}
+                isChecked={modes.includes(mode.mode)}
+                onChange={handleModeChange}
+              >
+                {mode.label}
+              </Checkbox>
+            );
+          })}
         </Stack>
       </FormControl>
       <Divider />

@@ -14,7 +14,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const ResponsiveSidebar = ({
   isOpen,

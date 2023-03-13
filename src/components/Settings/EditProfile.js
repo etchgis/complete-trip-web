@@ -13,7 +13,7 @@ import formatters from '../../utils/formatters';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const EditProfile = ({ onClose }) => {
   const { user, updateUserProfile } = useStore().authentication;

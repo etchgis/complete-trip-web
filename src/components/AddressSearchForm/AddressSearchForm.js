@@ -11,9 +11,11 @@ export const SearchForm = ({
   setGeocoderResult,
   name,
   label,
+  required,
+  clearResult,
 }) => {
   const [address, setAddress] = useState(defaultAddress || '');
-
+  // console.log({ address });
   useEffect(() => {
     saveAddress(address);
   }, [address, saveAddress]);
@@ -39,6 +41,7 @@ export const SearchForm = ({
           (center.lat * 1000 || 0) / 1000
         }`;
       }
+      // console.log(uri);
       let items = await fetch(cursor || uri, { signal }).then(res =>
         res.json()
       );
@@ -70,22 +73,31 @@ export const SearchForm = ({
 
   return (
     <Autocomplete
+      required={required || false}
       label={label || 'Home Address'}
       placeholder="Start typing an address..."
       items={list.items}
-      inputValue={address || list.filterText}
+      inputValue={address}
       onInputChange={e => {
+        // console.log('onchange');
         list.setFilterText(e);
-        // console.log(list);
-        if (!list.selectedKeys.length) {
+        if (!list.selectedKeys.size) {
+          //NOTE needed so that when we come back we clear out the result if the user changes the input value
+          //NOTE not sure how this will affect the other places where the input is so adding a check here
+          if (defaultAddress && clearResult) {
+            setGeocoderResult({});
+          }
           setAddress(e);
         } else {
           setAddress('');
         }
       }}
       onSelectionChange={item => {
-        if (!item) return;
-        setAddress(list.items.filter(e => e.childKey === item)[0]?.title);
+        // console.log('onselectionchange');
+        if (!item) {
+          return;
+        }
+        setAddress(list.items.filter(e => e.childKey === item)[0].name);
         setGeocoderResult(list.items.find(e => e.childKey === item));
       }}
       loadingState={list.loadingState}

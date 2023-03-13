@@ -3,7 +3,7 @@ import './style.css';
 
 import * as ReactDOM from 'react-dom/client';
 
-import RootStore, { StoreProvider } from './context/mobx/RootStore';
+import RootStore, { StoreProvider } from './context/RootStore';
 
 import App from './App';
 import React from 'react';

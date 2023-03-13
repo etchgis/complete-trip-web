@@ -4,10 +4,10 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
-import RootStore, { StoreProvider } from './context/mobx/RootStore';
+import RootStore, { StoreProvider } from './context/RootStore';
 
 // import React from "react";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider } from '@chakra-ui/react';
 
 const store = new RootStore();
 

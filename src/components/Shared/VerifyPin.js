@@ -10,7 +10,7 @@ import {
 
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const VerifyPin = observer(
   ({ channel, stagedUser, setActiveView, setLoginMessage }) => {

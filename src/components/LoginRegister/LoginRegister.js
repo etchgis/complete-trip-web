@@ -28,7 +28,7 @@ import { useEffect, useState } from 'react';
 
 import { VerifyPin } from '../Shared/VerifyPin';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 import { validators } from '../../utils/validators';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;

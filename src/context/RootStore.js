@@ -4,11 +4,12 @@
 import { createContext, useContext } from 'react';
 
 import Authentication from './Authentication';
+import Profile from './Profile';
+import Trip from './Trip';
 
 // import Display from './Display';
 // import MapManager from './MapManager';
-// import Preferences from './Preferences';
-// import React from 'react';
+
 // import Registration from './Registration';
 
 export default class RootStore {
@@ -16,8 +17,10 @@ export default class RootStore {
     this.authentication = new Authentication(this);
     // this.display = new Display(this);
     // this.mapManager = new MapManager(this);
-    // this.preferences = new Preferences(this);
+
+    this.profile = new Profile(this);
     // this.registration = new Registration(this);
+    this.trip = new Trip(this);
   }
 }
 

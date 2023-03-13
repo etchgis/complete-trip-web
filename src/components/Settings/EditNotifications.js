@@ -2,7 +2,7 @@ import { FormControl, FormLabel, Stack, Switch } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const EditNotifications = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;

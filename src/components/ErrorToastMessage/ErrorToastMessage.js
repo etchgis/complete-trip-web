@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 import { useToast } from '@chakra-ui/react';
 
 export const ErrorToastMessage = observer(({ message }) => {
@@ -23,5 +23,6 @@ export const ErrorToastMessage = observer(({ message }) => {
       setErrorToastMessage(null);
     }, 4000);
   }, [errorToastMessage]);
+  // eslint-disable-next-line
   return <></>;
 });

@@ -25,7 +25,7 @@ import { WizardStepThroughForm } from './WizardStepThroughForm';
 import formatters from '../../utils/formatters';
 import geocoder from '../../services/transport/geocoder';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const Wizard = observer(({ hideModal }) => {
   const { loggedIn, logout } = useStore().authentication;

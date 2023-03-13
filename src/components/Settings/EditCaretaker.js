@@ -12,7 +12,7 @@ import {
 import formatters from '../../utils/formatters';
 import { toJS } from 'mobx';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const EditCaretaker = ({ id, onClose }) => {
   const { user, updateUserProfile } = useStore().authentication;

@@ -2,8 +2,9 @@ import * as React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { ErrorToastMessage } from './ErrorToastMessage';
 import { TestWrapper } from '../../setupTests';
+import { VerticalTripPlan } from './VerticalTripPlan';
+import plan from '../ScheduleTrip/sample-trip.json';
 
 // import { useEffect } from 'react';
 // import { useStore } from '../../context/RootStore';
@@ -11,7 +12,7 @@ import { TestWrapper } from '../../setupTests';
 test('Custom Message', () => {
   render(
     <TestWrapper>
-      <ErrorToastMessage message={'message'}></ErrorToastMessage>
+      <VerticalTripPlan plan={plan}></VerticalTripPlan>
     </TestWrapper>
   );
 

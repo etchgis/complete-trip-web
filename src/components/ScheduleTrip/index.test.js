@@ -6,7 +6,7 @@ import { ScheduleTrip } from './ScheduleTrip';
 import { TestWrapper } from '../../setupTests';
 
 // import { useEffect } from 'react';
-// import { useStore } from '../../context/mobx/RootStore';
+// import { useStore } from '../../context/RootStore';
 
 test('Schedule Trip', () => {
   render(

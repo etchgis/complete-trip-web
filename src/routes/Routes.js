@@ -14,7 +14,7 @@ import Trips from '../components/Trips';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
-import { useStore } from '../context/mobx/RootStore';
+import { useStore } from '../context/RootStore';
 
 export const AppRoutes = observer(() => {
   const { pathname } = useLocation();

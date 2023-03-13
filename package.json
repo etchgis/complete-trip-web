@@ -10,6 +10,7 @@
     "@emotion/styled": "^11.0.0",
     "@fontsource/open-sans": "^4.5.13",
     "@hookform/resolvers": "^2.9.10",
+    "@mapbox/polyline": "^1.1.1",
     "@saas-ui/date-picker": "^0.8.2",
     "@saas-ui/react": "^1.7.4",
     "@testing-library/jest-dom": "^5.16.4",
@@ -19,6 +20,7 @@
     "axios": "^1.2.2",
     "chakra-ui-autocomplete": "^1.4.5",
     "chakra-ui-steps": "^2.0.1",
+    "d3-path": "^3.1.0",
     "downshift": "^7.2.0",
     "framer-motion": "^6.2.9",
     "history": "^5.3.0",
@@ -36,6 +38,8 @@
     "react-router-dom": "^6.6.2",
     "react-scripts": "5.0.1",
     "react-stately": "^3.20.0",
+    "react-svg": "^16.1.5",
+    "simplify-geojson": "^1.0.5",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11",
@@ -48,7 +52,7 @@
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
-    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
+    "deploy": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
     "copy": "robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF"
   },
   "eslintConfig": {

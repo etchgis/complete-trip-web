@@ -26,7 +26,7 @@ import { EditProfile } from './EditProfile';
 import { EditTripPreferences } from './EditTripPreferences';
 import { SettingsModal } from './SettingsModal';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
 export const Settings = observer(({ view }) => {
   const navigate = useNavigate();

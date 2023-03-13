@@ -1,14 +1,18 @@
+import * as polyline from '@mapbox/polyline';
+import * as simplify from 'simplify-geojson';
+
 import {
   Box,
   Button,
   Card,
   CardBody,
   CardHeader,
+  Center,
   Checkbox,
   CheckboxGroup,
-  Divider,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Grid,
   Heading,
@@ -23,37 +27,50 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
+  Spinner,
   Stack,
   Stat,
-  StatHelpText,
   StatLabel,
   StatNumber,
   Text,
   VStack,
+  useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
-import {
-  FaArrowRight,
-  FaBus,
-  FaChevronRight,
-  FaCircle,
-  FaGenderless,
-  FaWalking,
-} from 'react-icons/fa';
+import { FaArrowRight, FaCaretRight, FaCircle } from 'react-icons/fa';
 
 import AddressSearchForm from '../AddressSearchForm';
 import { ChevronRightIcon } from '@chakra-ui/icons';
+import VerticalTripPlan from './VerticalTripPlan';
 import config from '../../config';
+import { fillGaps } from '../../utils/tripplan';
+import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { useStore } from '../../context/mobx/RootStore';
+import { useStore } from '../../context/RootStore';
 
+// replace walk with roll - wheelchair
 // TODO on coming from a favorite - add in Leave By and Number of Riders to Trip Options
 // TODO add Leave Now, Leave By and Arrive By
 // TODO sort by start time for results
+// TODO add
+/*const WHEN_OPTIONS = [
+  {
+    label: 'Leave Now',
+    value: 'asap',
+  }, {
+    label: 'Leave At',
+    value: 'leave',
+  }, {
+    label: 'Arrive By',
+    value: 'arrive',
+  },
+];*/
 export const ScheduleTrip = observer(() => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { colorMode } = useColorMode();
 
   return (
     <Box p={6}>
@@ -65,7 +82,15 @@ export const ScheduleTrip = observer(() => {
         Schedule a Trip
       </Heading>
       <Flex mb={6}>
-        <Button p={10} colorScheme="blue" onClick={onOpen}>
+        <Button
+          p={10}
+          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
+          color="white"
+          _hover={{
+            opacity: 0.8,
+          }}
+          onClick={onOpen}
+        >
           New Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
         </Button>
       </Flex>
@@ -79,44 +104,54 @@ export const ScheduleTrip = observer(() => {
 
 const TripModal = observer(({ isOpen, onClose }) => {
   const [step, setStep] = useState(0);
-  const [stagedTrip, setStagedTrip] = useState({});
+  const { trip: stagedTrip } = useStore();
+  const [selectedTrip, setSelectedTrip] = useState({});
 
   const Wizard = [
     {
       name: 'First',
-      component: (
-        <First setStep={setStep} trip={stagedTrip} setTrip={setStagedTrip} />
-      ),
+      component: <First setStep={setStep} trip={stagedTrip} />,
     },
     {
       name: 'Second',
       component: (
-        <Second setStep={setStep} trip={stagedTrip} setTrip={setStagedTrip} />
+        <Second
+          setStep={setStep}
+          trip={stagedTrip}
+          setSelectedTrip={setSelectedTrip}
+        />
       ),
     },
-    {
-      name: 'Test',
-      component: (
-        <Test setStep={setStep} trip={stagedTrip} setTrip={setStagedTrip} />
-      ),
-    },
+    // {
+    //   name: 'Test',
+    //   component: <Test setStep={setStep} trip={stagedTrip} />,
+    // },
     {
       name: 'Third',
       component: (
-        <Third setStep={setStep} trip={stagedTrip} setTrip={setStagedTrip} />
+        <Third
+          setStep={setStep}
+          trip={stagedTrip}
+          setSelectedTrip={setSelectedTrip}
+          selectedTrip={selectedTrip}
+        />
       ),
     },
     {
       name: 'Fourth',
       component: (
-        <Fourth setStep={setStep} trip={stagedTrip} setTrip={setStagedTrip} />
+        <Fourth
+          setStep={setStep}
+          trip={stagedTrip}
+          selectedTrip={selectedTrip}
+        />
       ),
     },
   ];
 
-  useEffect(() => {
-    console.log('step', step);
-  }, [step]);
+  // useEffect(() => {
+  //   console.log('step', step);
+  // }, [step]);
 
   return (
     <Modal
@@ -124,7 +159,7 @@ const TripModal = observer(({ isOpen, onClose }) => {
       onClose={() => {
         setStep(0);
         onClose();
-        setStagedTrip({});
+        stagedTrip.create();
       }}
       size="full"
     >
@@ -154,7 +189,7 @@ const TripModal = observer(({ isOpen, onClose }) => {
             variant={'ghost'}
             onClick={() => {
               setStep(0);
-              setStagedTrip({});
+              stagedTrip.create();
               onClose();
             }}
           >
@@ -166,11 +201,22 @@ const TripModal = observer(({ isOpen, onClose }) => {
   );
 });
 
-const First = observer(({ setStep, trip, setTrip }) => {
+const First = observer(({ setStep, trip }) => {
+  const [startError, setStartError] = useState(false);
+  const [endError, setEndError] = useState(false);
+
   const [locations, setLocations] = useState({
-    start: trip?.start || {},
-    end: trip?.end || {},
+    start: trip?.request?.origin || {},
+    end: trip?.request?.destination || {},
   });
+
+  useEffect(() => {
+    setStartError(false);
+  }, [locations?.start?.name, setStartError]);
+
+  useEffect(() => {
+    setEndError(false);
+  }, [locations?.end?.name, setEndError]);
 
   const setStart = result => {
     setLocations(current => {
@@ -189,21 +235,29 @@ const First = observer(({ setStep, trip, setTrip }) => {
       };
     });
   };
+
   const handleSubmit = e => {
     e.preventDefault();
-    console.log('submit');
     const data = new FormData(e.target);
-    setTrip(current => {
-      return {
-        ...current,
-        start: locations.start,
-        end: locations.end,
-        date: data.get('date'),
-        time: data.get('time'),
-      };
-    });
+    console.log(locations);
+    //TODO set an error here
+    if (!locations?.start?.name) {
+      setStartError(true);
+      return;
+    }
+    if (!locations?.end?.name) {
+      setEndError(true);
+      return;
+    }
+
+    trip.updateOrigin(locations.start);
+    trip.updateDestination(locations.end);
+    trip.updateWhenAction('asap'); //TODO add leave, arrive
+    trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+    trip.updateWhenAction(data.get('when'));
     setStep(current => current + 1);
   };
+
   return (
     <Stack
       as="form"
@@ -213,46 +267,66 @@ const First = observer(({ setStep, trip, setTrip }) => {
       margin={'0 auto'}
       textAlign={'left'}
     >
-      <FormControl>
+      <FormControl isInvalid={startError}>
         <AddressSearchForm
           saveAddress={() => {}}
-          center={[-78.878738, 42.88023]}
-          defaultAddress={locations?.start?.title || ''}
+          center={{ lng: -78.878738, lat: 42.88023 }}
+          defaultAddress={locations?.start?.name || ''}
           setGeocoderResult={setStart}
           name="startAddress"
           label="From"
+          required={true}
+          clearResult={true}
         />
+
+        <FormErrorMessage>
+          Please select a location from the result list.
+        </FormErrorMessage>
       </FormControl>
 
-      <FormControl>
+      <FormControl isInvalid={endError}>
         <AddressSearchForm
           saveAddress={() => {}}
-          center={[-78.878738, 42.88023]}
-          defaultAddress={locations?.end?.title || ''}
+          center={{ lng: -78.878738, lat: 42.88023 }}
+          defaultAddress={locations?.end?.name || ''}
           setGeocoderResult={setEnd}
           name="endAddress"
           label="To"
+          required={true}
+          clearResult={true}
         />
+        <FormErrorMessage>
+          Please select a location from the result list.
+        </FormErrorMessage>
       </FormControl>
 
       <FormControl isRequired>
         <FormLabel>Select a Date</FormLabel>
         <Input
           type="date"
-          defaultValue={trip?.date || '2023-01-01'}
+          defaultValue={parseDate(trip?.request?.whenTime)}
           name="date"
         ></Input>
       </FormControl>
 
       <FormControl isRequired>
         <FormLabel>Time</FormLabel>
+        <Select
+          name="when"
+          mb={6}
+          defaultValue={trip?.request?.whenAction || 'asap'}
+        >
+          <option value="asap">Leave Now (ASAP)</option>
+          <option value="leave">Leave By</option>
+          <option value="arrive">Arrive By</option>
+        </Select>
         <Input
           type="time"
-          defaultValue={trip?.time || '13:00:00'}
+          defaultValue={parseTime(trip?.request?.whenTime)}
           name="time"
         ></Input>
       </FormControl>
-      <Box>Leave Now/Leave By / Arrive By</Box>
+
       <Button width="100%" colorScheme={'blue'} type="submit">
         Next
       </Button>
@@ -260,24 +334,47 @@ const First = observer(({ setStep, trip, setTrip }) => {
   );
 });
 
-const Second = observer(({ setStep, trip, setTrip }) => {
-  console.log(trip);
-  const [modes, setModes] = useState(trip?.modes || []);
-  console.log(modes);
+const Second = observer(({ setStep, trip, setSelectedTrip }) => {
+  const { user } = useStore().authentication;
+  console.log(toJS(trip));
+  const allowedModes = config.MODES.reduce(
+    (acc, mode) => [...acc, mode.mode],
+    []
+  );
+  const [modes, setModes] = useState(
+    trip?.request?.modes.length
+      ? trip.request.modes
+      : user?.profile?.preferences?.modes || []
+  );
+
   const handleSubmit = e => {
     e.preventDefault();
+    setSelectedTrip({});
     const data = new FormData(e.target);
     console.log([...data]);
-    setTrip(current => {
-      return {
-        ...current,
-        modes: modes,
-        riders: +data.get('riders'),
-        caretaker: data.get('caretaker'),
-      };
-    });
+
+    trip.updateProperty('riders', +data.get('riders'));
+    trip.updateProperty('caretaker', data.get('caretaker'));
+
     setStep(current => current + 1);
   };
+
+  useEffect(() => {
+    modes.forEach(mode => {
+      if (!trip.request.modes.includes(mode) && allowedModes.includes(mode)) {
+        trip.addMode(mode);
+      }
+      trip.request.modes.forEach(m =>
+        !modes.includes(m) ? trip.removeMode(m) : null
+      );
+    });
+    //eslint-disable-next-line
+  }, [modes]);
+
+  const setCaretaker = e => {
+    trip.updateProperty('caretaker', e.target.value);
+  };
+
   return (
     <Stack
       as="form"
@@ -291,17 +388,21 @@ const Second = observer(({ setStep, trip, setTrip }) => {
         <FormLabel>Mode(s) of Transportation</FormLabel>
         <VStack alignItems={'flex-start'}>
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
-            <Checkbox value="public">Public</Checkbox>
-            <Checkbox value="shuttle">Shuttle</Checkbox>
-            <Checkbox value="rideshare">Rideshare</Checkbox>
-            <Checkbox value="private">Private</Checkbox>
+            {config.MODES.map(mode => {
+              if (mode.id === 'walk') return '';
+              return (
+                <Checkbox key={mode.id} value={mode.mode}>
+                  {mode.label}
+                </Checkbox>
+              );
+            })}
           </CheckboxGroup>
         </VStack>
       </FormControl>
 
       <FormControl>
         <FormLabel>How Many People are Riding?</FormLabel>
-        <Select name="riders" defaultValue={trip?.riders}>
+        <Select name="riders" defaultValue={trip?.request?.riders}>
           <option>1</option>
           <option>2</option>
           <option>3</option>
@@ -311,10 +412,20 @@ const Second = observer(({ setStep, trip, setTrip }) => {
 
       <FormControl>
         <FormLabel>Select a Caretaker</FormLabel>
-        <Select name="caretaker" defaultValue={trip?.caretaker}>
-          <option>A</option>
-          <option>B</option>
-          <option>C</option>
+        <Select
+          name="caretaker"
+          defaultValue={trip?.request?.caretaker}
+          onChange={e => setCaretaker(e)}
+        >
+          <option value="">Select a Caretaker</option>
+          {user?.profile?.caretakers?.map((caretaker, i) => (
+            <option
+              key={i.toString()}
+              value={caretaker?.firstName + ' ' + caretaker?.lastName}
+            >
+              {caretaker?.firstName + ' ' + caretaker?.lastName}
+            </option>
+          ))}
         </Select>
       </FormControl>
 
@@ -326,29 +437,38 @@ const Second = observer(({ setStep, trip, setTrip }) => {
   );
 });
 
-const Test = ({ setStep, trip }) => {
-  return (
-    <Stack spacing={4} textAlign="left">
-      <Box>
-        <pre>{JSON.stringify(trip, null, 2)}</pre>
-      </Box>
-      <Button
-        onClick={() => setStep(current => current + 1)}
-        colorScheme="blue"
-      >
-        Next
-      </Button>
-      <Button onClick={() => setStep(current => current - 1)}>Back</Button>
-    </Stack>
-  );
-};
+const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
+  const { trip } = useStore();
+  useEffect(() => {
+    if (!Object.keys(selectedTrip).length) {
+      trip.generatePlans();
+    }
+    //eslint-disable-next-line
+  }, []);
 
-const Third = observer(({ setStep, trip, setTrip }) => {
-  console.log(trip);
   return (
     <Stack spacing={6} maxWidth="lg" margin={'0 auto'} textAlign={'left'}>
       <VStack spacing={6}>
-        <TripCard setTrip={setTrip} setStep={setStep}></TripCard>
+        {trip.generatingPlans ? (
+          <>
+            <Heading as="p" size="sm">
+              Generating Plans...
+            </Heading>
+            <Spinner
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="blue.500"
+              size="xl"
+            />
+          </>
+        ) : (
+          <TripResults
+            setStep={setStep}
+            trips={trip?.plans || []}
+            setSelectedTrip={setSelectedTrip}
+          ></TripResults>
+        )}
       </VStack>
       {/* <Button
         onClick={() => setStep(current => current + 1)}
@@ -361,39 +481,45 @@ const Third = observer(({ setStep, trip, setTrip }) => {
   );
 });
 
-const Fourth = observer(({ setStep, trip }) => {
-  const { loggedIn } = useStore().authentication;
+const Fourth = observer(({ setStep, selectedTrip, trip }) => {
+  // const { loggedIn } = useStore().authentication;
 
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      stroke: '#00aaff',
-      'stroke-width': 4,
+  const planLegs = fillGaps(selectedTrip.legs);
+  const features = [];
+  planLegs.forEach(v =>
+    v?.legGeometry?.points
+      ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
+      : null
+  );
+  const geojson = simplify(
+    {
+      type: 'Feature',
+      properties: {
+        'stroke-width': 4,
+        stroke: '#02597E',
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
+      },
     },
-    geometry: {
-      type: 'LineString',
-      coordinates: [
-        [-78.82027684802185, 42.872201000486314],
-        [-78.83891247993591, 42.87929370916919],
-        [-78.8723363874973, 42.88502014614832],
-        [-78.86921041053135, 42.895062152056255],
-        [-78.86722661745672, 42.90061098021232],
-        [-78.86536305426509, 42.90061098021232],
-      ],
-    },
-  };
+    0.001
+  );
+  console.log(geojson);
+  // console.log(toJS(trip));
   return (
     <Stack
       as="form"
       spacing={6}
-      width={{ base: '100%', md: '1000px' }}
+      width={{ base: '100%', lg: '800px' }}
+      maxW={{ base: '100%', lg: '800px' }}
       maxWidth="2xl"
       margin={'0 auto'}
       textAlign={'left'}
     >
       <Grid
         gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
-        gap={6}
+        gap={4}
         position="relative"
       >
         <Box
@@ -401,32 +527,86 @@ const Fourth = observer(({ setStep, trip }) => {
           width={{ base: '100%', md: '324px' }}
           maxW="100%"
         >
-          <Heading as="h3" size="md" mb={2}>
-            Mon, Jan 30, 2023
-          </Heading>
-          <Text>Home to Hospital</Text>
+          <Center>
+            <Heading as="h3" size="md" mb={2}>
+              {(trip?.request?.whenTime).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </Heading>
+          </Center>
           <Flex
             position="absolute"
             zIndex={2}
-            w={{ base: '324px', md: '100%' }}
-            maxW="100%"
+            w={{ base: '100%', md: '100%' }}
+            maxW="540px"
           >
-            <Box
+            <Grid
               borderRadius={'2xl'}
               h="80px"
               w="80%"
-              background={
-                'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
-              }
+              // background={
+              //   'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
+              // }
+              backgroundColor={'trip'}
               mt={'40px'}
               mx="auto"
-            ></Box>
+              px={2}
+              py={4}
+              color={'white'}
+              gridTemplateColumns={'1fr 1fr 1fr'}
+              gap={0}
+            >
+              <Box textAlign="center">
+                <Text fontSize={'sm'}>Leave</Text>
+                <Box>
+                  {formatters.datetime
+                    .asHMA(new Date(selectedTrip?.startTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(selectedTrip?.startTime))
+                      .slice(-2)}
+                  </sub>
+                </Box>
+              </Box>
+              <Flex alignItems={'center'} justifyContent={'center'}>
+                <Center
+                  background={'rgba(255,255,255,0.5)'}
+                  h={10}
+                  w={10}
+                  borderRadius="lg"
+                >
+                  <Icon as={FaArrowRight} color={'white'} />
+                </Center>
+              </Flex>
+
+              <Box textAlign="center" mx={2}>
+                <Text fontSize={'sm'}>Arrive</Text>
+                <Box>
+                  {formatters.datetime
+                    .asHMA(new Date(selectedTrip?.endTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(selectedTrip?.endTime))
+                      .slice(-2)}
+                  </sub>
+                </Box>
+              </Box>
+            </Grid>
           </Flex>
 
           <Image
             src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodeURIComponent(
               JSON.stringify(geojson)
-            )})/auto/324x400?padding=50,10&before_layer=waterway-label&access_token=${
+            )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${
               config.MAP.MAPBOX_TOKEN
             }`}
             alt="map"
@@ -434,17 +614,20 @@ const Fourth = observer(({ setStep, trip }) => {
             margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
           />
         </Box>
-        <TripCardDetail trip={trip}></TripCardDetail>
+        <TripCardDetail
+          trip={trip}
+          selectedTrip={selectedTrip}
+        ></TripCardDetail>
       </Grid>
       <Stack spacing={6} alignItems="center">
-        <Button
+        {/* <Button
           onClick={() => {}}
           colorScheme="blue"
           isDisabled={!loggedIn}
           width={{ base: '100%', md: '65%' }}
         >
           Schedule Trip
-        </Button>
+        </Button> */}
         <Button
           width={{ base: '100%', md: '65%' }}
           onClick={() => setStep(current => current - 1)}
@@ -456,131 +639,138 @@ const Fourth = observer(({ setStep, trip }) => {
   );
 });
 
-const TripCard = observer(({ setTrip, setStep }) => {
-  const results = [
-    {
-      start: {
-        time: '6:30 AM',
-        stop: 'Stop A',
-      },
-      end: { time: '7:01 AM', stop: 'Hospital' },
-      cost: '$5.00',
-      stops: true,
-      duration: '31 min',
-    },
-    {
-      start: {
-        time: '8:30 AM',
-        stop: 'Stop 75',
-      },
-      end: { time: '8:45 AM', stop: 'Hospital' },
-      cost: '$2.00',
-      stops: false,
-      duration: '15 min',
-    },
-  ];
-
+const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
+  // console.log(toJS(trips));
   return (
     <>
-      {results.map((result, i) => (
-        <Card
-          size={'sm'}
-          width="100%"
-          key={i.toString()}
-          _hover={{
-            cursor: 'pointer',
-            boxShadow: 'lg',
-          }}
-          as="button"
-          onClick={() => {
-            setTrip(current => {
-              return {
-                ...current,
-                trip: result,
-              };
-            });
-            setStep(current => current + 1);
-          }}
-        >
-          <CardBody width="100%">
-            <Grid gridTemplateColumns={'20% 40px 20% calc(60% - 20px)'}>
-              <Stat>
-                <StatLabel>Leave</StatLabel>
-                <StatNumber>
-                  {result.start.time.split(/ /)[0]}{' '}
-                  <sub>{result.start.time.split(/ /)[1]}</sub>
-                </StatNumber>
-                <StatHelpText>{result.start.stop}</StatHelpText>
-              </Stat>
-              <Flex alignItems={'center'}>
-                <Icon as={FaArrowRight} boxSize={6} />
-              </Flex>
-              <Stat>
-                <StatLabel>Arrive</StatLabel>
-                <StatNumber>
-                  {result.end.time.split(/ /)[0]}{' '}
-                  <sub>{result.end.time.split(/ /)[1]}</sub>
-                </StatNumber>
-                <StatHelpText>{result.end.stop}</StatHelpText>
-              </Stat>
-              <Flex justifyContent={'flex-end'} mx={6} py={2}>
-                <Icon as={FaWalking} boxSize={6} mr={2} />
-                <Icon as={FaChevronRight} boxSize={6} mr={2} />
-                <Icon as={FaBus} boxSize={6} />
-              </Flex>
-            </Grid>
-            <Flex alignItems={'center'} fontWeight="bold">
-              {result?.duration || '32min'}{' '}
-              <Icon as={FaCircle} boxSize={2} mx={2} />{' '}
-              {result.stops ? 'Includes stops' : 'Direct'}
-              <Icon as={FaCircle} boxSize={2} mx={2} />{' '}
-              {result?.cost || '$5.00'}
-            </Flex>
-          </CardBody>
-        </Card>
-      ))}
+      {trips.length
+        ? trips.map((t, i) => (
+            <TripCard
+              setStep={setStep}
+              tripPlan={t}
+              index={i}
+              key={i.toString()}
+              setSelectedTrip={setSelectedTrip}
+            />
+          ))
+        : 'No trips found'}
     </>
   );
 });
 
-const TripCardDetail = observer(({ trip }) => {
-  const legs = [
-    {
-      time: '6:20 AM',
-      directions: 'Walk to Stop A',
-      mode: 'WALK',
-    },
-    {
-      time: '6:31 AM',
-      directions: 'Bus 1 to Hospital',
-      mode: 'BUS',
-    },
-    {
-      time: '7:01 AM',
-      directions: 'Walk to Hospital',
-      mode: 'WALK',
-      destination: "John R. Oishei Children's Hospital",
-      address: '818 Ellicott St, Buffalo, NY 14203',
-    },
-  ];
+const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
+  const { user } = useStore().authentication;
+  const tripModes = tripPlan.legs.reduce((acc, leg) => [...acc, leg.mode], []);
+  const tripModesSet = Array.from(new Set(tripModes));
+  const wheelchair = user?.profile?.preferences?.wheelchair;
+
   return (
-    <Card size="lg" borderRadius={'md'}>
+    <Box key={index.toString() + tripPlan?.id} width="100%">
+      <Card
+        size={'sm'}
+        width="100%"
+        _hover={{
+          cursor: 'pointer',
+          boxShadow: 'lg',
+        }}
+        as="button"
+        onClick={() => {
+          setSelectedTrip(tripPlan);
+          setStep(current => current + 1);
+        }}
+      >
+        <CardBody width="100%">
+          <Grid gridTemplateColumns={'25% 30px 25% calc(50% - 30px)'}>
+            <Stat>
+              <StatLabel>Leave</StatLabel>
+              <StatNumber>
+                {formatters.datetime
+                  .asHMA(new Date(tripPlan.startTime))
+                  .replace('am', '')
+                  .replace('pm', '')}
+                <sub style={{ textTransform: 'uppercase' }}>
+                  {' '}
+                  {formatters.datetime
+                    .asHMA(new Date(tripPlan.startTime))
+                    .slice(-2)}
+                </sub>
+              </StatNumber>
+              {/* <StatHelpText></StatHelpText> */}
+            </Stat>
+            <Flex
+              alignItems={'center'}
+              justifyContent="center"
+              paddingTop="20px"
+            >
+              <Icon as={FaArrowRight} boxSize={6} />
+            </Flex>
+            <Stat>
+              <StatLabel>Arrive</StatLabel>
+              <StatNumber>
+                {formatters.datetime
+                  .asHMA(new Date(tripPlan.endTime))
+                  .replace('am', '')
+                  .replace('pm', '')}
+                <sub style={{ textTransform: 'uppercase' }}>
+                  {' '}
+                  {formatters.datetime
+                    .asHMA(new Date(tripPlan.endTime))
+                    .slice(-2)}
+                </sub>
+              </StatNumber>
+              {/* <StatHelpText>Stop</StatHelpText> */}
+            </Stat>
+          </Grid>
+          <Flex justifyContent={'flex-start'} mx={6} py={2}>
+            {tripModesSet.map((mode, i) => (
+              <Box as="span" key={i.toString()}>
+                <Icon
+                  as={
+                    mode === 'WALK' && wheelchair
+                      ? config.WHEELCHAIR.webIcon
+                      : config.MODES.find(m => m.id === mode.toLowerCase())
+                          .webIcon
+                  }
+                  boxSize={6}
+                />
+                {i < tripModesSet.length - 1 ? (
+                  <Icon as={FaCaretRight} boxSize={6} mr={2} />
+                ) : null}
+              </Box>
+            ))}
+          </Flex>
+          <Flex alignItems={'center'} fontWeight="bold" px={2}>
+            {formatters.datetime.asDuration(tripPlan.duration)}
+            <Icon as={FaCircle} boxSize={2} mx={2} />{' '}
+            {tripPlan.legs.length > 1 ? 'Includes stops' : 'Direct'}
+            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesSet.length} mode
+            {tripModesSet.length > 1 ? 's' : ''}
+          </Flex>
+        </CardBody>
+      </Card>
+    </Box>
+  );
+};
+
+const TripCardDetail = observer(({ trip, selectedTrip }) => {
+  // console.log(toJS(trip));
+  const { colorMode } = useColorMode();
+  return (
+    <Card
+      size={{ base: 'lg', lg: 'lg' }}
+      borderRadius={'md'}
+      background={colorMode === 'light' ? 'white' : 'gray.800'}
+    >
       <CardHeader pb={2}>
         <Heading size="sm" as="h4" mb={2}>
           Directions
         </Heading>
-        <Text>{legs[legs.length - 1]?.destination}</Text>
-        <Text>{legs[legs.length - 1]?.address}</Text>
+        <Text>{trip?.request?.origin?.title}</Text>
+        <Text>{trip?.request?.origin?.description}</Text>
       </CardHeader>
-      <CardBody fontWeight={'bold'}>
-        <Text display={'flex'} alignItems="center" px={2}>
-          <Icon as={FaGenderless} boxSize={6} mr={2} />
-          Leave By {legs[0].time}
-        </Text>
-        <Box py={4}>
-          <Divider />
-        </Box>
-        {legs.map((leg, i) => (
+      <CardBody fontWeight={'bold'} py={2}>
+        <VerticalTripPlan plan={selectedTrip} />
+        {/* {legs.map((leg, i) => (
           <Stack key={i.toString()} spacing={0}>
             <Flex alignItems={'center'} justifyContent={'space-between'} p={2}>
               <Flex alignItems={'center'}>
@@ -597,54 +787,21 @@ const TripCardDetail = observer(({ trip }) => {
               <Divider />
             </Box>
           </Stack>
-        ))}
+        ))} */}
       </CardBody>
     </Card>
   );
 });
 
-// const TripBox = observer(({ isOpen, onClose }) => {
-//   const [step, setStep] = useState(0);
-//   const Wizard = [
-//     {
-//       name: 'First',
-//       component: <First setStep={setStep} />,
-//     },
-//     {
-//       name: 'Second',
-//       component: <Second setStep={setStep} />,
-//     },
-//     {
-//       name: 'Third',
-//       component: <Third setStep={setStep} />,
-//     },
-//     {
-//       name: 'Fourth',
-//       component: <Fourth setStep={setStep} />,
-//     },
-//   ];
+function parseDate(d) {
+  const date = d || new Date();
+  return date.toISOString().split('T')[0];
+}
 
-//   useEffect(() => {
-//     console.log('step', step);
-//   }, [step]);
-
-//   return (
-//     <Box>
-//       <Heading as="h3" size="md">
-//         {step === 0
-//           ? 'Schedule a Trip'
-//           : step === 1
-//           ? 'Select your Transportation'
-//           : step === 2
-//           ? 'Select a Trip'
-//           : 'Trip Details'}
-//       </Heading>
-
-//       <Box>{Wizard.find((w, i) => i === step).component}</Box>
-
-//       <Button colorScheme="blue" variant={'ghost'} onClick={onClose}>
-//         Cancel Trip
-//       </Button>
-//     </Box>
-//   );
-// });
+function parseTime(date) {
+  const time =
+    ('0' + date.getHours()).slice(-2) +
+    ':' +
+    ('0' + date.getMinutes()).slice(-2);
+  return time;
+}
