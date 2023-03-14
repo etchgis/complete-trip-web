@@ -41,6 +41,7 @@ import { FaArrowRight, FaCaretRight, FaCircle } from 'react-icons/fa';
 
 import AddressSearchForm from '../AddressSearchForm';
 import { ChevronRightIcon } from '@chakra-ui/icons';
+import CreateIcon from '../CreateIcon';
 import VerticalTripPlan from './VerticalTripPlan';
 import config from '../../config';
 import { fillGaps } from '../../utils/tripplan';
@@ -723,16 +724,30 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
           </Grid>
           <Flex justifyContent={'flex-start'} mx={6} py={2}>
             {tripModesSet.map((mode, i) => (
-              <Box as="span" key={i.toString()}>
-                <Icon
-                  as={
+              <Box
+                as="span"
+                key={i.toString()}
+                display="flex"
+                alignItems="center"
+              >
+                {mode !== '___' ? (
+                  CreateIcon(
                     mode === 'WALK' && wheelchair
-                      ? config.WHEELCHAIR.webIcon
-                      : config.MODES.find(m => m.id === mode.toLowerCase())
-                          .webIcon
-                  }
-                  boxSize={6}
-                />
+                      ? config.WHEELCHAIR.svg
+                      : config.MODES.find(m => m.id === mode.toLowerCase()).svg
+                  )
+                ) : (
+                  <Icon
+                    as={
+                      mode === 'WALK' && wheelchair
+                        ? config.WHEELCHAIR.webIcon
+                        : config.MODES.find(m => m.id === mode.toLowerCase())
+                            .webIcon
+                    }
+                    boxSize={6}
+                  />
+                )}
+
                 {i < tripModesSet.length - 1 ? (
                   <Icon as={FaCaretRight} boxSize={6} mr={2} />
                 ) : null}

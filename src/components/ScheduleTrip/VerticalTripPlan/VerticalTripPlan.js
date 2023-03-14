@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { FaGenderless, FaStar } from 'react-icons/fa';
 
+import CreateIcon from '../../CreateIcon';
 import config from '../../../config';
 import { fillGaps } from '../../../utils/tripplan';
 import formatters from '../../../utils/formatters';
@@ -199,6 +200,8 @@ export const VerticalTripPlan = ({ plan }) => {
           // if (leg?.intermediateStops) console.log(leg.intermediateStops.length);
           const multiplier = 15.5;
           // console.log(leg?.intermediateStops);
+          // console.log({ mode });
+
           return (
             <VStack
               key={i.toString()}
@@ -210,7 +213,11 @@ export const VerticalTripPlan = ({ plan }) => {
               borderColor={colorMode === 'light' ? 'gray.200' : 'gray.200'}
             >
               <Flex alignItems={'center'} mt={2}>
-                <Icon as={mode.webIcon} mr={2} />
+                {mode?.webIcon ? (
+                  <Icon as={mode.webIcon} mr={2} />
+                ) : mode?.svg ? (
+                  CreateIcon(mode.svg)
+                ) : null}
                 <Text>{title}</Text>
               </Flex>
 
