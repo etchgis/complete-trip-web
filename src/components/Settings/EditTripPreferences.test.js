@@ -1,12 +1,11 @@
 import * as React from 'react';
 
-import { render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react';
 
 import { EditTripPreferences } from './EditTripPreferences';
-import { TestWrapper } from "../../setupTests";
+import { TestWrapper } from '../../setupTests';
 
-test('EditCaretaker', () => {
-
+test('Edit Trip Preferences', () => {
   render(
     <TestWrapper>
       <EditTripPreferences></EditTripPreferences>

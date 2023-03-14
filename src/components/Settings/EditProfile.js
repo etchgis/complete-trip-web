@@ -31,7 +31,7 @@ export const EditProfile = ({ onClose }) => {
   const email = useRef();
 
   const getUserLocation = () => {
-    const success = async position => {
+    const success = position => {
       // console.log(position);
       setCenter({
         lat: position.coords.latitude,
@@ -51,7 +51,7 @@ export const EditProfile = ({ onClose }) => {
 
   useEffect(() => {
     console.log('[edit profile] getting user gps location');
-    getUserLocation();
+    if (navigator && navigator.geolocation) getUserLocation();
   }, []);
 
   return (
@@ -123,7 +123,9 @@ export const EditProfile = ({ onClose }) => {
             name="phone"
             onChange={() => {}}
             disabled
-            value={formatters.phone.asDomestic(user?.phone.slice(2)) || ''}
+            value={
+              user.phone ? formatters.phone.asDomestic(user.phone.slice(2)) : ''
+            }
           />
         </FormControl>
         <FormControl isRequired>

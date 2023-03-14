@@ -196,9 +196,9 @@ export const VerticalTripPlan = ({ plan }) => {
             toFill = '#111111',
             toWeight = 'normal',
             toName = leg.to ? leg.to.name || '' : ' (YOUR STOP)';
-          if (leg?.intermediateStops) console.log(leg.intermediateStops.length);
+          // if (leg?.intermediateStops) console.log(leg.intermediateStops.length);
           const multiplier = 15.5;
-          console.log(leg?.intermediateStops);
+          // console.log(leg?.intermediateStops);
           return (
             <VStack
               key={i.toString()}

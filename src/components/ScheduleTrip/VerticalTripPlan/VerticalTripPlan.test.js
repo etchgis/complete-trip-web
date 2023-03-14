@@ -2,13 +2,13 @@ import * as React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { TestWrapper } from '../../setupTests';
+import { TestWrapper } from '../../../setupTests';
 import { VerticalTripPlan } from './VerticalTripPlan';
-import plan from '../ScheduleTrip/sample-trip.json';
+import plan from '../sample-trip.json';
 
-// import { useEffect } from 'react';
-// import { useStore } from '../../context/RootStore';
-
+/**
+ * Basic test to ensure the component renders
+ */
 test('Custom Message', () => {
   render(
     <TestWrapper>
@@ -16,6 +16,6 @@ test('Custom Message', () => {
     </TestWrapper>
   );
 
-  expect(screen.getByText(/Error/i)).toBeInTheDocument();
-  expect(screen.getByText(/message/i)).toBeInTheDocument();
+  expect(screen.getByText(/LaSalle Station/i)).toBeInTheDocument();
+  expect(screen.getByText(/11:39/i)).toBeInTheDocument();
 });

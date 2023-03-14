@@ -8,6 +8,7 @@ import { TestWrapper } from '../../setupTests';
 // import { useEffect } from 'react';
 // import { useStore } from '../../context/RootStore';
 
+/** Basic test to ensure the component renders */
 test('Schedule Trip', () => {
   render(
     <TestWrapper>
@@ -15,5 +16,5 @@ test('Schedule Trip', () => {
     </TestWrapper>
   );
 
-  expect(screen.getByText(/Schedule Trip/i)).toBeInTheDocument();
+  expect(screen.getByText(/Schedule a Trip/i)).toBeInTheDocument();
 });

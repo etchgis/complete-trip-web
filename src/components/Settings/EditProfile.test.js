@@ -1,12 +1,13 @@
 import * as React from 'react';
 
-import { render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react';
 
 import { EditProfile } from './EditProfile';
-import { TestWrapper } from "../../setupTests";
+import { TestWrapper } from '../../setupTests';
+import { act } from 'react-dom/test-utils';
 
-test('EditCaretaker', () => {
-
+test('EditCaretaker', async () => {
+  // await act(async () => {
   render(
     <TestWrapper>
       <EditProfile></EditProfile>
@@ -16,4 +17,5 @@ test('EditCaretaker', () => {
   expect(screen.getByText(/Last Name/i)).toBeInTheDocument();
   expect(screen.getByText(/Phone/i)).toBeInTheDocument();
   expect(screen.getByText(/Email/i)).toBeInTheDocument();
+  // });
 });

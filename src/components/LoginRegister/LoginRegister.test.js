@@ -4,14 +4,14 @@ import * as React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { ChakraProvider } from '@chakra-ui/react';
 import { LoginRegister } from './LoginRegister';
+import { TestWrapper } from '../../setupTests';
 
 test('Renders the Login/Register Form', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <LoginRegister />
-    </ChakraProvider>
+    </TestWrapper>
   );
   // verify page content for default route
   expect(screen.getByText(/login/i)).toBeInTheDocument();

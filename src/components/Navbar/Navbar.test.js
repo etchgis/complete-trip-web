@@ -5,8 +5,8 @@ import * as React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 
-import { ChakraProvider } from '@chakra-ui/react';
 import { Navbar } from './Navbar';
+import { TestWrapper } from '../../setupTests';
 import { createMemoryHistory } from 'history';
 
 test('Renders the Navbar', () => {
@@ -14,13 +14,13 @@ test('Renders the Navbar', () => {
     initialEntries: ['/'],
   });
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Router history={history}>
         <Routes>
           <Route path="/" element={<Navbar />} />
         </Routes>
       </Router>
-    </ChakraProvider>
+    </TestWrapper>
   );
   // verify page content for default route
   expect(screen.getByText(/login\/sign up/i)).toBeInTheDocument();
