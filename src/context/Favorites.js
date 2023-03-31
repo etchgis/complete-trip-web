@@ -50,18 +50,19 @@ class Favorites {
     return this.updateProfile();
   };
 
-  addTrip = async (originId, trip) => {
-    const newTrip = { ...trip, id: Date.now() };
-    console.log({ newTrip });
+  addTrip = (originId, trip) => {
+    let newTrip = { ...trip };
+    newTrip.id = Date.now();
     runInAction(() => {
       this.trips.push(newTrip); //add 1 trip works
       // this.trips = []; //this works
     });
     console.log(this.trips);
-    const updated = await this.updateProfile();
-    if (!updated) return;
-    console.log({ updated });
-    console.log('addTrip', originId, newTrip.id);
+    this.updateProfile();
+    // const updated = await this.updateProfile();
+    // if (!updated) return;
+    // console.log({ updated });
+    // console.log('addTrip', originId, newTrip.id);
     // await this.rootStore.schedule.updateTripRequest(
     //   originId,
     //   newTrip,
@@ -89,8 +90,8 @@ class Favorites {
     };
   };
 
-  updateProfile = async () => {
-    return await this.rootStore.profile.updateProfile();
+  updateProfile = () => {
+    this.rootStore.profile.updateProfile();
   };
 
   hydrate = profile => {

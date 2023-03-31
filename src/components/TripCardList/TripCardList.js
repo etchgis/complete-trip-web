@@ -29,7 +29,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
   const inputRef = useRef();
   const [tripId, setTripId] = useState(null);
   const { trips } = useStore().schedule;
-  const { setInTransaction } = useStore().authentication;
+  // const { setInTransaction } = useStore().authentication;
   const {
     trips: favoriteTrips,
     addTrip: addTripFav,
@@ -47,12 +47,13 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
       onClose();
       const trip = trips.find(t => t.id === id) || null;
       if (!trip) return;
-      setInTransaction(true);
-      const favoriteTrip = { ...trip, alias: inputRef.current.value };
+      let favoriteTrip = {
+        ...trip.plan.request,
+      };
+      favoriteTrip.alias = inputRef.current.value;
       console.log('addTrip', tripId, favoriteTrip);
-      await addTripFav(tripId, favoriteTrip);
+      addTripFav(tripId, favoriteTrip);
       setTripId(null);
-      setInTransaction(false);
     }
   };
 
