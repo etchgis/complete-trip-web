@@ -35,13 +35,13 @@ import {
   Text,
   VStack,
   useColorMode,
-  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCaretRight, FaCircle } from 'react-icons/fa';
 
 import AddressSearchForm from '../AddressSearchForm';
-import { ChevronRightIcon } from '@chakra-ui/icons';
 import CreateIcon from '../CreateIcon';
+import { SavedTrips } from '../../Pages/Home/savedTrips';
 import VerticalTripPlan from './VerticalTripPlan';
 import config from '../../config';
 import { fillGaps } from '../../utils/tripplan';
@@ -52,58 +52,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
-// replace walk with roll - wheelchair
-// TODO on coming from a favorite - add in Leave By and Number of Riders to Trip Options
-// TODO add Leave Now, Leave By and Arrive By
-// TODO sort by start time for results
-// TODO add
-/*const WHEN_OPTIONS = [
-  {
-    label: 'Leave Now',
-    value: 'asap',
-  }, {
-    label: 'Leave At',
-    value: 'leave',
-  }, {
-    label: 'Arrive By',
-    value: 'arrive',
-  },
-];*/
-export const ScheduleTrip = observer(() => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { colorMode } = useColorMode();
-
-  return (
-    <Box p={6}>
-      {/* {isOpen ? (
-        <TripBox></TripBox>
-      ) : (
-        <> */}
-      <Heading as="h2" size="md" mb={6}>
-        Schedule a Trip
-      </Heading>
-      <Flex mb={6}>
-        <Button
-          p={10}
-          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-          color="white"
-          _hover={{
-            opacity: 0.8,
-          }}
-          onClick={onOpen}
-        >
-          New Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
-        </Button>
-      </Flex>
-      <Box>Map</Box>
-      <TripModal isOpen={isOpen} onClose={onClose}></TripModal>
-      {/* </> */}
-      {/* // )} */}
-    </Box>
-  );
-});
-
-const TripModal = observer(({ isOpen, onClose }) => {
+export const ScheduleTripModal = observer(({ isOpen, onClose }) => {
   const [step, setStep] = useState(0);
   const { trip: stagedTrip } = useStore();
   const [selectedTrip, setSelectedTrip] = useState({});
@@ -145,14 +94,12 @@ const TripModal = observer(({ isOpen, onClose }) => {
           setStep={setStep}
           trip={stagedTrip}
           selectedTrip={selectedTrip}
+          closeModal={onClose}
+          setSelectedTrip={setSelectedTrip}
         />
       ),
     },
   ];
-
-  // useEffect(() => {
-  //   console.log('step', step);
-  // }, [step]);
 
   return (
     <Modal
@@ -348,6 +295,8 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
       : user?.profile?.preferences?.modes || []
   );
 
+  console.log(toJS(user.profile));
+
   const handleSubmit = e => {
     e.preventDefault();
     setSelectedTrip({});
@@ -482,163 +431,206 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   );
 });
 
-const Fourth = observer(({ setStep, selectedTrip, trip }) => {
-  // const { loggedIn } = useStore().authentication;
+const Fourth = observer(
+  ({ setStep, selectedTrip, trip, closeModal, setSelectedTrip }) => {
+    const { loggedIn } = useStore().authentication;
+    const { updateProperty } = useStore().profile;
+    const { add: saveTrip } = useStore().schedule;
+    const savedTrips = SavedTrips();
+    const toast = useToast();
 
-  const planLegs = fillGaps(selectedTrip.legs);
-  const features = [];
-  planLegs.forEach(v =>
-    v?.legGeometry?.points
-      ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
-      : null
-  );
-  const geojson = simplify(
-    {
-      type: 'Feature',
-      properties: {
-        'stroke-width': 4,
-        stroke: '#02597E',
+    const planLegs = fillGaps(selectedTrip.legs);
+    const features = [];
+    planLegs.forEach(v =>
+      v?.legGeometry?.points
+        ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
+        : null
+    );
+    const geojson = simplify(
+      {
+        type: 'Feature',
+        properties: {
+          'stroke-width': 4,
+          stroke: '#02597E',
+        },
+        geometry: {
+          type: 'LineString',
+          coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
+        },
       },
-      geometry: {
-        type: 'LineString',
-        coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
-      },
-    },
-    0.001
-  );
-  console.log(geojson);
-  // console.log(toJS(trip));
-  return (
-    <Stack
-      as="form"
-      spacing={6}
-      width={{ base: '100%', lg: '800px' }}
-      maxW={{ base: '100%', lg: '800px' }}
-      maxWidth="2xl"
-      margin={'0 auto'}
-      textAlign={'left'}
-    >
-      <Grid
-        gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
-        gap={4}
-        position="relative"
+      0.001
+    );
+    // console.log(geojson);
+    console.log(trip.request);
+
+    async function scheduleTrip() {
+      const updated = await saveTrip(selectedTrip, trip.request);
+      console.log({ updated });
+      // const savedTrip = Object.assign({}, toJS(selectedTrip), {
+      //   whenTime: trip.request.whenTime,
+      //   id: nanoid(12),
+      //   start: trip.request.origin,
+      //   end: trip.request.destination,
+      // });
+      // console.log({ savedTrip });
+      // const updated = await updateProperty('savedTrips', [
+      //   ...savedTrips,
+      //   savedTrip,
+      // ]);
+      // console.log({ updated });
+      if (updated) {
+        toast({
+          title: 'Success',
+          description: 'Trip Saved',
+          status: 'success',
+          duration: 1500,
+          isClosable: true,
+          position: 'top-right',
+          variant: 'top-accent',
+        });
+        closeModal();
+        setSelectedTrip({});
+        setStep(0);
+        trip.create();
+      }
+    }
+
+    // console.log(toJS(trip));
+    return (
+      <Stack
+        as="form"
+        spacing={6}
+        width={{ base: '100%', lg: '800px' }}
+        maxW={{ base: '100%', lg: '800px' }}
+        maxWidth="2xl"
+        margin={'0 auto'}
+        textAlign={'left'}
       >
-        <Box
-          position={'relative'}
-          width={{ base: '100%', md: '324px' }}
-          maxW="100%"
+        <Grid
+          gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+          gap={4}
+          position="relative"
         >
-          <Center>
-            <Heading as="h3" size="md" mb={2}>
-              {(trip?.request?.whenTime).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </Heading>
-          </Center>
-          <Flex
-            position="absolute"
-            zIndex={2}
-            w={{ base: '100%', md: '100%' }}
-            maxW="540px"
+          <Box
+            position={'relative'}
+            width={{ base: '100%', md: '324px' }}
+            maxW="100%"
           >
-            <Grid
-              borderRadius={'2xl'}
-              h="80px"
-              w="80%"
-              // background={
-              //   'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
-              // }
-              backgroundColor={'trip'}
-              mt={'40px'}
-              mx="auto"
-              px={2}
-              py={4}
-              color={'white'}
-              gridTemplateColumns={'1fr 1fr 1fr'}
-              gap={0}
+            <Center>
+              <Heading as="h3" size="md" mb={2}>
+                {(trip?.request?.whenTime).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </Heading>
+            </Center>
+            <Flex
+              position="absolute"
+              zIndex={2}
+              w={{ base: '100%', md: '100%' }}
+              maxW="540px"
             >
-              <Box textAlign="center">
-                <Text fontSize={'sm'}>Leave</Text>
-                <Box>
-                  {formatters.datetime
-                    .asHMA(new Date(selectedTrip?.startTime))
-                    .replace('am', '')
-                    .replace('pm', '')}
-                  <sub style={{ textTransform: 'uppercase' }}>
-                    {' '}
+              <Grid
+                borderRadius={'2xl'}
+                h="80px"
+                w="80%"
+                // background={
+                //   'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
+                // }
+                backgroundColor={'trip'}
+                mt={'40px'}
+                mx="auto"
+                px={2}
+                py={4}
+                color={'white'}
+                gridTemplateColumns={'1fr 1fr 1fr'}
+                gap={0}
+              >
+                <Box textAlign="center">
+                  <Text fontSize={'sm'}>Leave</Text>
+                  <Box>
                     {formatters.datetime
                       .asHMA(new Date(selectedTrip?.startTime))
-                      .slice(-2)}
-                  </sub>
+                      .replace('am', '')
+                      .replace('pm', '')}
+                    <sub style={{ textTransform: 'uppercase' }}>
+                      {' '}
+                      {formatters.datetime
+                        .asHMA(new Date(selectedTrip?.startTime))
+                        .slice(-2)}
+                    </sub>
+                  </Box>
                 </Box>
-              </Box>
-              <Flex alignItems={'center'} justifyContent={'center'}>
-                <Center
-                  background={'rgba(255,255,255,0.5)'}
-                  h={10}
-                  w={10}
-                  borderRadius="lg"
-                >
-                  <Icon as={FaArrowRight} color={'white'} />
-                </Center>
-              </Flex>
+                <Flex alignItems={'center'} justifyContent={'center'}>
+                  <Center
+                    background={'rgba(255,255,255,0.5)'}
+                    h={10}
+                    w={10}
+                    borderRadius="lg"
+                  >
+                    <Icon as={FaArrowRight} color={'white'} />
+                  </Center>
+                </Flex>
 
-              <Box textAlign="center" mx={2}>
-                <Text fontSize={'sm'}>Arrive</Text>
-                <Box>
-                  {formatters.datetime
-                    .asHMA(new Date(selectedTrip?.endTime))
-                    .replace('am', '')
-                    .replace('pm', '')}
-                  <sub style={{ textTransform: 'uppercase' }}>
-                    {' '}
+                <Box textAlign="center" mx={2}>
+                  <Text fontSize={'sm'}>Arrive</Text>
+                  <Box>
                     {formatters.datetime
                       .asHMA(new Date(selectedTrip?.endTime))
-                      .slice(-2)}
-                  </sub>
+                      .replace('am', '')
+                      .replace('pm', '')}
+                    <sub style={{ textTransform: 'uppercase' }}>
+                      {' '}
+                      {formatters.datetime
+                        .asHMA(new Date(selectedTrip?.endTime))
+                        .slice(-2)}
+                    </sub>
+                  </Box>
                 </Box>
-              </Box>
-            </Grid>
-          </Flex>
+              </Grid>
+            </Flex>
 
-          <Image
-            src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodeURIComponent(
-              JSON.stringify(geojson)
-            )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${
-              config.MAP.MAPBOX_TOKEN
-            }`}
-            alt="map"
-            borderRadius={'md'}
-            margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
-          />
-        </Box>
-        <TripCardDetail
-          trip={trip}
-          selectedTrip={selectedTrip}
-        ></TripCardDetail>
-      </Grid>
-      <Stack spacing={6} alignItems="center">
-        {/* <Button
-          onClick={() => {}}
-          colorScheme="blue"
-          isDisabled={!loggedIn}
-          width={{ base: '100%', md: '65%' }}
-        >
-          Schedule Trip
-        </Button> */}
-        <Button
-          width={{ base: '100%', md: '65%' }}
-          onClick={() => setStep(current => current - 1)}
-        >
-          Back
-        </Button>
+            <Image
+              src={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.DAY.replace(
+                'mapbox://styles/',
+                ''
+              )}/static/geojson(${encodeURIComponent(
+                JSON.stringify(geojson)
+              )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${
+                config.MAP.MAPBOX_TOKEN
+              }`}
+              alt="map"
+              borderRadius={'md'}
+              margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
+            />
+          </Box>
+          <TripCardDetail
+            trip={trip}
+            selectedTrip={selectedTrip}
+          ></TripCardDetail>
+        </Grid>
+        <Stack spacing={6} alignItems="center">
+          <Button
+            onClick={scheduleTrip}
+            colorScheme="blue"
+            isDisabled={!loggedIn}
+            width={{ base: '100%', md: '65%' }}
+          >
+            Schedule Trip
+          </Button>
+          <Button
+            width={{ base: '100%', md: '65%' }}
+            onClick={() => setStep(current => current - 1)}
+          >
+            Back
+          </Button>
+        </Stack>
       </Stack>
-    </Stack>
-  );
-});
+    );
+  }
+);
 
 const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
   // console.log(toJS(trips));

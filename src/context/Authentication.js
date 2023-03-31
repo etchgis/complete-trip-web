@@ -6,6 +6,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { authentication } from '../services/transport';
 import config from '../config';
 import jwtDecode from 'jwt-decode';
+import moment from 'moment';
 
 const validateJWT = token => {
   try {
@@ -30,6 +31,13 @@ class Authentication {
   /** NOTE malcolm additions */
   stagedUser = {};
   errorToastMessage = null;
+
+  setInTransaction = e => {
+    runInAction(() => {
+      this.inTransaction = e;
+    });
+  };
+
   setStagedUser = user => {
     runInAction(() => {
       this.stagedUser = user;
@@ -212,22 +220,13 @@ class Authentication {
                 accessToken: accessToken,
               });
               if (result?.profile) {
-                const p = result.profile;
-                for (let key in p) {
-                  if (key !== 'preferences') {
-                    this.rootStore.profile.updateProperty(key, p[key], false);
-                  }
-                }
-              }
-              if (result?.profile?.preferences) {
-                const prefs = result.profile.preferences;
-                for (let key in prefs) {
-                  this.rootStore.profile.updatePreference(
-                    key,
-                    prefs[key],
-                    false
-                  );
-                }
+                this.rootStore.profile.hydrate(result.profile);
+                this.rootStore.preferences.hydrate(result.profile);
+                this.rootStore.favorites.hydrate(result.profile);
+                this.rootStore.schedule.get(
+                  moment().hour(0).valueOf(),
+                  this.user.accessToken
+                );
               }
               this.loggedIn = true;
             });
@@ -283,6 +282,15 @@ class Authentication {
       authentication
         .login(email, password)
         .then(async result => {
+          if (result?.profile) {
+            this.rootStore.profile.hydrate(result.profile);
+            this.rootStore.preferences.hydrate(result.profile);
+            this.rootStore.favorites.hydrate(result.profile);
+            this.rootStore.schedule.get(
+              moment().hour(0).valueOf(),
+              result.accessToken
+            );
+          }
           runInAction(() => {
             this.user = result;
             this.error = null;
@@ -327,6 +335,10 @@ class Authentication {
       this.loggingIn = false;
       this.loggedIn = false;
       this.registering = false;
+      this.rootStore.profile.reset();
+      this.rootStore.preferences.reset();
+      this.rootStore.favorites.reset();
+      this.rootStore.schedule.reset();
     });
   };
 
@@ -344,13 +356,14 @@ class Authentication {
       authentication
         .update({ profile }, this.user.accessToken)
         .then(result => {
+          console.log('got result, step 1');
           runInAction(() => {
             this.user.profile = result?.profile;
           });
           resolve(profile);
         })
         .catch(e => {
-          console.warn(e);
+          console.log(e);
           runInAction(() => {
             this.errorToastMessage = 'Error updating profile';
           });

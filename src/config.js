@@ -14,6 +14,10 @@ const API = {
       url: 'https://staging.lambda.etch.app/accounts',
       xApiKey: 'EJuLUUwBtd1AMxsEXELgJ9uceOj530yC2OVJnDYS',
     },
+    trips: {
+      url: 'https://staging.lambda.etch.app/trips',
+      xApiKey: 'tqoXE84kKo26JPXoTVVIY8eti9JQmAg13BvpGa5K',
+    },
     rides: {
       url: 'https://staging.lambda.etch.app/rides',
       xApiKey: 'tyVuJdnuFv9y1pMc8Ir7Q8D1pygvpAFGl4C9jzgc',

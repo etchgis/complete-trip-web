@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { ScheduleTrip } from './ScheduleTrip';
+import { ScheduleTripModal } from './ScheduleTripModal';
 import { TestWrapper } from '../../setupTests';
 
 // import { useEffect } from 'react';
@@ -12,7 +12,7 @@ import { TestWrapper } from '../../setupTests';
 test('Schedule Trip', () => {
   render(
     <TestWrapper>
-      <ScheduleTrip></ScheduleTrip>
+      <ScheduleTripModal></ScheduleTripModal>
     </TestWrapper>
   );
 

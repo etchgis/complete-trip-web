@@ -1,57 +1,61 @@
-// import {
-//   Autocomplete,
-//   DownshiftExample,
-//   DropdownSelect,
-// } from '../components/Shared/Autocomplete';
-
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { Box } from '@chakra-ui/react';
-import Layout from '../components/Layout';
-import ScheduleTrip from '../components/ScheduleTrip';
+import Home from './Home';
+import Layout from '../Pages/Layout';
 import Settings from '../components/Settings';
-import Trips from '../components/Trips';
+import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
-export const AppRoutes = observer(() => {
+export const Router = observer(() => {
   const { pathname } = useLocation();
-  const {
-    user,
-    // updateUserProfile,
-    loggedIn,
-    loggingIn,
-    fetchAccessToken,
-  } = useStore().authentication;
+  //NOTE STORES
 
-  console.log('[routes] loggedIn', loggedIn);
-  if (user?.profile) console.log(toJS(user));
+  const { locations, trips } = useStore().favorites;
+  const profile = useStore().profile;
+  const preferences = useStore().preferences;
+  const schedule = useStore().schedule;
+  const { user, loggedIn, loggingIn, fetchAccessToken } =
+    useStore().authentication;
 
-  // useEffect(() => {
-  //   console.log(toJS(user));
-  // }, [user]);
+  console.log('[router] loggedIn', loggedIn);
 
-  // useEffect(() => {
-  //   if (!user?.profile) return;
-  //   updateUserProfile(Object.assign({}, user?.profile, { onboarded: false }));
-  // }, []);
+  useEffect(() => {
+    if (!loggedIn) return;
+    const _user = toJS(user);
+    const _locations = toJS(locations);
+    const _trips = toJS(trips);
+    const _profile = toJS(profile);
+    const _preferences = toJS(preferences);
+    const _schedule = toJS(schedule);
+
+    console.log({ _trips });
+    console.log({ _user });
+    console.log({ _locations });
+    console.log({ _trips });
+    console.log({ _profile });
+    console.log({ _preferences });
+    console.log({ _schedule });
+    // eslint-disable-next-line
+  }, [user]);
 
   useEffect(() => {
     (async () => {
       if (user?.accessToken && !loggedIn) {
-        console.log('[routes] verifying accessToken');
+        console.log('[router] verifying accessToken');
         try {
           await fetchAccessToken();
-          console.log('[routes] success veryfing accessToken');
+          console.log('[router] verified accessToken', true);
         } catch (error) {
           console.log(error);
         }
       } else if (user?.accessToken && loggedIn) {
         return;
       } else {
-        console.log('[routes] no user or missing accessToken');
+        console.log('[router] no user or missing accessToken');
       }
     })();
 
@@ -66,13 +70,10 @@ export const AppRoutes = observer(() => {
         element={<Navigate to={pathname.slice(0, -1)} />}
       />
       {/* Home */}
-      <Route
-        path={'/'}
-        element={<Layout children={<ScheduleTrip />}></Layout>}
-      />
+      <Route path={'/'} element={<Layout children={<Home />}></Layout>} />
 
       {/* Trips */}
-      <Route path={'/trips'} element={<Layout children={<Trips />} />} />
+      <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
       {/* Map */}
       <Route
@@ -124,39 +125,7 @@ export const AppRoutes = observer(() => {
             <Layout children={<Box p={10}>{loggingIn ? '' : ''}</Box>} />
           }
         />
-        // <Route path="/settings/*" element={<Navigate to={'/'}></Navigate>} />
       )}
-      {/* default redirect to home page */}
-      {/* <Route path="*" element={<Navigate to="/" />} /> */}
     </Routes>
   );
 });
-
-/*const [startTransition, isPending] = useTransition({
-  timeoutMs: 3000,
-  from: { opacity: 0 },
-  enter: { opacity: 1 },
-  leave: { opacity: 0 },
-});
-
-const MapComponent = () => {
-  return (
-    <div ref={mapContainer}>
-      <Map ref={mapRef} {...mapProps} />
-    </div>
-  );
-};
-
-return (
-  <Suspense fallback={<div>Loading...</div>}>
-    <Switch>
-      <Route exact path="/" onEnter={startTransition}>
-        <HomePage />
-      </Route>
-      <Route exact path="/map" onEnter={startTransition}>
-        <MapComponent />
-      </Route>
-    </Switch>
-    {isPending && <LoadingIndicator />}
-  </Suspense>
-);*/

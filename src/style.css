@@ -1,14 +1,15 @@
-.etch-calendar button,
+/* .etch-calendar button,
 .etch-calendar button,
 .etch-calendar button:hover,
 .etch-calendar button:active,
 .etch-calendar button:focus {
   border-radius: 50%;
-}
+} */
 
 .etch-calendar button[data-selected] {
   background-color: #2465B1;
 }
+
 
 .etch-calendar table {
   width: 100%
@@ -18,7 +19,7 @@ sub {
   bottom: 0 !important
 }
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 1200px) {
 
   .etch-calendar h5 {
     font-size: 2rem;

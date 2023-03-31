@@ -1,12 +1,12 @@
 import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
 
-import CustomModal from './Modal';
-import Loader from './Loader';
-import LoginRegister from './LoginRegister';
-import MapboxMap from './Map';
-import Navbar from './Navbar';
-import ResponsiveSidebar from './Sidebar';
-import Wizard from './Wizard';
+import CustomModal from '../components/Modal';
+import Loader from '../components/Loader';
+import LoginRegister from '../components/LoginRegister';
+import MapboxMap from '../components/Map';
+import Navbar from '../components/Navbar';
+import ResponsiveSidebar from '../components/Sidebar';
+import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
 
@@ -15,6 +15,8 @@ const Layout = observer(({ showMap, children }) => {
   const { user, loggedIn, inTransaction } = useStore().authentication;
   //Sidebar
   const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
+
+  // console.log('Layout.js: ', profile);
 
   // LOGIN MODAL
   const {

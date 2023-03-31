@@ -31,18 +31,18 @@ export const CustomModal = ({
   };
 
   useEffect(() => {
-    console.log('[modal] alerted', alerted);
+    if (alerted) console.log('[modal] alerted', alerted);
   }, [alerted]);
 
   return (
     <Modal
-      id="_modal1"
       isOpen={isOpen}
       onClose={handleOnClose}
       size={{ base: 'full', sm: size ? size : 'lg' }}
-      {...rest}
-      isCentered
+      // isCentered={isCentered || true}
       scrollBehavior={'inside'}
+      isCentered
+      {...rest}
       // closeOnOverlayClick={false}
     >
       <ModalOverlay className="js-custom-modal" />

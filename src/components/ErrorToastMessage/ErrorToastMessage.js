@@ -8,8 +8,8 @@ export const ErrorToastMessage = observer(({ message }) => {
   const toast = useToast();
 
   useEffect(() => {
-    console.log({ errorToastMessage });
     if (!errorToastMessage && !message) return;
+    console.log({ errorToastMessage });
     toast({
       title: 'Error',
       description: message || errorToastMessage || '',
@@ -22,7 +22,7 @@ export const ErrorToastMessage = observer(({ message }) => {
     setTimeout(() => {
       setErrorToastMessage(null);
     }, 4000);
+    // eslint-disable-next-line
   }, [errorToastMessage]);
-  // eslint-disable-next-line
   return <></>;
 });

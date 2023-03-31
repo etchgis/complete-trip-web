@@ -34,7 +34,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got refresh user response');
+        console.log('[authentication] got refresh user response');
         const json = await response.json();
         if (response.status === 200) {
           return json;

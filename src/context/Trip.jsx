@@ -1,12 +1,16 @@
 import { makeAutoObservable, runInAction } from 'mobx';
+
 import TripPlan from '../models/trip-plan';
 import TripRequest from '../models/trip-request';
+
 // import { makePersistable, PersistStoreMap } from 'mobx-persist-store';
 
 class Trip {
 
   request = new TripRequest();
   plans = [];
+  selectedPlan = null;
+
   generatingPlans = false;
   queryId = -1;
 
@@ -67,8 +71,8 @@ class Trip {
       this.queryId = Date.now();
     });
     return new Promise((resolve, reject) => {
-      console.log(this.request, this.rootStore.profile.preferences, this.queryId)
-      TripPlan.generate(this.request, this.rootStore.profile.preferences, this.queryId)
+      console.log(this.request, this.rootStore.preferences, this.queryId)
+      TripPlan.generate(this.request, this.rootStore.preferences, this.queryId)
         .then((results) => {
           // console.log('results', results);
           if (this.queryId === results.id) {
@@ -94,6 +98,7 @@ class Trip {
     runInAction(() => {
       this.request = new TripRequest();
       this.plans = [];
+      this.selected = false;
     });
   }
 
