@@ -21,7 +21,6 @@ import ScheduleTripModal from '../../components/ScheduleTripModal';
 import TripCardList from '../../components/TripCardList';
 import VerticalTripPlan from '../../components/ScheduleTripModal/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -130,20 +129,30 @@ const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
         setTripPlan(favorite);
         openScheduleModal();
       }}
-      width={'180px'}
+      width={'200px'}
       height={'100px'}
+      whiteSpace={'break-spaces'}
     >
-      {favorite.alias} <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
+      {trimText(favorite.alias)}
+      <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
     </Button>
   );
 };
+
+function trimText(text) {
+  if (!text) return text;
+  if (text.length > 30) {
+    return text.substring(0, 30) + '...';
+  }
+  return text;
+}
 
 const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
   const { cancel } = useStore().schedule;
   const { accessToken } = useStore().authentication.user;
   const { setInTransaction } = useStore().authentication;
   const { colorMode } = useColorMode();
-  console.log(toJS(selectedTrip));
+  // console.log(toJS(selectedTrip));
 
   const cancelTrip = async id => {
     setInTransaction(true);

@@ -48,7 +48,6 @@ import VerticalTripPlan from './VerticalTripPlan';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -525,7 +524,7 @@ const First = observer(({ setStep, trip }) => {
 
 const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { user } = useStore().authentication;
-  console.log(toJS(trip));
+  // console.log(toJS(trip));
   const allowedModes = config.MODES.reduce(
     (acc, mode) => [...acc, mode.mode],
     []
@@ -542,7 +541,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     e.preventDefault();
     setSelectedTrip({});
     const data = new FormData(e.target);
-    console.log([...data]);
+    // console.log([...data]);
 
     trip.updateProperty('riders', +data.get('riders'));
     trip.updateProperty('caretaker', data.get('caretaker'));
@@ -707,7 +706,7 @@ const Fourth = ({
       id: trip.request.id,
     };
     const updated = await saveTrip(selectedTrip, request);
-    console.log({ updated });
+    // console.log({ updated });
     if (updated) {
       toast({
         title: 'Success',

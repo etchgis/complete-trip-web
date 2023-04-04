@@ -97,7 +97,7 @@ export const SearchForm = observer(
         items={list.items}
         inputValue={address}
         onInputChange={e => {
-          console.log('onchange');
+          // console.log('onchange');
           list.setFilterText(e);
           if (!list.selectedKeys.size) {
             //NOTE needed so that when we come back we clear out the result if the user changes the input value
@@ -111,7 +111,7 @@ export const SearchForm = observer(
           }
         }}
         onSelectionChange={item => {
-          console.log('onselectionchange');
+          console.log('[address search form] onselectionchange');
           if (!item) {
             return;
           }

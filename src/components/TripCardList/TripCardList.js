@@ -38,7 +38,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
 
   const updateFavoriteTrips = async (id, isFavorite) => {
     if (isFavorite) {
-      console.log('removeTrip', id);
+      // console.log('removeTrip', id);
       removeTripFav(id);
     } else {
       onClose();
@@ -48,7 +48,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
         ...trip.plan.request,
       };
       favoriteTrip.alias = inputRef.current.value;
-      console.log('addTrip', tripId, favoriteTrip);
+      // console.log('addTrip', tripId, favoriteTrip);
       addTripFav(tripId, favoriteTrip);
       setTripId(null);
     }
@@ -95,27 +95,27 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                     {formatters.datetime.asHHMMA(new Date(trip.plan.startTime))}{' '}
                     {formatters.datetime.asDuration(trip?.plan?.duration)}{' '}
                   </StatLabel>
-                  <StatNumber fontSize={'lg'}>
-                    {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (
-                      <>
+                  {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (
+                    <>
+                      <StatNumber fontSize={'lg'}>
                         {
                           favoriteTrips.find(f => f.id === trip.plan.request.id)
                             .alias
                         }
-                        <StatLabel style={{ fontWeight: 'normal' }}>
-                          {startAlias || trip.origin.address.split(',')[0]}{' '}
-                          <ArrowForwardIcon />{' '}
-                          {endAlias || trip.destination.address.split(',')[0]}
-                        </StatLabel>
-                      </>
-                    ) : (
-                      <>
+                      </StatNumber>
+                      <StatLabel style={{ fontWeight: 'normal' }}>
                         {startAlias || trip.origin.address.split(',')[0]}{' '}
                         <ArrowForwardIcon />{' '}
                         {endAlias || trip.destination.address.split(',')[0]}
-                      </>
-                    )}
-                  </StatNumber>
+                      </StatLabel>
+                    </>
+                  ) : (
+                    <StatNumber fontSize={'lg'}>
+                      {startAlias || trip.origin.address.split(',')[0]}{' '}
+                      <ArrowForwardIcon />{' '}
+                      {endAlias || trip.destination.address.split(',')[0]}
+                    </StatNumber>
+                  )}
                 </Stat>
                 <Box alignSelf={'center'}>
                   {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (

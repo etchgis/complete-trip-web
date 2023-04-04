@@ -138,8 +138,8 @@ const TimelineStep = ({ start, label, steps }) => {
 };
 
 export const VerticalTripPlan = ({ request, plan }) => {
-  console.log({ request });
-  console.log({ plan });
+  // console.log({ request });
+  // console.log({ plan });
   const { colorMode } = useColorMode();
   const planLegs = fillGaps(plan.legs);
   const features = [];
