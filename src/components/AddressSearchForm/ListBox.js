@@ -64,7 +64,7 @@ function Option({ item, state }) {
       py="2"
       background={isFocused ? 'blue.50' : 'white'}
       color={isFocused ? 'blue.700' : 'gray.700'}
-      fontWeight={isSelected ? 'bold' : 'normal'}
+      fontWeight={item?.props?.favorite || isSelected ? 'bold' : 'normal'}
       cursor="default"
       display="flex"
       alignItems="center"

@@ -10,7 +10,6 @@ import {
   Heading,
   Icon,
   Stack,
-  Text,
   useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -22,6 +21,7 @@ import ScheduleTripModal from '../../components/ScheduleTripModal';
 import TripCardList from '../../components/TripCardList';
 import VerticalTripPlan from '../../components/ScheduleTripModal/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -40,7 +40,6 @@ export const Home = observer(() => {
   const [selectedTrip, setSelectedTrip] = useState({});
   const [tripPlan, setTripPlan] = useState({});
   const { trips: favoriteTrips } = useStore().favorites;
-  const { updateProperty } = useStore().profile;
 
   return (
     <Flex flexDir={'column'}>
@@ -55,21 +54,12 @@ export const Home = observer(() => {
         ml={6}
       >
         {favoriteTrips.map(trip => (
-          <Button
+          <FavoriteTripButton
             key={trip.id.toString()}
-            p={10}
-            _hover={{
-              opacity: 0.8,
-            }}
-            onClick={() => {
-              setTripPlan(trip.plan.request);
-              openModal();
-            }}
-            width={'180px'}
-            height={'100px'}
-          >
-            {trip.alias} <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
-          </Button>
+            favorite={trip}
+            setTripPlan={setTripPlan}
+            openScheduleModal={openModal}
+          />
         ))}
         <Button
           p={10}
@@ -105,7 +95,10 @@ export const Home = observer(() => {
         flex={1}
         background={colorMode === 'light' ? 'gray.100' : 'gray.700'}
       ></Box>
+
+      {/* TRIP SCHEDULER */}
       <ScheduleTripModal
+        favoriteTrip={tripPlan}
         isOpen={isModalOpen}
         onClose={() => {
           setTripPlan({});
@@ -113,12 +106,12 @@ export const Home = observer(() => {
         }}
       ></ScheduleTripModal>
 
-      <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal}>
+      {/* VERTICAL TRIP PLAN */}
+      <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal} size="full">
         <VerticalTripPlanModal
-          title={'Title'}
-          descritption={'Description'}
+          title={selectedTrip?.request?.alias}
+          descritption={selectedTrip.description}
           selectedTrip={selectedTrip}
-          removeSavedTrip={() => {}}
           close={closeVTModal}
         />
       </CustomModal>
@@ -126,41 +119,79 @@ export const Home = observer(() => {
   );
 });
 
-const VerticalTripPlanModal = observer(
-  ({ title, description, selectedTrip, removeSavedTrip, close }) => {
-    const { colorMode } = useColorMode();
-    return (
-      <Card
-        size={{ base: 'lg', lg: 'lg' }}
-        borderRadius={'md'}
-        background={colorMode === 'light' ? 'white' : 'gray.800'}
-      >
-        <CardHeader pb={2}>
-          <Heading size="sm" as="h4" mb={2}>
-            Directions
-          </Heading>
-          <Text>{title}</Text>
-          <Text>{description}</Text>
-        </CardHeader>
-        <CardBody fontWeight={'bold'} py={2}>
-          <VerticalTripPlan plan={selectedTrip} />
-        </CardBody>
-        <CardFooter>
-          <Stack display="flex" flexDir={'column'} gap={4} w="100%">
-            <Button w="100%" onClick={close} alignSelf="center">
-              Close
-            </Button>
-            <Button
-              w="100%"
-              onClick={() => removeSavedTrip(selectedTrip.id)}
-              colorScheme="red"
-              alignSelf={'center'}
-            >
-              Cancel Scheduled Trip
-            </Button>
-          </Stack>
-        </CardFooter>
-      </Card>
-    );
-  }
-);
+const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
+  return (
+    <Button
+      p={10}
+      _hover={{
+        opacity: 0.8,
+      }}
+      onClick={() => {
+        setTripPlan(favorite);
+        openScheduleModal();
+      }}
+      width={'180px'}
+      height={'100px'}
+    >
+      {favorite.alias} <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
+    </Button>
+  );
+};
+
+const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
+  const { cancel } = useStore().schedule;
+  const { accessToken } = useStore().authentication.user;
+  const { setInTransaction } = useStore().authentication;
+  const { colorMode } = useColorMode();
+  console.log(toJS(selectedTrip));
+
+  const cancelTrip = async id => {
+    setInTransaction(true);
+    await cancel(id, accessToken);
+    setInTransaction(false);
+    close();
+  };
+
+  return (
+    <Card
+      size={{ base: 'lg', lg: 'lg' }}
+      borderRadius={'none'}
+      background={colorMode === 'light' ? 'white' : 'gray.800'}
+      boxShadow={'none'}
+      maxW="800px"
+      margin="20px auto"
+    >
+      <CardHeader pb={2}>{''}</CardHeader>
+      <CardBody fontWeight={'bold'} py={2}>
+        <VerticalTripPlan
+          request={selectedTrip.plan.request}
+          plan={selectedTrip.plan}
+        />
+      </CardBody>
+      <CardFooter>
+        <Stack
+          display="flex"
+          flexDir={'column'}
+          gap={4}
+          w="100%"
+          maxW={'400px'}
+          margin="0 auto"
+        >
+          <Button w="100%" onClick={close} alignSelf="center">
+            Close
+          </Button>
+          <Button
+            w="100%"
+            onClick={() => {
+              cancelTrip(selectedTrip.id);
+            }}
+            colorScheme="red"
+            alignSelf={'center'}
+          >
+            Cancel Scheduled Trip
+          </Button>
+        </Stack>
+      </CardFooter>
+    </Card>
+  );
+});

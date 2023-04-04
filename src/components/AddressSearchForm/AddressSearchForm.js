@@ -1,110 +1,134 @@
 import { Autocomplete, Item } from './Autocomplete';
 
+import { observer } from 'mobx-react-lite';
 import { useAsyncList } from 'react-stately';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { useStore } from '../../context/RootStore';
 
-export const SearchForm = ({
-  saveAddress,
-  center,
-  defaultAddress,
-  setGeocoderResult,
-  name,
-  label,
-  required,
-  clearResult,
-}) => {
-  const [address, setAddress] = useState(defaultAddress || '');
-  // console.log({ address });
-  useEffect(() => {
-    saveAddress(address);
-  }, [address, saveAddress]);
+export const SearchForm = observer(
+  ({
+    saveAddress,
+    center,
+    defaultAddress,
+    setGeocoderResult,
+    name,
+    label,
+    required,
+    clearResult,
+  }) => {
+    const [address, setAddress] = useState(defaultAddress || '');
+    const { locations } = useStore().favorites;
 
-  useEffect(() => {
-    setAddress(defaultAddress);
-    // eslint-disable-next-line
-  }, []);
+    // console.log({ address });
+    useEffect(() => {
+      saveAddress(address);
+    }, [address, saveAddress]);
 
-  let list = useAsyncList({
-    async load({ signal, cursor, filterText }) {
-      if (!filterText || filterText.length < 2) return { items: [] };
-      if (cursor) {
-        cursor = cursor.replace(/^http:\/\//i, 'https://');
-      }
+    useEffect(() => {
+      setAddress(defaultAddress);
+      // eslint-disable-next-line
+    }, [defaultAddress]);
 
-      let uri = `https://511ny.etch.app/geocode?query=${encodeURIComponent(
-        filterText
-      )}&limit=10`;
+    let list = useAsyncList({
+      async load({ signal, cursor, filterText }) {
+        //TODO show favs on focus
+        if (!filterText || filterText.length < 2) return { items: [] };
+        if (cursor) {
+          cursor = cursor.replace(/^http:\/\//i, 'https://');
+        }
 
-      if (center?.lng) {
-        uri += `&center=${(center.lng * 1000 || 0) / 1000},${
-          (center.lat * 1000 || 0) / 1000
-        }`;
-      }
-      // console.log(uri);
-      let items = await fetch(cursor || uri, { signal }).then(res =>
-        res.json()
-      );
+        let uri = `https://511ny.etch.app/geocode?query=${encodeURIComponent(
+          filterText
+        )}&limit=10`;
 
-      const keys = [];
-      const unique = [];
+        if (center?.lng) {
+          uri += `&center=${(center.lng * 1000 || 0) / 1000},${
+            (center.lat * 1000 || 0) / 1000
+          }`;
+        }
+        // console.log(uri);
+        let items = await fetch(cursor || uri, { signal }).then(res =>
+          res.json()
+        );
 
-      items.forEach(item => {
-        if (
-          !item.childKey ||
-          !item.title ||
-          !item.description ||
-          keys.includes(item.childKey)
-        )
-          return;
-        keys.push(item.childKey);
-        item['name'] = item?.title + ', ' + item?.description;
-        unique.push(item);
-      });
+        const keys = [];
 
-      // console.log(items);
+        if (locations.length)
+          locations.forEach(l => {
+            l['childKey'] = l.id.toString();
+            l['name'] = l.alias;
+            l['search'] = l.text.toLowerCase() + ' | ' + l.alias.toLowerCase();
+          });
+        const regex = new RegExp(filterText.toLowerCase().trim());
+        const unique = locations.length
+          ? locations.filter(l => regex.test(l.search))
+          : [];
+        // console.log({ unique });
 
-      return {
-        items: items,
-        // cursor: json.next,
-      };
-    },
-  });
+        items.forEach(item => {
+          if (
+            !item.childKey ||
+            !item.title ||
+            !item.description ||
+            keys.includes(item.childKey)
+          )
+            return;
+          keys.push(item.childKey);
+          item['name'] = item?.title + ', ' + item?.description;
+          item['text'] = item?.title + ', ' + item?.description;
+          unique.push(item);
+        });
 
-  return (
-    <Autocomplete
-      required={required || false}
-      label={label || 'Home Address'}
-      placeholder="Start typing an address..."
-      items={list.items}
-      inputValue={address}
-      onInputChange={e => {
-        // console.log('onchange');
-        list.setFilterText(e);
-        if (!list.selectedKeys.size) {
-          //NOTE needed so that when we come back we clear out the result if the user changes the input value
-          //NOTE not sure how this will affect the other places where the input is so adding a check here
-          if (defaultAddress && clearResult) {
-            setGeocoderResult({});
+        // console.log({ items });
+
+        return {
+          items: unique,
+          // cursor: json.next,
+        };
+      },
+    });
+
+    return (
+      <Autocomplete
+        required={required || false}
+        label={label || 'Home Address'}
+        placeholder="Start typing an address..."
+        items={list.items}
+        inputValue={address}
+        onInputChange={e => {
+          console.log('onchange');
+          list.setFilterText(e);
+          if (!list.selectedKeys.size) {
+            //NOTE needed so that when we come back we clear out the result if the user changes the input value
+            //NOTE not sure how this will affect the other places where the input is so adding a check here
+            if (defaultAddress && clearResult) {
+              setGeocoderResult({});
+            }
+            setAddress(e);
+          } else {
+            setAddress('');
           }
-          setAddress(e);
-        } else {
-          setAddress('');
-        }
-      }}
-      onSelectionChange={item => {
-        // console.log('onselectionchange');
-        if (!item) {
-          return;
-        }
-        setAddress(list.items.filter(e => e.childKey === item)[0].name);
-        setGeocoderResult(list.items.find(e => e.childKey === item));
-      }}
-      loadingState={list.loadingState}
-      onLoadMore={list.loadMore}
-      name={name || 'address'}
-    >
-      {item => <Item key={item.childKey}>{item?.name}</Item>}
-    </Autocomplete>
-  );
-};
+        }}
+        onSelectionChange={item => {
+          console.log('onselectionchange');
+          if (!item) {
+            return;
+          }
+
+          setAddress(list.items.filter(e => e.childKey === item)[0].name);
+          setGeocoderResult(list.items.find(e => e.childKey === item));
+        }}
+        loadingState={list.loadingState}
+        onLoadMore={list.loadMore}
+        name={name || 'address'}
+      >
+        {item => (
+          <Item key={item.childKey} favorite={item.alias ? true : false}>
+            {item?.name}
+          </Item>
+        )}
+      </Autocomplete>
+    );
+  }
+);

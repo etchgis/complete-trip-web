@@ -1,8 +1,18 @@
+import * as polyline from '@mapbox/polyline';
+import * as simplify from 'simplify-geojson';
+
 import {
   Box,
+  Card,
+  CardBody,
+  CardHeader,
+  Center,
   Divider,
   Flex,
+  Grid,
+  Heading,
   Icon,
+  Image,
   Text,
   VStack,
   useColorMode,
@@ -10,6 +20,7 @@ import {
 import { FaGenderless, FaStar } from 'react-icons/fa';
 
 import CreateIcon from '../../CreateIcon';
+import { FaArrowRight } from 'react-icons/fa';
 import config from '../../../config';
 import { fillGaps } from '../../../utils/tripplan';
 import formatters from '../../../utils/formatters';
@@ -21,76 +32,261 @@ import { useStore } from '../../../context/RootStore';
 
 const styles = {};
 
-// const timelineSteps = [
-//   {
-//     icon: FaCircle,
-//     title: 'Step 1',
-//     description: 'This is the description for step 1',
-//   },
-//   {
-//     icon: FaBus,
-//     title: 'Step 2',
-//     description: 'This is the description for step 2',
-//   },
-//   {
-//     icon: FaCar,
-//     title: 'Step 3',
-//     description: 'This is the description for step 3',
-//   },
-//   {
-//     icon: FaWheelchair,
-//     title: 'Step 3',
-//     description: 'This is the description for step 3',
-//   },
-//   {
-//     icon: FaTrain,
-//     title: 'Step 3',
-//     description: 'This is the description for step 3',
-//   },
-//   {
-//     icon: FaCircle,
-//     title: 'Step 4',
-//   },
-// ];
-
-// const TimelineStep = ({ step, title, hideDivider }) => {
-//   const IconComponent = step.icon;
-//   return (
-//     <HStack align="top">
-//       <Box>
-//         <Icon as={IconComponent} mt={1} />
-//         {hideDivider ? null : (
-//           <Center height="50px">
-//             <Divider orientation="vertical" />
-//           </Center>
-//         )}
-//       </Box>
-//       <VStack align="start">
-//         <Text fontWeight="bold">{title}</Text>
-//         {step.description ? <Text>{step.description}</Text> : null}
-//       </VStack>
-//     </HStack>
-//   );
-// };
-
-export const VerticalTripPlan = ({ plan }) => {
+const TimelineStep = ({ start, label, steps }) => {
   const { colorMode } = useColorMode();
-  const { trip } = useStore();
+  const [showDetails, setShowDetails] = useState(false);
+  const details =
+    !steps || !steps.length
+      ? []
+      : showDetails
+      ? [{ name: start }, ...steps]
+      : [{ name: start }, { name: label }, steps[steps.length - 1]];
+  const accentColor = colorMode === 'light' ? '#00205b' : 'gray.400';
+  return (
+    <Box style={{ margin: '10px 0 10px 10px' }} id="box">
+      <VStack pos={'relative'} align={'start'}>
+        {details.map((step, i) => (
+          <Box key={i.toString()} display="flex" alignItems="center" mb={0}>
+            {!showDetails ? (
+              <Box
+                display="flex"
+                alignItems="center"
+                pos={'absolute'}
+                left={'3px'}
+                top={'8px'}
+                height={'30px'}
+                borderLeft="solid 4px #00205b"
+                borderColor={accentColor}
+              ></Box>
+            ) : null}
+            {i > 0 && i < details.length - 1 ? (
+              <Box
+                display="flex"
+                alignItems="center"
+                pos={'absolute'}
+                left={'3px'}
+                height={'60px'}
+                borderLeft="solid 4px #00205b"
+                borderColor={accentColor}
+              ></Box>
+            ) : null}
+
+            {details.length === 3 && i === 1 && !showDetails ? (
+              <Box ml={6}>
+                {/* TODO convert this to a button for accessibility */}
+                <Text
+                  fontWeight="bold"
+                  fontSize="sm"
+                  onClick={() => setShowDetails(!showDetails)}
+                  textDecoration={'underline'}
+                  color="rgb(36, 101, 177)"
+                  cursor={'pointer'}
+                >
+                  {step.name}
+                </Text>
+              </Box>
+            ) : (
+              <>
+                <Box
+                  borderRadius="full"
+                  bg={
+                    i === details.length - 1
+                      ? accentColor
+                      : colorMode === 'light'
+                      ? '#fff'
+                      : 'gray.800'
+                  }
+                  outline="solid 4px #00205b"
+                  outlineColor={accentColor}
+                  w={'10px'}
+                  h={'10px'}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mr={'10px'}
+                  zIndex={1}
+                ></Box>
+                <Box>
+                  <Text
+                    fontWeight="bold"
+                    fontSize="sm"
+                    opacity={!i || i === details.length - 1 ? 1 : 0.7}
+                  >
+                    {step.name}
+                  </Text>
+                </Box>
+              </>
+            )}
+          </Box>
+        ))}
+        {showDetails ? (
+          <Text
+            fontWeight="bold"
+            fontSize="sm"
+            onClick={() => setShowDetails(!showDetails)}
+            textDecoration={'underline'}
+            color="rgb(36, 101, 177)"
+            cursor={'pointer'}
+          >
+            {' '}
+            Hide Details
+          </Text>
+        ) : null}
+      </VStack>
+    </Box>
+  );
+};
+
+export const VerticalTripPlan = ({ request, plan }) => {
+  console.log({ request });
+  console.log({ plan });
+  const { colorMode } = useColorMode();
+  const planLegs = fillGaps(plan.legs);
+  const features = [];
+  planLegs.forEach(v =>
+    v?.legGeometry?.points
+      ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
+      : null
+  );
+  const geojson = simplify(
+    {
+      type: 'Feature',
+      properties: {
+        'stroke-width': 4,
+        stroke: '#02597E',
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
+      },
+    },
+    0.001
+  );
+  return (
+    <Grid
+      gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+      gap={4}
+      position="relative"
+    >
+      <Box
+        position={'relative'}
+        width={{ base: '100%', md: '324px' }}
+        maxW="100%"
+      >
+        <Center>
+          <Heading as="h3" size="md" mb={2}>
+            {new Date(plan.startTime).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </Heading>
+        </Center>
+        <Flex
+          position="absolute"
+          zIndex={2}
+          w={{ base: '100%', md: '100%' }}
+          maxW="540px"
+        >
+          <Grid
+            borderRadius={'2xl'}
+            h="80px"
+            w="80%"
+            // background={
+            //   'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
+            // }
+            backgroundColor={'trip'}
+            mt={'40px'}
+            mx="auto"
+            px={2}
+            py={4}
+            color={'white'}
+            gridTemplateColumns={'1fr 1fr 1fr'}
+            gap={0}
+          >
+            <Box textAlign="center">
+              <Text fontSize={'sm'}>Leave</Text>
+              <Box>
+                {formatters.datetime
+                  .asHMA(new Date(plan?.startTime))
+                  .replace('am', '')
+                  .replace('pm', '')}
+                <sub style={{ textTransform: 'uppercase' }}>
+                  {' '}
+                  {formatters.datetime
+                    .asHMA(new Date(plan?.startTime))
+                    .slice(-2)}
+                </sub>
+              </Box>
+            </Box>
+
+            <Flex alignItems={'center'} justifyContent={'center'}>
+              <Center
+                background={'rgba(255,255,255,0.5)'}
+                h={10}
+                w={10}
+                borderRadius="lg"
+              >
+                <Icon as={FaArrowRight} color={'white'} />
+              </Center>
+            </Flex>
+
+            <Box textAlign="center" mx={2} boxShadow={'md'}>
+              <Text fontSize={'sm'}>Arrive</Text>
+              <Box>
+                {formatters.datetime
+                  .asHMA(new Date(plan?.endTime))
+                  .replace('am', '')
+                  .replace('pm', '')}
+                <sub style={{ textTransform: 'uppercase' }}>
+                  {' '}
+                  {formatters.datetime.asHMA(new Date(plan?.endTime)).slice(-2)}
+                </sub>
+              </Box>
+            </Box>
+          </Grid>
+        </Flex>
+        <Image
+          src={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.DAY.replace(
+            'mapbox://styles/',
+            ''
+          )}/static/geojson(${encodeURIComponent(
+            JSON.stringify(geojson)
+          )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${
+            config.MAP.MAPBOX_TOKEN
+          }`}
+          alt="map"
+          borderRadius={'md'}
+          margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
+        />
+      </Box>
+      <Card
+        size={{ base: 'lg', lg: 'lg' }}
+        borderRadius={'md'}
+        background={colorMode === 'light' ? 'white' : 'gray.800'}
+      >
+        <CardHeader pb={2}>
+          <Heading size="md" as="h3" mb={2}>
+            Trip Plan
+          </Heading>
+          <Text>{request?.origin?.title}</Text>
+          <Text>{request?.origin?.description}</Text>
+        </CardHeader>
+        <CardBody fontWeight={'bold'} py={2}>
+          <VerticalTripPlanDetail request={request} plan={plan} />
+        </CardBody>
+      </Card>
+    </Grid>
+  );
+};
+
+const VerticalTripPlanDetail = ({ request, plan }) => {
+  const { colorMode } = useColorMode();
   const { user } = useStore().authentication;
   const { wheelchair } = user?.profile?.preferences || false;
   const hasHours = Math.round(plan.duration / 60) / 60 > 1;
   const planLegs = fillGaps(plan.legs);
-  const [showDetails, setShowDetails] = useState(
-    plan.legs.reduce((acc, leg) => {
-      return [
-        ...acc,
-        {
-          intStops: leg.intermediateStops && leg.intermediateStops.length > 0,
-          showDetails: false,
-        },
-      ];
-    }, [])
-  );
 
   return (
     <Box>
@@ -113,9 +309,7 @@ export const VerticalTripPlan = ({ plan }) => {
       <Box py={2}>
         <Divider />
       </Box>
-      <Flex
-      // style={Containers.row}
-      >
+      <Flex>
         <Text
           style={{
             ...styles.selectedPlanTime,
@@ -190,15 +384,15 @@ export const VerticalTripPlan = ({ plan }) => {
             intermediateStopsLabel = `${lbl}, ${dur}`;
           }
 
-          let fromFontSize = 10,
-            fromFill = '#111111',
-            fromWeight = 'normal',
-            toFontSize = 10,
-            toFill = '#111111',
-            toWeight = 'normal',
-            toName = leg.to ? leg.to.name || '' : ' (YOUR STOP)';
+          // let fromFontSize = 10,
+          //   fromFill = '#111111',
+          //   fromWeight = 'normal',
+          //   toFontSize = 10,
+          //   toFill = '#111111',
+          //   toWeight = 'normal',
+          //   toName = leg.to ? leg.to.name || '' : ' (YOUR STOP)';
           // if (leg?.intermediateStops) console.log(leg.intermediateStops.length);
-          const multiplier = 15.5;
+          // const multiplier = 15.5;
           // console.log(leg?.intermediateStops);
           // console.log({ mode });
 
@@ -220,7 +414,6 @@ export const VerticalTripPlan = ({ plan }) => {
                 ) : null}
                 <Text>{title}</Text>
               </Flex>
-
               <Box>
                 {route && (
                   <>
@@ -229,150 +422,13 @@ export const VerticalTripPlan = ({ plan }) => {
                   </>
                 )}
               </Box>
-
-              <Box>
-                {intermediateStopsLabel && (
-                  <svg
-                    width={200}
-                    height={
-                      showDetails[i].showDetails
-                        ? 110 + leg.intermediateStops.length * multiplier
-                        : 110
-                    }
-                  >
-                    <circle
-                      cx={10}
-                      cy={20}
-                      r={6}
-                      stroke={fillColor}
-                      strokeWidth={4}
-                      fill={'#ffffff'}
-                    />
-                    <line
-                      x1={10}
-                      y1={26}
-                      x2={10}
-                      y2={40}
-                      stroke={fillColor}
-                      strokeWidth={4}
-                      strokeLinecap="round"
-                    />
-
-                    <line
-                      x1={10}
-                      y1={46}
-                      x2={10}
-                      y2={
-                        !showDetails[i].showDetails
-                          ? 66
-                          : 110 + leg.intermediateStops.length * multiplier - 48
-                      }
-                      stroke={fillColor}
-                      strokeWidth={4}
-                      strokeDasharray={
-                        !showDetails[i].showDetails ? [1, 6] : []
-                      }
-                      strokeLinecap="round"
-                    />
-
-                    <line
-                      x1={10}
-                      y1={
-                        !showDetails[i].showDetails
-                          ? 68
-                          : 110 + leg.intermediateStops.length * multiplier - 42
-                      }
-                      x2={10}
-                      y2={
-                        !showDetails[i].showDetails
-                          ? 82
-                          : 110 + leg.intermediateStops.length * multiplier - 28
-                      }
-                      stroke={fillColor}
-                      strokeWidth={4}
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx={10}
-                      cy={
-                        !showDetails[i].showDetails
-                          ? 92
-                          : 110 + leg.intermediateStops.length * multiplier - 19
-                      }
-                      r={6}
-                      stroke={fillColor}
-                      strokeWidth={4}
-                      fill={fillColor}
-                    />
-
-                    <text
-                      x={25}
-                      y={23}
-                      fill={fromFill}
-                      fontSize={fromFontSize}
-                      fontWeight={fromWeight}
-                    >
-                      {leg.from.name}
-                    </text>
-                    <text
-                      x={25}
-                      y={!showDetails[i].showDetails ? 56 : 36}
-                      fill={
-                        !showDetails[i].showDetails
-                          ? theme.colors.brand
-                          : '#111'
-                      }
-                      fontSize={toFontSize}
-                      fontWeight={toWeight}
-                      onClick={() =>
-                        setShowDetails(current => {
-                          current[i].showDetails = !current[i].showDetails;
-                          return [...current];
-                        })
-                      }
-                      cursor="pointer"
-                      textDecoration={
-                        !showDetails[i].showDetails ? 'underline' : 'none'
-                      }
-                    >
-                      {!showDetails[i].showDetails ? (
-                        <>{intermediateStopsLabel}</>
-                      ) : (
-                        <>
-                          {leg.intermediateStops.map((stop, i) => {
-                            return (
-                              <tspan
-                                x={25}
-                                dy={16}
-                                fill={toFill}
-                                fontSize={toFontSize}
-                                fontWeight={toWeight}
-                                key={i.toString()}
-                              >
-                                {stop.name}
-                              </tspan>
-                            );
-                          })}
-                        </>
-                      )}
-                    </text>
-                    <text
-                      x={25}
-                      y={
-                        !showDetails[i].showDetails
-                          ? 95
-                          : 110 + leg.intermediateStops.length * multiplier - 16
-                      }
-                      fill={toFill}
-                      fontSize={toFontSize}
-                      fontWeight={toWeight}
-                    >
-                      {toName}
-                    </text>
-                  </svg>
-                )}
-              </Box>
-
+              {leg.intermediateStops ? (
+                <TimelineStep
+                  start={leg.from.name}
+                  label={intermediateStopsLabel}
+                  steps={leg.intermediateStops}
+                />
+              ) : null}
               <Box>
                 <Divider />
               </Box>
@@ -380,76 +436,10 @@ export const VerticalTripPlan = ({ plan }) => {
           );
         })}
 
-        {/* {planLegs.map((leg, i) => {
-          var duration = formatters.datetime.asDuration(leg.duration);
-          var time = formatters.datetime.asHMA(new Date(leg.startTime));
-          var delay = 'on time',
-            realtime = false;
-          var title = formatLegTitle(leg, wheelchair);
-          var name = getLegModeName(leg, wheelchair);
-          var price = leg.price ? (leg.price || 0) / 100 : null;
-          var route, headsign;
-          // if (leg.agencyName && leg.route) {
-          //   route = leg.route;
-          //   headsign = leg.headsign;
-          //   var maxPixels = SCREEN.width - (x1 + 20),
-          //     charPixels = (headsign?.length || 0) * PIXELS_PER_CHAR,
-          //     estChars = maxPixels / PIXELS_PER_CHAR;
-          //   if (charPixels > maxPixels) {
-          //     headsign = trimText(headsign, estChars);
-          //   }
-          // }
-          var noScooters;
-
-          if (name === 'bus') {
-            title += ' (' + leg.mode.toLowerCase() + ')';
-          }
-
-          var lastSeparator, endTitle, endTime;
-          if (i === planLegs.length - 1) {
-            // lastSeparator = drawLine(
-            //   0,
-            //   y2,
-            //   gWidth - 2 * VerticalPlanSchedule.Margin,
-            //   y2
-            // );
-            endTitle = 'Destination'; //translator.translate("components.verticalPlanSchedule.destination")
-            endTime = formatters.datetime.asHMA(new Date(leg.endTime));
-          }
-          var intermediateStops;
-          if (leg.intermediateStops && leg.intermediateStops.length > 0) {
-            intermediateStops = leg.intermediateStops.map((stop, j) => {
-              var sTitle = stop.name || '';
-            });
-          }
-          return (
-            <Box as="pre">
-              Stop ID: {leg?.to?.stopId} <br />
-              Stop Code: {leg?.to?.stopCode} <br />
-              Start: {formatters.datetime.asHMA(new Date(leg.startTime))} <br />
-              Arrive: {formatters.datetime.asHMA(new Date(leg.endTime))}
-              <br />
-              Mode: {leg.mode}
-              <br />
-              Distance: {formatters.distance.asMiles(leg.distance)}
-              <br />
-              Duration: {formatters.datetime.asDuration(leg.duration)} <br />
-              {leg.steps ? 'Steps: ' : null}
-              {leg.steps
-                ? leg.steps.map(s => (
-                    <Text as="pre">{JSON.stringify(s, 0, 2)}</Text>
-                  ))
-                : null}
-              <Box py={5}>
-                <Divider />
-              </Box>
-            </Box>
-          );
-        })} */}
         <Flex alignItems={'center'} my={4}>
           <Icon as={FaStar} mr={2} />
           <Text fontWeight={'bold'}>
-            Arrive at {trip?.request?.destination?.title}{' '}
+            Arrive at {request?.destination?.title}{' '}
             {formatters.datetime
               .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
               .replace('am', '')
@@ -462,7 +452,6 @@ export const VerticalTripPlan = ({ plan }) => {
             </sub>
           </Text>
         </Flex>
-        {/* <Text as="pre">{JSON.stringify(toJS(planLegs[0]), 0, 2)}</Text> */}
       </Box>
     </Box>
   );
@@ -530,3 +519,160 @@ const getLegColor = leg => {
   leg.routeColor = rColor;
   return rColor;
 };
+
+/*
+
+SVG STOPS
+<Box>
+  {intermediateStopsLabel && (
+    <svg
+      width={200}
+      height={
+        showDetails[i].showDetails
+          ? 110 + leg.intermediateStops.length * multiplier
+          : 110
+      }
+    >
+      <circle
+        cx={10}
+        cy={20}
+        r={6}
+        stroke={fillColor}
+        strokeWidth={4}
+        fill={'#ffffff'}
+      />
+      <line
+        x1={10}
+        y1={26}
+        x2={10}
+        y2={40}
+        stroke={fillColor}
+        strokeWidth={4}
+        strokeLinecap="round"
+      />
+
+      <line
+        x1={10}
+        y1={46}
+        x2={10}
+        y2={
+          !showDetails[i].showDetails
+            ? 66
+            : 110 + leg.intermediateStops.length * multiplier - 48
+        }
+        stroke={fillColor}
+        strokeWidth={4}
+        strokeDasharray={
+          !showDetails[i].showDetails ? [1, 6] : []
+        }
+        strokeLinecap="round"
+      />
+
+      <line
+        x1={10}
+        y1={
+          !showDetails[i].showDetails
+            ? 68
+            : 110 + leg.intermediateStops.length * multiplier - 42
+        }
+        x2={10}
+        y2={
+          !showDetails[i].showDetails
+            ? 82
+            : 110 + leg.intermediateStops.length * multiplier - 28
+        }
+        stroke={fillColor}
+        strokeWidth={4}
+        strokeLinecap="round"
+      />
+      <circle
+        cx={10}
+        cy={
+          !showDetails[i].showDetails
+            ? 92
+            : 110 + leg.intermediateStops.length * multiplier - 19
+        }
+        r={6}
+        stroke={fillColor}
+        strokeWidth={4}
+        fill={fillColor}
+      />
+
+      <text
+        x={25}
+        y={23}
+        fill={fromFill}
+        fontSize={fromFontSize}
+        fontWeight={fromWeight}
+      >
+        {leg.from.name}
+      </text>
+      <text
+        x={25}
+        y={!showDetails[i].showDetails ? 56 : 36}
+        fill={
+          !showDetails[i].showDetails
+            ? theme.colors.brand
+            : '#111'
+        }
+        fontSize={toFontSize}
+        fontWeight={toWeight}
+        onClick={() =>
+          setShowDetails(current => {
+            current[i].showDetails = !current[i].showDetails;
+            return [...current];
+          })
+        }
+        cursor="pointer"
+        textDecoration={
+          !showDetails[i].showDetails ? 'underline' : 'none'
+        }
+      >
+        {!showDetails[i].showDetails ? (
+          <>{intermediateStopsLabel}</>
+        ) : (
+          <>
+            {leg.intermediateStops.map((stop, i) => {
+              return (
+                <>
+                  <circle
+                    cx={5}
+                    cy={0}
+                    r={6}
+                    stroke={fillColor}
+                    strokeWidth={4}
+                    fill={fillColor}
+                  />
+                  <tspan
+                    x={25}
+                    dy={16}
+                    fill={toFill}
+                    fontSize={toFontSize}
+                    fontWeight={toWeight}
+                    key={i.toString()}
+                  >
+                    {stop.name}
+                  </tspan>
+                </>
+              );
+            })}
+          </>
+        )}
+      </text>
+      <text
+        x={25}
+        y={
+          !showDetails[i].showDetails
+            ? 95
+            : 110 + leg.intermediateStops.length * multiplier - 16
+        }
+        fill={toFill}
+        fontSize={toFontSize}
+        fontWeight={toWeight}
+      >
+        {toName}
+      </text>
+    </svg>
+  )}
+</Box>
+*/

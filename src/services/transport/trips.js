@@ -39,6 +39,7 @@ const trips = {
   },
 
   delete(tripId, accessToken) {
+    console.log(`${config.SERVICES.trips.url}/${tripId}`);
     return fetch(`${config.SERVICES.trips.url}/${tripId}`, {
       method: 'DELETE',
       headers: {
@@ -48,13 +49,10 @@ const trips = {
       },
     })
       .then(async response => {
-        const json = await response.json();
         if (response.status === 204) {
           return true;
         }
-        throw (
-          json?.message || json?.error.reason || { message: 'Unknown error' }
-        );
+        throw new Error({ message: 'Unknown error' });
       })
       .catch(err => {
         throw err;

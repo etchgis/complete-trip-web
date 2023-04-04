@@ -55,99 +55,103 @@ export const EditProfile = ({ onClose }) => {
   }, []);
 
   return (
-    <Box
-      as="form"
-      onSubmit={async e => {
-        e.preventDefault();
-        const data = new FormData(e.target);
-        console.log(...data);
-        if (!geocoderResult?.title) {
-          //TODO create an error here and show some validation message
-          console.log('[edit profile] no address selected');
-        }
-        await updateUserProfile(
-          Object.assign({}, user?.profile, {
-            firstName: data.get('firstName'),
-            lastName: data.get('lastName'),
-            address: {
-              description: geocoderResult?.description || '',
-              distance: geocoderResult?.distance || '',
-              point: {
-                lat: geocoderResult?.point?.lat || center.lat,
-                lng: geocoderResult?.point?.lng || center.lng,
+    <Box>
+      <Box
+        as="form"
+        onSubmit={async e => {
+          e.preventDefault();
+          const data = new FormData(e.target);
+          console.log(...data);
+          if (!geocoderResult?.title) {
+            //TODO create an error here and show some validation message
+            console.log('[edit profile] no address selected');
+          }
+          await updateUserProfile(
+            Object.assign({}, user?.profile, {
+              firstName: data.get('firstName'),
+              lastName: data.get('lastName'),
+              address: {
+                description: geocoderResult?.description || '',
+                distance: geocoderResult?.distance || '',
+                point: {
+                  lat: geocoderResult?.point?.lat || center.lat,
+                  lng: geocoderResult?.point?.lng || center.lng,
+                },
+                title: geocoderResult?.title || _address || '',
+                text: geocoderResult?.name || _address || '',
               },
-              title: geocoderResult?.title || _address || '',
-              text: geocoderResult?.name || _address || '',
-            },
-          })
-        );
-        onClose();
-      }}
-    >
-      <Stack spacing={4}>
-        <HStack>
-          <FormControl>
-            <FormLabel>First Name</FormLabel>
-            <Input
-              ref={firstName}
-              type="text"
-              name="firstName"
-              defaultValue={user?.profile?.firstName}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Last Name</FormLabel>
-            <Input
-              ref={lastName}
-              type="text"
-              name="lastName"
-              defaultValue={user?.profile?.lastName}
-            />
-          </FormControl>
-        </HStack>
+            })
+          );
+          onClose();
+        }}
+      >
+        <Stack spacing={4}>
+          <HStack>
+            <FormControl>
+              <FormLabel>First Name</FormLabel>
+              <Input
+                ref={firstName}
+                type="text"
+                name="firstName"
+                defaultValue={user?.profile?.firstName}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Last Name</FormLabel>
+              <Input
+                ref={lastName}
+                type="text"
+                name="lastName"
+                defaultValue={user?.profile?.lastName}
+              />
+            </FormControl>
+          </HStack>
 
-        <FormControl>
-          <FormLabel>Email</FormLabel>
-          <Input
-            ref={email}
-            type="email"
-            name="email"
-            defaultValue={user?.email || ''}
-            disabled
-          />
-        </FormControl>
-        <FormControl>
-          <FormLabel>Phone</FormLabel>
-          <Input
-            type="tel"
-            name="phone"
-            onChange={() => {}}
-            disabled
-            value={
-              user.phone ? formatters.phone.asDomestic(user.phone.slice(2)) : ''
-            }
-          />
-        </FormControl>
-        <FormControl isRequired>
-          <AddressSearchForm
-            saveAddress={setAddress}
-            center={center}
-            defaultAddress={user?.profile?.address?.text || ''}
-            setGeocoderResult={setGeocoderResult}
-          ></AddressSearchForm>
-        </FormControl>
-        <Button
-          bg={'brand'}
-          color={'white'}
-          _hover={{
-            bg: 'blue.500',
-          }}
-          type="submit"
-          mt={6}
-        >
-          Save
-        </Button>
-      </Stack>
+          <FormControl>
+            <FormLabel>Email</FormLabel>
+            <Input
+              ref={email}
+              type="email"
+              name="email"
+              defaultValue={user?.email || ''}
+              disabled
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Phone</FormLabel>
+            <Input
+              type="tel"
+              name="phone"
+              onChange={() => {}}
+              disabled
+              value={
+                user.phone
+                  ? formatters.phone.asDomestic(user.phone.slice(2))
+                  : ''
+              }
+            />
+          </FormControl>
+          <FormControl isRequired>
+            <AddressSearchForm
+              saveAddress={setAddress}
+              center={center}
+              defaultAddress={user?.profile?.address?.text || ''}
+              setGeocoderResult={setGeocoderResult}
+            ></AddressSearchForm>
+          </FormControl>
+          <Button
+            bg={'brand'}
+            color={'white'}
+            _hover={{
+              bg: 'blue.500',
+            }}
+            type="submit"
+            mt={6}
+          >
+            Save
+          </Button>
+        </Stack>
+      </Box>
     </Box>
   );
 };

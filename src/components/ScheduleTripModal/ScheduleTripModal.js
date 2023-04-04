@@ -1,13 +1,8 @@
-import * as polyline from '@mapbox/polyline';
-import * as simplify from 'simplify-geojson';
-
 import {
   Box,
   Button,
   Card,
   CardBody,
-  CardHeader,
-  Center,
   Checkbox,
   CheckboxGroup,
   Flex,
@@ -15,9 +10,9 @@ import {
   FormErrorMessage,
   FormLabel,
   Grid,
+  HStack,
   Heading,
   Icon,
-  Image,
   Input,
   Modal,
   ModalBody,
@@ -26,6 +21,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Select,
   Spinner,
   Stack,
@@ -34,122 +36,150 @@ import {
   StatNumber,
   Text,
   VStack,
-  useColorMode,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { FaArrowRight, FaCaretRight, FaCircle } from 'react-icons/fa';
+import { FaArrowRight, FaCaretRight, FaCircle, FaStar } from 'react-icons/fa';
+import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import CreateIcon from '../CreateIcon';
-import { SavedTrips } from '../../Pages/Home/savedTrips';
 import VerticalTripPlan from './VerticalTripPlan';
 import config from '../../config';
-import { fillGaps } from '../../utils/tripplan';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
-import { useEffect } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
-export const ScheduleTripModal = observer(({ isOpen, onClose }) => {
-  const [step, setStep] = useState(0);
-  const { trip: stagedTrip } = useStore();
-  const [selectedTrip, setSelectedTrip] = useState({});
+export const ScheduleTripModal = observer(
+  ({ favoriteTrip, isOpen, onClose }) => {
+    const [step, setStep] = useState(0);
+    const { trip: stagedTrip } = useStore();
+    const [selectedTrip, setSelectedTrip] = useState({});
+    // console.log(toJS(stagedTrip));
+    if (
+      favoriteTrip.origin &&
+      favoriteTrip.destination &&
+      favoriteTrip.id &&
+      !stagedTrip.request.origin.text &&
+      !stagedTrip.request.destination.text &&
+      !stagedTrip.request.id
+    ) {
+      stagedTrip.updateOrigin(favoriteTrip?.origin);
+      stagedTrip.updateDestination(favoriteTrip?.destination);
+      stagedTrip.updateProperty('id', favoriteTrip?.id);
+    }
 
-  const Wizard = [
-    {
-      name: 'First',
-      component: <First setStep={setStep} trip={stagedTrip} />,
-    },
-    {
-      name: 'Second',
-      component: (
-        <Second
-          setStep={setStep}
-          trip={stagedTrip}
-          setSelectedTrip={setSelectedTrip}
-        />
-      ),
-    },
-    // {
-    //   name: 'Test',
-    //   component: <Test setStep={setStep} trip={stagedTrip} />,
-    // },
-    {
-      name: 'Third',
-      component: (
-        <Third
-          setStep={setStep}
-          trip={stagedTrip}
-          setSelectedTrip={setSelectedTrip}
-          selectedTrip={selectedTrip}
-        />
-      ),
-    },
-    {
-      name: 'Fourth',
-      component: (
-        <Fourth
-          setStep={setStep}
-          trip={stagedTrip}
-          selectedTrip={selectedTrip}
-          closeModal={onClose}
-          setSelectedTrip={setSelectedTrip}
-        />
-      ),
-    },
-  ];
+    const Wizard = [
+      {
+        name: 'First',
+        component: <First setStep={setStep} trip={stagedTrip} />,
+      },
+      {
+        name: 'Second',
+        component: (
+          <Second
+            setStep={setStep}
+            trip={stagedTrip}
+            setSelectedTrip={setSelectedTrip}
+          />
+        ),
+      },
+      // {
+      //   name: 'Test',
+      //   component: <Test setStep={setStep} trip={stagedTrip} />,
+      // },
+      {
+        name: 'Third',
+        component: (
+          <Third
+            setStep={setStep}
+            trip={stagedTrip}
+            setSelectedTrip={setSelectedTrip}
+            selectedTrip={selectedTrip}
+          />
+        ),
+      },
+      {
+        name: 'Fourth',
+        component: (
+          <Fourth
+            setStep={setStep}
+            trip={stagedTrip}
+            selectedTrip={selectedTrip}
+            closeModal={onClose}
+            setSelectedTrip={setSelectedTrip}
+          />
+        ),
+      },
+    ];
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        setStep(0);
-        onClose();
-        stagedTrip.create();
-      }}
-      size="full"
-    >
-      <ModalOverlay />
-      <ModalContent textAlign={'center'} pt={10}>
-        <ModalHeader>
-          {step === 0
-            ? 'Schedule a Trip'
-            : step === 1
-            ? 'Select your Transportation'
-            : step === 2
-            ? 'Select a Trip'
-            : 'Trip Details'}
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody
-          width="auto"
-          minW={{ base: '100%', md: 'lg' }}
-          maxW="100%"
-          margin="0 auto"
-        >
-          {Wizard.find((w, i) => i === step).component}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            colorScheme="blue"
-            variant={'ghost'}
-            onClick={() => {
-              setStep(0);
-              stagedTrip.create();
-              onClose();
-            }}
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setStep(0);
+          onClose();
+          stagedTrip.create();
+        }}
+        size="full"
+      >
+        <ModalOverlay />
+        <ModalContent textAlign={'center'} pt={10}>
+          <ModalHeader>
+            {step === 0
+              ? 'Schedule a Trip'
+              : step === 1
+              ? 'Select your Transportation'
+              : step === 2
+              ? 'Select a Trip'
+              : ''}
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody
+            width="auto"
+            minW={{ base: '100%', md: 'lg' }}
+            maxW="100%"
+            margin="0 auto"
           >
-            Cancel Trip
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-});
+            {Wizard.find((w, i) => i === step).component}
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              variant={'ghost'}
+              onClick={() => {
+                setStep(0);
+                stagedTrip.create();
+                onClose();
+              }}
+            >
+              Cancel Trip
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  }
+);
 
 const First = observer(({ setStep, trip }) => {
+  const { isOpen, onToggle, onClose } = useDisclosure();
+  const {
+    isOpen: isOpen2,
+    onToggle: onToggle2,
+    onClose: onClose2,
+  } = useDisclosure();
+  const { locations: favLocations, addLocation } = useStore().favorites;
+
+  const startRef = useRef(null);
+  const endRef = useRef(null);
+
+  const [savedAddresses, setSavedAddresses] = useState({ start: 0, end: 0 });
+  const [activeFavorite, setActiveFavorite] = useState(null);
+  const [aliasEditor, setAliasEditor] = useState(false);
+
   const [startError, setStartError] = useState(false);
   const [endError, setEndError] = useState(false);
 
@@ -158,15 +188,26 @@ const First = observer(({ setStep, trip }) => {
     end: trip?.request?.destination || {},
   });
 
+  //DEBUG
+  // useEffect(() => {
+  //   const _locations = toJS(locations);
+  //   const _favs = toJS(favLocations);
+  //   console.log({ _locations });
+  //   console.log({ _favs });
+  //   // console.log(toJS(trip));
+  //   //eslint-disable-next-line
+  // }, [locations, favLocations]);
+
   useEffect(() => {
     setStartError(false);
-  }, [locations?.start?.name, setStartError]);
+  }, [locations?.start?.text, setStartError]);
 
   useEffect(() => {
     setEndError(false);
-  }, [locations?.end?.name, setEndError]);
+  }, [locations?.end?.text, setEndError]);
 
   const setStart = result => {
+    trip.updateProperty('id', null);
     setLocations(current => {
       return {
         ...current,
@@ -176,6 +217,7 @@ const First = observer(({ setStep, trip }) => {
   };
 
   const setEnd = result => {
+    trip.updateProperty('id', null);
     setLocations(current => {
       return {
         ...current,
@@ -186,14 +228,14 @@ const First = observer(({ setStep, trip }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (aliasEditor) return;
     const data = new FormData(e.target);
-    console.log(locations);
     //TODO set an error here
-    if (!locations?.start?.name) {
+    if (!locations?.start?.text) {
       setStartError(true);
       return;
     }
-    if (!locations?.end?.name) {
+    if (!locations?.end?.text) {
       setEndError(true);
       return;
     }
@@ -204,6 +246,32 @@ const First = observer(({ setStep, trip }) => {
     trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
     trip.updateWhenAction(data.get('when'));
     setStep(current => current + 1);
+  };
+
+  const saveFavorite = async alias => {
+    if (!alias) return;
+    const favorite = locations[activeFavorite];
+    favorite['alias'] = alias;
+    const id = addLocation(favorite);
+    setActiveFavorite();
+    if (activeFavorite === 'end') {
+      setLocations(current => {
+        return {
+          ...current,
+          end: { ...current.end, id: id, alias: alias },
+        };
+      });
+    } else {
+      setLocations(current => {
+        return {
+          ...current,
+          start: { ...current.start, id: id, alias: alias },
+        };
+      });
+    }
+    onClose();
+    onClose2();
+    setAliasEditor(false);
   };
 
   return (
@@ -219,13 +287,100 @@ const First = observer(({ setStep, trip }) => {
         <AddressSearchForm
           saveAddress={() => {}}
           center={{ lng: -78.878738, lat: 42.88023 }}
-          defaultAddress={locations?.start?.name || ''}
+          defaultAddress={
+            locations?.start?.id &&
+            favLocations.find(f => f.id === locations.start.id)
+              ? locations?.start?.alias || locations?.start?.text
+              : locations?.start?.text || ''
+          }
           setGeocoderResult={setStart}
           name="startAddress"
           label="From"
           required={true}
           clearResult={true}
         />
+        {/* TODO convert to mini component */}
+        <Stack spacing={4} direction="row" alignItems={'center'}>
+          {favLocations.find(f => f.id === locations?.start?.id) ? (
+            <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
+              <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
+              <Text fontWeight={'bold'}>Favorite Location</Text>
+            </Flex>
+          ) : null}
+          <Popover
+            isOpen={isOpen}
+            onClose={() => {
+              //TODO actually save the address
+              //TODO replace the location start name with the saved address name
+              setSavedAddresses(current => ({ ...current, start: 0 }));
+              onClose();
+              setAliasEditor(false);
+            }}
+            placement="bottom"
+            closeOnBlur={false}
+          >
+            <PopoverTrigger>
+              <Checkbox
+                display={
+                  favLocations.find(f => f.id === locations?.start?.id)
+                    ? 'none'
+                    : 'inline-flex'
+                }
+                onChange={e => {
+                  if (e.target.checked) {
+                    onToggle();
+                    setSavedAddresses(current => ({
+                      ...current,
+                      start: 1,
+                    }));
+                    setActiveFavorite('start');
+                    setAliasEditor(true);
+                  }
+                }}
+                disabled={!locations?.start?.text}
+                value={
+                  favLocations.find(f => f.id === locations?.start?.id)?.id ||
+                  ''
+                }
+                mt={2}
+                ml={2}
+              >
+                Save Address
+              </Checkbox>
+            </PopoverTrigger>
+            <PopoverContent ml={4} mt={2}>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverHeader>Location Name</PopoverHeader>
+              {/* <FocusLock returnFocus persistentFocus={false}> */}
+              <PopoverBody>
+                <Input type="text" ref={startRef} />
+                <HStack mt={2}>
+                  <Button
+                    variant={'solid'}
+                    colorScheme="facebook"
+                    onClick={() => saveFavorite(startRef.current.value)}
+                    w="50%"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    variant={'outline'}
+                    onClick={() => {
+                      setSavedAddresses(current => ({ ...current, start: 0 }));
+                      onClose();
+                      setAliasEditor(false);
+                    }}
+                    w="50%"
+                  >
+                    Cancel
+                  </Button>
+                </HStack>
+              </PopoverBody>
+              {/* </FocusLock> */}
+            </PopoverContent>
+          </Popover>
+        </Stack>
 
         <FormErrorMessage>
           Please select a location from the result list.
@@ -236,13 +391,99 @@ const First = observer(({ setStep, trip }) => {
         <AddressSearchForm
           saveAddress={() => {}}
           center={{ lng: -78.878738, lat: 42.88023 }}
-          defaultAddress={locations?.end?.name || ''}
+          defaultAddress={
+            locations?.end?.id &&
+            favLocations.find(f => f.id === locations.end.id)
+              ? locations?.end?.alias || locations?.end?.text
+              : locations?.end?.text || ''
+          }
           setGeocoderResult={setEnd}
           name="endAddress"
           label="To"
           required={true}
           clearResult={true}
         />
+
+        <Stack spacing={4} direction="row" alignItems={'center'}>
+          {favLocations.find(f => f.id === locations?.end?.id) ? (
+            <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
+              <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
+              <Text fontWeight={'bold'}>Favorite Location</Text>
+            </Flex>
+          ) : null}
+          <Popover
+            isOpen={isOpen2}
+            onClose={() => {
+              //TODO actually save the address
+              //TODO replace the location start name with the saved address name
+              setSavedAddresses(current => ({ ...current, end: 0 }));
+              onClose2();
+              setAliasEditor(false);
+            }}
+            placement="bottom"
+            closeOnBlur={false}
+          >
+            <PopoverTrigger>
+              <Checkbox
+                display={
+                  favLocations.find(f => f.id === locations?.end?.id)
+                    ? 'none'
+                    : 'inline-flex'
+                }
+                onChange={e => {
+                  if (e.target.checked) {
+                    onToggle2();
+                    setSavedAddresses(current => ({
+                      ...current,
+                      end: 1,
+                    }));
+                    setActiveFavorite('end');
+                    setAliasEditor(true);
+                  }
+                }}
+                disabled={!locations?.end?.text}
+                isChecked={!!savedAddresses.end}
+                value={locations?.end?.id || ''}
+                mt={2}
+                ml={2}
+              >
+                Save Address
+              </Checkbox>
+            </PopoverTrigger>
+            <PopoverContent ml={4} mt={2}>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverHeader>Location Name</PopoverHeader>
+              {/* <FocusLock returnFocus persistentFocus={false}> */}
+              <PopoverBody>
+                <Input type="text" ref={endRef} />
+                <HStack mt={2}>
+                  <Button
+                    variant={'solid'}
+                    colorScheme="facebook"
+                    onClick={() => saveFavorite(endRef.current.value)}
+                    w="50%"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    variant={'outline'}
+                    onClick={() => {
+                      setSavedAddresses(current => ({ ...current, end: 0 }));
+                      onClose2();
+                      setAliasEditor(false);
+                    }}
+                    w="50%"
+                  >
+                    Cancel
+                  </Button>
+                </HStack>
+              </PopoverBody>
+              {/* </FocusLock> */}
+            </PopoverContent>
+          </Popover>
+        </Stack>
+
         <FormErrorMessage>
           Please select a location from the result list.
         </FormErrorMessage>
@@ -295,7 +536,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
       : user?.profile?.preferences?.modes || []
   );
 
-  console.log(toJS(user.profile));
+  // console.log(toJS(user.profile));
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -431,209 +672,96 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   );
 });
 
-const Fourth = observer(
-  ({ setStep, selectedTrip, trip, closeModal, setSelectedTrip }) => {
-    const { loggedIn } = useStore().authentication;
-    const { updateProperty } = useStore().profile;
-    const { add: saveTrip } = useStore().schedule;
-    const savedTrips = SavedTrips();
-    const toast = useToast();
+const Fourth = ({
+  setStep,
+  selectedTrip,
+  trip,
+  closeModal,
+  setSelectedTrip,
+}) => {
+  const { loggedIn } = useStore().authentication;
+  const { add: saveTrip } = useStore().schedule;
+  const toast = useToast();
 
-    const planLegs = fillGaps(selectedTrip.legs);
-    const features = [];
-    planLegs.forEach(v =>
-      v?.legGeometry?.points
-        ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
-        : null
-    );
-    const geojson = simplify(
-      {
-        type: 'Feature',
-        properties: {
-          'stroke-width': 4,
-          stroke: '#02597E',
-        },
-        geometry: {
-          type: 'LineString',
-          coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
-        },
+  async function scheduleTrip() {
+    const request = {
+      origin: {
+        alias: trip.request.origin?.alias || null,
+        id: trip.request.origin?.id || null,
+        point: trip.request.origin.point,
+        title: trip.request.origin.title,
+        description: trip.request.origin.description,
+        text: trip.request.origin.title + ' ' + trip.request.origin.description,
       },
-      0.001
-    );
-    // console.log(geojson);
-    console.log(trip.request);
-
-    async function scheduleTrip() {
-      const updated = await saveTrip(selectedTrip, trip.request);
-      console.log({ updated });
-      // const savedTrip = Object.assign({}, toJS(selectedTrip), {
-      //   whenTime: trip.request.whenTime,
-      //   id: nanoid(12),
-      //   start: trip.request.origin,
-      //   end: trip.request.destination,
-      // });
-      // console.log({ savedTrip });
-      // const updated = await updateProperty('savedTrips', [
-      //   ...savedTrips,
-      //   savedTrip,
-      // ]);
-      // console.log({ updated });
-      if (updated) {
-        toast({
-          title: 'Success',
-          description: 'Trip Saved',
-          status: 'success',
-          duration: 1500,
-          isClosable: true,
-          position: 'top-right',
-          variant: 'top-accent',
-        });
-        closeModal();
-        setSelectedTrip({});
-        setStep(0);
-        trip.create();
-      }
+      destination: {
+        alias: trip.request.destination?.alias || null,
+        id: trip.request.destination?.id || null,
+        point: trip.request.destination.point,
+        title: trip.request.destination.title,
+        description: trip.request.destination.description,
+        text:
+          trip.request.destination.title +
+          ' ' +
+          trip.request.destination.description,
+      },
+      id: trip.request.id,
+    };
+    const updated = await saveTrip(selectedTrip, request);
+    console.log({ updated });
+    if (updated) {
+      toast({
+        title: 'Success',
+        description: 'Trip Saved',
+        status: 'success',
+        duration: 1500,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'top-accent',
+      });
+      closeModal();
+      setSelectedTrip({});
+      setStep(0);
+      trip.create();
     }
-
-    // console.log(toJS(trip));
-    return (
-      <Stack
-        as="form"
-        spacing={6}
-        width={{ base: '100%', lg: '800px' }}
-        maxW={{ base: '100%', lg: '800px' }}
-        maxWidth="2xl"
-        margin={'0 auto'}
-        textAlign={'left'}
-      >
-        <Grid
-          gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
-          gap={4}
-          position="relative"
-        >
-          <Box
-            position={'relative'}
-            width={{ base: '100%', md: '324px' }}
-            maxW="100%"
-          >
-            <Center>
-              <Heading as="h3" size="md" mb={2}>
-                {(trip?.request?.whenTime).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </Heading>
-            </Center>
-            <Flex
-              position="absolute"
-              zIndex={2}
-              w={{ base: '100%', md: '100%' }}
-              maxW="540px"
-            >
-              <Grid
-                borderRadius={'2xl'}
-                h="80px"
-                w="80%"
-                // background={
-                //   'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
-                // }
-                backgroundColor={'trip'}
-                mt={'40px'}
-                mx="auto"
-                px={2}
-                py={4}
-                color={'white'}
-                gridTemplateColumns={'1fr 1fr 1fr'}
-                gap={0}
-              >
-                <Box textAlign="center">
-                  <Text fontSize={'sm'}>Leave</Text>
-                  <Box>
-                    {formatters.datetime
-                      .asHMA(new Date(selectedTrip?.startTime))
-                      .replace('am', '')
-                      .replace('pm', '')}
-                    <sub style={{ textTransform: 'uppercase' }}>
-                      {' '}
-                      {formatters.datetime
-                        .asHMA(new Date(selectedTrip?.startTime))
-                        .slice(-2)}
-                    </sub>
-                  </Box>
-                </Box>
-                <Flex alignItems={'center'} justifyContent={'center'}>
-                  <Center
-                    background={'rgba(255,255,255,0.5)'}
-                    h={10}
-                    w={10}
-                    borderRadius="lg"
-                  >
-                    <Icon as={FaArrowRight} color={'white'} />
-                  </Center>
-                </Flex>
-
-                <Box textAlign="center" mx={2}>
-                  <Text fontSize={'sm'}>Arrive</Text>
-                  <Box>
-                    {formatters.datetime
-                      .asHMA(new Date(selectedTrip?.endTime))
-                      .replace('am', '')
-                      .replace('pm', '')}
-                    <sub style={{ textTransform: 'uppercase' }}>
-                      {' '}
-                      {formatters.datetime
-                        .asHMA(new Date(selectedTrip?.endTime))
-                        .slice(-2)}
-                    </sub>
-                  </Box>
-                </Box>
-              </Grid>
-            </Flex>
-
-            <Image
-              src={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.DAY.replace(
-                'mapbox://styles/',
-                ''
-              )}/static/geojson(${encodeURIComponent(
-                JSON.stringify(geojson)
-              )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${
-                config.MAP.MAPBOX_TOKEN
-              }`}
-              alt="map"
-              borderRadius={'md'}
-              margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
-            />
-          </Box>
-          <TripCardDetail
-            trip={trip}
-            selectedTrip={selectedTrip}
-          ></TripCardDetail>
-        </Grid>
-        <Stack spacing={6} alignItems="center">
-          <Button
-            onClick={scheduleTrip}
-            colorScheme="blue"
-            isDisabled={!loggedIn}
-            width={{ base: '100%', md: '65%' }}
-          >
-            Schedule Trip
-          </Button>
-          <Button
-            width={{ base: '100%', md: '65%' }}
-            onClick={() => setStep(current => current - 1)}
-          >
-            Back
-          </Button>
-        </Stack>
-      </Stack>
-    );
   }
-);
+
+  // console.log(toJS(trip));
+  return (
+    <Stack
+      as="form"
+      spacing={6}
+      width={{ base: '100%', lg: '800px' }}
+      maxW={{ base: '100%', lg: '800px' }}
+      maxWidth="2xl"
+      margin={'0 auto'}
+      textAlign={'left'}
+    >
+      <VerticalTripPlan
+        request={trip.request}
+        plan={selectedTrip}
+      ></VerticalTripPlan>
+
+      <Stack spacing={6} alignItems="center">
+        <Button
+          onClick={scheduleTrip}
+          colorScheme="blue"
+          isDisabled={!loggedIn}
+          width={{ base: '100%', md: '65%' }}
+        >
+          Schedule Trip
+        </Button>
+        <Button
+          width={{ base: '100%', md: '65%' }}
+          onClick={() => setStep(current => current - 1)}
+        >
+          Back
+        </Button>
+      </Stack>
+    </Stack>
+  );
+};
 
 const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
-  // console.log(toJS(trips));
   return (
     <>
       {trips.length
@@ -758,47 +886,6 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
     </Box>
   );
 };
-
-const TripCardDetail = observer(({ trip, selectedTrip }) => {
-  // console.log(toJS(trip));
-  const { colorMode } = useColorMode();
-  return (
-    <Card
-      size={{ base: 'lg', lg: 'lg' }}
-      borderRadius={'md'}
-      background={colorMode === 'light' ? 'white' : 'gray.800'}
-    >
-      <CardHeader pb={2}>
-        <Heading size="sm" as="h4" mb={2}>
-          Directions
-        </Heading>
-        <Text>{trip?.request?.origin?.title}</Text>
-        <Text>{trip?.request?.origin?.description}</Text>
-      </CardHeader>
-      <CardBody fontWeight={'bold'} py={2}>
-        <VerticalTripPlan plan={selectedTrip} />
-        {/* {legs.map((leg, i) => (
-          <Stack key={i.toString()} spacing={0}>
-            <Flex alignItems={'center'} justifyContent={'space-between'} p={2}>
-              <Flex alignItems={'center'}>
-                <Icon
-                  as={leg.mode === 'WALK' ? FaWalking : FaBus}
-                  boxSize={6}
-                  mr={2}
-                />
-                <Text>{leg.directions}</Text>
-              </Flex>
-              <Text>{leg.time}</Text>
-            </Flex>
-            <Box py={4}>
-              <Divider />
-            </Box>
-          </Stack>
-        ))} */}
-      </CardBody>
-    </Card>
-  );
-});
 
 function parseDate(d) {
   const date = d || new Date();

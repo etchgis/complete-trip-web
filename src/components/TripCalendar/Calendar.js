@@ -58,7 +58,7 @@ export const Calendar = observer(() => {
   const dates = [];
 
   trips.forEach(trip => {
-    dates.push(new Date(trip.datetime));
+    dates.push(new Date(trip.plan.startTime));
   });
 
   // const dates = [
@@ -129,6 +129,7 @@ export const Calendar = observer(() => {
               <Button
                 fontSize={{ base: 'sm', lg: 'lg' }}
                 colorScheme={selectedDates.includes(day) ? 'blue' : 'gray'}
+                maxW="43px"
                 backgroundColor={
                   selectedDates.includes(day)
                     ? 'facebook'

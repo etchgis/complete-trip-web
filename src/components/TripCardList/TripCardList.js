@@ -20,7 +20,6 @@ import { ArrowForwardIcon } from '@chakra-ui/icons';
 import CustomModal from '../Modal';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
@@ -29,15 +28,13 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
   const inputRef = useRef();
   const [tripId, setTripId] = useState(null);
   const { trips } = useStore().schedule;
-  // const { setInTransaction } = useStore().authentication;
+
   const {
     trips: favoriteTrips,
     addTrip: addTripFav,
     removeTrip: removeTripFav,
+    locations,
   } = useStore().favorites;
-
-  console.log('favoriteTrips', toJS(favoriteTrips));
-  console.log('trips', toJS(trips));
 
   const updateFavoriteTrips = async (id, isFavorite) => {
     if (isFavorite) {
@@ -61,80 +58,102 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     // TODO make this card be rows on mobile
     <>
       <Stack maxW={{ base: '100%', sm: '540px' }} gap={4}>
-        {trips.map(trip => {
-          return (
-            <StatGroup
-              key={trip.id}
-              background={colorMode === 'light' ? 'white' : 'gray.800'}
-              p={4}
-              borderRadius={'md'}
-              border="1px"
-              borderColor={colorMode === 'light' ? 'gray.300' : 'gray.400'}
-              flexDir={{ base: 'column', sm: 'row' }}
-            >
-              <Stat flex={0} pr={10}>
-                <StatLabel>
-                  {new Date(trip.datetime)
-                    .toLocaleString('en-US', { month: 'short' })
-                    .match(/\b\w{3}\b/)[0]
-                    .toUpperCase()}
-                </StatLabel>
-                <StatNumber>{new Date(trip.datetime).getDate()}</StatNumber>
-              </Stat>
+        {!trips.length ? (
+          <Box>No upcoming trips found.</Box>
+        ) : (
+          trips.map(trip => {
+            const startAlias =
+              locations.find(l => l.id === trip.plan.request.origin?.id)
+                ?.alias || null;
+            const endAlias =
+              locations.find(l => l.id === trip.plan.request.destination?.id)
+                ?.alias || null;
+            return (
+              <StatGroup
+                key={trip.id}
+                background={colorMode === 'light' ? 'white' : 'gray.800'}
+                p={4}
+                borderRadius={'md'}
+                border="1px"
+                borderColor={colorMode === 'light' ? 'gray.300' : 'gray.400'}
+                flexDir={{ base: 'column', sm: 'row' }}
+              >
+                <Stat flex={0} pr={10}>
+                  <StatLabel>
+                    {new Date(trip.plan.startTime)
+                      .toLocaleString('en-US', { month: 'short' })
+                      .match(/\b\w{3}\b/)[0]
+                      .toUpperCase()}
+                  </StatLabel>
+                  <StatNumber>
+                    {new Date(trip.plan.startTime).getDate()}
+                  </StatNumber>
+                </Stat>
 
-              <Stat>
-                <StatLabel>
-                  {formatters.datetime.asHHMMA(new Date(trip.datetime))}{' '}
-                  {formatters.datetime.asDuration(trip?.plan?.duration)}{' '}
-                </StatLabel>
-                <StatNumber fontSize={'lg'}>
+                <Stat>
+                  <StatLabel>
+                    {formatters.datetime.asHHMMA(new Date(trip.plan.startTime))}{' '}
+                    {formatters.datetime.asDuration(trip?.plan?.duration)}{' '}
+                  </StatLabel>
+                  <StatNumber fontSize={'lg'}>
+                    {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (
+                      <>
+                        {
+                          favoriteTrips.find(f => f.id === trip.plan.request.id)
+                            .alias
+                        }
+                        <StatLabel style={{ fontWeight: 'normal' }}>
+                          {startAlias || trip.origin.address.split(',')[0]}{' '}
+                          <ArrowForwardIcon />{' '}
+                          {endAlias || trip.destination.address.split(',')[0]}
+                        </StatLabel>
+                      </>
+                    ) : (
+                      <>
+                        {startAlias || trip.origin.address.split(',')[0]}{' '}
+                        <ArrowForwardIcon />{' '}
+                        {endAlias || trip.destination.address.split(',')[0]}
+                      </>
+                    )}
+                  </StatNumber>
+                </Stat>
+                <Box alignSelf={'center'}>
                   {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (
-                    favoriteTrips.find(f => f.id === trip.plan.request.id).alias
+                    <IconButton
+                      icon={<FaStar />}
+                      variant="ghost"
+                      onClick={() =>
+                        updateFavoriteTrips(trip.plan.request.id, true)
+                      }
+                      colorScheme="red"
+                      fontSize={'2xl'}
+                    />
                   ) : (
-                    <>
-                      {trip.origin.address.split(',')[0]} <ArrowForwardIcon />{' '}
-                      {trip.destination.address.split(',')[0]}
-                    </>
+                    <IconButton
+                      icon={<FaRegStar />}
+                      variant="ghost"
+                      onClick={() => {
+                        setTripId(trip.id);
+                        onOpen();
+                      }}
+                      colorScheme="red"
+                      fontSize={'2xl'}
+                    />
                   )}
-                </StatNumber>
-                {/* <StatLabel>{trip.id}</StatLabel> */}
-              </Stat>
-              <Box alignSelf={'center'}>
-                {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (
                   <IconButton
-                    icon={<FaStar />}
+                    icon={<FaChevronRight />}
                     variant="ghost"
-                    onClick={() =>
-                      updateFavoriteTrips(trip.plan.request.id, true)
-                    }
-                    colorScheme="red"
-                    fontSize={'2xl'}
-                  />
-                ) : (
-                  <IconButton
-                    icon={<FaRegStar />}
-                    variant="ghost"
+                    fontSize={'xl'}
                     onClick={() => {
-                      setTripId(trip.id);
-                      onOpen();
+                      setSelectedTrip(trip);
+                      openModal();
                     }}
-                    colorScheme="red"
-                    fontSize={'2xl'}
                   />
-                )}
-                <IconButton
-                  icon={<FaChevronRight />}
-                  variant="ghost"
-                  fontSize={'xl'}
-                  onClick={() => {
-                    setSelectedTrip(trip);
-                    openModal();
-                  }}
-                />
-              </Box>
-            </StatGroup>
-          );
-        })}
+                </Box>
+              </StatGroup>
+            );
+          })
+        )}
       </Stack>
       <CustomModal isOpen={isOpen} onClose={onClose} size="md">
         <Box

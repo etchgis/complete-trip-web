@@ -56,6 +56,7 @@ class Schedule {
     };
     let tripPlan = { ...plan };
     tripPlan.request = request;
+    console.log({ tripPlan });
     runInAction(() => {
       this.rootStore.authentication.inTransaction = true;
     });

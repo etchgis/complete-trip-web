@@ -1,5 +1,5 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 
 /** */
 class Profile {
@@ -74,7 +74,8 @@ class Profile {
     profile.mfa = this.mfa;
     profile.preferences = this.rootStore.preferences.getAll();
     profile.favorites = this.rootStore.favorites.getAll();
-    return this.rootStore.authentication.updateUserProfile(profile);
+    const update = toJS(profile);
+    return this.rootStore.authentication.updateUserProfile(update);
   }
 
   // addMode = (value) => {

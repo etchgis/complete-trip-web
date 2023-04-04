@@ -2,6 +2,20 @@
 
 import { makeAutoObservable, runInAction } from 'mobx';
 
+class Location {
+  point = {};
+  constructor(obj) {
+    this.id = Date.now();
+    this.title = obj?.title;
+    this.alias = obj?.alias;
+    this.description = obj?.description;
+    this.distance = obj?.distance || null;
+    this.point.lat = obj?.point?.lat || 0;
+    this.point.lng = obj?.point?.lng || 0;
+    this.text = this.title + ', ' + this.description;
+  }
+}
+
 class Favorites {
   locations = [];
   trips = [];
@@ -31,10 +45,12 @@ class Favorites {
   };
 
   addLocation = location => {
-    let newLocation = { ...location };
-    newLocation.id = Date.now();
+    const _location = new Location(location);
+    const newLocation = { ..._location };
+    console.log({ newLocation });
     runInAction(() => {
-      this.locations.push(location);
+      this.locations.push(newLocation);
+      // this.locations = [];
     });
     this.updateProfile();
     return newLocation.id;
@@ -50,24 +66,23 @@ class Favorites {
     return this.updateProfile();
   };
 
-  addTrip = (originId, trip) => {
+  addTrip = async (originId, trip) => {
     let newTrip = { ...trip };
     newTrip.id = Date.now();
     runInAction(() => {
       this.trips.push(newTrip); //add 1 trip works
       // this.trips = []; //this works
     });
-    console.log(this.trips);
-    this.updateProfile();
-    // const updated = await this.updateProfile();
-    // if (!updated) return;
-    // console.log({ updated });
-    // console.log('addTrip', originId, newTrip.id);
-    // await this.rootStore.schedule.updateTripRequest(
-    //   originId,
-    //   newTrip,
-    //   this.rootStore.authentication.user.accessToken
-    // );
+    // console.log(this.trips);
+    // this.updateProfile();
+    const updated = await this.updateProfile();
+    if (!updated) return; //TODO this should roll back the store
+    const updatedSchedule = await this.rootStore.schedule.updateTripRequest(
+      originId,
+      newTrip,
+      this.rootStore.authentication.user.accessToken
+    );
+    if (!updatedSchedule) return; //TODO this should roll back the store
 
     return newTrip.id;
   };
@@ -90,8 +105,8 @@ class Favorites {
     };
   };
 
-  updateProfile = () => {
-    this.rootStore.profile.updateProfile();
+  updateProfile = async () => {
+    return await this.rootStore.profile.updateProfile();
   };
 
   hydrate = profile => {

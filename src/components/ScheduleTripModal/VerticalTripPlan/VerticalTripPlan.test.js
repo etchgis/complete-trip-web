@@ -9,10 +9,10 @@ import plan from '../sample-trip.json';
 /**
  * Basic test to ensure the component renders
  */
-test('Custom Message', () => {
+test('Vertical Trip Plan', () => {
   render(
     <TestWrapper>
-      <VerticalTripPlan plan={plan}></VerticalTripPlan>
+      <VerticalTripPlan requst={{}} plan={plan}></VerticalTripPlan>
     </TestWrapper>
   );
 

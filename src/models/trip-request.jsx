@@ -18,7 +18,8 @@ export default class TripRequest {
   bannedAgencies = [];
   bannedProviders = [];
   sortBy = 'fastest';
-  caretaker = ''
+  caretaker = '';
+  id = null;
 
   constructor(options) {
     Object.assign(this, options);

@@ -1,3 +1,4 @@
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
@@ -7,11 +8,12 @@ import {
   CardFooter,
   Divider,
   Heading,
+  IconButton,
   Stack,
   Text,
+  useColorMode,
 } from '@chakra-ui/react';
 
-import { AddIcon } from '@chakra-ui/icons';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
@@ -46,9 +48,100 @@ export const ProfileInformation = observer(({ action }) => {
       >
         Edit Profile
       </Button>
+      <FavoritesList />
     </Stack>
   );
 });
+
+const FavoritesList = observer(() => {
+  const { trips: favoriteTrips, locations: favoriteLocations } =
+    useStore().favorites;
+  console.log(favoriteTrips);
+  return (
+    <>
+      <Box py={6}>
+        <Divider />
+      </Box>
+      <Stack spacing={4}>
+        {favoriteTrips.length ? (
+          <Heading as="h3" size="md">
+            Favorite Trips
+          </Heading>
+        ) : (
+          <Text opacity={0.8}>No favorite Trips found.</Text>
+        )}
+        {favoriteTrips.map((f, i) => {
+          return (
+            <FavoriteCard
+              key={f.id.toString()}
+              id={f.id}
+              title={f.alias}
+              description={f.origin.text + ' to ' + f.destination.text}
+              type="trip"
+            />
+          );
+        })}
+      </Stack>
+      <Box py={6}>
+        <Divider />
+      </Box>
+      <Stack spacing={4}>
+        {favoriteLocations.length ? (
+          <Heading as="h3" size="md">
+            Favorite Locations
+          </Heading>
+        ) : (
+          <Text opacity={0.8}>No Saved Locations Found</Text>
+        )}
+        {favoriteLocations.map((f, i) => (
+          <FavoriteCard
+            id={f.id}
+            title={f.alias}
+            description={f.text}
+            type="locations"
+          />
+        ))}
+      </Stack>
+    </>
+  );
+});
+
+const FavoriteCard = ({ id, title, description, type }) => {
+  const { colorMode } = useColorMode();
+  const { removeTrip, removeLocation } = useStore().favorites;
+  return (
+    <Stack
+      data-id={id}
+      background={colorMode === 'light' ? 'white' : 'gray.800'}
+      p={4}
+      borderRadius={'md'}
+      border="1px"
+      borderColor={colorMode === 'light' ? 'gray.300' : 'gray.400'}
+      flexDir={{ base: 'column', sm: 'row' }}
+      display={'flex'}
+      justifyContent={'space-between'}
+      width={'100%'}
+    >
+      <Box flex="1">
+        <Text color={'brand'} fontWeight={'bold'}>
+          {title}
+        </Text>
+        <Text fontSize={'md'} opacity={0.8}>
+          {description}
+        </Text>
+      </Box>
+
+      <IconButton
+        variant={'ghost'}
+        onClick={() => {
+          if (type === 'trip') removeTrip(id);
+          else removeLocation(id);
+        }}
+        icon={<DeleteIcon />}
+      />
+    </Stack>
+  );
+};
 
 export const Accessibility = observer(({ action }) => {
   const { user } = useStore().authentication;
