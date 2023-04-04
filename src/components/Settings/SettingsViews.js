@@ -95,6 +95,7 @@ const FavoritesList = observer(() => {
         )}
         {favoriteLocations.map((f, i) => (
           <FavoriteCard
+            key={f.id.toString()}
             id={f.id}
             title={f.alias}
             description={f.text}
