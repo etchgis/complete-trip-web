@@ -62,6 +62,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
           <Box>No upcoming trips found.</Box>
         ) : (
           trips.map(trip => {
+            console.log(trip);
             const startAlias =
               locations.find(l => l.id === trip.plan.request.origin?.id)
                 ?.alias || null;
@@ -104,16 +105,24 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                         }
                       </StatNumber>
                       <StatLabel style={{ fontWeight: 'normal' }}>
-                        {startAlias || trip.origin.address.split(',')[0]}{' '}
+                        {startAlias ||
+                          trip.plan?.request?.origin?.title ||
+                          trip.origin.address.split(',')[0]}
                         <ArrowForwardIcon />{' '}
-                        {endAlias || trip.destination.address.split(',')[0]}
+                        {endAlias ||
+                          trip.plan?.request?.destination?.title ||
+                          trip.destination.address.split(',')[0]}
                       </StatLabel>
                     </>
                   ) : (
                     <StatNumber fontSize={'lg'}>
-                      {startAlias || trip.origin.address.split(',')[0]}{' '}
+                      {startAlias ||
+                        trip.plan?.request?.origin?.title ||
+                        trip.origin.address.split(',')[0]}{' '}
                       <ArrowForwardIcon />{' '}
-                      {endAlias || trip.destination.address.split(',')[0]}
+                      {endAlias ||
+                        trip.plan?.request?.destination?.title ||
+                        trip.destination.address.split(',')[0]}
                     </StatNumber>
                   )}
                 </Stat>
