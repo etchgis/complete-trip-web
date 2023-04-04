@@ -79,7 +79,7 @@ export const Home = observer(() => {
         gridTemplateColumns={['1fr', '1fr', '1fr', '1fr', '440px 1fr']}
         columnGap={10}
         rowGap={8}
-        background={colorMode === 'light' ? 'gray.100' : 'gray.700'}
+        background={colorMode === 'light' ? 'gray.100' : 'gray.800'}
         p={6}
         flex={1}
         gridTemplateRows={'max-content'}
@@ -92,7 +92,7 @@ export const Home = observer(() => {
       </Grid>
       <Box
         flex={1}
-        background={colorMode === 'light' ? 'gray.100' : 'gray.700'}
+        background={colorMode === 'light' ? 'gray.100' : 'gray.800'}
       ></Box>
 
       {/* TRIP SCHEDULER */}
@@ -119,6 +119,7 @@ export const Home = observer(() => {
 });
 
 const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
+  const { colorMode } = useColorMode();
   return (
     <Button
       p={10}
@@ -129,9 +130,12 @@ const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
         setTripPlan(favorite);
         openScheduleModal();
       }}
-      width={'200px'}
+      width={'180px'}
       height={'100px'}
       whiteSpace={'break-spaces'}
+      backgroundColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}
+      border="1px"
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
     >
       {trimText(favorite.alias)}
       <Icon as={ChevronRightIcon} ml={2} boxSize={6} />

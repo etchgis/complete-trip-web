@@ -166,10 +166,10 @@ export const Calendar = observer(() => {
       id="static-calendar"
       maxW="540px"
       display={{ base: 'none', sm: 'block' }}
-      background={colorMode === 'light' ? 'white' : 'gray.800'}
+      background={colorMode === 'light' ? 'white' : 'gray.900'}
       borderRadius="md"
       border="1px"
-      borderColor={colorMode === 'light' ? 'gray.300' : 'gray.400'}
+      borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
       height="fit-content"
     >
       <Flex

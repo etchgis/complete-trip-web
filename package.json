@@ -53,7 +53,7 @@
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
-    "deploy": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
+    "deploy": "git add . && git commit -m patch--dev-deploy && git push && npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
     "copy": "robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF"
   },
   "eslintConfig": {

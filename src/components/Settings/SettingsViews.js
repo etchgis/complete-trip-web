@@ -113,11 +113,11 @@ const FavoriteCard = ({ id, title, description, type }) => {
   return (
     <Stack
       data-id={id}
-      background={colorMode === 'light' ? 'white' : 'gray.800'}
+      background={colorMode === 'light' ? 'white' : 'gray.900'}
       p={4}
       borderRadius={'md'}
       border="1px"
-      borderColor={colorMode === 'light' ? 'gray.300' : 'gray.400'}
+      borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
       flexDir={{ base: 'column', sm: 'row' }}
       display={'flex'}
       justifyContent={'space-between'}

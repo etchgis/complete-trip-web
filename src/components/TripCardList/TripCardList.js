@@ -71,11 +71,11 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
             return (
               <StatGroup
                 key={trip.id}
-                background={colorMode === 'light' ? 'white' : 'gray.800'}
+                background={colorMode === 'light' ? 'white' : 'gray.900'}
                 p={4}
                 borderRadius={'md'}
                 border="1px"
-                borderColor={colorMode === 'light' ? 'gray.300' : 'gray.400'}
+                borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
                 flexDir={{ base: 'column', sm: 'row' }}
               >
                 <Stat flex={0} pr={10}>
