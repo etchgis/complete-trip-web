@@ -21,6 +21,7 @@ import { FaGenderless, FaStar } from 'react-icons/fa';
 
 import CreateIcon from '../../CreateIcon';
 import { FaArrowRight } from 'react-icons/fa';
+import { RxDotFilled } from 'react-icons/rx';
 import config from '../../../config';
 import { fillGaps } from '../../../utils/tripplan';
 import formatters from '../../../utils/formatters';
@@ -29,8 +30,6 @@ import { useState } from 'react';
 import { useStore } from '../../../context/RootStore';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
-
-const styles = {};
 
 const TimelineStep = ({ start, label, steps }) => {
   const { colorMode } = useColorMode();
@@ -266,12 +265,12 @@ export const VerticalTripPlan = ({ request, plan }) => {
         borderRadius={'md'}
         background={colorMode === 'light' ? 'white' : 'gray.800'}
       >
-        <CardHeader pb={2}>
-          <Heading size="md" as="h3" mb={2}>
+        <CardHeader pb={0}>
+          {/* <Heading size="md" as="h3" mb={2}>
             Trip Plan
-          </Heading>
-          <Text>{request?.origin?.title}</Text>
-          <Text>{request?.origin?.description}</Text>
+          </Heading> */}
+          <Text>{request?.destination?.title}</Text>
+          <Text>{request?.destination?.description}</Text>
         </CardHeader>
         <CardBody fontWeight={'bold'} py={2}>
           <VerticalTripPlanDetail request={request} plan={plan} />
@@ -285,11 +284,31 @@ const VerticalTripPlanDetail = ({ request, plan }) => {
   const { colorMode } = useColorMode();
   const { user } = useStore().authentication;
   const { wheelchair } = user?.profile?.preferences || false;
-  const hasHours = Math.round(plan.duration / 60) / 60 > 1;
+  // const hasHours = Math.round(plan.duration / 60) / 60 > 1;
   const planLegs = fillGaps(plan.legs);
 
   return (
     <Box>
+      <Flex alignItems={'center'}>
+        <Text mr={1} fontSize={'sm'}>
+          {formatters.datetime.asDuration(plan.duration)} (
+          {formatters.distance.asMiles(
+            plan.legs.reduce((acc, leg) => {
+              return acc + leg.distance;
+            }, 0)
+          )}
+          )
+        </Text>
+        <Icon as={RxDotFilled} fontSize={'lg'} />
+        <Text fontSize={'sm'}>
+          {plan.transfers + (plan.transfers === 1 ? ' transfer' : ' transfers')}
+        </Text>
+      </Flex>
+
+      <Box py={2}>
+        <Divider borderColor="tripDark" borderWidth={2} />
+      </Box>
+
       <Flex display={'flex'} alignItems="center">
         <Icon as={FaGenderless} boxSize={6} mr={1} ml={-1} />
         <Text p={0} mr={1}>
@@ -306,42 +325,6 @@ const VerticalTripPlanDetail = ({ request, plan }) => {
           </sub>
         </Box>
       </Flex>
-      <Box py={2}>
-        <Divider />
-      </Box>
-      <Flex>
-        <Text
-          style={{
-            ...styles.selectedPlanTime,
-            fontSize: hasHours ? 18 : 22,
-          }}
-          mr={1}
-        >
-          {formatters.datetime.asDuration(plan.duration)}
-        </Text>
-        <Text
-          fontSize={hasHours ? 18 : 22}
-          style={{
-            ...styles.selectedPlanDistance,
-          }}
-        >
-          (
-          {formatters.distance.asMiles(
-            plan.legs.reduce((acc, leg) => {
-              return acc + leg.distance;
-            }, 0)
-          )}
-          )
-        </Text>
-        {/* <Box style={{ flex: 1, alignItems: 'flex-end' }}>
-          <svg width={30} height={25}>
-            <G>{weatherIcon}</G>
-          </svg>
-        </Box> */}
-      </Flex>
-      <Text style={styles.selectedPlanTransfers}>
-        {plan.transfers + (plan.transfers === 1 ? ' transfer' : ' transfers')}
-      </Text>
       <Box py={2}>
         <Divider />
       </Box>
