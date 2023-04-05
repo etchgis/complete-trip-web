@@ -39,9 +39,12 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
   } = useStore().favorites;
 
   //sort by plan.startTime
-  const trips = allTrips.slice(0, 3).sort((a, b) => {
-    return new Date(a.plan.startTime) - new Date(b.plan.startTime);
-  });
+  const trips = allTrips
+    .slice()
+    .sort((a, b) => {
+      return new Date(a.plan.startTime) - new Date(b.plan.startTime);
+    })
+    .slice(0, 3);
 
   console.log({ trips });
 

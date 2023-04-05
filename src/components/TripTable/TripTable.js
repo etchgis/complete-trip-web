@@ -28,12 +28,10 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
   const { trips: allTrips } = useStore().schedule;
   const { trips: favoriteTrips, locations } = useStore().favorites;
   const trips = allTrips.length
-    ? allTrips.slice(0, 3).sort((a, b) => {
+    ? allTrips.slice().sort((a, b) => {
         return new Date(a.plan.startTime) - new Date(b.plan.startTime);
       })
     : [];
-
-  console.log(trips);
 
   return (
     <Box>
