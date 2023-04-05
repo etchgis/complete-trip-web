@@ -1,10 +1,11 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../config';
 import moment from 'moment';
 import trips from '../services/transport/trips';
+
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class Schedule {
   trips = [];
@@ -23,7 +24,7 @@ class Schedule {
       makePersistable(this, {
         name: 'Schedule',
         properties: ['trips'],
-        storage: process.env.WEB ? localStorage : AsyncStorage,
+        storage: localStorage,
       });
     }
   }
