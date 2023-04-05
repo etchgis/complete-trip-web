@@ -24,6 +24,14 @@ import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
+function trimText(text) {
+  if (!text) return text;
+  if (text.length > 30) {
+    return text.substring(0, 30) + '...';
+  }
+  return text;
+}
+
 export const TripTable = observer(({ openModal, setSelectedTrip }) => {
   const { trips: allTrips } = useStore().schedule;
   const { trips: favoriteTrips, locations } = useStore().favorites;
@@ -60,7 +68,11 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                   </Td>
                   <Td>
                     {favoriteTrips.find(f => f.id === trip.plan.request.id)
-                      ?.alias || ''}
+                      ? trimText(
+                          favoriteTrips.find(f => f.id === trip.plan.request.id)
+                            .alias
+                        )
+                      : ''}
                   </Td>
                   <Td>
                     <Flex alignItems="center">

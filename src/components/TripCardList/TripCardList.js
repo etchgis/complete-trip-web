@@ -113,7 +113,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                       <StatNumber fontSize={'lg'}>
                         {
                           favoriteTrips.find(f => f.id === trip.plan.request.id)
-                            .alias
+                            ?.alias
                         }
                       </StatNumber>
                       <StatLabel style={{ fontWeight: 'normal' }}>
