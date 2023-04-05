@@ -223,9 +223,10 @@ class Authentication {
                 this.rootStore.profile.hydrate(result.profile);
                 this.rootStore.preferences.hydrate(result.profile);
                 this.rootStore.favorites.hydrate(result.profile);
-                this.rootStore.schedule.get(
+                this.rootStore.schedule.getRange(
                   moment().hour(0).valueOf(),
-                  this.user.accessToken
+                  moment().add(1, 'month').valueOf(),
+                  accessToken
                 );
               }
               this.loggedIn = true;
@@ -286,9 +287,10 @@ class Authentication {
             this.rootStore.profile.hydrate(result.profile);
             this.rootStore.preferences.hydrate(result.profile);
             this.rootStore.favorites.hydrate(result.profile);
-            this.rootStore.schedule.get(
+            this.rootStore.schedule.getRange(
               moment().hour(0).valueOf(),
-              result.accessToken
+              moment().add(1, 'month').valueOf(),
+              result?.accessToken
             );
           }
           runInAction(() => {

@@ -48,6 +48,7 @@ import VerticalTripPlan from './VerticalTripPlan';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -683,29 +684,36 @@ const Fourth = ({
   const toast = useToast();
 
   async function scheduleTrip() {
-    const request = {
-      origin: {
-        alias: trip.request.origin?.alias || null,
-        id: trip.request.origin?.id || null,
-        point: trip.request.origin.point,
-        title: trip.request.origin.title,
-        description: trip.request.origin.description,
-        text: trip.request.origin.title + ' ' + trip.request.origin.description,
-      },
-      destination: {
-        alias: trip.request.destination?.alias || null,
-        id: trip.request.destination?.id || null,
-        point: trip.request.destination.point,
-        title: trip.request.destination.title,
-        description: trip.request.destination.description,
-        text:
-          trip.request.destination.title +
-          ' ' +
-          trip.request.destination.description,
-      },
-      id: trip.request.id,
-    };
-    const updated = await saveTrip(selectedTrip, request);
+    const _request = toJS(trip.request);
+    _request.origin['text'] =
+      trip.request.origin.title + ' ' + trip.request.origin.description;
+    _request.destination['text'] =
+      trip.request.destination.title +
+      ' ' +
+      trip.request.destination.description;
+    // const request = {
+    //   origin: {
+    //     alias: trip.request.origin?.alias || null,
+    //     id: trip.request.origin?.id || null,
+    //     point: trip.request.origin.point,
+    //     title: trip.request.origin.title,
+    //     description: trip.request.origin.description,
+    //     text: trip.request.origin.title + ' ' + trip.request.origin.description,
+    //   },
+    //   destination: {
+    //     alias: trip.request.destination?.alias || null,
+    //     id: trip.request.destination?.id || null,
+    //     point: trip.request.destination.point,
+    //     title: trip.request.destination.title,
+    //     description: trip.request.destination.description,
+    //     text:
+    //       trip.request.destination.title +
+    //       ' ' +
+    //       trip.request.destination.description,
+    //   },
+    //   id: trip.request.id,
+    // };
+    const updated = await saveTrip(selectedTrip, _request);
     // console.log({ updated });
     if (updated) {
       toast({
