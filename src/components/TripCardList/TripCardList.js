@@ -20,6 +20,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons';
 import CustomModal from '../Modal';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 
 export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
@@ -27,7 +28,8 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
   const { colorMode } = useColorMode();
   const inputRef = useRef();
   const [tripId, setTripId] = useState(null);
-  const { trips } = useStore().schedule;
+  const { trips: allTrips } = useStore().schedule;
+  const navigate = useNavigate();
 
   const {
     trips: favoriteTrips,
@@ -35,6 +37,13 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     removeTrip: removeTripFav,
     locations,
   } = useStore().favorites;
+
+  //sort by plan.startTime
+  const trips = allTrips.slice(0, 3).sort((a, b) => {
+    return new Date(a.plan.startTime) - new Date(b.plan.startTime);
+  });
+
+  console.log({ trips });
 
   const updateFavoriteTrips = async (id, isFavorite) => {
     if (isFavorite) {
@@ -162,6 +171,24 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
               </StatGroup>
             );
           })
+        )}
+
+        {allTrips.length > 3 && (
+          <Button
+            rightIcon={<FaChevronRight />}
+            backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
+            color="white"
+            _hover={{
+              opacity: 0.8,
+            }}
+            borderRadius={'20px'}
+            maxW="200px"
+            display={'flex'}
+            justifyContent={'space-around'}
+            onClick={() => navigate('/trips')}
+          >
+            See All Trips
+          </Button>
         )}
       </Stack>
       <CustomModal isOpen={isOpen} onClose={onClose} size="md">

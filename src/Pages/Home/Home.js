@@ -151,7 +151,7 @@ function trimText(text) {
   return text;
 }
 
-const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
+export const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
   const { cancel } = useStore().schedule;
   const { accessToken } = useStore().authentication.user;
   const { setInTransaction } = useStore().authentication;
