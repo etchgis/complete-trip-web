@@ -1,16 +1,21 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import {
+  Navigate,
+  Routes as ReactRoutes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 
 import { Box } from '@chakra-ui/react';
 import Home from './Home';
-import Layout from '../Pages/Layout';
-import Settings from '../components/Settings';
+import Layout from './Layout';
+import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
-export const Router = observer(() => {
+export const Routes = observer(() => {
   const { pathname } = useLocation();
   //NOTE STORES
 
@@ -63,7 +68,7 @@ export const Router = observer(() => {
   }, [loggedIn]);
 
   return (
-    <Routes>
+    <ReactRoutes>
       {/* Redirect all trailing slashes */}
       <Route
         path={'/:url(/+)'}
@@ -92,6 +97,10 @@ export const Router = observer(() => {
           <Route
             path="/settings/caretakers"
             element={<Layout children={<Settings view="caretakers" />} />}
+          />
+          <Route
+            path="/settings/favorites"
+            element={<Layout children={<Settings view="favorites" />} />}
           />
           <Route
             path="/settings/preferences"
@@ -126,6 +135,6 @@ export const Router = observer(() => {
           }
         />
       )}
-    </Routes>
+    </ReactRoutes>
   );
 });

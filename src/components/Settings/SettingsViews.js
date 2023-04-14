@@ -14,12 +14,29 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 
+import ConfirmDialog from '../ConfirmDialog';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
 export const ProfileInformation = observer(({ action }) => {
   const { user } = useStore().authentication;
+  const { setInTransaction } = useStore().authentication;
+
+  /**
+   *
+   * @returns {Promise<boolean>}
+   */
+  async function deleteFn() {
+    setInTransaction(true);
+    return new Promise(resolve => {
+      setTimeout(() => {
+        setInTransaction(false);
+        resolve(true);
+      }, 1000);
+    });
+  }
+
   return (
     <Stack p={4}>
       <Avatar size="xl" mb={4}></Avatar>
@@ -37,23 +54,36 @@ export const ProfileInformation = observer(({ action }) => {
         {/* <Box pb={4}>Columbus OH, 00000</Box> */}
       </Box>
 
-      <Button
-        bg="brand"
-        _hover={{
-          opacity: '0.8',
-        }}
-        color="white"
-        onClick={action}
-        maxWidth={'200px'}
-      >
-        Edit Profile
-      </Button>
+      <Stack spacing={4} direction={{ base: 'column', md: 'row' }}>
+        <Button
+          bg="brand"
+          _hover={{
+            opacity: '0.8',
+          }}
+          color="white"
+          onClick={action}
+          maxWidth={'200px'}
+        >
+          Edit Profile
+        </Button>
+
+        {/* <ConfirmDialog
+          maxWidth={'200px'}
+          confirmFn={deleteFn}
+          buttonText={'Delete Account'}
+          verifyText={'Delete my account'}
+          verifyMessage={'Type DELETE MY ACCOUNT'}
+          message={
+            'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.'
+          }
+        /> */}
+      </Stack>
       <FavoritesList />
     </Stack>
   );
 });
 
-const FavoritesList = observer(() => {
+export const FavoritesList = observer(() => {
   const { trips: favoriteTrips, locations: favoriteLocations } =
     useStore().favorites;
   console.log(favoriteTrips);

@@ -1,10 +1,11 @@
 import {
   Accessibility,
   CaretakerCards,
+  FavoritesList,
   PrivacyPolicy,
   ProfileInformation,
   TermsOfUse,
-} from './SettingsViews';
+} from '../../components/Settings/SettingsViews';
 import {
   Box,
   Button,
@@ -18,13 +19,13 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { EditAccessibility } from './EditAccessibility';
-import { EditCaretaker } from './EditCaretaker';
-import { EditNotifications } from './EditNotifications';
-import { EditPassword } from './EditPassword';
-import { EditProfile } from './EditProfile';
-import { EditTripPreferences } from './EditTripPreferences';
-import { SettingsModal } from './SettingsModal';
+import { EditAccessibility } from '../../components/Settings/EditAccessibility';
+import { EditCaretaker } from '../../components/Settings/EditCaretaker';
+import { EditNotifications } from '../../components/Settings/EditNotifications';
+import { EditPassword } from '../../components/Settings/EditPassword';
+import { EditProfile } from '../../components/Settings/EditProfile';
+import { EditTripPreferences } from '../../components/Settings/EditTripPreferences';
+import { SettingsModal } from '../../components/Settings/SettingsModal';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
@@ -55,6 +56,12 @@ export const Settings = observer(({ view }) => {
       path: 'caretakers',
       type: 'account',
       action: () => navigate('/settings/caretakers'),
+    },
+    {
+      title: 'Favorites',
+      path: 'favorites',
+      type: 'account',
+      action: () => navigate('/settings/favorites'),
     },
     {
       title: 'Trip Preferences',
@@ -211,6 +218,8 @@ function switchViews({ view, user, setActivePanel, setCaretakerId }) {
       return <TermsOfUse />;
     case 'privacy':
       return <PrivacyPolicy />;
+    case 'favorites':
+      return <FavoritesList />;
     default:
       return (
         <ProfileInformation

@@ -20,6 +20,7 @@ import {
   WarningTwoIcon,
 } from '@chakra-ui/icons';
 
+import ConfirmDialog from '../ConfirmDialog';
 import { useColorMode } from '@chakra-ui/color-mode';
 import { useEffect } from 'react';
 import { useRef } from 'react';
@@ -74,6 +75,10 @@ export const EditPassword = () => {
     }
   }, [newPassword]);
 
+  const forgotPasswordFn = () => {
+    console.log('Forgot password');
+  };
+
   return (
     <Box
       as="form"
@@ -112,14 +117,16 @@ export const EditPassword = () => {
             </InputRightElement>
           </InputGroup>
           <Box fontSize={'md'} mt={'2'} textAlign={'right'}>
-            <Button
+            <ConfirmDialog
               color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
               as="span"
               variant={'link'}
               fontWeight="bold"
-            >
-              Forgot your password?
-            </Button>
+              buttonText={'Forgot Password'}
+              confirmText={'Send Password Reset Link'}
+              message={'This will send a link to your account email'}
+              confirmFn={forgotPasswordFn}
+            />
           </Box>
         </FormControl>
 

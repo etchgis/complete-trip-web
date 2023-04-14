@@ -113,9 +113,9 @@ export const EditTripPreferences = observer(() => {
         />
       </HStack>
       <FormControl my={4}>
-        <FormLabel display={'flex'} justifyContent="space-between">
+        {/* <FormLabel display={'flex'} justifyContent="space-between">
           Maximum Trip Cost <span>${maxCost}</span>
-        </FormLabel>
+        </FormLabel> */}
         <SliderThumbWithTooltipCost
           action={e => {
             setMaxCost(e);
@@ -283,6 +283,7 @@ function SliderThumbWithTooltipCost({ action, initialValue }) {
       onMouseLeave={() => setShowTooltip(false)}
       mt={2}
       mb={4}
+      display={'none'}
     >
       <SliderMark value={25} mt={3} ml="-2.5" fontSize="sm">
         $25
