@@ -163,6 +163,21 @@ class Authentication {
     });
   };
 
+  hydrate = (profile, token) => {
+    if (!profile || !token) return;
+    console.log('[auth-store] hydrating profile...');
+    runInAction(() => {
+      this.rootStore.profile.hydrate(profile);
+      this.rootStore.preferences.hydrate(profile);
+      this.rootStore.favorites.hydrate(profile);
+      this.rootStore.schedule.getRange(
+        moment().hour(0).valueOf(),
+        moment().add(1, 'month').valueOf(),
+        token
+      );
+    });
+  };
+
   /************************* */
 
   accessTokenPromise = null;
@@ -205,37 +220,38 @@ class Authentication {
       return this.accessTokenPromise;
     }
     if (!this.user?.refreshToken) {
+      runInAction(() => {
+        this.loggingIn = false;
+        this.inTransaction = false;
+      });
       return Promise.reject(new Error('not logged in'));
+    }
+
+    // if invalid - logout, reset store
+    if (!validateJWT(this.user.refreshToken)) {
+      this.logout();
     }
 
     //NOTE this will refresh the user on each page load
     if (validateJWT(this.user.accessToken)) {
+      console.log('[auth-store] valid access token found');
       const accessToken = this.user.accessToken;
       return new Promise((resolve, reject) => {
         authentication
           .refreshUser(accessToken)
           .then(result => {
             runInAction(() => {
+              this.loggedIn = true;
               this.user = Object.assign({}, result, {
                 accessToken: accessToken,
               });
-              if (result?.profile) {
-                this.rootStore.profile.hydrate(result.profile);
-                this.rootStore.preferences.hydrate(result.profile);
-                this.rootStore.favorites.hydrate(result.profile);
-                this.rootStore.schedule.getRange(
-                  moment().hour(0).valueOf(),
-                  moment().add(1, 'month').valueOf(),
-                  accessToken
-                );
-              }
-              this.loggedIn = true;
+              this.hydrate(result?.profile, accessToken);
             });
             resolve(result);
           })
           .catch(e => {
             runInAction(() => {
-              this.error = e.message || e.reason;
+              this.error = e.message || e.reason || 'An error occurred.';
               this.errorToastMessage = 'An error occurred. Please try again.';
               this.loggedIn = false;
             });
@@ -248,27 +264,28 @@ class Authentication {
             });
           });
       });
+    } else {
+      this.accessTokenPromise = authentication
+        .refreshAccessToken(this.user.refreshToken)
+        .then(result => {
+          this.accessTokenPromise = null;
+          if (result.accessToken) {
+            console.log('[auth-store] refreshed access token');
+            runInAction(() => {
+              this.user.accessToken = result.accessToken;
+              this.user.__test = true; //NOTE remove once the token api is done
+              this.fetchAccessToken();
+            });
+            return result.accessToken;
+          }
+          throw new Error('user access failed');
+        });
     }
 
-    this.accessTokenPromise = authentication
-      .refreshAccessToken(this.user.refreshToken)
-      .then(result => {
-        this.accessTokenPromise = null;
-        if (result.accessToken) {
-          console.log({ result });
-          const refreshedUser = this.user;
-          refreshedUser.accessToken = result.accessToken;
-          runInAction(() => {
-            this.user = refreshedUser;
-          });
-          return result.accessToken;
-        }
-        throw new Error('user access failed');
-      });
-
+    //NOTE move this somehwere else - generally clean up this whole function
     runInAction(() => {
-      this.loggingIn = false;
       this.inTransaction = false;
+      this.loggingIn = false;
     });
 
     return this.accessTokenPromise;
@@ -283,20 +300,11 @@ class Authentication {
       authentication
         .login(email, password)
         .then(async result => {
-          if (result?.profile) {
-            this.rootStore.profile.hydrate(result.profile);
-            this.rootStore.preferences.hydrate(result.profile);
-            this.rootStore.favorites.hydrate(result.profile);
-            this.rootStore.schedule.getRange(
-              moment().hour(0).valueOf(),
-              moment().add(1, 'month').valueOf(),
-              result?.accessToken
-            );
-          }
           runInAction(() => {
-            this.user = result;
-            this.error = null;
             this.loggedIn = true;
+            this.user = result;
+            this.hydrate(result?.profile);
+            this.error = null;
           });
           resolve(true);
         })
@@ -341,6 +349,7 @@ class Authentication {
       this.rootStore.preferences.reset();
       this.rootStore.favorites.reset();
       this.rootStore.schedule.reset();
+      this.inTransaction = false;
     });
   };
 

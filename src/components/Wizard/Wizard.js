@@ -655,7 +655,11 @@ const Complete = observer(() => {
           {user?.profile?.firstName} {user?.profile?.lastName}
         </Heading>
         <Text>{user?.email}</Text>
-        <Text>{formatters.phone.asDomestic(user?.phone?.slice(2))}</Text>
+        <Text>
+          {user?.phone
+            ? formatters.phone.asDomestic(user?.phone?.slice(2))
+            : ''}
+        </Text>
         <Text mt={2}>
           {user?.profile?.address?.title}{' '}
           {user?.profile?.address?.description ? ',' : ''}{' '}

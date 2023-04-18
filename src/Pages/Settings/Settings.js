@@ -189,7 +189,7 @@ export const Settings = observer(({ view }) => {
 });
 
 function switchViews({ view, user, setActivePanel, setCaretakerId }) {
-  console.log('[settings]', view);
+  if (view) console.log('[settings]', view);
   switch (view) {
     case 'caretakers':
       return (

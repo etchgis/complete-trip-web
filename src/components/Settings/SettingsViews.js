@@ -67,7 +67,7 @@ export const ProfileInformation = observer(({ action }) => {
           Edit Profile
         </Button>
 
-        {/* <ConfirmDialog
+        <ConfirmDialog
           maxWidth={'200px'}
           confirmFn={deleteFn}
           buttonText={'Delete Account'}
@@ -76,9 +76,9 @@ export const ProfileInformation = observer(({ action }) => {
           message={
             'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.'
           }
-        /> */}
+        />
       </Stack>
-      <FavoritesList />
+      {/* <FavoritesList /> */}
     </Stack>
   );
 });

@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 
 import { Box } from '@chakra-ui/react';
+import ErrorToastMessage from '../components/ErrorToastMessage';
 import Home from './Home';
 import Layout from './Layout';
 import Settings from './Settings';
@@ -17,8 +18,6 @@ import { useStore } from '../context/RootStore';
 
 export const Routes = observer(() => {
   const { pathname } = useLocation();
-  //NOTE STORES
-
   const { locations, trips } = useStore().favorites;
   const profile = useStore().profile;
   const preferences = useStore().preferences;
@@ -26,7 +25,8 @@ export const Routes = observer(() => {
   const { user, loggedIn, loggingIn, fetchAccessToken } =
     useStore().authentication;
 
-  console.log('[router] loggedIn', loggedIn);
+  console.log('[router] logged in', loggedIn);
+  console.log('[router] logging in', loggingIn);
 
   useEffect(() => {
     if (!loggedIn) return;
@@ -49,18 +49,12 @@ export const Routes = observer(() => {
 
   useEffect(() => {
     (async () => {
-      if (user?.accessToken && !loggedIn) {
-        console.log('[router] verifying accessToken');
+      if (user?.refreshToken && !loggedIn) {
         try {
           await fetchAccessToken();
-          console.log('[router] verified accessToken', true);
         } catch (error) {
           console.log(error);
         }
-      } else if (user?.accessToken && loggedIn) {
-        return;
-      } else {
-        console.log('[router] no user or missing accessToken');
       }
     })();
 
@@ -68,73 +62,76 @@ export const Routes = observer(() => {
   }, [loggedIn]);
 
   return (
-    <ReactRoutes>
-      {/* Redirect all trailing slashes */}
-      <Route
-        path={'/:url(/+)'}
-        element={<Navigate to={pathname.slice(0, -1)} />}
-      />
-      {/* Home */}
-      <Route path={'/'} element={<Layout children={<Home />}></Layout>} />
+    <>
+      <ReactRoutes>
+        {/* Redirect all trailing slashes */}
+        <Route
+          path={'/:url(/+)'}
+          element={<Navigate to={pathname.slice(0, -1)} />}
+        />
+        {/* Home */}
+        <Route path={'/'} element={<Layout children={<Home />}></Layout>} />
 
-      {/* Trips */}
-      <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
+        {/* Trips */}
+        <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
-      {/* Map */}
-      <Route
-        path={'/map'}
-        element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
-      />
-      {/* Profile */}
-      {loggedIn ? (
-        <>
+        {/* Map */}
+        <Route
+          path={'/map'}
+          element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
+        />
+        {/* Profile */}
+        {loggedIn ? (
+          <>
+            <Route
+              path={'/settings/profile'}
+              element={
+                <Layout isLoggedIn={loggedIn} children={<Settings />}></Layout>
+              }
+            />
+            <Route
+              path="/settings/caretakers"
+              element={<Layout children={<Settings view="caretakers" />} />}
+            />
+            <Route
+              path="/settings/favorites"
+              element={<Layout children={<Settings view="favorites" />} />}
+            />
+            <Route
+              path="/settings/preferences"
+              element={<Layout children={<Settings view="preferences" />} />}
+            />
+            <Route
+              path="/settings/accessibility"
+              element={<Layout children={<Settings view="accessibility" />} />}
+            />
+            <Route
+              path="/settings/notifications"
+              element={<Layout children={<Settings view="notifications" />} />}
+            />
+            <Route
+              path="/settings/password"
+              element={<Layout children={<Settings view="password" />} />}
+            />
+            <Route
+              path="/settings/terms"
+              element={<Layout children={<Settings view="terms" />} />}
+            />
+            <Route
+              path="/settings/privacy"
+              element={<Layout children={<Settings view="privacy" />} />}
+            />
+          </>
+        ) : (
           <Route
-            path={'/settings/profile'}
+            path="/settings/*"
             element={
-              <Layout isLoggedIn={loggedIn} children={<Settings />}></Layout>
+              <Layout children={<Box p={10}>{loggingIn ? '' : ''}</Box>} />
             }
           />
-          <Route
-            path="/settings/caretakers"
-            element={<Layout children={<Settings view="caretakers" />} />}
-          />
-          <Route
-            path="/settings/favorites"
-            element={<Layout children={<Settings view="favorites" />} />}
-          />
-          <Route
-            path="/settings/preferences"
-            element={<Layout children={<Settings view="preferences" />} />}
-          />
-          <Route
-            path="/settings/accessibility"
-            element={<Layout children={<Settings view="accessibility" />} />}
-          />
-          <Route
-            path="/settings/notifications"
-            element={<Layout children={<Settings view="notifications" />} />}
-          />
-          <Route
-            path="/settings/password"
-            element={<Layout children={<Settings view="password" />} />}
-          />
-          <Route
-            path="/settings/terms"
-            element={<Layout children={<Settings view="terms" />} />}
-          />
-          <Route
-            path="/settings/privacy"
-            element={<Layout children={<Settings view="privacy" />} />}
-          />
-        </>
-      ) : (
-        <Route
-          path="/settings/*"
-          element={
-            <Layout children={<Box p={10}>{loggingIn ? '' : ''}</Box>} />
-          }
-        />
-      )}
-    </ReactRoutes>
+        )}
+      </ReactRoutes>
+      <ErrorToastMessage></ErrorToastMessage>
+    </>
   );
 });

@@ -228,9 +228,10 @@ const CreateAccountOrLogin = ({
   const [passwordError, setPasswordError] = useState(false);
 
   useEffect(() => {
-    console.log(error);
-
-    if (error) return setLoginHasError(true);
+    if (error) {
+      console.log(error);
+      return setLoginHasError(true);
+    }
     setLoginHasError(false);
     //eslint-disable-next-line
   }, [error]);

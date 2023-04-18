@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardBody,
@@ -76,10 +75,11 @@ export const Home = observer(() => {
       </Stack>
 
       <Grid
+        id="grid"
         gridTemplateColumns={['1fr', '1fr', '1fr', '1fr', '440px 1fr']}
         columnGap={10}
         rowGap={8}
-        background={colorMode === 'light' ? 'gray.100' : 'gray.800'}
+        background={colorMode === 'light' ? 'gray.100' : 'tripDim'}
         p={6}
         flex={1}
         gridTemplateRows={'max-content'}
@@ -90,10 +90,10 @@ export const Home = observer(() => {
         />
         <Calendar />
       </Grid>
-      <Box
+      {/* <Box
         flex={1}
         background={colorMode === 'light' ? 'gray.100' : 'gray.800'}
-      ></Box>
+      ></Box> */}
 
       {/* TRIP SCHEDULER */}
       <ScheduleTripModal

@@ -9,9 +9,7 @@ import App from './App';
 import React from 'react';
 
 // import { SaasProvider } from '@saas-ui/react';
-
 // import * as serviceWorker from './serviceWorker';
-
 // import reportWebVitals from './reportWebVitals';
 
 //TODO move to it's own file
