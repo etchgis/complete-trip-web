@@ -54,6 +54,7 @@ export const VerifyPin = observer(
                     onboarded: true,
                   });
                   const updated = await updateUserProfile(profile);
+                  console.log(updated);
                   if (!updated || updated.error) {
                     return false;
                   }
