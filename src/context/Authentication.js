@@ -370,6 +370,7 @@ class Authentication {
           console.log('got result, step 1');
           runInAction(() => {
             this.user.profile = result?.profile;
+            this.rootStore.profile.hydrate(result.profile);
           });
           resolve(profile);
         })

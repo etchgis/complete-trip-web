@@ -10,13 +10,28 @@ import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
 
+// import { toJS } from 'mobx';
+// import { useEffect } from 'react';
+
 const Layout = observer(({ showMap, children }) => {
   const { colorMode } = useColorMode();
   const { user, loggedIn, inTransaction } = useStore().authentication;
+
+  console.log('Layout.js: ', user?.profile?.onboarded);
   //Sidebar
   const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
 
-  // console.log('Layout.js: ', profile);
+  // useEffect(() => {
+  //   (async () => {
+  //     if (loggedIn && user?.profile?.onboarded) {
+  //       const profile = Object.assign({}, toJS(user?.profile), {
+  //         onboarded: false,
+  //       });
+  //       console.log('Layout.js: ', profile);
+  //       // await updateUserProfile(profile);
+  //     }
+  //   })();
+  // }, [loggedIn]);
 
   // LOGIN MODAL
   const {

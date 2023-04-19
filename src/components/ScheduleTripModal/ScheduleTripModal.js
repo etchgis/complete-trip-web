@@ -172,6 +172,7 @@ const First = observer(({ setStep, trip }) => {
     onClose: onClose2,
   } = useDisclosure();
   const { locations: favLocations, addLocation } = useStore().favorites;
+  const { loggedIn } = useStore().authentication;
 
   const startRef = useRef(null);
   const endRef = useRef(null);
@@ -337,7 +338,7 @@ const First = observer(({ setStep, trip }) => {
                     setAliasEditor(true);
                   }
                 }}
-                disabled={!locations?.start?.text}
+                disabled={!loggedIn ? true : !locations?.start?.text}
                 value={
                   favLocations.find(f => f.id === locations?.start?.id)?.id ||
                   ''
@@ -441,7 +442,7 @@ const First = observer(({ setStep, trip }) => {
                     setAliasEditor(true);
                   }
                 }}
-                disabled={!locations?.end?.text}
+                disabled={!loggedIn ? true : !locations?.end?.text}
                 isChecked={!!savedAddresses.end}
                 value={locations?.end?.id || ''}
                 mt={2}

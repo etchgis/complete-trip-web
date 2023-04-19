@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -50,10 +51,12 @@ export const VerifyPin = observer(
                       );
                   }
                 } else {
-                  const profile = Object.assign({}, user?.profile, {
+                  const profile = Object.assign({}, toJS(user?.profile), {
                     onboarded: true,
                   });
+                  // const updated = await updateProperty('onboarded', true);
                   const updated = await updateUserProfile(profile);
+                  console.log(updated);
                   if (!updated || updated.error) {
                     return false;
                   }

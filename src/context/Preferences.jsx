@@ -1,6 +1,7 @@
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
+// import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
+
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import config from '../config';
@@ -20,16 +21,16 @@ class Preferences {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
-    if (!Array.from(PersistStoreMap.values())
-      .map((item) => item.storageName)
-      .includes('Preferences')
-    ) {
-      makePersistable(this, {
-        name: 'Preferences',
-        properties: ['language', 'wheelchair', 'maxCost', 'maxTransfers', 'minimizeWalking', 'modes', 'notifications', 'shareWithConcierge'],
-        storage: localStorage,
-      });
-    }
+    // if (!Array.from(PersistStoreMap.values())
+    //   .map((item) => item.storageName)
+    //   .includes('Preferences')
+    // ) {
+    //   makePersistable(this, {
+    //     name: 'Preferences',
+    //     properties: ['language', 'wheelchair', 'maxCost', 'maxTransfers', 'minimizeWalking', 'modes', 'notifications', 'shareWithConcierge'],
+    //     storage: localStorage,
+    //   });
+    // }
   }
 
   updateProperty = (name, value) => {
