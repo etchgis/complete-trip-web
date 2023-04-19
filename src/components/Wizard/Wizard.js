@@ -25,6 +25,7 @@ import { WizardStepThroughForm } from './WizardStepThroughForm';
 import formatters from '../../utils/formatters';
 import geocoder from '../../services/transport/geocoder';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const Wizard = observer(({ hideModal }) => {
@@ -123,7 +124,7 @@ const WizardStepThrough = observer(() => {
             const data = new FormData(e.target);
             // if (data.get('changed') === 'false') return true;
 
-            const profile = Object.assign({}, user?.profile, {
+            const profile = Object.assign({}, toJS(user?.profile), {
               caretakers: [
                 {
                   firstName: data.get('caretakerFirstName'),
@@ -134,6 +135,7 @@ const WizardStepThrough = observer(() => {
               ],
             });
             const updated = await updateUserProfile(profile);
+            console.log('updated', updated);
             if (!updated || updated.error) {
               return false;
             }

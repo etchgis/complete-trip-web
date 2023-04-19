@@ -66,13 +66,12 @@ class Profile {
   }
 
   updateProfile = () => {
-    console.log('updateProfile', this.onboarded)
     var profile = this.rootStore.authentication?.user?.profile;
-    profile.firstName = this.firstName;
-    profile.lastName = this.lastName;
-    profile.address = this.address;
-    profile.caretakers = this.caretakers;
-    profile.onboarded = this.onboarded;
+    profile.firstName = this?.firstName
+    profile.lastName = this?.lastName
+    profile.address = this.address
+    profile.caretakers = this.caretakers
+    profile.onboarded = this?.onboarded || profile?.onboarded;
     profile.mfa = this.mfa;
     profile.preferences = this.rootStore.preferences.getAll();
     profile.favorites = this.rootStore.favorites.getAll();
