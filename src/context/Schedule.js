@@ -1,4 +1,5 @@
-import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
+// import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
+
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import config from '../config';
@@ -16,17 +17,17 @@ class Schedule {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
-    if (
-      !Array.from(PersistStoreMap.values())
-        .map(item => item.storageName)
-        .includes('Schedule')
-    ) {
-      makePersistable(this, {
-        name: 'Schedule',
-        properties: ['trips'],
-        storage: localStorage,
-      });
-    }
+    // if (
+    //   !Array.from(PersistStoreMap.values())
+    //     .map(item => item.storageName)
+    //     .includes('Schedule')
+    // ) {
+    //   makePersistable(this, {
+    //     name: 'Schedule',
+    //     properties: ['trips'],
+    //     storage: localStorage,
+    //   });
+    // }
   }
 
   selectTrip = trip => {

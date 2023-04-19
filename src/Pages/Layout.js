@@ -13,10 +13,10 @@ import { useStore } from '../context/RootStore';
 const Layout = observer(({ showMap, children }) => {
   const { colorMode } = useColorMode();
   const { user, loggedIn, inTransaction } = useStore().authentication;
+
+  console.log('Layout.js: ', user?.profile?.onboarded);
   //Sidebar
   const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
-
-  // console.log('Layout.js: ', profile);
 
   // LOGIN MODAL
   const {

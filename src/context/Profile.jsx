@@ -1,4 +1,5 @@
-import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
+// import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
+
 import { makeAutoObservable, runInAction, toJS } from 'mobx';
 
 /** */
@@ -15,16 +16,16 @@ class Profile {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
-    if (!Array.from(PersistStoreMap.values())
-      .map((item) => item.storageName)
-      .includes('Profile')
-    ) {
-      makePersistable(this, {
-        name: 'Profile',
-        properties: ['firstName', 'lastName', 'address', 'caretakers', 'onboarded', 'mfa'],
-        storage: localStorage,
-      });
-    }
+    // if (!Array.from(PersistStoreMap.values())
+    //   .map((item) => item.storageName)
+    //   .includes('Profile')
+    // ) {
+    //   makePersistable(this, {
+    //     name: 'Profile',
+    //     properties: ['firstName', 'lastName', 'address', 'caretakers', 'onboarded', 'mfa'],
+    //     storage: localStorage,
+    //   });
+    // }
   }
 
   reset = () => {
@@ -65,6 +66,7 @@ class Profile {
   }
 
   updateProfile = () => {
+    console.log('updateProfile', this.onboarded)
     var profile = this.rootStore.authentication?.user?.profile;
     profile.firstName = this.firstName;
     profile.lastName = this.lastName;
@@ -126,6 +128,7 @@ class Profile {
   hydrate = (profile) => {
     // console.log('Profile.hydrate', profile);
     runInAction(() => {
+      console.log('hydrate', profile.onboarded)
       this.firstName = profile.firstName || '';
       this.lastName = profile.lastName || '';
       this.address = profile.address || {};

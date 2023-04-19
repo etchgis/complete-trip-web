@@ -14,8 +14,8 @@ import { useStore } from '../../context/RootStore';
 
 export const VerifyPin = observer(
   ({ channel, stagedUser, setActiveView, setLoginMessage }) => {
-    const { user, confirmUser, registerUser, updateUserProfile } =
-      useStore().authentication;
+    const { user, confirmUser, registerUser } = useStore().authentication;
+    const { updateProperty } = useStore().profile;
     const [verifyError, setVerifyError] = useState(false);
     const to = channel === 'email' ? stagedUser.email : user?.phone;
 
@@ -50,10 +50,10 @@ export const VerifyPin = observer(
                       );
                   }
                 } else {
-                  const profile = Object.assign({}, user?.profile, {
-                    onboarded: true,
-                  });
-                  const updated = await updateUserProfile(profile);
+                  // const profile = Object.assign({}, user?.profile, {
+                  //   onboarded: true,
+                  // });
+                  const updated = await updateProperty('onboarded', true);
                   console.log(updated);
                   if (!updated || updated.error) {
                     return false;
