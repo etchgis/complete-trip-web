@@ -78,7 +78,7 @@ export const ProfileInformation = observer(({ action }) => {
           }
         /> */}
       </Stack>
-      <FavoritesList />
+      {/* <FavoritesList /> */}
     </Stack>
   );
 });

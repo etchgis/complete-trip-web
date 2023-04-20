@@ -406,7 +406,7 @@ const CreateAccountOrLogin = ({
           )}
           {showLogin ? (
             <Box fontSize={'md'} mt={'2'} textAlign={'right'}>
-              <Button
+              {/* <Button
                 color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
                 as="span"
                 variant={'link'}
@@ -414,7 +414,7 @@ const CreateAccountOrLogin = ({
                 onClick={() => {}}
               >
                 Forgot Password?
-              </Button>
+              </Button> */}
             </Box>
           ) : (
             ''

@@ -75,9 +75,9 @@ export const EditPassword = () => {
     }
   }, [newPassword]);
 
-  const forgotPasswordFn = () => {
-    console.log('Forgot password');
-  };
+  // const forgotPasswordFn = () => {
+  //   console.log('Forgot password');
+  // };
 
   return (
     <Box
@@ -116,7 +116,7 @@ export const EditPassword = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
-          <Box fontSize={'md'} mt={'2'} textAlign={'right'}>
+          {/* <Box fontSize={'md'} mt={'2'} textAlign={'right'}>
             <ConfirmDialog
               color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
               as="span"
@@ -127,7 +127,7 @@ export const EditPassword = () => {
               message={'This will send a link to your account email'}
               confirmFn={forgotPasswordFn}
             />
-          </Box>
+          </Box> */}
         </FormControl>
 
         <Box py={6}>
