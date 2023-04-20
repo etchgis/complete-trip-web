@@ -60,7 +60,7 @@ export const Wizard = observer(({ hideModal }) => {
         </Stack>
       </Stack>
       <Button variant={'outline'} colorScheme="red" onClick={() => logout()}>
-        Exit Wizard and Logout
+        Cancel
       </Button>
     </Flex>
   );

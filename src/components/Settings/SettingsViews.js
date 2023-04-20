@@ -15,12 +15,13 @@ import {
 } from '@chakra-ui/react';
 
 import ConfirmDialog from '../ConfirmDialog';
+import { MFAVerify } from '../MFA/MFAVerify';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
 export const ProfileInformation = observer(({ action }) => {
-  const { user } = useStore().authentication;
+  const { user, removeUser } = useStore().authentication;
   const { setInTransaction } = useStore().authentication;
 
   /**
@@ -29,12 +30,14 @@ export const ProfileInformation = observer(({ action }) => {
    */
   async function deleteFn() {
     setInTransaction(true);
-    return new Promise(resolve => {
-      setTimeout(() => {
-        setInTransaction(false);
-        resolve(true);
-      }, 1000);
-    });
+    const deleted = await removeUser();
+    if (deleted) {
+      setInTransaction(false);
+      return true;
+    } else {
+      setInTransaction(false);
+      return false;
+    }
   }
 
   return (
@@ -77,6 +80,11 @@ export const ProfileInformation = observer(({ action }) => {
             'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.'
           }
         />
+
+        <MFAVerify
+          title="Get Authentication Code"
+          callbackFn={() => console.log('done')}
+        />
       </Stack>
       {/* <FavoritesList /> */}
     </Stack>
@@ -84,9 +92,12 @@ export const ProfileInformation = observer(({ action }) => {
 });
 
 export const FavoritesList = observer(() => {
+  const { user } = useStore().authentication;
+  console.log(user?.profile?.favorites);
   const { trips: favoriteTrips, locations: favoriteLocations } =
     useStore().favorites;
   console.log(favoriteTrips);
+  console.log(favoriteLocations);
   return (
     <>
       <Box py={6}>

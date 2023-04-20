@@ -73,7 +73,7 @@ class Profile {
     profile.caretakers = this.caretakers
     profile.onboarded = this?.onboarded || profile?.onboarded;
     profile.mfa = this.mfa;
-    profile.preferences = this.rootStore.preferences.getAll();
+    // profile.preferences = this.rootStore.preferences.getAll();
     profile.favorites = this.rootStore.favorites.getAll();
     const update = toJS(profile);
     return this.rootStore.authentication.updateUserProfile(update);

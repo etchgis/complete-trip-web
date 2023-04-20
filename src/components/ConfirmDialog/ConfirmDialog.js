@@ -46,7 +46,7 @@ export const ConfirmDialog = ({
         }}
         {...rest}
       >
-        {buttonText || 'Confirm Button'}
+        {buttonText || 'Open Confirm Dialog'}
       </Button>
 
       <AlertDialog

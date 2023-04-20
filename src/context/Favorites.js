@@ -1,6 +1,6 @@
 // import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 
 class Location {
   point = {};
@@ -50,7 +50,6 @@ class Favorites {
     console.log({ newLocation });
     runInAction(() => {
       this.locations.push(newLocation);
-      // this.locations = [];
     });
     this.updateProfile();
     return newLocation.id;
@@ -71,10 +70,7 @@ class Favorites {
     newTrip.id = Date.now();
     runInAction(() => {
       this.trips.push(newTrip); //add 1 trip works
-      // this.trips = []; //this works
     });
-    // console.log(this.trips);
-    // this.updateProfile();
     const updated = await this.updateProfile();
     if (!updated) return; //TODO this should roll back the store
     const updatedSchedule = await this.rootStore.schedule.updateTripRequest(
@@ -106,7 +102,11 @@ class Favorites {
   };
 
   updateProfile = async () => {
-    return await this.rootStore.profile.updateProfile();
+    const profile = toJS(this.rootStore.authentication.user.profile);
+    return await this.rootStore.authentication.updateUserProfile(
+      Object.assign(profile, { favorites: this.getAll() })
+    );
+    // return await this.rootStore.profile.updateProfile();
   };
 
   hydrate = profile => {

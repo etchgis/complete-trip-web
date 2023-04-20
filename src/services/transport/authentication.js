@@ -303,6 +303,26 @@ const authentication = {
         throw err;
       });
   },
+
+  delete(accessToken) {
+    return fetch(`${config.SERVICES.auth.url}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        if (response.status === 200) {
+          return true;
+        }
+        throw new Error({ message: 'Unknown error deleting user' });
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
 };
 
 export default authentication;

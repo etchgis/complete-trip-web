@@ -112,12 +112,14 @@ class Authentication {
         .then(result => {
           runInAction(() => {
             this.error = null;
+            this.errorToastMessage = null;
           });
           resolve(result);
         })
         .catch(e => {
           runInAction(() => {
             this.error = e.message || e.reason;
+            this.errorToastMessage = 'Unknown error sending verification code.';
             console.log(e);
           });
           reject(e);
@@ -167,14 +169,44 @@ class Authentication {
     if (!profile || !token) return;
     console.log('[auth-store] hydrating profile...');
     runInAction(() => {
-      this.rootStore.profile.hydrate(profile);
-      this.rootStore.preferences.hydrate(profile);
+      // this.rootStore.profile.hydrate(profile);
+      // this.rootStore.preferences.hydrate(profile);
       this.rootStore.favorites.hydrate(profile);
       this.rootStore.schedule.getRange(
         moment().hour(0).valueOf(),
         moment().add(1, 'month').valueOf(),
         token
       );
+    });
+  };
+
+  removeUser = () => {
+    runInAction(() => {
+      this.inTransaction = true;
+    });
+    return new Promise(async (resolve, reject) => {
+      await this.fetchAccessToken();
+      authentication
+        .delete(this.user.accessToken)
+        .then(() => {
+          runInAction(() => {
+            this.user = {};
+            this.loggedIn = false;
+          });
+          resolve(true);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e;
+            this.errorToastMessage = 'Error removing user.';
+          });
+          reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
+        });
     });
   };
 
@@ -303,7 +335,7 @@ class Authentication {
           runInAction(() => {
             this.loggedIn = true;
             this.user = result;
-            this.hydrate(result?.profile);
+            this.hydrate(result?.profile, result.accessToken);
             this.error = null;
           });
           resolve(true);
@@ -345,8 +377,8 @@ class Authentication {
       this.loggingIn = false;
       this.loggedIn = false;
       this.registering = false;
-      this.rootStore.profile.reset();
-      this.rootStore.preferences.reset();
+      // this.rootStore.profile.reset();
+      // this.rootStore.preferences.reset();
       this.rootStore.favorites.reset();
       this.rootStore.schedule.reset();
       this.inTransaction = false;
@@ -370,7 +402,7 @@ class Authentication {
           console.log('got result, step 1');
           runInAction(() => {
             this.user.profile = result?.profile;
-            this.rootStore.profile.hydrate(result.profile);
+            // this.rootStore.profile.hydrate(result.profile);
           });
           resolve(profile);
         })

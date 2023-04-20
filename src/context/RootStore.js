@@ -5,10 +5,12 @@ import { createContext, useContext } from 'react';
 
 import Authentication from './Authentication';
 import Favorites from './Favorites';
-import Preferences from './Preferences';
-import Profile from './Profile';
 import Schedule from './Schedule';
 import Trip from './Trip';
+
+// import Profile from './Profile.jsx.bak';
+
+// import Preferences from './Preferences';
 
 // import Display from './Display';
 // import MapManager from './MapManager';
@@ -22,8 +24,8 @@ export default class RootStore {
     this.favorites = new Favorites(this);
     // this.mapManager = new MapManager(this);
     // this.navigation = new Navigation();
-    this.preferences = new Preferences(this);
-    this.profile = new Profile(this);
+    // this.preferences = new Preferences(this);
+    // this.profile = new Profile(this);
     // this.registration = new Registration(this);
     this.schedule = new Schedule(this);
     this.trip = new Trip(this);
