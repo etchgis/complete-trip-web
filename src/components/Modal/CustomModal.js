@@ -46,7 +46,7 @@ export const CustomModal = ({
       // closeOnOverlayClick={false}
     >
       <ModalOverlay className="js-custom-modal" />
-      <ModalContent m={0}>
+      <ModalContent m={0} maxH={'calc(100% - 2rem)'}>
         {title ? <ModalHeader>{title}</ModalHeader> : ''}
         <ModalCloseButton style={{ filter: 'invert(1)' }} />
         <ModalBody p={0} id="modal--body" borderRadius={'10px'}>

@@ -12,6 +12,10 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  PinInput,
+  PinInputField,
+  Radio,
+  RadioGroup,
   Stack,
   Text,
   VStack,
@@ -45,6 +49,7 @@ export const LoginRegister = observer(({ hideModal }) => {
   const [stagedUser, setStagedUser] = useState({});
   const [activeView, setActiveView] = useState('init');
   const [loginMessage, setLoginMessage] = useState('');
+  const [forgotOptions, setForgotOptions] = useState({});
 
   useEffect(() => {
     if (loggedIn) hideModal();
@@ -99,13 +104,23 @@ export const LoginRegister = observer(({ hideModal }) => {
     {
       id: 'forgot',
       view: (
-        <ForgotPassword
+        <ForgotPasswordView
           setActiveView={setActiveView}
           hideModal={hideModal}
-        ></ForgotPassword>
+          setForgotOptions={setForgotOptions}
+        ></ForgotPasswordView>
       ),
     },
-
+    {
+      id: 'reset',
+      view: (
+        <ResetPasswordView
+          setActiveView={setActiveView}
+          hideModal={hideModal}
+          forgotOptions={forgotOptions}
+        ></ResetPasswordView>
+      ),
+    },
     {
       id: 'facebook',
       view: <Box>Facebook</Box>,
@@ -410,8 +425,13 @@ const CreateAccountOrLogin = ({
                 color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
                 as="span"
                 variant={'link'}
-                // onClick={() => setActiveView('forgot')}
-                onClick={() => {}}
+                onClick={() => setActiveView('forgot')}
+                // onClick={() => {
+                //   hideModal();
+                //   setTimeout(() => {
+                //     openForgotPassword();
+                //   }, 500);
+                // }}
               >
                 Forgot Password?
               </Button>
@@ -460,20 +480,217 @@ const CreateAccountOrLogin = ({
   );
 };
 
-const ForgotPassword = ({ setActiveView, hideModal }) => {
+const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
+  const [method, setMethod] = useState('sms');
+  const [email, setEmail] = useState('malcolm@getbounds.com');
+  const onSubmit = async e => {
+    e.preventDefault();
+    console.log(email, method);
+    console.log('forgot password click');
+    setForgotOptions(current => ({ ...current, email, method }));
+    //call fn to get mfa sent and get the code - then if success, set the view
+    setActiveView('reset');
+  };
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} as="form" onSubmit={onSubmit}>
       <FormControl isRequired>
-        <FormLabel>Email address</FormLabel>
-        <Input type="email" />
+        <FormLabel>Email</FormLabel>
+        <Input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+      </FormControl>
+      <Text>
+        In order to reset your password, a code will need to be sent to the
+        email or device registered with us.
+      </Text>
+      <Text fontWeight={'bold'}>How would you like to receive the code?</Text>
+      <FormControl isRequired>
+        <RadioGroup
+          onChange={setMethod}
+          value={method}
+          mb={4}
+          defaultChecked={method}
+        >
+          <Stack direction="column">
+            <Radio value="sms">Text me</Radio>
+            <Radio value="voice">Call me</Radio>
+            <Radio value="email">Email me</Radio>
+          </Stack>
+        </RadioGroup>
       </FormControl>
       <Button
         variant={'solid'}
         bg="brand"
         color="white"
         _hover={{ opacity: 0.9 }}
-        onClick={() => console.log('forgot password click')}
+        type="submit"
+      >
+        Submit
+      </Button>
+      <Button
+        variant={'link'}
+        color={colorMode === 'light' ? 'brandDark' : 'white'}
+        _hover={{ opacity: 0.9 }}
+        onClick={() => {
+          hideModal();
+          setTimeout(() => setActiveView('init'), 500);
+        }}
+      >
+        Cancel
+      </Button>
+    </Stack>
+  );
+};
+
+const ResetPasswordView = ({ forgotOptions, setActiveView, hideModal }) => {
+  const { colorMode } = useColorMode();
+  const { confirmUser } = useStore().authentication;
+  const [verifyError, setVerifyError] = useState(false);
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [mfaCode, setMFACode] = useState('');
+
+  const onSubmit = e => {
+    e.preventDefault();
+    setActiveView('login');
+    console.log(forgotOptions, password, mfaCode);
+    // const to = method === 'email' ? user?.email : user?.phone;
+    // const valid = await confirmUser(to, e);
+    // if (!valid || valid.error) {
+    //   setVerifyError(true);
+    //   return;
+    // }
+    // }}
+  };
+
+  return (
+    <Stack spacing={4} as="form" onSubmit={onSubmit}>
+      <Center flexDirection={'column'}>
+        <Text fontWeight="bold" mx={0} mb={6}>
+          Type in the 6-digit code. The code can also be pasted in the first
+          box.
+        </Text>
+        <HStack mb={2}>
+          <PinInput
+            otp
+            onChange={() => setVerifyError(false)}
+            onComplete={e => setMFACode(e)}
+            size="lg"
+          >
+            <PinInputField />
+            <PinInputField />
+            <PinInputField />
+            <PinInputField />
+            <PinInputField />
+            <PinInputField />
+          </PinInput>
+          {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
+        </HStack>
+      </Center>
+      <FormControl isRequired>
+        <FormLabel>New Password</FormLabel>
+        <InputGroup>
+          <Input
+            type={showPassword ? 'text' : 'password'}
+            onChange={e => setPassword(e.target.value)}
+            value={password || ''}
+            placeholder="Enter 8 character password"
+            pattern={
+              '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
+            }
+          />
+          <InputRightElement h={'full'}>
+            <Button
+              variant={'ghost'}
+              onClick={() => setShowPassword(showPassword => !showPassword)}
+            >
+              {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+            </Button>
+          </InputRightElement>
+        </InputGroup>
+      </FormControl>
+      <FormControl isRequired>
+        <FormLabel>Retype New Password</FormLabel>
+        <InputGroup>
+          <Input
+            type={showPassword ? 'text' : 'password'}
+            onChange={e => setPassword2(e.target.value)}
+            value={password2 || ''}
+            placeholder="Password *"
+          />
+          <InputRightElement h={'full'}>
+            {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+          </InputRightElement>
+        </InputGroup>
+      </FormControl>
+      <Flex justifyContent={'space-around'} w="100%" fontSize="sm" my={2}>
+        <VStack
+          spacing={0}
+          color={password.length > 7 ? 'green.400' : 'red.400'}
+        >
+          <Text fontSize={'xl'} fontWeight="bold">
+            8+
+          </Text>
+          <Text>Characters</Text>
+          {password.length > 7 ? (
+            <CheckCircleIcon size="xs" />
+          ) : (
+            <WarningTwoIcon size="xs" />
+          )}
+        </VStack>
+        <VStack
+          spacing={0}
+          color={hasUpperCase(password) ? 'green.400' : 'red.400'}
+        >
+          <Text fontSize={'xl'} fontWeight="bold">
+            A-Z
+          </Text>
+          <Text>Uppercase</Text>
+          {hasUpperCase(password) ? (
+            <CheckCircleIcon size="xs" />
+          ) : (
+            <WarningTwoIcon size="xs" />
+          )}
+        </VStack>
+        <VStack
+          spacing={0}
+          color={hasLowerCase(password) ? 'green.400' : 'red.400'}
+        >
+          <Text fontSize={'xl'} fontWeight="bold">
+            a-z
+          </Text>
+          <Text>Lowercase</Text>
+          {hasLowerCase(password) ? (
+            <CheckCircleIcon size="xs" />
+          ) : (
+            <WarningTwoIcon size="xs" />
+          )}
+        </VStack>
+        <VStack
+          spacing={0}
+          color={hasNumber(password) ? 'green.400' : 'red.400'}
+        >
+          <Text fontSize={'xl'} fontWeight="bold">
+            0-9
+          </Text>
+          <Text>Number</Text>
+          {hasNumber(password) ? (
+            <CheckCircleIcon size="xs" />
+          ) : (
+            <WarningTwoIcon size="xs" />
+          )}
+        </VStack>
+      </Flex>
+      <Button
+        variant={'solid'}
+        bg="brand"
+        color="white"
+        _hover={{ opacity: 0.9 }}
+        type="submit"
       >
         Submit
       </Button>

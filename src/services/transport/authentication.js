@@ -24,31 +24,8 @@ const authentication = {
       });
   },
 
-  refreshUser(accessToken) {
-    return fetch(`${config.SERVICES.auth.url}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'x-api-key': config.SERVICES.auth.xApiKey,
-      },
-    })
-      .then(async response => {
-        console.log('[authentication] got refresh user response');
-        const json = await response.json();
-        if (response.status === 200) {
-          return json;
-        }
-        console.log({ json });
-        throw json?.error;
-      })
-      .catch(err => {
-        throw err;
-      });
-  },
-
-  login(email, password) {
-    return fetch(`${config.SERVICES.auth.url}/login`, {
+  login(email, password, source) {
+    return fetch(`${config.SERVICES.auth.url}/login?source=${source}`, {
       method: 'POST',
       body: JSON.stringify({
         email,
@@ -61,6 +38,29 @@ const authentication = {
     })
       .then(async response => {
         console.log('{services-transport-auth} got login response');
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        console.log({ json });
+        throw json?.message || json?.error.reason;
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
+
+  refreshUser(accessToken) {
+    return fetch(`${config.SERVICES.auth.url}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        console.log('[authentication] got refresh user response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
@@ -318,6 +318,67 @@ const authentication = {
           return true;
         }
         throw new Error({ message: 'Unknown error deleting user' });
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
+
+  /**
+   *
+   * @param {String} email
+   * @param {'sms'|'voice'|'email'} mfa
+   * @returns
+   */
+  recover(email, mfa) {
+    var data = {
+      username: email,
+      mfa,
+      sid: config.VERIFY.SID,
+    };
+    if (mfa === 'email') {
+      data.channelConfiguration = config.VERIFY.CHANNEL_CONFIGURATION;
+    }
+    return fetch(`${config.SERVICES.auth.url}/recover`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        throw json?.message || json?.error.reason;
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
+
+  reset(email, code, newPassword) {
+    var data = {
+      username: email,
+      code,
+      password: newPassword,
+    };
+    return fetch(`${config.SERVICES.auth.url}/reset`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        throw json?.message || json?.error.reason;
       })
       .catch(err => {
         throw err;
