@@ -22,7 +22,7 @@ export const SearchForm = observer(
 
     // console.log({ address });
     useEffect(() => {
-      saveAddress(address);
+      if (saveAddress) saveAddress(address);
     }, [address, saveAddress]);
 
     useEffect(() => {
@@ -64,7 +64,6 @@ export const SearchForm = observer(
         const unique = locations.length
           ? locations.filter(l => regex.test(l.search))
           : [];
-        // console.log({ unique });
 
         items.forEach(item => {
           if (

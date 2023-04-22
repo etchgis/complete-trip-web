@@ -16,31 +16,41 @@ import {
   RadioGroup,
   Stack,
   Text,
-  useDisclosure,
 } from '@chakra-ui/react';
 
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
-export const MFAVerify = observer(({ buttonText, title, callbackFn }) => {
-  const { user, verifyUser, confirmUser } = useStore().authentication;
-  const [verifyError, setVerifyError] = useState(false);
-  const [stage, setStage] = useState(0);
-  const [method, setMethod] = useState('');
-  const { isOpen, onOpen, onClose } = useDisclosure();
+export const MFAVerify = observer(
+  ({ isOpen, onClose, buttonText, title, callbackFn }) => {
+    const { user, verifyUser, confirmUser, reset, requireMFA } =
+      useStore().authentication;
+    const [verifyError, setVerifyError] = useState(false);
+    const [stage, setStage] = useState(0);
+    const [method, setMethod] = useState('');
+    // console.log({ requireMFA });
 
-  return (
-    <>
-      <Button onClick={onOpen} colorScheme="blue">
-        {buttonText || 'MFA'}
-      </Button>
+    const onComplete = async e => {
+      const to = method === 'email' ? user?.email : user?.phone;
+      const valid = await confirmUser(to, e);
+      if (!valid || valid.error) {
+        setVerifyError(true);
+        return;
+      }
+      setStage(0);
+      setMethod('');
+      onClose();
+      callbackFn();
+    };
+
+    return (
       <Modal
         isOpen={isOpen}
         onClose={() => {
+          reset();
           setStage(0);
           setMethod('');
-          onClose();
         }}
         size={'md'}
         scrollBehavior={'inside'}
@@ -116,19 +126,7 @@ export const MFAVerify = observer(({ buttonText, title, callbackFn }) => {
                       <PinInput
                         otp
                         onChange={() => setVerifyError(false)}
-                        onComplete={async e => {
-                          const to =
-                            method === 'email' ? user?.email : user?.phone;
-                          const valid = await confirmUser(to, e);
-                          if (!valid || valid.error) {
-                            setVerifyError(true);
-                            return;
-                          }
-                          setStage(0);
-                          setMethod('');
-                          onClose();
-                          callbackFn();
-                        }}
+                        onComplete={onComplete}
                         size="lg"
                       >
                         <PinInputField />
@@ -145,12 +143,20 @@ export const MFAVerify = observer(({ buttonText, title, callbackFn }) => {
                       ''
                     )}
                   </Center>
+                  <Button
+                    onClick={async () => {
+                      const to = method === 'email' ? user?.email : user?.phone;
+                      await verifyUser(method, to);
+                    }}
+                  >
+                    Send Another Code?
+                  </Button>
                 </>
               )}
             </>
           </ModalBody>
         </ModalContent>
       </Modal>
-    </>
-  );
-});
+    );
+  }
+);

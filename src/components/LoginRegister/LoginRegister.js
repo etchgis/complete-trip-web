@@ -5,6 +5,7 @@ import {
   Checkbox,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   HStack,
   Heading,
@@ -31,6 +32,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import { VerifyPin } from '../Shared/VerifyPin';
+import { authentication } from '../../services/transport';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import { validators } from '../../utils/validators';
@@ -117,7 +119,7 @@ export const LoginRegister = observer(({ hideModal }) => {
         <ResetPasswordView
           setActiveView={setActiveView}
           hideModal={hideModal}
-          forgotOptions={forgotOptions}
+          options={forgotOptions}
         ></ResetPasswordView>
       ),
     },
@@ -426,12 +428,6 @@ const CreateAccountOrLogin = ({
                 as="span"
                 variant={'link'}
                 onClick={() => setActiveView('forgot')}
-                // onClick={() => {
-                //   hideModal();
-                //   setTimeout(() => {
-                //     openForgotPassword();
-                //   }, 500);
-                // }}
               >
                 Forgot Password?
               </Button>
@@ -482,15 +478,36 @@ const CreateAccountOrLogin = ({
 
 const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
-  const [method, setMethod] = useState('sms');
-  const [email, setEmail] = useState('malcolm@getbounds.com');
+  const { recover } = authentication;
+  const { setInTransaction, setErrorToastMessage } = useStore().authentication;
+  const [method, setMethod] = useState('');
+  const [email, setEmail] = useState('');
   const onSubmit = async e => {
     e.preventDefault();
-    console.log(email, method);
-    console.log('forgot password click');
-    setForgotOptions(current => ({ ...current, email, method }));
-    //call fn to get mfa sent and get the code - then if success, set the view
-    setActiveView('reset');
+    setInTransaction(true);
+    // console.log(email, method);
+    // console.log('forgot password click');
+    try {
+      const recovered = await recover(email, method);
+      if (!recovered || !recovered.code || !recovered.concealed)
+        throw new Error();
+      console.log('recovered', recovered);
+      setForgotOptions(current => ({
+        ...current,
+        email,
+        method,
+        code: recovered.code,
+        concealed: recovered.concealed,
+        destination: recovered?.destination,
+      }));
+      setInTransaction(false);
+      setActiveView('reset');
+    } catch (error) {
+      console.log('error', error);
+      setErrorToastMessage('Error sending code. Please try again.');
+      setInTransaction(false);
+      return;
+    }
   };
   return (
     <Stack spacing={4} as="form" onSubmit={onSubmit}>
@@ -545,52 +562,79 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   );
 };
 
-const ResetPasswordView = ({ forgotOptions, setActiveView, hideModal }) => {
+const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
-  const { confirmUser } = useStore().authentication;
+
+  const { confirmUser, login } = useStore().authentication;
+  const { reset: resetPassword } = authentication;
+
   const [verifyError, setVerifyError] = useState(false);
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [mfaCode, setMFACode] = useState('');
-
-  const onSubmit = e => {
+  const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
+  const [pin, setPin] = useState('');
+  // console.log({ options });
+  // console.log({ pin });
+  const onSubmit = async e => {
     e.preventDefault();
-    setActiveView('login');
-    console.log(forgotOptions, password, mfaCode);
-    // const to = method === 'email' ? user?.email : user?.phone;
-    // const valid = await confirmUser(to, e);
-    // if (!valid || valid.error) {
-    //   setVerifyError(true);
-    //   return;
-    // }
-    // }}
+
+    try {
+      if (password !== password2) return setPasswordsDontMatch(true);
+      const confirmed = await confirmUser(options.destination, pin);
+      if (!confirmed) throw new Error('verify error');
+
+      const updated = await resetPassword(
+        options.email,
+        options.code,
+        password
+      );
+      if (!updated) throw new Error('password error');
+      //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
+      login(options.email, password, true);
+    } catch (error) {
+      setVerifyError(true);
+      setPassword('');
+      setPassword2('');
+      setPin('');
+      console.log('error', error);
+    }
   };
 
   return (
     <Stack spacing={4} as="form" onSubmit={onSubmit}>
-      <Center flexDirection={'column'}>
-        <Text fontWeight="bold" mx={0} mb={6}>
-          Type in the 6-digit code. The code can also be pasted in the first
-          box.
-        </Text>
-        <HStack mb={2}>
-          <PinInput
-            otp
-            onChange={() => setVerifyError(false)}
-            onComplete={e => setMFACode(e)}
-            size="lg"
-          >
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-            <PinInputField />
-          </PinInput>
-          {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
-        </HStack>
-      </Center>
+      <Text fontWeight="bold" mx={0} mb={6}>
+        Type in the 6-digit code. The code can also be pasted in the first box.
+      </Text>
+      <FormControl isRequired>
+        <Center flexDirection={'column'}>
+          <HStack mb={2}>
+            <PinInput
+              otp
+              value={pin}
+              onChange={e => {
+                setPin(e);
+                setVerifyError(false);
+              }}
+              onComplete={e => {
+                setPin(e);
+                console.log('onComplete', e);
+                setVerifyError(false);
+              }}
+              size="lg"
+              name="pin"
+            >
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+            </PinInput>
+          </HStack>
+        </Center>
+      </FormControl>
+      {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
       <FormControl isRequired>
         <FormLabel>New Password</FormLabel>
         <InputGroup>
@@ -602,6 +646,7 @@ const ResetPasswordView = ({ forgotOptions, setActiveView, hideModal }) => {
             pattern={
               '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
             }
+            name="pass1"
           />
           <InputRightElement h={'full'}>
             <Button
@@ -613,19 +658,21 @@ const ResetPasswordView = ({ forgotOptions, setActiveView, hideModal }) => {
           </InputRightElement>
         </InputGroup>
       </FormControl>
-      <FormControl isRequired>
+      <FormControl isRequired isInvalid={passwordsDontMatch}>
         <FormLabel>Retype New Password</FormLabel>
         <InputGroup>
           <Input
             type={showPassword ? 'text' : 'password'}
-            onChange={e => setPassword2(e.target.value)}
+            onChange={e => {
+              setPassword2(e.target.value);
+              setPasswordsDontMatch(false);
+            }}
             value={password2 || ''}
             placeholder="Password *"
+            name="pass2"
           />
-          <InputRightElement h={'full'}>
-            {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-          </InputRightElement>
         </InputGroup>
+        <FormErrorMessage>Passwords must match.</FormErrorMessage>
       </FormControl>
       <Flex justifyContent={'space-around'} w="100%" fontSize="sm" my={2}>
         <VStack

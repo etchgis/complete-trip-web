@@ -71,7 +71,6 @@ class Trip {
       this.queryId = Date.now();
     });
     return new Promise((resolve, reject) => {
-      // console.log(this.request, this.rootStore.preferences, this.queryId)
       TripPlan.generate(this.request, this.rootStore.preferences, this.queryId)
         .then((results) => {
           // console.log('results', results);

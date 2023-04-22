@@ -4,7 +4,7 @@ import points from './mapdata/stops.geojson';
 
 export const mapLayers = e => {
   const map = e.target ? e.target : e;
-  console.log('[map] checking sources');
+  // console.log('[map] checking sources');
   if (!map.getSource('points')) {
     map.addSource('points', {
       type: 'geojson',
@@ -83,10 +83,10 @@ export const mapLayers = e => {
     },
   ];
 
-  console.log('[map] checking layers');
+  // console.log('[map] checking layers');
   layers.forEach(l => {
     if (!map.getLayer(l.id)) {
-      console.log('[map] adding layer', l.id);
+      // console.log('[map] adding layer', l.id);
       map.addLayer(l, 'road-label-navigation');
     }
   });

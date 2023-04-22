@@ -76,7 +76,7 @@ class Favorites {
     const updatedSchedule = await this.rootStore.schedule.updateTripRequest(
       originId,
       newTrip,
-      this.rootStore.authentication.user.accessToken
+      this.rootStore.authentication.accessToken
     );
     if (!updatedSchedule) return; //TODO this should roll back the store
 

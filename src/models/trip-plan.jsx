@@ -35,7 +35,7 @@ export default class TripPlan {
 const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
 
   const whenTime = tripRequest.whenTime || new Date();
-  const walkLimit = preferences.maxWalk;
+  const walkLimit = preferences?.maxWalk;
   let doExtraBikeQuery = false;
 
   const routeTypes = pickRouteTypes(tripRequest);

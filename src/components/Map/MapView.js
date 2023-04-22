@@ -36,7 +36,7 @@ export const MapView = ({ showMap }) => {
   useEffect(() => {
     if (pathname.replace('map', '') !== '/') return;
     if (mapRef.current && showMap) {
-      console.log('[map] resizing map');
+      // console.log('[map] resizing map');
       mapRef.current.resize();
     }
     if (mapRef.current && mapIsLoaded) {

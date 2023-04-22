@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react';
 
 import ConfirmDialog from '../ConfirmDialog';
-import { MFAVerify } from '../MFA/MFAVerify';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
@@ -80,11 +79,6 @@ export const ProfileInformation = observer(({ action }) => {
             'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.'
           }
         />
-
-        <MFAVerify
-          title="Get Authentication Code"
-          callbackFn={() => console.log('done')}
-        />
       </Stack>
       {/* <FavoritesList /> */}
     </Stack>
@@ -92,12 +86,12 @@ export const ProfileInformation = observer(({ action }) => {
 });
 
 export const FavoritesList = observer(() => {
-  const { user } = useStore().authentication;
-  console.log(user?.profile?.favorites);
+  // const { user } = useStore().authentication;
+  // console.log(user?.profile?.favorites);
   const { trips: favoriteTrips, locations: favoriteLocations } =
     useStore().favorites;
-  console.log(favoriteTrips);
-  console.log(favoriteLocations);
+  // console.log(favoriteTrips);
+  // console.log(favoriteLocations);
   return (
     <>
       <Box py={6}>

@@ -37,8 +37,6 @@ class Schedule {
   };
 
   add = (plan, request, accessToken) => {
-    const token =
-      accessToken || this.rootStore.authentication.user?.accessToken;
     const userId = this.rootStore.authentication.user?.id;
     const organizationId = config.ORGANIZATION;
     const datetime = moment(request.whenTime).valueOf();
@@ -64,6 +62,8 @@ class Schedule {
     });
 
     return new Promise(async (resolve, reject) => {
+      await this.rootStore.authentication.fetchAccessToken(true);
+      const token = accessToken || this.rootStore.authentication?.accessToken;
       trips
         .add(
           userId,
@@ -96,9 +96,16 @@ class Schedule {
   };
 
   cancel = (tripId, accessToken) => {
+    runInAction(() => {
+      this.rootStore.authentication.inTransaction = true;
+    });
     return new Promise(async (resolve, reject) => {
+      //NOTE skip hydration as it hydrates *after* the call to cancel so that it returns the same trip again
+      await this.rootStore.authentication.fetchAccessToken(true);
+      const token = accessToken || this.rootStore.authentication?.accessToken;
+      console.log('cancel trip', tripId);
       trips
-        .delete(tripId, accessToken)
+        .delete(tripId, token)
         .then(() => {
           runInAction(() => {
             this.error = null;
@@ -107,6 +114,7 @@ class Schedule {
               this.trips.splice(i, 1);
             }
           });
+
           resolve(true);
         })
         .catch(e => {
@@ -114,6 +122,11 @@ class Schedule {
             this.error = e;
           });
           reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.rootStore.authentication.inTransaction = false;
+          });
         });
     });
   };
@@ -123,8 +136,10 @@ class Schedule {
       this.rootStore.authentication.inTransaction = true;
     });
     return new Promise(async (resolve, reject) => {
+      await this.rootStore.authentication.fetchAccessToken(true);
+      const token = accessToken || this.rootStore.authentication?.accessToken;
       trips
-        .get(datetime, accessToken)
+        .get(datetime, token)
         .then(result => {
           runInAction(() => {
             this.error = null;
@@ -148,8 +163,10 @@ class Schedule {
 
   getRange = (from, to, accessToken) => {
     return new Promise(async (resolve, reject) => {
+      await this.rootStore.authentication.fetchAccessToken(true);
+      const token = accessToken || this.rootStore.authentication?.accessToken;
       trips
-        .getRange(from, to, accessToken)
+        .getRange(from, to, token)
         .then(result => {
           runInAction(() => {
             this.error = null;
@@ -168,6 +185,8 @@ class Schedule {
 
   updateTripRequest = (id, request, accessToken) => {
     return new Promise(async (resolve, reject) => {
+      await this.rootStore.authentication.fetchAccessToken(true);
+      const token = accessToken || this.rootStore.authentication?.accessToken;
       let i = this.trips.findIndex(t => t.id === id);
       if (i > -1) {
         runInAction(() => {
@@ -177,7 +196,7 @@ class Schedule {
         let plan = { ...trip.plan };
         plan.request = request;
         trips.update
-          .plan(trip.id, plan, accessToken)
+          .plan(trip.id, plan, token)
           .then(result => {
             runInAction(() => {
               this.trips[i] = result;

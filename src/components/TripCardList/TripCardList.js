@@ -20,6 +20,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons';
 import CustomModal from '../Modal';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 
@@ -38,6 +39,10 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     locations,
   } = useStore().favorites;
 
+  const _allTrips = toJS(allTrips);
+
+  console.log({ _allTrips });
+
   //sort by plan.startTime
   const trips = allTrips
     .slice()
@@ -46,7 +51,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     })
     .slice(0, 3);
 
-  console.log({ trips });
+  // console.log({ trips });
 
   const updateFavoriteTrips = async (id, isFavorite) => {
     if (isFavorite) {
@@ -74,7 +79,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
           <Box>No upcoming trips found.</Box>
         ) : (
           trips.map(trip => {
-            console.log(trip);
+            // console.log(trip);
             const startAlias =
               locations.find(l => l.id === trip.plan.request.origin?.id)
                 ?.alias || null;

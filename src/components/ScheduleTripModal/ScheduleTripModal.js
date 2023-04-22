@@ -165,11 +165,11 @@ export const ScheduleTripModal = observer(
 );
 
 const First = observer(({ setStep, trip }) => {
-  const { isOpen, onToggle, onClose } = useDisclosure();
+  const { isOpen: isSaveFavStartOpen, onToggle: onToggleStart, onClose: onClose } = useDisclosure();
   const {
-    isOpen: isOpen2,
-    onToggle: onToggle2,
-    onClose: onClose2,
+    isOpen: isSaveFavEndOpen,
+    onToggle: onToggleEnd,
+    onClose: closeSaveFavEnd,
   } = useDisclosure();
   const { locations: favLocations, addLocation } = useStore().favorites;
   const { loggedIn } = useStore().authentication;
@@ -177,7 +177,11 @@ const First = observer(({ setStep, trip }) => {
   const startRef = useRef(null);
   const endRef = useRef(null);
 
-  const [savedAddresses, setSavedAddresses] = useState({ start: 0, end: 0 });
+  const [savedAddresses, setSavedAddresses] = useState({
+    start: null,
+    end: null,
+  });
+
   const [activeFavorite, setActiveFavorite] = useState(null);
   const [aliasEditor, setAliasEditor] = useState(false);
 
@@ -188,16 +192,6 @@ const First = observer(({ setStep, trip }) => {
     start: trip?.request?.origin || {},
     end: trip?.request?.destination || {},
   });
-
-  //DEBUG
-  // useEffect(() => {
-  //   const _locations = toJS(locations);
-  //   const _favs = toJS(favLocations);
-  //   console.log({ _locations });
-  //   console.log({ _favs });
-  //   // console.log(toJS(trip));
-  //   //eslint-disable-next-line
-  // }, [locations, favLocations]);
 
   useEffect(() => {
     setStartError(false);
@@ -271,9 +265,15 @@ const First = observer(({ setStep, trip }) => {
       });
     }
     onClose();
-    onClose2();
+    closeSaveFavEnd();
     setAliasEditor(false);
   };
+
+  //DEBUG
+  // if (locations?.start?.text) {
+  //   console.log(locations?.start);
+  //   console.log(toJS(favLocations));
+  // }
 
   return (
     <Stack
@@ -286,7 +286,6 @@ const First = observer(({ setStep, trip }) => {
     >
       <FormControl isInvalid={startError}>
         <AddressSearchForm
-          saveAddress={() => {}}
           center={{ lng: -78.878738, lat: 42.88023 }}
           defaultAddress={
             locations?.start?.id &&
@@ -309,7 +308,7 @@ const First = observer(({ setStep, trip }) => {
             </Flex>
           ) : null}
           <Popover
-            isOpen={isOpen}
+            isOpen={isSaveFavStartOpen}
             onClose={() => {
               //TODO actually save the address
               //TODO replace the location start name with the saved address name
@@ -329,10 +328,10 @@ const First = observer(({ setStep, trip }) => {
                 }
                 onChange={e => {
                   if (e.target.checked) {
-                    onToggle();
+                    onToggleStart();
                     setSavedAddresses(current => ({
                       ...current,
-                      start: 1,
+                      start: startRef.current.value,
                     }));
                     setActiveFavorite('start');
                     setAliasEditor(true);
@@ -343,6 +342,7 @@ const First = observer(({ setStep, trip }) => {
                   favLocations.find(f => f.id === locations?.start?.id)?.id ||
                   ''
                 }
+                isChecked={!!savedAddresses.start || isSaveFavStartOpen}
                 mt={2}
                 ml={2}
               >
@@ -355,7 +355,10 @@ const First = observer(({ setStep, trip }) => {
               <PopoverHeader>Location Name</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
-                <Input type="text" ref={startRef} />
+                <Input
+                  type="text"
+                  ref={startRef}
+                />
                 <HStack mt={2}>
                   <Button
                     variant={'solid'}
@@ -368,7 +371,10 @@ const First = observer(({ setStep, trip }) => {
                   <Button
                     variant={'outline'}
                     onClick={() => {
-                      setSavedAddresses(current => ({ ...current, start: 0 }));
+                      setSavedAddresses(current => ({
+                        ...current,
+                        start: null,
+                      }));
                       onClose();
                       setAliasEditor(false);
                     }}
@@ -413,12 +419,12 @@ const First = observer(({ setStep, trip }) => {
             </Flex>
           ) : null}
           <Popover
-            isOpen={isOpen2}
+            isOpen={isSaveFavEndOpen}
             onClose={() => {
               //TODO actually save the address
               //TODO replace the location start name with the saved address name
-              setSavedAddresses(current => ({ ...current, end: 0 }));
-              onClose2();
+              setSavedAddresses(current => ({ ...current, end: null }));
+              closeSaveFavEnd();
               setAliasEditor(false);
             }}
             placement="bottom"
@@ -433,17 +439,17 @@ const First = observer(({ setStep, trip }) => {
                 }
                 onChange={e => {
                   if (e.target.checked) {
-                    onToggle2();
+                    onToggleEnd();
                     setSavedAddresses(current => ({
                       ...current,
-                      end: 1,
+                      end: endRef.current.value,
                     }));
                     setActiveFavorite('end');
                     setAliasEditor(true);
                   }
                 }}
                 disabled={!loggedIn ? true : !locations?.end?.text}
-                isChecked={!!savedAddresses.end}
+                isChecked={!!savedAddresses.end || isSaveFavEndOpen}
                 value={locations?.end?.id || ''}
                 mt={2}
                 ml={2}
@@ -457,7 +463,10 @@ const First = observer(({ setStep, trip }) => {
               <PopoverHeader>Location Name</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
-                <Input type="text" ref={endRef} />
+                <Input
+                  type="text"
+                  ref={endRef}
+                />
                 <HStack mt={2}>
                   <Button
                     variant={'solid'}
@@ -471,7 +480,7 @@ const First = observer(({ setStep, trip }) => {
                     variant={'outline'}
                     onClick={() => {
                       setSavedAddresses(current => ({ ...current, end: 0 }));
-                      onClose2();
+                      closeSaveFavEnd();
                       setAliasEditor(false);
                     }}
                     w="50%"

@@ -20,7 +20,6 @@ import {
   WarningTwoIcon,
 } from '@chakra-ui/icons';
 
-import ConfirmDialog from '../ConfirmDialog';
 import { useColorMode } from '@chakra-ui/color-mode';
 import { useEffect } from 'react';
 import { useRef } from 'react';
@@ -28,10 +27,12 @@ import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import { validators } from '../../utils/validators';
 
+// import ConfirmDialog from '../ConfirmDialog';
+
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
 export const EditPassword = () => {
-  const { colorMode } = useColorMode();
+  // const { colorMode } = useColorMode();
   const { updateUserPassword } = useStore().authentication;
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -75,9 +76,9 @@ export const EditPassword = () => {
     }
   }, [newPassword]);
 
-  const forgotPasswordFn = () => {
-    console.log('Forgot password');
-  };
+  // const forgotPasswordFn = () => {
+  //   console.log('Forgot password');
+  // };
 
   return (
     <Box
@@ -116,7 +117,7 @@ export const EditPassword = () => {
               </Button>
             </InputRightElement>
           </InputGroup>
-          <Box fontSize={'md'} mt={'2'} textAlign={'right'}>
+          {/* <Box fontSize={'md'} mt={'2'} textAlign={'right'}>
             <ConfirmDialog
               color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
               as="span"
@@ -127,7 +128,7 @@ export const EditPassword = () => {
               message={'This will send a link to your account email'}
               confirmFn={forgotPasswordFn}
             />
-          </Box>
+          </Box> */}
         </FormControl>
 
         <Box py={6}>

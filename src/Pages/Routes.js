@@ -12,44 +12,46 @@ import Layout from './Layout';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
+// import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
 export const Routes = observer(() => {
   const { pathname } = useLocation();
-  const { locations, trips } = useStore().favorites;
-  const profile = useStore().profile;
-  const preferences = useStore().preferences;
-  const schedule = useStore().schedule;
-  const { user, loggedIn, loggingIn, fetchAccessToken } =
+  // const { locations, trips } = useStore().favorites;
+  // const profile = useStore().profile;
+  // const preferences = useStore().preferences;
+  // const schedule = useStore().schedule;
+  const { user, loggedIn, fetchAccessToken } =
     useStore().authentication;
 
-  console.log('[router] logged in', loggedIn);
-  console.log('[router] logging in', loggingIn);
+  console.log('[routes] logged in:', loggedIn);
+  // console.log('[routes] logging in:', loggingIn);
 
-  useEffect(() => {
-    if (!loggedIn) return;
-    const _user = toJS(user);
-    const _locations = toJS(locations);
-    const _trips = toJS(trips);
-    const _profile = toJS(profile);
-    const _preferences = toJS(preferences);
-    const _schedule = toJS(schedule);
+  //NOTE useEffect does not work with MobX 100%
+  // useEffect(() => {
+  //   if (!loggedIn) return;
+  //   const _user = toJS(user);
+  //   const _locations = toJS(locations);
+  //   const _trips = toJS(trips);
+  //   const _profile = toJS(profile);
+  //   const _preferences = toJS(preferences);
+  //   const _schedule = toJS(schedule);
 
-    console.log({ _trips });
-    console.log({ _user });
-    console.log({ _locations });
-    console.log({ _trips });
-    console.log({ _profile });
-    console.log({ _preferences });
-    console.log({ _schedule });
-    // eslint-disable-next-line
-  }, [user]);
+  //   console.log({ _trips });
+  //   console.log({ _user });
+  //   console.log({ _locations });
+  //   console.log({ _trips });
+  //   console.log({ _profile });
+  //   console.log({ _preferences });
+  //   console.log({ _schedule });
+  //   // eslint-disable-next-line
+  // }, [userr]);
 
   useEffect(() => {
     (async () => {
       if (user?.refreshToken && !loggedIn) {
+        console.log('[routes] using refresh token for login');
         try {
           await fetchAccessToken();
         } catch (error) {
@@ -126,7 +128,7 @@ export const Routes = observer(() => {
           <Route
             path="/settings/*"
             element={
-              <Layout children={<Box p={10}>{loggingIn ? '' : ''}</Box>} />
+              <Layout children={<Box p={10}></Box>} />
             }
           />
         )}

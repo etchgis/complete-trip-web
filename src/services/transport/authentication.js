@@ -11,7 +11,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got refresh token response');
+        console.log('{services-transport-auth} got refresh token response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
@@ -60,7 +60,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('[authentication] got refresh user response');
+        console.log('{services-transport-auth} got refresh user response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
@@ -189,7 +189,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got auth activate response');
+        console.log('{services-transport-auth} got auth activate response');
         const json = await response.json();
         if (response.status === 200) {
           return json;
@@ -202,7 +202,7 @@ const authentication = {
   },
 
   registerDevice(identity, address, bindingType, accessToken) {
-    console.log(`registering device with ID ${identity}`);
+    console.log(`{services-transport-auth} registering device with ID ${identity}`);
     return fetch(`${config.SERVICES.auth.url}/devices`, {
       method: 'POST',
       body: JSON.stringify({
@@ -225,13 +225,13 @@ const authentication = {
         throw json?.error;
       })
       .catch(err => {
-        console.log('registration failed');
+        console.log('{services-transport-auth} registration failed');
         throw err;
       });
   },
 
   removeDeviceIfRegistered(identity, accessToken) {
-    console.log(`deleting ${config.SERVICES.auth.url}/devices/${identity}`);
+    console.log(`{services-transport-auth} deleting ${config.SERVICES.auth.url}/devices/${identity}`);
     return fetch(`${config.SERVICES.auth.url}/devices/${identity}`, {
       method: 'DELETE',
       headers: {
@@ -241,7 +241,7 @@ const authentication = {
       },
     })
       .then(async response => {
-        console.log('got remove device response');
+        console.log('{services-transport-auth} got remove device response');
         if (response.status === 400) {
           // this will be returned if the sid wasn't found.
           console.log('this device was not registered.');
@@ -360,25 +360,26 @@ const authentication = {
   },
 
   reset(email, code, newPassword) {
-    var data = {
+    console.log('{services-transport-auth} resetting password', email, code, newPassword);
+    const data = JSON.stringify({
+      code: code,
       username: email,
-      code,
       password: newPassword,
-    };
+    });
+    console.log('{services-transport-auth} data', data);
     return fetch(`${config.SERVICES.auth.url}/reset`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: data,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': config.SERVICES.auth.xApiKey,
       },
     })
       .then(async response => {
-        const json = await response.json();
         if (response.status === 200) {
-          return json;
+          return true;
         }
-        throw json?.message || json?.error.reason;
+        throw new Error({ message: 'Unknown error resetting password' });
       })
       .catch(err => {
         throw err;
