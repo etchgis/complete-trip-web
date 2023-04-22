@@ -24,8 +24,7 @@ import { useStore } from '../../context/RootStore';
 
 export const MFAVerify = observer(
   ({ isOpen, onClose, buttonText, title, callbackFn }) => {
-    const { user, verifyUser, confirmUser, reset, requireMFA } =
-      useStore().authentication;
+    const { user, verifyUser, confirmUser, reset } = useStore().authentication;
     const [verifyError, setVerifyError] = useState(false);
     const [stage, setStage] = useState(0);
     const [method, setMethod] = useState('');
@@ -142,15 +141,17 @@ export const MFAVerify = observer(
                     ) : (
                       ''
                     )}
+                    <Button
+                      onClick={async () => {
+                        const to =
+                          method === 'email' ? user?.email : user?.phone;
+                        await verifyUser(method, to);
+                      }}
+                      variant={'link'}
+                    >
+                      Send Another Code?
+                    </Button>
                   </Center>
-                  <Button
-                    onClick={async () => {
-                      const to = method === 'email' ? user?.email : user?.phone;
-                      await verifyUser(method, to);
-                    }}
-                  >
-                    Send Another Code?
-                  </Button>
                 </>
               )}
             </>

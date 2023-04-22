@@ -428,7 +428,7 @@ class Authentication {
       authentication
         .login(email, password)
         .then(async result => {
-          runInAction(() => {
+          runInAction(async () => {
             if (result?.profile?.onboarded && !skipMFA) {
               this.user = {
                 email: result?.email,
@@ -441,7 +441,7 @@ class Authentication {
             } else {
               this.user = result;
               this.loggedIn = true;
-              this.hydrate(result?.profile, result.accessToken);
+              await this.hydrate(result?.profile, result.accessToken);
             }
             this.error = null;
           });

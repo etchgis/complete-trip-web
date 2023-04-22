@@ -485,8 +485,6 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   const onSubmit = async e => {
     e.preventDefault();
     setInTransaction(true);
-    // console.log(email, method);
-    // console.log('forgot password click');
     try {
       const recovered = await recover(email, method);
       if (!recovered || !recovered.code || !recovered.concealed)
@@ -565,8 +563,8 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
 const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
 
-  const { confirmUser, login } = useStore().authentication;
-  const { reset: resetPassword } = authentication;
+  const { confirmUser, login, setInTransaction } = useStore().authentication;
+  const { reset: resetPassword, recover } = authentication;
 
   const [verifyError, setVerifyError] = useState(false);
   const [password, setPassword] = useState('');
@@ -574,30 +572,34 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
   const [pin, setPin] = useState('');
+  const [code, setCode] = useState(options?.code);
+
   // console.log({ options });
   // console.log({ pin });
+
   const onSubmit = async e => {
     e.preventDefault();
 
     try {
+      setInTransaction(true);
       if (password !== password2) return setPasswordsDontMatch(true);
+      if (!pin || pin.length < 6) return setVerifyError(true);
+
       const confirmed = await confirmUser(options.destination, pin);
       if (!confirmed) throw new Error('verify error');
 
-      const updated = await resetPassword(
-        options.email,
-        options.code,
-        password
-      );
+      const updated = await resetPassword(options.email, code, password);
       if (!updated) throw new Error('password error');
+
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
-      login(options.email, password, true);
+      await login(options.email, password, true);
     } catch (error) {
       setVerifyError(true);
       setPassword('');
       setPassword2('');
       setPin('');
       console.log('error', error);
+      setInTransaction(false);
     }
   };
 
@@ -634,6 +636,19 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           </HStack>
         </Center>
       </FormControl>
+      <Button
+        variant={'link'}
+        onClick={async () => {
+          setInTransaction(true);
+          const recovered = await recover(options.email, options.method);
+          if (!recovered || !recovered.code || !recovered.concealed)
+            console.log('error with recover');
+          setCode(recovered?.code);
+          setInTransaction(false);
+        }}
+      >
+        Send Another Code?
+      </Button>
       {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
       <FormControl isRequired>
         <FormLabel>New Password</FormLabel>

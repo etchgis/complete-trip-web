@@ -165,7 +165,11 @@ export const ScheduleTripModal = observer(
 );
 
 const First = observer(({ setStep, trip }) => {
-  const { isOpen: isSaveFavStartOpen, onToggle: onToggleStart, onClose: onClose } = useDisclosure();
+  const {
+    isOpen: isSaveFavStartOpen,
+    onToggle: onToggleStart,
+    onClose,
+  } = useDisclosure();
   const {
     isOpen: isSaveFavEndOpen,
     onToggle: onToggleEnd,
@@ -355,10 +359,7 @@ const First = observer(({ setStep, trip }) => {
               <PopoverHeader>Location Name</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
-                <Input
-                  type="text"
-                  ref={startRef}
-                />
+                <Input type="text" ref={startRef} />
                 <HStack mt={2}>
                   <Button
                     variant={'solid'}
@@ -463,10 +464,7 @@ const First = observer(({ setStep, trip }) => {
               <PopoverHeader>Location Name</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
-                <Input
-                  type="text"
-                  ref={endRef}
-                />
+                <Input type="text" ref={endRef} />
                 <HStack mt={2}>
                   <Button
                     variant={'solid'}
@@ -701,31 +699,10 @@ const Fourth = ({
       trip.request.destination.title +
       ' ' +
       trip.request.destination.description;
-    // const request = {
-    //   origin: {
-    //     alias: trip.request.origin?.alias || null,
-    //     id: trip.request.origin?.id || null,
-    //     point: trip.request.origin.point,
-    //     title: trip.request.origin.title,
-    //     description: trip.request.origin.description,
-    //     text: trip.request.origin.title + ' ' + trip.request.origin.description,
-    //   },
-    //   destination: {
-    //     alias: trip.request.destination?.alias || null,
-    //     id: trip.request.destination?.id || null,
-    //     point: trip.request.destination.point,
-    //     title: trip.request.destination.title,
-    //     description: trip.request.destination.description,
-    //     text:
-    //       trip.request.destination.title +
-    //       ' ' +
-    //       trip.request.destination.description,
-    //   },
-    //   id: trip.request.id,
-    // };
     const updated = await saveTrip(selectedTrip, _request);
     // console.log({ updated });
     if (updated) {
+      closeModal();
       toast({
         title: 'Success',
         description: 'Trip Saved',
@@ -735,7 +712,6 @@ const Fourth = ({
         position: 'top-right',
         variant: 'top-accent',
       });
-      closeModal();
       setSelectedTrip({});
       setStep(0);
       trip.create();

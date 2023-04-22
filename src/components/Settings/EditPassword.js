@@ -20,7 +20,6 @@ import {
   WarningTwoIcon,
 } from '@chakra-ui/icons';
 
-import { useColorMode } from '@chakra-ui/color-mode';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';

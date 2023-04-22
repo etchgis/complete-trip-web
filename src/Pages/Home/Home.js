@@ -153,14 +153,11 @@ function trimText(text) {
 
 export const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
   const { cancel } = useStore().schedule;
-  const { setInTransaction } = useStore().authentication;
   const { colorMode } = useColorMode();
   // console.log(toJS(selectedTrip));
 
   const cancelTrip = async id => {
-    setInTransaction(true);
     await cancel(id);
-    setInTransaction(false);
     close();
   };
 
