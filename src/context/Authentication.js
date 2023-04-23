@@ -387,6 +387,11 @@ class Authentication {
               this.errorToastMessage = 'An unknown error occurred.';
             });
             reject(e);
+          })
+          .finally(() => {
+            runInAction(() => {
+              this.inTransaction = false;
+            });
           });
       });
     } else {
