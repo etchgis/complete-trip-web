@@ -259,6 +259,7 @@ class Authentication {
     });
   };
 
+  /*
   validateUser = async () => {
     //ONLY USE FOR LOGGED IN USERS
     if (!this.loggedIn) {
@@ -322,7 +323,7 @@ class Authentication {
       });
       return true;
     }
-  };
+  };*/
 
   /**
    * Get the user's access token, renewing if necessary.
@@ -414,6 +415,7 @@ class Authentication {
           throw new Error('user access failed');
         })
         .catch(e => {
+          console.log('[auth-store] error on trying to refresh access token');
           console.log(e);
           runInAction(() => {
             this.reset();
