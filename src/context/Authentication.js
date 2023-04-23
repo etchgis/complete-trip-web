@@ -339,6 +339,7 @@ class Authentication {
     });
 
     if (this.accessTokenPromise) {
+      console.log('[auth-store] access token promise found');
       return this.accessTokenPromise;
     }
 
@@ -395,6 +396,7 @@ class Authentication {
           });
       });
     } else {
+      console.log('[auth-store] invalid access token found');
       //NOTE this will refresh the access token if it is missing or invalid/expired
       this.accessTokenPromise = authentication
         .refreshAccessToken(this.user.refreshToken)
@@ -410,6 +412,14 @@ class Authentication {
             return result.accessToken;
           }
           throw new Error('user access failed');
+        })
+        .catch(e => {
+          console.log(e);
+          runInAction(() => {
+            this.reset();
+            this.errorToastMessage = 'An error occurred. Login and try again.';
+          });
+          throw e;
         });
     }
 

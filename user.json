@@ -1,0 +1,135 @@
+{
+  "user": {
+    "isSocial": false,
+    "profile": {
+      "firstName": "Malcolm",
+      "lastName": "Meyer",
+      "address": {
+        "description": "",
+        "distance": "",
+        "point": {
+          "lat": 39.6877186,
+          "lng": -82.6038694
+        },
+        "title": "510 Warren Street Gallery, 510 Warren Street, Hudson",
+        "text": "510 Warren Street Gallery, 510 Warren Street, Hudson"
+      },
+      "preferences": {
+        "language": "es",
+        "wheelchair": false,
+        "maxCost": 100,
+        "maxTransfers": 5,
+        "minimizeWalking": true,
+        "modes": [
+          "car",
+          "bike",
+          "transit",
+          "tram"
+        ],
+        "notifications": [
+          "email"
+        ],
+        "shareWithConcierge": false
+      },
+      "caretakers": [
+        {
+          "firstName": "Malcolm",
+          "lastName": "Meyer",
+          "phone": "+13304644766",
+          "email": "malcolmtmeyer@gmail.com"
+        }
+      ],
+      "onboarded": true,
+      "mfa": false,
+      "favorites": {
+        "locations": [
+          {
+            "point": {
+              "lat": 42.922629,
+              "lng": -78.876705
+            },
+            "id": 1680624454799,
+            "title": "Starbucks",
+            "alias": "Coffee",
+            "description": "933 Elmwood Avenue, Albright, Buffalo",
+            "distance": null,
+            "text": "Starbucks, 933 Elmwood Avenue, Albright, Buffalo",
+            "childKey": "1680624454799",
+            "name": "Coffee",
+            "search": "starbucks, 933 elmwood avenue, albright, buffalo | coffee"
+          },
+          {
+            "point": {
+              "lat": 42.876762,
+              "lng": -78.85011
+            },
+            "id": 1680724623945,
+            "title": "Swan Street Diner",
+            "alias": "Diner",
+            "description": "South Ellicott, Buffalo",
+            "distance": null,
+            "text": "Swan Street Diner, South Ellicott, Buffalo"
+          }
+        ],
+        "trips": [
+          {
+            "origin": {
+              "alias": "University",
+              "id": 1680625022127,
+              "point": {
+                "lng": -78.81929,
+                "lat": 42.946437
+              },
+              "title": "University",
+              "description": "University, Buffalo",
+              "text": "University University, Buffalo"
+            },
+            "destination": {
+              "alias": "Hospital",
+              "id": 1680624941974,
+              "point": {
+                "lng": -78.883405,
+                "lat": 42.92991
+              },
+              "title": "State Hospital",
+              "description": "State Hospital, Buffalo",
+              "text": "State Hospital State Hospital, Buffalo"
+            },
+            "id": 1680625754319,
+            "alias": "Test"
+          }
+        ]
+      }
+    },
+    "createdAt": "2023-02-01T13:50:20.268Z",
+    "organizations": [
+      {
+        "updatedAt": "2023-01-12T15:39:38.032Z",
+        "longitude": -78.8932843,
+        "createdAt": "2023-01-12T15:39:38.032Z",
+        "address": "65 Niagara Square, Buffalo, NY 14202",
+        "id": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486",
+        "latitude": 42.8863996,
+        "name": "Buffalo, NY"
+      }
+    ],
+    "search": "{\"firstname\":\"malcolm\",\"lastname\":\"meyer\",\"address\":{\"description\":\"\",\"distance\":\"\",\"point\":{\"lat\":39.6877186,\"lng\":-82.6038694},\"title\":\"510 warren street gallery, 510 warren street, hudson\",\"text\":\"510 warren street gallery, 510 warren street, hudson\"},\"preferences\":{\"language\":\"es\",\"wheelchair\":false,\"maxcost\":100,\"maxtransfers\":5,\"minimizewalking\":true,\"modes\":[\"bike\",\"transit\",\"tram\",\"car\"],\"notifications\":[\"email\"],\"sharewithconcierge\":false},\"caretakers\":[{\"firstname\":\"malcolm\",\"lastname\":\"meyer\",\"phone\":\"+13304644766\",\"email\":\"malcolmtmeyer@gmail.com\"}],\"onboarded\":true,\"mfa\":false,\"favorites\":{\"locations\":[{\"point\":{\"lat\":42.922629,\"lng\":-78.876705},\"id\":1680624454799,\"title\":\"starbucks\",\"alias\":\"coffee\",\"description\":\"933 elmwood avenue, albright, buffalo\",\"distance\":null,\"text\":\"starbucks, 933 elmwood avenue, albright, buffalo\",\"childkey\":\"1680624454799\",\"name\":\"coffee\",\"search\":\"starbucks, 933 elmwood avenue, albright, buffalo | coffee\"},{\"point\":{\"lat\":42.92991,\"lng\":-78.883405},\"id\":1680624941974,\"title\":\"state hospital\",\"alias\":\"hospital\",\"description\":\"state hospital, buffalo\",\"distance\":null,\"text\":\"state hospital, state hospital, buffalo\",\"childkey\":\"1680624941974\",\"name\":\"hospital\",\"search\":\"state hospital, state hospital, buffalo | hospital\"},{\"point\":{\"lat\":42.876762,\"lng\":-78.85011},\"id\":1680724623945,\"title\":\"swan street diner\",\"alias\":\"diner\",\"description\":\"south ellicott, buffalo\",\"distance\":null,\"text\":\"swan street diner, south ellicott, buffalo\"}],\"trips\":[{\"origin\":{\"alias\":\"university\",\"id\":1680625022127,\"point\":{\"lng\":-78.81929,\"lat\":42.946437},\"title\":\"university\",\"description\":\"university, buffalo\",\"text\":\"university university, buffalo\"},\"destination\":{\"alias\":\"hospital\",\"id\":1680624941974,\"point\":{\"lng\":-78.883405,\"lat\":42.92991},\"title\":\"state hospital\",\"description\":\"state hospital, buffalo\",\"text\":\"state hospital state hospital, buffalo\"},\"id\":1680625754319,\"alias\":\"test\"}]}}",
+    "email": "malcolm@getbounds.com",
+    "organization": {
+      "updatedAt": "2023-01-12T15:39:38.032Z",
+      "longitude": -78.8932843,
+      "createdAt": "2023-01-12T15:39:38.032Z",
+      "address": "65 Niagara Square, Buffalo, NY 14202",
+      "id": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486",
+      "latitude": 42.8863996,
+      "name": "Buffalo, NY"
+    },
+    "role": "rider",
+    "updatedAt": "2023-04-14T00:10:55.511Z",
+    "locked": true,
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWZkN2JlNy1iYzQ4LTRkZjYtYjRhZC04ZWM4ZWMwNDUzNmMiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODE0MzEwMDQsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzEyOTg4NjA0fQ.0mom6bEuLPGKEI92lB7IcSM2EAl0r9rcSpBuXqpmWRc",
+    "id": "69fd7be7-bc48-4df6-b4ad-8ec8ec04536c",
+    "phone": "+13304644765",
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWZkN2JlNy1iYzQ4LTRkZjYtYjRhZC04ZWM4ZWMwNDUzNmMiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODE0MzEwMDQsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNjk3MTU1ODA0fQ.yrm-zUd6qeVWq90zf9K47lerLuTJtzEAQyt-G1rtUdk"
+  }
+}
