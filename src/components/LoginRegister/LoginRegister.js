@@ -486,6 +486,7 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
     e.preventDefault();
     setInTransaction(true);
     try {
+      console.log({ method });
       const recovered = await recover(email, method);
       if (!recovered || !recovered.code || !recovered.concealed)
         throw new Error();
@@ -531,7 +532,7 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
         >
           <Stack direction="column">
             <Radio value="sms">Text me</Radio>
-            <Radio value="voice">Call me</Radio>
+            <Radio value="call">Call me</Radio>
             <Radio value="email">Email me</Radio>
           </Stack>
         </RadioGroup>

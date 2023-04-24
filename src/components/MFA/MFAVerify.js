@@ -81,9 +81,9 @@ export const MFAVerify = observer(
                     defaultChecked={method}
                   >
                     <Stack direction="row">
-                      <Radio value="sms">Text</Radio>
-                      <Radio value="email">Email</Radio>
-                      <Radio value="call">Phone Call</Radio>
+                      <Radio value="sms">Text Me</Radio>
+                      <Radio value="call">Call Me</Radio>
+                      <Radio value="email">Email Me</Radio>
                     </Stack>
                   </RadioGroup>
                   <Button type="submit" colorScheme="blue" mt={4}>
