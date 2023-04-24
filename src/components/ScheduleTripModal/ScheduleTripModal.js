@@ -254,6 +254,13 @@ const First = observer(({ setStep, trip }) => {
     const id = addLocation(favorite);
     setActiveFavorite();
     if (activeFavorite === 'end') {
+      endRef.current.value = '';
+      setSavedAddresses(current => {
+        return {
+          ...current,
+          end: 0,
+        };
+      });
       setLocations(current => {
         return {
           ...current,
@@ -261,7 +268,14 @@ const First = observer(({ setStep, trip }) => {
         };
       });
     } else {
+      setSavedAddresses(current => {
+        return {
+          ...current,
+          start: 0,
+        };
+      });
       setLocations(current => {
+        startRef.current.value = '';
         return {
           ...current,
           start: { ...current.start, id: id, alias: alias },
@@ -319,6 +333,7 @@ const First = observer(({ setStep, trip }) => {
               setSavedAddresses(current => ({ ...current, start: 0 }));
               onClose();
               setAliasEditor(false);
+              startRef.current.value = '';
             }}
             placement="bottom"
             closeOnBlur={false}
@@ -335,7 +350,7 @@ const First = observer(({ setStep, trip }) => {
                     onToggleStart();
                     setSavedAddresses(current => ({
                       ...current,
-                      start: startRef.current.value,
+                      start: 1,
                     }));
                     setActiveFavorite('start');
                     setAliasEditor(true);
@@ -378,6 +393,7 @@ const First = observer(({ setStep, trip }) => {
                       }));
                       onClose();
                       setAliasEditor(false);
+                      startRef.current.value = '';
                     }}
                     w="50%"
                   >
@@ -427,6 +443,7 @@ const First = observer(({ setStep, trip }) => {
               setSavedAddresses(current => ({ ...current, end: null }));
               closeSaveFavEnd();
               setAliasEditor(false);
+              endRef.current.value = '';
             }}
             placement="bottom"
             closeOnBlur={false}
@@ -443,7 +460,7 @@ const First = observer(({ setStep, trip }) => {
                     onToggleEnd();
                     setSavedAddresses(current => ({
                       ...current,
-                      end: endRef.current.value,
+                      end: 1,
                     }));
                     setActiveFavorite('end');
                     setAliasEditor(true);
@@ -480,6 +497,7 @@ const First = observer(({ setStep, trip }) => {
                       setSavedAddresses(current => ({ ...current, end: 0 }));
                       closeSaveFavEnd();
                       setAliasEditor(false);
+                      endRef.current.value = '';
                     }}
                     w="50%"
                   >

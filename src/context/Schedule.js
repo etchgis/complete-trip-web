@@ -57,12 +57,12 @@ class Schedule {
     let tripPlan = { ...plan };
     tripPlan.request = request;
     console.log({ tripPlan });
-    runInAction(() => {
-      this.rootStore.authentication.inTransaction = true;
-    });
 
     return new Promise(async (resolve, reject) => {
       await this.rootStore.authentication.fetchAccessToken(true);
+      runInAction(() => {
+        this.rootStore.authentication.inTransaction = true;
+      });
       const token = accessToken || this.rootStore.authentication?.accessToken;
       trips
         .add(
@@ -96,12 +96,12 @@ class Schedule {
   };
 
   cancel = (tripId, accessToken) => {
-    runInAction(() => {
-      this.rootStore.authentication.inTransaction = true;
-    });
     return new Promise(async (resolve, reject) => {
       //NOTE skip hydration as it hydrates *after* the call to cancel so that it returns the same trip again
       await this.rootStore.authentication.fetchAccessToken(true);
+      runInAction(() => {
+        this.rootStore.authentication.inTransaction = true;
+      });
       const token = accessToken || this.rootStore.authentication?.accessToken;
       console.log('cancel trip', tripId);
       trips
@@ -132,11 +132,11 @@ class Schedule {
   };
 
   get = (datetime, accessToken) => {
-    runInAction(() => {
-      this.rootStore.authentication.inTransaction = true;
-    });
     return new Promise(async (resolve, reject) => {
       await this.rootStore.authentication.fetchAccessToken(true);
+      runInAction(() => {
+        this.rootStore.authentication.inTransaction = true;
+      });
       const token = accessToken || this.rootStore.authentication?.accessToken;
       trips
         .get(datetime, token)
@@ -164,6 +164,9 @@ class Schedule {
   getRange = (from, to, accessToken) => {
     return new Promise(async (resolve, reject) => {
       await this.rootStore.authentication.fetchAccessToken(true);
+      runInAction(() => {
+        this.rootStore.authentication.inTransaction = true;
+      });
       const token = accessToken || this.rootStore.authentication?.accessToken;
       trips
         .getRange(from, to, token)
@@ -179,6 +182,11 @@ class Schedule {
             this.error = e;
           });
           reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.rootStore.authentication.inTransaction = false;
+          });
         });
     });
   };
@@ -186,6 +194,9 @@ class Schedule {
   updateTripRequest = (id, request, accessToken) => {
     return new Promise(async (resolve, reject) => {
       await this.rootStore.authentication.fetchAccessToken(true);
+      runInAction(() => {
+        this.rootStore.authentication.inTransaction = true;
+      });
       const token = accessToken || this.rootStore.authentication?.accessToken;
       let i = this.trips.findIndex(t => t.id === id);
       if (i > -1) {
