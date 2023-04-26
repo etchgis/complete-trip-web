@@ -1,20 +1,19 @@
 import * as React from 'react';
 
+import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react'
 
-import { EditCaretaker } from './EditCaretaker';
+import { EditNotifications } from './EditNotifications';
 import { TestWrapper } from "../../setupTests";
 
 test('EditCaretaker', () => {
 
   render(
     <TestWrapper>
-      <EditCaretaker id={1}></EditCaretaker>
+      <EditNotifications></EditNotifications>
     </TestWrapper>
   );
-  expect(screen.getByText(/First Name/i)).toBeInTheDocument();
-  expect(screen.getByText(/Last Name/i)).toBeInTheDocument();
-  expect(screen.getByText(/Phone/i)).toBeInTheDocument();
+  expect(screen.getByText(/SMS/i)).toBeInTheDocument();
   expect(screen.getByText(/Email/i)).toBeInTheDocument();
 
 });

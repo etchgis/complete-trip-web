@@ -7,7 +7,7 @@ import Loader from '../Loader';
 import config from '../../config';
 import { mapLayers } from './mapLayers';
 import { mapListeners } from './mapListeners';
-import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { useLocation } from 'react-router-dom';
 import { useMapStore } from '../../context/MapStore';
 

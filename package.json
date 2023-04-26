@@ -37,22 +37,25 @@
     "react-icons": "^4.7.1",
     "react-lorem-ipsum": "^1.4.10",
     "react-router-dom": "^6.6.2",
-    "react-scripts": "5.0.1",
     "react-stately": "^3.20.0",
     "react-svg": "^16.1.5",
     "simplify-geojson": "^1.0.5",
     "typescript": "^4.9.5",
+    "uuid": "^9.0.0",
+    "vitest": "^0.30.1",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11",
     "zustand": "^4.3.1"
   },
   "scripts": {
-    "dev": "react-scripts start",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "test:coverage": "react-scripts test --coverage --watchAll=false",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "dev-old": "react-scripts start",
+    "start-old": "react-scripts start",
+    "build-old": "react-scripts build",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "deploy": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
     "copy": "robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF"
   },
@@ -72,6 +75,12 @@
     ]
   },
   "devDependencies": {
-    "@testing-library/react": "^13.4.0"
+    "@testing-library/react": "^13.4.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitest/coverage-c8": "^0.30.1",
+    "jsdom": "^21.1.1",
+    "vite": "^4.3.2",
+    "vite-plugin-svgr": "^2.4.0",
+    "vite-tsconfig-paths": "^4.2.0"
   }
 }

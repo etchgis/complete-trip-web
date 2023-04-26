@@ -243,7 +243,7 @@ class Authentication {
     if (
       !Array.from(PersistStoreMap.values())
         .map(item => item.storageName)
-        .includes('Display')
+        .includes('Authentication') && typeof window !== 'undefined'
     ) {
       makePersistable(this, {
         name: 'Authentication',

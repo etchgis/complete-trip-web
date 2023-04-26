@@ -1,21 +1,21 @@
 import * as React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { expect, test } from 'vitest';
+import { render, screen } from '@testing-library/react'
 
-import { EditProfile } from './EditProfile';
-import { TestWrapper } from '../../setupTests';
-import { act } from 'react-dom/test-utils';
+import { EditCaretaker } from './EditCaretaker';
+import { TestWrapper } from "../../setupTests";
 
-test('EditCaretaker', async () => {
-  // await act(async () => {
+test('EditCaretaker', () => {
+
   render(
     <TestWrapper>
-      <EditProfile></EditProfile>
+      <EditCaretaker id={1}></EditCaretaker>
     </TestWrapper>
   );
   expect(screen.getByText(/First Name/i)).toBeInTheDocument();
   expect(screen.getByText(/Last Name/i)).toBeInTheDocument();
   expect(screen.getByText(/Phone/i)).toBeInTheDocument();
   expect(screen.getByText(/Email/i)).toBeInTheDocument();
-  // });
+
 });

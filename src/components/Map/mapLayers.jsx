@@ -1,6 +1,6 @@
-import lines from './mapdata/lines.geojson';
-import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import points from './mapdata/stops.geojson';
+import lines from './mapdata/lines.json';
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import points from './mapdata/stops.json';
 
 export const mapLayers = e => {
   const map = e.target ? e.target : e;

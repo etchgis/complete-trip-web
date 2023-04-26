@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 
 import * as React from 'react';
 
+import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 import { ChakraProvider } from '@chakra-ui/react';

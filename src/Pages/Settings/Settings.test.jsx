@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import * as React from 'react';
 
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 import { Settings } from './Settings';
