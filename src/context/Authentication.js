@@ -243,7 +243,7 @@ class Authentication {
     if (
       !Array.from(PersistStoreMap.values())
         .map(item => item.storageName)
-        .includes('Display')
+        .includes('Authentication')
     ) {
       makePersistable(this, {
         name: 'Authentication',
@@ -334,15 +334,15 @@ class Authentication {
   fetchAccessToken = skipHydrate => {
     console.log('[auth-store] fetchAccessToken auth flow');
 
-    runInAction(() => {
-      this.inTransaction = true;
-      this.loggingIn = true;
-    });
-
     if (this.accessTokenPromise) {
       console.log('[auth-store] access token promise found');
       return this.accessTokenPromise;
     }
+
+    runInAction(() => {
+      this.inTransaction = true;
+      this.loggingIn = true;
+    });
 
     if (!this.user?.refreshToken) {
       runInAction(() => {
@@ -367,6 +367,7 @@ class Authentication {
         authentication
           .refreshUser(accessToken)
           .then(result => {
+            console.log('[auth-store] access token refreshed');
             runInAction(async () => {
               this.loggedIn = true;
               this.loggingIn = false;
@@ -397,17 +398,20 @@ class Authentication {
           });
       });
     } else {
-      console.log('[auth-store] invalid access token found');
+      if (!this.accessToken) {
+        console.log('[auth-store] no access token found');
+      } else {
+        console.log('[auth-store] invalid access token');
+      }
       //NOTE this will refresh the access token if it is missing or invalid/expired
       this.accessTokenPromise = authentication
         .refreshAccessToken(this.user.refreshToken)
         .then(result => {
-          this.accessTokenPromise = null;
           if (result.accessToken) {
             console.log('[auth-store] received access token');
             runInAction(() => {
-              this.accessToken = result.accessToken;
               this.accessTokenPromise = null;
+              this.accessToken = result.accessToken;
               this.fetchAccessToken(); //NOTE this runs through this function again to hydrate the user
             });
             return result.accessToken;

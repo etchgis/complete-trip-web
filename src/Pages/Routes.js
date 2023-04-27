@@ -12,18 +12,20 @@ import Layout from './Layout';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
-// import { toJS } from 'mobx';
+import { trace } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
+// import { toJS } from 'mobx';
+
 export const Routes = observer(() => {
+  trace(false);
   const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;
   // const profile = useStore().profile;
   // const preferences = useStore().preferences;
   // const schedule = useStore().schedule;
-  const { user, loggedIn, fetchAccessToken } =
-    useStore().authentication;
+  const { user, loggedIn, fetchAccessToken } = useStore().authentication;
 
   console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);
@@ -127,9 +129,7 @@ export const Routes = observer(() => {
         ) : (
           <Route
             path="/settings/*"
-            element={
-              <Layout children={<Box p={10}></Box>} />
-            }
+            element={<Layout children={<Box p={10}></Box>} />}
           />
         )}
       </ReactRoutes>

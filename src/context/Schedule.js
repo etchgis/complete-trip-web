@@ -163,7 +163,7 @@ class Schedule {
 
   getRange = (from, to, accessToken) => {
     return new Promise(async (resolve, reject) => {
-      await this.rootStore.authentication.fetchAccessToken(true);
+      // await this.rootStore.authentication.fetchAccessToken(true);
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });
