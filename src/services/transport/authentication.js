@@ -25,7 +25,8 @@ const authentication = {
   },
 
   login(email, password, source) {
-    return fetch(`${config.SERVICES.auth.url}/login?source=${source}`, {
+    const _source = source || 'web';
+    return fetch(`${config.SERVICES.auth.url}/login?source=${_source}`, {
       method: 'POST',
       body: JSON.stringify({
         email,
@@ -202,7 +203,9 @@ const authentication = {
   },
 
   registerDevice(identity, address, bindingType, accessToken) {
-    console.log(`{services-transport-auth} registering device with ID ${identity}`);
+    console.log(
+      `{services-transport-auth} registering device with ID ${identity}`
+    );
     return fetch(`${config.SERVICES.auth.url}/devices`, {
       method: 'POST',
       body: JSON.stringify({
@@ -231,7 +234,9 @@ const authentication = {
   },
 
   removeDeviceIfRegistered(identity, accessToken) {
-    console.log(`{services-transport-auth} deleting ${config.SERVICES.auth.url}/devices/${identity}`);
+    console.log(
+      `{services-transport-auth} deleting ${config.SERVICES.auth.url}/devices/${identity}`
+    );
     return fetch(`${config.SERVICES.auth.url}/devices/${identity}`, {
       method: 'DELETE',
       headers: {
@@ -360,7 +365,12 @@ const authentication = {
   },
 
   reset(email, code, newPassword) {
-    console.log('{services-transport-auth} resetting password', email, code, newPassword);
+    console.log(
+      '{services-transport-auth} resetting password',
+      email,
+      code,
+      newPassword
+    );
     const data = JSON.stringify({
       code: code,
       username: email,

@@ -56,7 +56,7 @@
     "build-old": "react-scripts build",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "deploy": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
+    "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
     "copy": "robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF"
   },
   "eslintConfig": {
