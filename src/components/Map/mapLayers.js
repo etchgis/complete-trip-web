@@ -87,7 +87,7 @@ export const mapLayers = e => {
   layers.forEach(l => {
     if (!map.getLayer(l.id)) {
       // console.log('[map] adding layer', l.id);
-      map.addLayer(l, 'road-label-navigation');
+      // map.addLayer(l, 'road-label-navigation');
     }
   });
   layerInteractions(map);
