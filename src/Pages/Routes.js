@@ -19,7 +19,10 @@ import { useStore } from '../context/RootStore';
 // import { toJS } from 'mobx';
 
 export const Routes = observer(() => {
-  if (trace) trace(false);
+  //add trace if env is development
+  if (process.env.NODE_ENV === 'development') {
+    trace(false);
+  }
   const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;
   // const profile = useStore().profile;
