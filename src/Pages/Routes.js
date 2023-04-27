@@ -19,7 +19,7 @@ import { useStore } from '../context/RootStore';
 // import { toJS } from 'mobx';
 
 export const Routes = observer(() => {
-  trace(false);
+  if (trace) trace(false);
   const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;
   // const profile = useStore().profile;
