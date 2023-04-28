@@ -47,6 +47,7 @@ export const MFAVerify = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
+          console.log('[mfa-verify] resetting auth store via closing MFA modal manually');
           reset();
           setStage(0);
           setMethod('');

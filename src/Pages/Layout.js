@@ -114,12 +114,12 @@ const Layout = observer(({ showMap, children }) => {
         title="Get Authentication Code"
         callbackFn={async () => {
           try {
-            setRequireMFA(false);
             setInTransaction(true);
             await updateUser(
               Object.assign({}, user, { refreshToken: getToken() })
             );
-            fetchAccessToken();
+            await fetchAccessToken();
+            setRequireMFA(false); //this closes the modal - there should be an access token now
           } catch (error) {
             reset();
           }

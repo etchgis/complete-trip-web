@@ -213,6 +213,7 @@ class Authentication {
         .delete(this.accessToken)
         .then(() => {
           runInAction(() => {
+            console.log('user removed');
             this.reset();
           });
           resolve(true);
@@ -346,6 +347,7 @@ class Authentication {
 
     if (!this.user?.refreshToken) {
       runInAction(() => {
+        console.log('[auth-store--reset] no refresh token found');
         this.reset();
       });
       return Promise.reject(new Error('not logged in'));
@@ -353,7 +355,7 @@ class Authentication {
 
     // if invalid - logout, reset store
     if (!validateJWT(this.user.refreshToken)) {
-      console.log('[auth-store] invalid refresh token');
+      console.log('[auth-store--reset] invalid refresh token');
       this.reset();
       this.errorToastMessage('Session expired, please login.');
     }
@@ -386,6 +388,7 @@ class Authentication {
           .catch(e => {
             console.log(e);
             runInAction(() => {
+              console.log('[auth-store--reset] error refreshing access token');
               this.reset();
               this.errorToastMessage = 'An unknown error occurred.';
             });
@@ -419,7 +422,7 @@ class Authentication {
           throw new Error('user access failed');
         })
         .catch(e => {
-          console.log('[auth-store] error on trying to refresh access token');
+          console.log('[auth-store--reset] error on trying to refresh access token');
           console.log(e);
           runInAction(() => {
             this.reset();
@@ -484,6 +487,7 @@ class Authentication {
   };
 
   logout = () => {
+    console.log('[auth-store--reset] logging out');
     this.reset();
   };
 
@@ -517,6 +521,7 @@ class Authentication {
       this.stagedUser = {};
       this.errorToastMessage = null;
       this.accessToken = null;
+      this.accessTokenPromise = null;
     });
   };
 
