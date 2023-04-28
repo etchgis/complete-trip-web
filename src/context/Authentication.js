@@ -426,7 +426,7 @@ class Authentication {
           console.log(e);
           runInAction(() => {
             this.reset();
-            this.errorToastMessage = 'An error occurred. Login and try again.';
+            this.errorToastMessage = 'Your session has expired. Please login.';
           });
           throw e;
         });
