@@ -1,7 +1,7 @@
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 
 import { authentication } from '../services/transport';
 import config from '../config';
@@ -22,6 +22,7 @@ const validateJWT = token => {
 
 class Authentication {
   user = {};
+  contact = {};
   loggedIn = false;
   loggingIn = false;
   registering = false;
@@ -30,20 +31,26 @@ class Authentication {
   requireMFA = false;
   refreshToken = null;
   accessToken = null; //replaces user.accessToken so that we dont keep that in the user profile and it stands alone - this should never be referenced outside this store
-
-  /** NOTE malcolm additions */
   stagedUser = {};
   errorToastMessage = null;
+  accessTokenPromise = null;
 
-  getToken = () => {
-    return this.refreshToken;
-  };
+  constructor(rootStore) {
+    makeAutoObservable(this);
+    this.rootStore = rootStore;
 
-  clearToken = () => {
-    runInAction(() => {
-      this.refreshToken = null;
-    });
-  };
+    if (
+      !Array.from(PersistStoreMap.values())
+        .map(item => item.storageName)
+        .includes('Authentication')
+    ) {
+      makePersistable(this, {
+        name: 'Authentication',
+        properties: ['user'],
+        storage: localStorage,
+      });
+    }
+  }
 
   setRequireMFA = e => {
     runInAction(() => {
@@ -185,8 +192,8 @@ class Authentication {
     });
   };
 
-  hydrate = async (profile, token) => {
-    if (!profile || !token) return;
+  hydrate = async (profile) => {
+    if (!profile) return;
     console.log('[auth-store] hydrating profile');
     return new Promise(resolve => {
       runInAction(() => {
@@ -195,8 +202,7 @@ class Authentication {
         this.rootStore.favorites.hydrate(profile);
         this.rootStore.schedule.getRange(
           moment().hour(0).valueOf(),
-          moment().add(1, 'month').valueOf(),
-          token
+          moment().add(1, 'month').valueOf()
         );
         resolve();
       });
@@ -208,9 +214,9 @@ class Authentication {
       this.inTransaction = true;
     });
     return new Promise(async (resolve, reject) => {
-      await this.fetchAccessToken();
+      const token = await this.fetchToken();
       authentication
-        .delete(this.accessToken)
+        .delete(token)
         .then(() => {
           runInAction(() => {
             this.reset();
@@ -232,117 +238,210 @@ class Authentication {
     });
   };
 
-  /************************* */
+  /**
+   * Returns the user object from the database and sets login to true
+   * @param {*} email 
+   * @param {*} password 
+   * @returns { Promise<Object> || null } 
+   */
+  auth = async (email, password, forgot) => {
+    const refreshToken = this.user?.refreshToken || this.refreshToken;
+    console.log({ refreshToken })
+    runInAction(() => {
+      this.inTransaction = true;
+    });
 
-  accessTokenPromise = null;
-
-  constructor(rootStore) {
-    makeAutoObservable(this);
-    this.rootStore = rootStore;
-
-    if (
-      !Array.from(PersistStoreMap.values())
-        .map(item => item.storageName)
-        .includes('Authentication') && typeof window !== 'undefined'
-    ) {
-      makePersistable(this, {
-        name: 'Authentication',
-        properties: ['user'],
-        storage: localStorage,
-      });
+    if ((!email || !password) && !refreshToken) {
+      console.log('[auth-store] auth missing email/password or token');
+      this.reset();
+      return null
     }
+
+    if (refreshToken && validateJWT(refreshToken)) {
+      console.log(toJS(this.user))
+      console.log('[auth-store] auth with refreshToken');
+      try {
+        const token = await this.fetchToken(); //sets this.accessToken
+        console.log({ token })
+        const user = await this.get(token);
+        if (user) {
+          runInAction(() => {
+            this.requireMFA = false;
+            this.user = user;
+            this.refreshToken = null; //NOTE we no longer need the refresh token stored inside the store
+            this.hydrate(user.profile);
+            this.loggedIn = true;
+            this.inTransaction = false;
+          });
+          return Promise.resolve(user);
+        } else {
+          //SOME ERROR OCCURRED GETTING USER THAT DIDNT THROW AN ERROR
+          runInAction(() => {
+            this.reset()
+          });
+          return Promise.reject(new Error('An unknown error occurred. Please log in again.'));
+        }
+      } catch (error) {
+        runInAction(() => {
+          this.reset();
+        });
+        if (error?.code === 401) {
+          runInAction(() => {
+            this.errorToastMessage = 'Session expired. Please log in again.';
+          });
+        }
+        return Promise.reject(error);
+      }
+    } else if (email && password) {
+      try {
+        console.log('[auth-store] auth with email and password');
+        const user = await this.login(email, password);
+        if (user) {
+          if (user?.profile?.onboarded && !forgot) {
+            console.log('[auth-store] auth email password onboarded = true && forgot = false -- forcing MFA');
+            runInAction(() => {
+              this.requireMFA = true
+              this.contact = {
+                email: user.email,
+                phone: user.phone,
+              }
+              this.refreshToken = user.refreshToken;
+              this.inTransaction = false;
+            });
+            return Promise.resolve(null);
+          } else {
+            console.log('[auth-store] auth email password onboarded = false || forgot = true, skpping MFA');
+            console.log('[auth-store] if onboarded = false, user will be prompted to onboard after login, else user is logged in');
+            //NOTE the user could change their onboarded status client side - why they would do this, I don't know, but they could and then be able to just login without onboarding and verifying their phone
+            runInAction(() => {
+              this.accessToken = user.accessToken;
+              this.user = user;
+              this.hydrate(user.profile);
+              this.loggedIn = true;
+              this.inTransaction = false;
+            });
+            return Promise.resolve(user);
+          }
+        } else {
+          return Promise.reject(new Error('An unknown error occurred. Please log in again.'));
+        }
+      } catch (error) {
+
+        runInAction(() => {
+          this.reset();
+        });
+
+        if (error?.code === 401 || error === 'Unauthorized') {
+          runInAction(() => {
+            this.errorToastMessage = 'Incorrect email or password.';
+          });
+        }
+        return Promise.reject(error);
+      }
+    } else {
+      runInAction(() => {
+        this.reset();
+      });
+      return Promise.reject(new Error('Please log in.'));
+    }
+  };
+
+  /**
+ * Get the user's access token, renewing if necessary.
+ * Several modules might call this in parallel, but it won't do a separate query for
+ * each one.
+ * @returns {Promise} - the user access token.
+ */
+  fetchToken = () => {
+    if (this.accessTokenPromise) {
+      console.log('[auth-store] fetchToken accessTokenPromise exists, returning promise');
+      return this.accessTokenPromise;
+    }
+    const refreshToken = this.user?.refreshToken || this.refreshToken;
+    if (!refreshToken) {
+      return Promise.reject(new Error('Please login.'));
+    }
+    if (!validateJWT(refreshToken)) {
+      return Promise.reject(new Error('Session expired, please log in again.'));
+    }
+    if (validateJWT(this.accessToken)) {
+      return Promise.resolve(this.accessToken);
+    }
+    return this.accessTokenPromise = authentication.refreshAccessToken(refreshToken)
+      .then((result) => {
+        this.accessTokenPromise = null;
+        if (result.accessToken) {
+          runInAction(() => {
+            this.accessToken = result.accessToken;
+          });
+          return result.accessToken;
+        }
+        throw new Error('Error refreshing session, please login again.');
+      });
   }
 
-  clearError = () => {
+  /**
+   *
+   * @param {*} email
+   * @param {*} password
+   * @param {Boolean} skipMFA //user object/null - //TODO remove all user logic from this function - moving to the auth function - this function should just login the user and return the user object
+   * @returns
+   */
+  login = (email, password) => {
+    console.log('[auth-store] logging in');
     runInAction(() => {
-      this.error = null;
+      this.inTransaction = true;
+    });
+    return new Promise((resolve, reject) => {
+      authentication
+        .login(email, password)
+        .then(async result => {
+          resolve(result?.profile ? result : null); //profile stores onboarding status so if we dont have that we cant continue
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = 'Incorrect email or password';
+          });
+          reject(e);
+        })
+        .finally(() => {
+          runInAction(() => {
+            this.inTransaction = false;
+          });
+        });
     });
   };
 
-  /*
-  validateUser = async () => {
-    //ONLY USE FOR LOGGED IN USERS
-    if (!this.loggedIn) {
-      runInAction(() => {
-        this.reset();
-      });
-      return false;
-    }
-
+  logout = () => {
     runInAction(() => {
-      this.inTransaction = true;
+      this.setInTransaction(true);
     });
-
-    //IF THE REFRESH TOKEN IS EXPIRED, WE HAVE TO LOGOUT
-    if (!this.user?.refreshToken || !validateJWT(this.user.refreshToken)) {
+    setTimeout(() => {
       runInAction(() => {
         this.reset();
-        this.errorToastMessage = 'Session expired, please login.';
       });
-      return false;
-    }
-
-    //THE MAIN POINT FOR THIS FN IS TO CHECK THE ACCESS TOKEN FOR THE SESSION - AND THEN PROCEEED
-    //THIS IS FOR MAKING DATABASE UPDATES WHILE THE USER IS LOGGED IN - WE DONT WANT TO REFRESH THE TOKEN IN THESE INSTANCES AS IT CAUSES A CASCADE EFFECT WHICH WE WANT TO AVOID
-    if (validateJWT(this.accessToken)) {
-      //THIS WILL VERIFY THE USER EXISTS
-      const valid = await authentication.refreshUser(this.accessToken);
-      //IF THIS IS INVALID IT MEANS THE USER NO LONGER EXISTS
-      if (!valid) {
-        runInAction(() => {
-          this.reset();
-          this.errorToastMessage = 'Session expired, please login.';
-        });
-        return false;
-      }
-      runInAction(() => {
-        this.inTransaction = false;
-      });
-      return true;
-    } else {
-      //THIS WILL REFRESH THE ACCESS TOKEN
-      //TODO edge case where the user has kept the browser open for 24hours then tries to make updates to the profile...
-      const valid = await authentication
-        .refreshAccessToken()
-        .then(res => res.json())
-        .catch(e => {
-          return false;
-        });
-      //NOTE if this fails it's something to do with the database, very edge case
-      if (!valid) {
-        runInAction(() => {
-          this.reset();
-          this.errorToastMessage =
-            'An error occurred refreshing the session. Login and try again.';
-        });
-        return false;
-      }
-      runInAction(() => {
-        this.inTransaction = false;
-        this.accessToken = valid.accessToken;
-      });
-      return true;
-    }
-  };*/
+    }, 1000);
+  }
 
   /**
-   * Get the user's access token, renewing if necessary.
-   * Several modules might call this in parallel, but it won't do a separate query for
-   * each one.
-   * @returns {Promise} - the user access token.
-   */
+ * Get the user's access token, renewing if necessary.
+ * Several modules might call this in parallel, but it won't do a separate query for
+ * each one.
+ * @returns {Promise} - the user access token.
+ */
+  //NOTE REMOVE DEPRECATED - once removed change back to fetchAccessToken?
   fetchAccessToken = skipHydrate => {
     console.log('[auth-store] fetchAccessToken auth flow');
-
-    runInAction(() => {
-      this.inTransaction = true;
-      this.loggingIn = true;
-    });
 
     if (this.accessTokenPromise) {
       console.log('[auth-store] access token promise found');
       return this.accessTokenPromise;
     }
+
+    runInAction(() => {
+      this.inTransaction = true;
+      this.loggingIn = true;
+    });
 
     if (!this.user?.refreshToken) {
       runInAction(() => {
@@ -367,10 +466,11 @@ class Authentication {
         authentication
           .refreshUser(accessToken)
           .then(result => {
+            console.log('[auth-store] access token refreshed');
             runInAction(async () => {
+              this.requireMFA = false;
               this.loggedIn = true;
               this.loggingIn = false;
-              this.requireMFA = false;
               this.inTransaction = false;
               if (!skipHydrate) {
                 this.user = result;
@@ -397,17 +497,20 @@ class Authentication {
           });
       });
     } else {
-      console.log('[auth-store] invalid access token found');
+      if (!this.accessToken) {
+        console.log('[auth-store] no access token found');
+      } else {
+        console.log('[auth-store] invalid access token');
+      }
       //NOTE this will refresh the access token if it is missing or invalid/expired
       this.accessTokenPromise = authentication
         .refreshAccessToken(this.user.refreshToken)
         .then(result => {
-          this.accessTokenPromise = null;
           if (result.accessToken) {
             console.log('[auth-store] received access token');
             runInAction(() => {
-              this.accessToken = result.accessToken;
               this.accessTokenPromise = null;
+              this.accessToken = result.accessToken;
               this.fetchAccessToken(); //NOTE this runs through this function again to hydrate the user
             });
             return result.accessToken;
@@ -428,71 +531,6 @@ class Authentication {
     return this.accessTokenPromise;
   };
 
-  /**
-   *
-   * @param {*} email
-   * @param {*} password
-   * @param {Boolean} skipMFA //true false - if true ignore MFA modal
-   * @returns
-   */
-  login = (email, password, skipMFA) => {
-    console.log('[auth-store] logging in');
-    runInAction(() => {
-      this.loggingIn = true;
-      this.inTransaction = true;
-    });
-    return new Promise((resolve, reject) => {
-      authentication
-        .login(email, password)
-        .then(async result => {
-          runInAction(async () => {
-            if (result?.profile?.onboarded && !skipMFA) {
-              this.user = {
-                email: result?.email,
-                phone: result?.phone,
-                locked: result?.locked,
-              };
-              this.refreshToken = result.refreshToken;
-              console.log({ result });
-              this.requireMFA = true;
-            } else {
-              this.user = result;
-              this.loggedIn = true;
-              await this.hydrate(result?.profile, result.accessToken);
-            }
-            this.error = null;
-          });
-          resolve(true);
-        })
-        .catch(e => {
-          runInAction(() => {
-            this.error = 'Incorrect email or password';
-          });
-          reject(e);
-        })
-        .finally(() => {
-          runInAction(() => {
-            this.loggingIn = false;
-            this.inTransaction = false;
-          });
-        });
-    });
-  };
-
-  logout = () => {
-    this.reset();
-  };
-
-  setLoggedIn = loggedIn => {
-    runInAction(() => {
-      this.loggedIn = loggedIn;
-      this.loggingIn = false;
-    });
-    if (!loggedIn) {
-      this.reset();
-    }
-  };
-
   reset = () => {
     console.log('[auth-store] reset');
     runInAction(() => {
@@ -500,6 +538,7 @@ class Authentication {
       // this.rootStore.profile.reset();
 
       this.user = {};
+      this.contact = {};
       this.error = null;
       this.loggedIn = false;
       this.loggingIn = false;
@@ -516,6 +555,15 @@ class Authentication {
     });
   };
 
+  get = async (accessToken) => {
+    try {
+      const user = await authentication.get(accessToken);
+      return Promise.resolve(user);
+    } catch (error) {
+      return Promise.reject('An unknown error occurred fetching the user.');
+    }
+  }
+
   updateUser = user => {
     return new Promise(resolve => {
       runInAction(() => {
@@ -531,20 +579,14 @@ class Authentication {
       this.inTransaction = true;
     });
     return new Promise(async resolve => {
-      //NOTE skip hydrate since we are already hydrating in this function
-      const skipHydrate = true;
-      await this.fetchAccessToken(skipHydrate);
-      // const valid = await this.validateUser();
-      // if (!valid) resolve({ error: 'invalid user' });
-      // console.log({ valid });
+      const token = await this.fetchToken();
       authentication
-        .update({ profile }, this.accessToken)
+        .update({ profile }, token)
         .then(result => {
           runInAction(() => {
             this.user.profile = result?.profile;
             console.log({ result });
             this.rootStore.preferences.hydrate(result?.profile); //needed for the trip store
-            // this.accessToken = null; //DEBUG
           });
           resolve(profile);
         })
@@ -568,9 +610,9 @@ class Authentication {
       this.inTransaction = true;
     });
     return new Promise(async (resolve, reject) => {
-      await this.fetchAccessToken();
+      const token = await this.fetchToken();
       authentication
-        .updatePassword(oldPassword, password, this.accessToken)
+        .updatePassword(oldPassword, password, token)
         .then(() => {
           runInAction(() => {
             this.error = null;
@@ -598,9 +640,9 @@ class Authentication {
       this.inTransaction = true;
     });
     return new Promise(async (resolve, reject) => {
-      await this.fetchAccessToken();
+      const token = await this.fetchToken();
       authentication
-        .updatePhone(phone, this.accessToken)
+        .updatePhone(phone, token)
         .then(() => {
           runInAction(() => {
             this.error = null;

@@ -24,7 +24,7 @@ import { useStore } from '../../context/RootStore';
 
 export const MFAVerify = observer(
   ({ isOpen, onClose, buttonText, title, callbackFn }) => {
-    const { user, verifyUser, confirmUser, reset } = useStore().authentication;
+    const { contact: user, verifyUser, confirmUser, reset } = useStore().authentication;
     const [verifyError, setVerifyError] = useState(false);
     const [stage, setStage] = useState(0);
     const [method, setMethod] = useState('');

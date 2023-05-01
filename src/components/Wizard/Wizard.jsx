@@ -29,7 +29,7 @@ import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const Wizard = observer(({ hideModal }) => {
-  const { loggedIn, logout } = useStore().authentication;
+  const { loggedIn, reset } = useStore().authentication;
 
   useEffect(() => {
     if (loggedIn) hideModal();
@@ -50,7 +50,7 @@ export const Wizard = observer(({ hideModal }) => {
         w="100%"
         id="stack"
         bg={useColorModeValue('white', 'gray.700')}
-        // boxShadow={'lg'}
+      // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image src={'/buffalo_logo_full.png'} h={'200px'} />
@@ -59,7 +59,7 @@ export const Wizard = observer(({ hideModal }) => {
           <WizardStepThrough hideModal={hideModal}></WizardStepThrough>
         </Stack>
       </Stack>
-      <Button variant={'outline'} colorScheme="red" onClick={() => logout()}>
+      <Button variant={'outline'} colorScheme="red" onClick={() => reset()}>
         Cancel
       </Button>
     </Flex>
@@ -198,8 +198,8 @@ const ContactInfo = observer(() => {
     user?.phone && user.phone === '+15555555555'
       ? ''
       : user?.phone
-      ? formatters.phone.asDomestic(user?.phone.slice(2))
-      : ''
+        ? formatters.phone.asDomestic(user?.phone.slice(2))
+        : ''
   );
 
   return (
@@ -690,8 +690,8 @@ const Complete = observer(() => {
       <Text>
         {user?.profile?.caretakers && user?.profile?.caretakers.length
           ? formatters.phone.asDomestic(
-              user.profile.caretakers[0]?.phone.slice(2)
-            )
+            user.profile.caretakers[0]?.phone.slice(2)
+          )
           : ''}
       </Text>
     </Box>

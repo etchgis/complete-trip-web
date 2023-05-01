@@ -39,9 +39,9 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     locations,
   } = useStore().favorites;
 
-  const _allTrips = toJS(allTrips);
+  // const _allTrips = toJS(allTrips);
 
-  console.log({ _allTrips });
+  // console.log({ _allTrips });
 
   //sort by plan.startTime
   const trips = allTrips

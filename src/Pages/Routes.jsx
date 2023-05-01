@@ -12,18 +12,23 @@ import Layout from './Layout';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
-// import { toJS } from 'mobx';
+import { trace } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
+// import { toJS } from 'mobx';
+
 export const Routes = observer(() => {
+  //add trace if env is development
+  if (process.env.NODE_ENV === 'development') {
+    trace(false);
+  }
   const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;
   // const profile = useStore().profile;
   // const preferences = useStore().preferences;
   // const schedule = useStore().schedule;
-  const { user, loggedIn, fetchAccessToken } =
-    useStore().authentication;
+  const { user, loggedIn, auth, initUser, reset, setInTransaction } = useStore().authentication;
 
   console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);
@@ -48,18 +53,20 @@ export const Routes = observer(() => {
   //   // eslint-disable-next-line
   // }, [userr]);
 
+  //INIT USER
   useEffect(() => {
     (async () => {
       if (user?.refreshToken && !loggedIn) {
-        console.log('[routes] using refresh token for login');
+        setInTransaction(true);
+        console.log('[routes] checking for auth');
         try {
-          await fetchAccessToken();
+          await auth(); //any errors will be handled by auth()
         } catch (error) {
           console.log(error);
         }
+        setInTransaction(false);
       }
     })();
-
     // eslint-disable-next-line
   }, [loggedIn]);
 
@@ -127,9 +134,7 @@ export const Routes = observer(() => {
         ) : (
           <Route
             path="/settings/*"
-            element={
-              <Layout children={<Box p={10}></Box>} />
-            }
+            element={<Layout children={<Box p={10}></Box>} />}
           />
         )}
       </ReactRoutes>

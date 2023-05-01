@@ -66,7 +66,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
               opacity: '0.8',
             }}
             minWidth={'135px'}
-            isLoading={loggingIn}
+            // isLoading={loggingIn}
             // loadingText={'Logging In'}
             onClick={e => (loggedIn ? logout() : action1(e))}
           >

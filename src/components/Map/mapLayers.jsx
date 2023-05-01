@@ -94,7 +94,7 @@ export const mapLayers = e => {
 };
 
 function layerInteractions(map) {
-  return;
+  // return;
   map.on('click', function (e) {
     map.setFilter('lines-highlight', ['==', ['get', 'rt_shrt_nm'], '']);
     map.setFilter('points-highlight', ['==', ['get', 'stop_code'], '']);

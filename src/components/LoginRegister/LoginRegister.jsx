@@ -42,7 +42,7 @@ const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 export const LoginRegister = observer(({ hideModal }) => {
   const {
     loggedIn,
-    login: authLogin,
+    auth: authLogin,
     error: authError,
     setError: authSetError,
     verifyUser,
@@ -68,7 +68,7 @@ export const LoginRegister = observer(({ hideModal }) => {
         <CreateAccountOrLogin
           setActiveView={setActiveView}
           isLogin={true}
-          login={authLogin}
+          authLogin={authLogin}
           error={authError}
           setError={authSetError}
           loginMessage={loginMessage}
@@ -83,7 +83,7 @@ export const LoginRegister = observer(({ hideModal }) => {
         <CreateAccountOrLogin
           setActiveView={setActiveView}
           isLogin={false}
-          login={authLogin}
+          authLogin={authLogin}
           error={authError}
           setError={authSetError}
           loginMessage={loginMessage}
@@ -147,7 +147,7 @@ export const LoginRegister = observer(({ hideModal }) => {
         w="100%"
         id="stack"
         bg={useColorModeValue('white', 'gray.700')}
-        // boxShadow={'lg'}
+      // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image src={'/buffalo_logo_full.png'} h={'200px'} />
@@ -211,7 +211,6 @@ const Init = ({ setActiveView, hideModal }) => {
 const CreateAccountOrLogin = ({
   isLogin,
   setActiveView,
-  login,
   error,
   setError,
   loginMessage,
@@ -224,6 +223,8 @@ const CreateAccountOrLogin = ({
   const [loginError, setLoginHasError] = useState(false);
   const [hideTerms, setHideTerms] = useState(true);
   const [shownTerms, setShownTerms] = useState(false);
+
+  const { auth, initUser } = useStore().authentication;
 
   useEffect(() => {
     console.log(error);
@@ -254,8 +255,11 @@ const CreateAccountOrLogin = ({
           onSubmit={async e => {
             e.preventDefault();
             if (showLogin) {
-              // setInTransaction(true);
-              login(email, password);
+              const user = await auth(email, password);
+              if (!user || user.error) {
+                setLoginHasError(true);
+                return;
+              }
             } else {
               //stage user
               setStagedUser({
@@ -564,7 +568,7 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
 const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
 
-  const { confirmUser, login, setInTransaction } = useStore().authentication;
+  const { confirmUser, auth, setInTransaction } = useStore().authentication;
   const { reset: resetPassword, recover } = authentication;
 
   const [verifyError, setVerifyError] = useState(false);
@@ -593,7 +597,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       if (!updated) throw new Error('password error');
 
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
-      await login(options.email, password, true);
+      await auth(options.email, password, true);
     } catch (error) {
       setVerifyError(true);
       setPassword('');

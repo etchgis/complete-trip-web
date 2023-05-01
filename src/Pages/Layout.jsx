@@ -24,9 +24,8 @@ const Layout = observer(({ showMap, children }) => {
     inTransaction,
     requireMFA,
     setRequireMFA,
-    getToken,
     setInTransaction,
-    fetchAccessToken,
+    auth,
     reset,
   } = useStore().authentication;
 
@@ -96,7 +95,7 @@ const Layout = observer(({ showMap, children }) => {
       <CustomModal
         isOpen={
           (loggedIn && !user?.profile?.onboarded) ||
-          user?.profile?.onboarded === false
+            user?.profile?.onboarded === false
             ? true
             : false
         }
@@ -114,14 +113,10 @@ const Layout = observer(({ showMap, children }) => {
         title="Get Authentication Code"
         callbackFn={async () => {
           try {
-            setRequireMFA(false);
-            setInTransaction(true);
-            await updateUser(
-              Object.assign({}, user, { refreshToken: getToken() })
-            );
-            fetchAccessToken();
+            await auth(); //NOTE any errors should be handled by the auth function - requireMFA are also handled there
           } catch (error) {
-            reset();
+            console.log('[MFAVerify] error:', error);
+            reset(); //NOTE the auth store should reset but we'll do it here just in case
           }
         }}
       />

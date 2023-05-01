@@ -51,6 +51,27 @@ const authentication = {
       });
   },
 
+  get(accessToken) {
+    return fetch(`${config.SERVICES.auth.url}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'x-api-key': config.SERVICES.auth.xApiKey,
+      },
+    })
+      .then(async response => {
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        throw json?.message || json?.error.reason;
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
+
   refreshUser(accessToken) {
     return fetch(`${config.SERVICES.auth.url}`, {
       method: 'GET',
