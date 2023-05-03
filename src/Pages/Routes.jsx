@@ -4,15 +4,14 @@ import {
   Route,
   useLocation,
 } from 'react-router-dom';
+import { toJS, trace } from 'mobx';
 
 import { Box } from '@chakra-ui/react';
-import ErrorToastMessage from '../components/ErrorToastMessage';
 import Home from './Home';
 import Layout from './Layout';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
-import { trace } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
@@ -28,7 +27,7 @@ export const Routes = observer(() => {
   // const profile = useStore().profile;
   // const preferences = useStore().preferences;
   // const schedule = useStore().schedule;
-  const { user, loggedIn, auth, initUser, reset, setInTransaction } = useStore().authentication;
+  const { user, loggedIn, auth } = useStore().authentication;
 
   console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);
@@ -51,94 +50,94 @@ export const Routes = observer(() => {
   //   console.log({ _preferences });
   //   console.log({ _schedule });
   //   // eslint-disable-next-line
-  // }, [userr]);
+  // }, [user]);
 
-  //INIT USER
+  //INIT AUTH & USER 
   useEffect(() => {
     (async () => {
       if (user?.refreshToken && !loggedIn) {
-        setInTransaction(true);
         console.log('[routes] checking for auth');
         try {
           await auth(); //any errors will be handled by auth()
+          if (user?.profile) {
+            const _user = toJS(user);
+            console.log({ _user })
+          }
         } catch (error) {
-          console.log(error);
+          console.log(error); //TODO what happens here? Does the errorToastMessage show?
         }
-        setInTransaction(false);
       }
     })();
     // eslint-disable-next-line
   }, [loggedIn]);
 
   return (
-    <>
-      <ReactRoutes>
-        {/* Redirect all trailing slashes */}
-        <Route
-          path={'/:url(/+)'}
-          element={<Navigate to={pathname.slice(0, -1)} />}
-        />
-        {/* Home */}
-        <Route path={'/'} element={<Layout children={<Home />}></Layout>} />
+    <ReactRoutes>
+      {/* Redirect all trailing slashes */}
+      <Route
+        path={'/:url(/+)'}
+        element={<Navigate to={pathname.slice(0, -1)} />}
+      />
+      {/* Home */}
+      <Route path={'/'} element={<Layout children={<Home />}></Layout>} />
 
-        {/* Trips */}
-        <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
+      {/* Trips */}
+      <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
-        {/* Map */}
-        <Route
-          path={'/map'}
-          element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
-        />
-        {/* Profile */}
-        {loggedIn ? (
-          <>
-            <Route
-              path={'/settings/profile'}
-              element={
-                <Layout isLoggedIn={loggedIn} children={<Settings />}></Layout>
-              }
-            />
-            <Route
-              path="/settings/caretakers"
-              element={<Layout children={<Settings view="caretakers" />} />}
-            />
-            <Route
-              path="/settings/favorites"
-              element={<Layout children={<Settings view="favorites" />} />}
-            />
-            <Route
-              path="/settings/preferences"
-              element={<Layout children={<Settings view="preferences" />} />}
-            />
-            <Route
-              path="/settings/accessibility"
-              element={<Layout children={<Settings view="accessibility" />} />}
-            />
-            <Route
-              path="/settings/notifications"
-              element={<Layout children={<Settings view="notifications" />} />}
-            />
-            <Route
-              path="/settings/password"
-              element={<Layout children={<Settings view="password" />} />}
-            />
-            <Route
-              path="/settings/terms"
-              element={<Layout children={<Settings view="terms" />} />}
-            />
-            <Route
-              path="/settings/privacy"
-              element={<Layout children={<Settings view="privacy" />} />}
-            />
-          </>
-        ) : (
+      {/* Map */}
+      <Route
+        path={'/map'}
+        element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
+      />
+
+      {/* Profile */}
+      {loggedIn ? (
+        <>
           <Route
-            path="/settings/*"
-            element={<Layout children={<Box p={10}></Box>} />}
+            path={'/settings/profile'}
+            element={
+              <Layout isLoggedIn={loggedIn} children={<Settings />}></Layout>
+            }
           />
-        )}
-      </ReactRoutes>
-      <ErrorToastMessage></ErrorToastMessage>
-    </>
+          <Route
+            path="/settings/caretakers"
+            element={<Layout children={<Settings view="caretakers" />} />}
+          />
+          <Route
+            path="/settings/favorites"
+            element={<Layout children={<Settings view="favorites" />} />}
+          />
+          <Route
+            path="/settings/preferences"
+            element={<Layout children={<Settings view="preferences" />} />}
+          />
+          <Route
+            path="/settings/accessibility"
+            element={<Layout children={<Settings view="accessibility" />} />}
+          />
+          <Route
+            path="/settings/notifications"
+            element={<Layout children={<Settings view="notifications" />} />}
+          />
+          <Route
+            path="/settings/password"
+            element={<Layout children={<Settings view="password" />} />}
+          />
+          <Route
+            path="/settings/terms"
+            element={<Layout children={<Settings view="terms" />} />}
+          />
+          <Route
+            path="/settings/privacy"
+            element={<Layout children={<Settings view="privacy" />} />}
+          />
+        </>
+      ) : (
+        <Route
+          path="/settings/*"
+          element={<Layout children={<Box p={10}></Box>} />}
+        />
+      )}
+    </ReactRoutes>
   );
 });

@@ -9,6 +9,9 @@ export default defineConfig({
   build: {
     outDir: './build',
   },
+  server: {
+    port: 5174,
+  },
   plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
   esbuild: {
     loader: 'jsx', // Remove this if you're not using JSX
@@ -31,8 +34,8 @@ export default defineConfig({
     ],
     exclude: [],
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-  },
+  // test: {
+  //   globals: true,
+  //   environment: 'jsdom',
+  // },
 });

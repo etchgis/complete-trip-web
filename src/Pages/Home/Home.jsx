@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Card,
   CardBody,
@@ -8,18 +9,23 @@ import {
   Grid,
   Heading,
   Icon,
+  Image,
   Stack,
   useColorMode,
-  useDisclosure,
+  useDisclosure
 } from '@chakra-ui/react';
 
 import { Calendar } from '../../components/TripCalendar/Calendar';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import CustomModal from '../../components/Modal';
+import { ScheduleTripHeader } from '../../components/ScheduleTripHeader';
 import ScheduleTripModal from '../../components/ScheduleTripModal';
 import TripCardList from '../../components/TripCardList';
 import VerticalTripPlan from '../../components/ScheduleTripModal/VerticalTripPlan';
+import config from '../../config';
 import { observer } from 'mobx-react-lite';
+import overviewMap from '../../assets/overview-map.png';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -37,63 +43,49 @@ export const Home = observer(() => {
   const { colorMode } = useColorMode();
   const [selectedTrip, setSelectedTrip] = useState({});
   const [tripPlan, setTripPlan] = useState({});
-  const { trips: favoriteTrips } = useStore().favorites;
+  const navigate = useNavigate();
 
   return (
     <Flex flexDir={'column'}>
-      <Heading as="h2" size="md" mb={6} p={6}>
-        Schedule a Trip
-      </Heading>
 
-      <Stack
-        direction={{ base: 'column', md: 'row' }}
-        spacing={6}
-        mb={10}
-        ml={6}
-      >
-        {favoriteTrips.map(trip => (
-          <FavoriteTripButton
-            key={trip.id.toString()}
-            favorite={trip}
-            setTripPlan={setTripPlan}
-            openScheduleModal={openModal}
-          />
-        ))}
-        <Button
-          p={10}
-          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-          color="white"
-          _hover={{
-            opacity: 0.8,
-          }}
-          onClick={openModal}
-          width={'180px'}
-          height={'100px'}
-        >
-          New Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
-        </Button>
-      </Stack>
+      {/* HEADER */}
+      <ScheduleTripHeader openModal={openModal} setTripPlan={setTripPlan} />
 
       <Grid
-        id="grid"
+        id="home-grid-container"
+        p={6}
         gridTemplateColumns={['1fr', '1fr', '1fr', '1fr', '440px 1fr']}
         columnGap={10}
         rowGap={8}
         background={colorMode === 'light' ? 'gray.100' : 'tripDim'}
-        p={6}
         flex={1}
         gridTemplateRows={'max-content'}
+        // backgroundImage={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.NIGHT.replace(
+        //   'mapbox://styles/',
+        //   ''
+        // )}/static/${config.MAP.CENTER[1]},${config.MAP.CENTER[0]},12/1280x1280?&access_token=${config.MAP.MAPBOX_TOKEN
+        //   }`}
+        backgroundImage={overviewMap}
+        backgroundPosition="center"
+        backgroundRepeat="no-repeat"
+        backgroundSize="cover"
+        onClick={(e) => {
+          const target = e.target.id;
+          // console.log(e.target)
+          if (target === 'home-grid-container' || target === 'trip-card-list') {
+            // console.log('clicked')
+            navigate("/map")
+          }
+        }}
+        cursor="pointer"
       >
+
         <TripCardList
           openModal={openVTModal}
           setSelectedTrip={setSelectedTrip}
         />
         <Calendar />
       </Grid>
-      {/* <Box
-        flex={1}
-        background={colorMode === 'light' ? 'gray.100' : 'gray.800'}
-      ></Box> */}
 
       {/* TRIP SCHEDULER */}
       <ScheduleTripModal
@@ -118,38 +110,7 @@ export const Home = observer(() => {
   );
 });
 
-const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
-  const { colorMode } = useColorMode();
-  return (
-    <Button
-      p={10}
-      _hover={{
-        opacity: 0.8,
-      }}
-      onClick={() => {
-        setTripPlan(favorite);
-        openScheduleModal();
-      }}
-      width={'180px'}
-      height={'100px'}
-      whiteSpace={'break-spaces'}
-      backgroundColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}
-      border="1px"
-      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
-    >
-      {trimText(favorite.alias)}
-      <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
-    </Button>
-  );
-};
 
-function trimText(text) {
-  if (!text) return text;
-  if (text.length > 30) {
-    return text.substring(0, 30) + '...';
-  }
-  return text;
-}
 
 export const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
   const { cancel } = useStore().schedule;

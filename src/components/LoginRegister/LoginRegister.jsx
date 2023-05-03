@@ -586,9 +586,10 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
     e.preventDefault();
 
     try {
-      setInTransaction(true);
       if (password !== password2) return setPasswordsDontMatch(true);
       if (!pin || pin.length < 6) return setVerifyError(true);
+
+      setInTransaction(true);
 
       const confirmed = await confirmUser(options.destination, pin);
       if (!confirmed) throw new Error('verify error');

@@ -73,13 +73,9 @@ class Favorites {
     });
     const updated = await this.updateProfile();
     if (!updated) return; //TODO this should roll back the store
-    const token = await this.rootStore.authentication.fetchToken();
-    if (!token) return; //TODO this should roll back the store
-    console.log(token)
     const updatedSchedule = await this.rootStore.schedule.updateTripRequest(
       originId,
-      newTrip,
-      token
+      newTrip
     );
     if (!updatedSchedule) return; //TODO this should roll back the store
 

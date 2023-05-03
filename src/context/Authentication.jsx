@@ -247,7 +247,6 @@ class Authentication {
    */
   auth = async (email, password, forgot) => {
     const refreshToken = this.user?.refreshToken || this.refreshToken;
-    console.log({ refreshToken })
     runInAction(() => {
       this.inTransaction = true;
     });
@@ -259,11 +258,9 @@ class Authentication {
     }
 
     if (refreshToken && validateJWT(refreshToken)) {
-      console.log(toJS(this.user))
       console.log('[auth-store] auth with refreshToken');
       try {
         const token = await this.fetchToken(); //sets this.accessToken
-        console.log({ token })
         const user = await this.get(token);
         if (user) {
           runInAction(() => {
@@ -430,7 +427,7 @@ class Authentication {
  * each one.
  * @returns {Promise} - the user access token.
  */
-  //NOTE REMOVE DEPRECATED - once removed change back to fetchAccessToken?
+  //NOTE REMOVE DEPRECATED - renamed new function to ease merging in git
   fetchAccessToken = skipHydrate => {
     console.log('[auth-store] fetchAccessToken auth flow');
 

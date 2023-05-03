@@ -74,7 +74,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
   return (
     // TODO make this card be rows on mobile
     <>
-      <Stack maxW={{ base: '100%', sm: '540px' }} gap={4}>
+      <Stack maxW={{ base: '100%', sm: '540px' }} gap={4} id="trip-card-list">
         {!trips.length ? (
           <Box>No upcoming trips found.</Box>
         ) : (
@@ -187,7 +187,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
             backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
             color="white"
             _hover={{
-              opacity: 0.8,
+              background: colorMode === 'light' ? 'tripLight' : 'tripDim',
             }}
             borderRadius={'20px'}
             maxW="200px"

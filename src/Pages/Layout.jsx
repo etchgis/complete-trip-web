@@ -1,6 +1,7 @@
 import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
 
 import CustomModal from '../components/Modal';
+import ErrorToastMessage from '../components/ErrorToastMessage';
 import Loader from '../components/Loader';
 import LoginRegister from '../components/LoginRegister';
 import { MFAVerify } from '../components/MFA/MFAVerify';
@@ -57,6 +58,7 @@ const Layout = observer(({ showMap, children }) => {
       id="app"
       backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
       flexDir="column"
+      display={{ base: 'none', sm: 'flex' }}
     >
       {/* NAV */}
       <Navbar
@@ -68,7 +70,7 @@ const Layout = observer(({ showMap, children }) => {
       ></Navbar>
 
       {/* MAIN SHELL */}
-      <Grid gridTemplateColumns={{ base: '1fr', lg: '300px 1fr' }} flex="1">
+      <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex="1">
         {/* SIDEBAR */}
         <ResponsiveSidebar
           isOpen={isOpen}
@@ -80,6 +82,7 @@ const Layout = observer(({ showMap, children }) => {
       </Grid>
 
       {/* MODALS */}
+
       {/* LOGIN/REGISTER MODAL */}
       <CustomModal
         isOpen={loginIsOpen}
@@ -119,10 +122,14 @@ const Layout = observer(({ showMap, children }) => {
             reset(); //NOTE the auth store should reset but we'll do it here just in case
           }
         }}
-      />
+      ></MFAVerify>
+
+      {/* ERROR TOAST MESSAGE */}
+      <ErrorToastMessage></ErrorToastMessage>
 
       {/* LOADER */}
       <Loader isOpen={inTransaction}></Loader>
+
     </Flex>
   );
 });

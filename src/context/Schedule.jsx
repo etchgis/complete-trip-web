@@ -95,7 +95,7 @@ class Schedule {
     });
   };
 
-  cancel = (tripId, accessToken) => {
+  cancel = (tripId) => {
     return new Promise(async (resolve, reject) => {
       //NOTE skip hydration as it hydrates *after* the call to cancel so that it returns the same trip again
       const token = await this.rootStore.authentication.fetchToken();
@@ -130,7 +130,7 @@ class Schedule {
     });
   };
 
-  get = (datetime, accessToken) => {
+  get = (datetime) => {
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
       runInAction(() => {
@@ -159,7 +159,7 @@ class Schedule {
     });
   };
 
-  getRange = (from, to, accessToken) => {
+  getRange = (from, to) => {
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
       runInAction(() => {

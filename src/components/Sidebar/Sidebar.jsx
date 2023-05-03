@@ -5,8 +5,11 @@ import {
   CloseButton,
   Drawer,
   DrawerContent,
+  DrawerOverlay,
   Flex,
+  IconButton,
   Stack,
+  Tooltip,
   useColorMode,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -32,7 +35,12 @@ export const ResponsiveSidebar = ({
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         display={{ base: 'none', lg: 'block' }}
       >
-        <SidebarContent data-testid="desktop-sidebar" testUser={testUser} />
+        <SidebarContentIconsDesktop
+          onClose={onClose}
+          setView={setView}
+          data-testid="mobile-sidebar"
+          testUser={testUser}
+        />
       </Box>
       <Drawer
         autoFocus={false}
@@ -41,10 +49,12 @@ export const ResponsiveSidebar = ({
         onClose={onClose}
         returnFocusOnClose={false}
         onOverlayClick={onClose}
-        size="full"
+        size={{ base: "full", sm: "sm" }}
       >
+        <DrawerOverlay />
         <DrawerContent>
           <SidebarContent
+            display={{ base: 'block', lg: 'none' }}
             onClose={onClose}
             setView={setView}
             data-testid="mobile-sidebar"
@@ -57,20 +67,122 @@ export const ResponsiveSidebar = ({
   );
 };
 
-const SidebarContent = observer(({ onClose, rest, testUser }) => {
+const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
   const { loggedIn } = useStore().authentication;
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const { pathname: location } = useLocation();
   return (
     <Flex flexDir={'column'} {...rest}>
+      <Stack spacing={2} p={2}>
+        <Tooltip label="Home">
+          <IconButton
+            aria-label='Home'
+            icon={<BiHomeAlt />}
+            fontSize={'32px'}
+            variant={'ghost'}
+            color={
+              colorMode === 'dark'
+                ? 'white'
+                : location === '/'
+                  ? 'brandDark'
+                  : 'brand'
+            }
+            bg={location === '/' ? (colorMode === 'light' ? 'gray.100' : 'gray.700') : 'transparent'}
+            fontWeight={location === '/' ? '600' : 400}
+            onClick={() => {
+              if (onClose) onClose();
+              return navigate('/');
+            }}
+          />
+        </Tooltip>
+        <Tooltip label="Trips">
+          <IconButton
+            aria-label='Trips'
+            icon={<CgCalendarToday />}
+            fontSize={'32px'}
+            variant={'ghost'}
+            color={
+              colorMode === 'dark'
+                ? 'white'
+                : location === '/trips'
+                  ? 'brandDark'
+                  : 'brand'
+            }
+            bg={location === '/trips' ? (colorMode === 'light' ? 'gray.100' : 'gray.700') : 'transparent'}
+            fontWeight={location === '/trips' ? '600' : 400}
+            onClick={() => {
+              if (onClose) onClose();
+              return navigate('/trips');
+            }}
+          />
+        </Tooltip>
+        <Tooltip label="Map">
+          <IconButton
+            aria-label='Map'
+            icon={<BiMapAlt />}
+            variant={'ghost'}
+            fontSize={'32px'}
+            color={
+              colorMode === 'dark'
+                ? 'white'
+                : location === '/map'
+                  ? 'brandDark'
+                  : 'brand'
+            }
+            bg={location === '/map' ? (colorMode === 'light' ? 'gray.100' : 'gray.700') : 'transparent'}
+            fontWeight={location === '/map' ? '600' : 400}
+            onClick={() => {
+              if (onClose) onClose();
+              return navigate('/map');
+            }}
+          />
+        </Tooltip>
+
+        {loggedIn || testUser?.loggedIn ? (
+          <Tooltip label="Profile and Settings">
+            <IconButton
+              aria-label='Profile and Settings'
+              icon={<BsPerson />}
+              variant={'ghost'}
+              fontSize={'32px'}
+              color={
+                colorMode === 'dark'
+                  ? 'white'
+                  : location.includes('/settings')
+                    ? 'brandDark'
+                    : 'brand'
+              }
+              bg={location.includes('/settings') ? (colorMode === 'light' ? 'gray.100' : 'gray.700') : 'transparent'}
+              fontWeight={location.includes('/settings') ? '600' : 400}
+              onClick={() => {
+                if (onClose) onClose();
+                return navigate('/settings/profile');
+              }}
+            />
+          </Tooltip>
+        ) : (
+          ''
+        )}
+      </Stack>
+    </Flex>
+  );
+});
+
+const SidebarContent = observer(({ onClose, rest, testUser }) => {
+  const { loggedIn } = useStore().authentication;
+  const { colorMode } = useColorMode();
+  const navigate = useNavigate();
+  const { pathname: location } = useLocation();
+  return (
+    <Flex flexDir={'column'} {...rest} p={4}>
       <CloseButton
         display={{ base: 'flex', lg: 'none' }}
         onClick={onClose}
         alignSelf="flex-end"
         size="lg"
       />
-      <Stack spacing={2} p={6}>
+      <Stack spacing={2} p={2}>
         <Button
           leftIcon={<BiHomeAlt />}
           variant={'ghost'}
@@ -79,8 +191,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             colorMode === 'dark'
               ? 'white'
               : location === '/'
-              ? 'brandDark'
-              : 'brand'
+                ? 'brandDark'
+                : 'brand'
           }
           fontWeight={location === '/' ? '600' : 400}
           onClick={() => {
@@ -98,8 +210,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             colorMode === 'dark'
               ? 'white'
               : location === '/trips'
-              ? 'brandDark'
-              : 'brand'
+                ? 'brandDark'
+                : 'brand'
           }
           fontWeight={location === '/trips' ? '600' : 400}
           onClick={() => {
@@ -118,8 +230,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             colorMode === 'dark'
               ? 'white'
               : location === '/map'
-              ? 'brandDark'
-              : 'brand'
+                ? 'brandDark'
+                : 'brand'
           }
           fontWeight={location === '/map' ? '600' : 400}
           onClick={() => {
@@ -138,8 +250,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               colorMode === 'dark'
                 ? 'white'
                 : location.includes('/settings')
-                ? 'brandDark'
-                : 'brand'
+                  ? 'brandDark'
+                  : 'brand'
             }
             fontWeight={location.includes('/settings') ? '600' : 400}
             onClick={() => {

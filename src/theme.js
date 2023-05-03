@@ -24,6 +24,7 @@ const customTheme = {
     brandDark: '#1d5290',
     brandText: '#1B69DC',
     trip: '#02597E',
+    tripLight: 'hsl(198 97% 30%)',
     tripDark: 'hsl(212 66% 25% / 1)',
     tripDim: 'hsl(220 23% 16% / 1)',
     primary1: '#4072F3',

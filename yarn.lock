@@ -1320,6 +1320,14 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.18.tgz#3a8e57153905308db357fd02f57c180ee3a0a1fa"
   integrity sha512-qU25Ma1I3NqTSHJUOKi9sAH1/Mzuvlke0ioMJRthLXKm7JiSKVwFghlGbDLOO2sARECGhja4xYfRAZNPAkooYg==
 
+"@etchgis/mobility-transport-layer@^1.0.3":
+  version "1.0.3"
+  resolved "https://npm.pkg.github.com/download/@etchgis/mobility-transport-layer/1.0.3/2f0319277c44fd3544fb88e26eb3c7b8357c087f#2f0319277c44fd3544fb88e26eb3c7b8357c087f"
+  integrity sha512-pmqyd5UIfAupJFJ/KXzrm3YN09vI5xrWlA/kSt1LQJ3Q96TUu80OYzb27X71i0jNhhwpQjAR44WLJ1T32mM/Wg==
+  dependencies:
+    "@turf/distance" "^6.5.0"
+    "@turf/helpers" "^6.5.0"
+
 "@fontsource/open-sans@^4.5.13":
   version "4.5.14"
   resolved "https://registry.yarnpkg.com/@fontsource/open-sans/-/open-sans-4.5.14.tgz#b3e1665c0b3fdfc1f030ded2843749e3cf3a5900"
