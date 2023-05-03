@@ -1,13 +1,13 @@
 import { FaMoon, FaSun } from 'react-icons/fa';
 import { IconButton, useColorMode, useColorModeValue } from '@chakra-ui/react';
 
-import { useMapStore } from '../../context/MapStore';
+import { useStore } from '../../context/RootStore';
 
 export const ColorModeSwitcher = props => {
   const { toggleColorMode } = useColorMode();
   const text = useColorModeValue('dark', 'light');
   const SwitchIcon = useColorModeValue(FaMoon, FaSun);
-  const { setMapStyle, mapStyle } = useMapStore();
+  const { setMapStyle, mapStyle } = useStore().mapStore
 
   return (
     <IconButton

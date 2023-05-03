@@ -1,46 +1,65 @@
-import { Button, Icon, Stack } from "@chakra-ui/react";
+import { Button, Icon, Stack, useDisclosure } from "@chakra-ui/react";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
+import ScheduleTripModal from "./ScheduleTripModal";
 import { observer } from "mobx-react-lite"
 import { useColorMode } from "@chakra-ui/color-mode";
+import { useState } from "react";
 import { useStore } from "../context/RootStore";
 
-export const ScheduleTripHeader = observer(({
-  openModal,
-  setTripPlan,
-}) => {
+export const ScheduleTripHeader = observer(() => {
   const { trips: favoriteTrips } = useStore().favorites;
   const { colorMode } = useColorMode();
+  const [tripPlan, setTripPlan] = useState({});
+  const {
+    isOpen: isModalOpen,
+    onOpen: openModal,
+    onClose: closeModal,
+  } = useDisclosure();
   return (
-    <Stack
-      direction={{ base: 'column', md: 'row' }}
-      spacing={6}
-      p={6}
-    >
-      {favoriteTrips.map(trip => (
-        <FavoriteTripButton
-          key={trip.id.toString()}
-          favorite={trip}
-          setTripPlan={setTripPlan}
-          openScheduleModal={openModal}
-        />
-      ))}
-      <Button
-        backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-        color="white"
-        _hover={{
-          opacity: 0.8,
-        }}
-        onClick={openModal}
-        width={'180px'}
-        height={'80px'}
+    <>
+      {/* HEADER */}
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        spacing={6}
+        p={6}
+        borderBottom={'1px'}
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
       >
-        Schedule a Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
-      </Button>
-    </Stack>
+        {favoriteTrips.map(trip => (
+          <FavoriteTripButton
+            key={trip.id.toString()}
+            favorite={trip}
+            setTripPlan={setTripPlan}
+            openScheduleModal={openModal}
+          />
+        ))}
+        <Button
+          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
+          color="white"
+          _hover={{
+            opacity: 0.8,
+          }}
+          onClick={openModal}
+          width={'180px'}
+          height={'80px'}
+        >
+          Schedule a Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
+        </Button>
+      </Stack >
+
+      {/* TRIP SCHEDULER */}
+      < ScheduleTripModal
+        favoriteTrip={tripPlan}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setTripPlan({});
+          closeModal();
+        }}
+      ></ScheduleTripModal >
+    </>
   )
 });
-
 
 const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
   const { colorMode } = useColorMode();

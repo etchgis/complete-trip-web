@@ -122,7 +122,7 @@ export const EditProfile = ({ onClose }) => {
             <Input
               type="tel"
               name="phone"
-              onChange={() => {}}
+              onChange={() => { }}
               disabled
               value={
                 user.phone
@@ -137,6 +137,7 @@ export const EditProfile = ({ onClose }) => {
               center={center}
               defaultAddress={user?.profile?.address?.text || ''}
               setGeocoderResult={setGeocoderResult}
+              label='Home Address'
             ></AddressSearchForm>
           </FormControl>
           <Button

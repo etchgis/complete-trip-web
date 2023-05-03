@@ -9,6 +9,7 @@ import { toJS, trace } from 'mobx';
 import { Box } from '@chakra-ui/react';
 import Home from './Home';
 import Layout from './Layout';
+import { MapView } from '../components/Map/MapView';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
@@ -85,6 +86,7 @@ export const Routes = observer(() => {
       <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
       {/* Map */}
+      {/* <Route path={'/map'} element={<Layout children={<MapView showMap={true} />} />} /> */}
       <Route
         path={'/map'}
         element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}

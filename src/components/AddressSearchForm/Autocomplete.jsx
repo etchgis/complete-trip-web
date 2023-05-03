@@ -47,7 +47,7 @@ export const Autocomplete = props => {
       width="100%"
       isRequired={props.required}
     >
-      <FormLabel {...labelProps}>{props.label} </FormLabel>
+      {props.label ? <FormLabel {...labelProps}>{props.label} </FormLabel> : null}
       <InputGroup>
         <InputLeftElement>
           <Search2Icon color="gray.500" />
@@ -55,7 +55,7 @@ export const Autocomplete = props => {
         <Input {...inputProps} ref={inputRef} size="md" />
         <InputRightElement>
           {props.loadingState === 'loading' ||
-          props.loadingState === 'filtering' ? (
+            props.loadingState === 'filtering' ? (
             <Spinner color="blue.400" size="sm" />
           ) : null}
         </InputRightElement>

@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardBody,
@@ -7,34 +6,41 @@ import {
   CardHeader,
   Flex,
   Grid,
-  Heading,
-  Icon,
-  Image,
   Stack,
   useColorMode,
   useDisclosure
 } from '@chakra-ui/react';
 
 import { Calendar } from '../../components/TripCalendar/Calendar';
-import { ChevronRightIcon } from '@chakra-ui/icons';
 import CustomModal from '../../components/Modal';
 import { ScheduleTripHeader } from '../../components/ScheduleTripHeader';
-import ScheduleTripModal from '../../components/ScheduleTripModal';
 import TripCardList from '../../components/TripCardList';
 import VerticalTripPlan from '../../components/ScheduleTripModal/VerticalTripPlan';
-import config from '../../config';
 import { observer } from 'mobx-react-lite';
 import overviewMap from '../../assets/overview-map.png';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
+// import { ChevronRightIcon } from '@chakra-ui/icons';
+
+
+// import ScheduleTripModal from '../../components/ScheduleTripModal';
+
+
+// import config from '../../config';
+
+
+
+
+
+
 export const Home = observer(() => {
-  const {
-    isOpen: isModalOpen,
-    onOpen: openModal,
-    onClose: closeModal,
-  } = useDisclosure();
+  // const {
+  //   isOpen: isModalOpen,
+  //   onOpen: openModal,
+  //   onClose: closeModal,
+  // } = useDisclosure();
   const {
     isOpen: isVTModalOpen,
     onOpen: openVTModal,
@@ -42,14 +48,14 @@ export const Home = observer(() => {
   } = useDisclosure();
   const { colorMode } = useColorMode();
   const [selectedTrip, setSelectedTrip] = useState({});
-  const [tripPlan, setTripPlan] = useState({});
+  // const [tripPlan, setTripPlan] = useState({});
   const navigate = useNavigate();
 
   return (
     <Flex flexDir={'column'}>
 
       {/* HEADER */}
-      <ScheduleTripHeader openModal={openModal} setTripPlan={setTripPlan} />
+      <ScheduleTripHeader />
 
       <Grid
         id="home-grid-container"
@@ -79,7 +85,6 @@ export const Home = observer(() => {
         }}
         cursor="pointer"
       >
-
         <TripCardList
           openModal={openVTModal}
           setSelectedTrip={setSelectedTrip}
@@ -87,7 +92,7 @@ export const Home = observer(() => {
         <Calendar />
       </Grid>
 
-      {/* TRIP SCHEDULER */}
+      {/* TRIP SCHEDULER
       <ScheduleTripModal
         favoriteTrip={tripPlan}
         isOpen={isModalOpen}
@@ -95,7 +100,7 @@ export const Home = observer(() => {
           setTripPlan({});
           closeModal();
         }}
-      ></ScheduleTripModal>
+      ></ScheduleTripModal> */}
 
       {/* VERTICAL TRIP PLAN */}
       <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal} size="full">

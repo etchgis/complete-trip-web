@@ -43,9 +43,8 @@ export const SearchForm = observer(
         )}&limit=10`;
 
         if (center?.lng) {
-          uri += `&center=${(center.lng * 1000 || 0) / 1000},${
-            (center.lat * 1000 || 0) / 1000
-          }`;
+          uri += `&center=${(center.lng * 1000 || 0) / 1000},${(center.lat * 1000 || 0) / 1000
+            }`;
         }
         // console.log(uri);
         let items = await fetch(cursor || uri, { signal }).then(res =>
@@ -91,7 +90,7 @@ export const SearchForm = observer(
     return (
       <Autocomplete
         required={required || false}
-        label={label || 'Home Address'}
+        label={label}
         placeholder="Start typing an address..."
         items={list.items}
         inputValue={address}

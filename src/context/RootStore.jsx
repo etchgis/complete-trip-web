@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react';
 
 import Authentication from './Authentication';
 import Favorites from './Favorites';
+import MapStore from './MapStore';
 import Preferences from './Preferences';
 import Schedule from './Schedule';
 import Trip from './Trip';
@@ -19,6 +20,7 @@ import Trip from './Trip';
 export default class RootStore {
   constructor() {
     this.authentication = new Authentication(this);
+    this.mapStore = new MapStore(this);
     // this.display = new Display(this);
     this.favorites = new Favorites(this);
     // this.mapManager = new MapManager(this);
