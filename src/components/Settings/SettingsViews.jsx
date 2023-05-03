@@ -17,12 +17,14 @@ import {
 import ConfirmDialog from '../ConfirmDialog';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 
 export const ProfileInformation = observer(({ action }) => {
   const { user, removeUser } = useStore().authentication;
   const { setInTransaction } = useStore().authentication;
-
+  
+  const navigate = useNavigate();
   /**
    *
    * @returns {Promise<boolean>}
@@ -32,6 +34,7 @@ export const ProfileInformation = observer(({ action }) => {
     const deleted = await removeUser();
     if (deleted) {
       setInTransaction(false);
+      navigate("/")
       return true;
     } else {
       setInTransaction(false);
@@ -74,7 +77,7 @@ export const ProfileInformation = observer(({ action }) => {
           confirmFn={deleteFn}
           buttonText={'Delete Account'}
           verifyText={'Delete my account'}
-          verifyMessage={'Type DELETE MY ACCOUNT'}
+          verifyMessage={"Type 'DELETE MY ACCOUNT'"}
           message={
             'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.'
           }
