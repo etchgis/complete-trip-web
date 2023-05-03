@@ -27,7 +27,7 @@ export const MapView = observer(({ showMap }) => {
   const mapContainer = useRef(null);
   const [mapIsLoaded, setMapIsLoaded] = useState(mapRef?.current ? true : false);
   const [mapCenter, setCenter] = useState({
-    center: [-78.863241, 42.882341],
+    center: [config.MAP.CENTER[1], config.MAP.CENTER[0]],
     zoom: 9.5,
   });
 
@@ -74,14 +74,20 @@ export const MapView = observer(({ showMap }) => {
     }
 
     //eslint-disable-next-line
-  }, [mapStyle, pathname]);
+  }, [mapStyle, pathname, mapCenter]);
 
   return (
     <Flex flex={1} display={showMap ? 'flex' : 'none'} flexDir={'row'}>
       <Box height="100%" width="300px" borderRight={"1px"} borderColor={mapStyle === 'DAY' ? 'gray.200' : 'gray.900'} p={2}>
         <SearchForm
           saveAddress={() => { }}
-          setGeocoderResult={() => { }}
+          setGeocoderResult={(e) => {
+            if (mapRef?.current) {
+              //TODO change this to a function
+              const zoom = mapRef.current.getZoom();
+              mapRef.current.flyTo({ center: [e?.point?.lng, e?.point?.lat], zoom: zoom < 16 ? 16 : zoom });
+            }
+          }}
           label=""
         />
         Route List
