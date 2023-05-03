@@ -5,7 +5,7 @@ import {
   PrivacyPolicy,
   ProfileInformation,
   TermsOfUse,
-} from '../../components/Settings/SettingsViews';
+} from '../components/Settings/SettingsViews';
 import {
   Box,
   Button,
@@ -19,17 +19,17 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { EditAccessibility } from '../../components/Settings/EditAccessibility';
-import { EditCaretaker } from '../../components/Settings/EditCaretaker';
-import { EditNotifications } from '../../components/Settings/EditNotifications';
-import { EditPassword } from '../../components/Settings/EditPassword';
-import { EditProfile } from '../../components/Settings/EditProfile';
-import { EditTripPreferences } from '../../components/Settings/EditTripPreferences';
-import { SettingsModal } from '../../components/Settings/SettingsModal';
+import { EditAccessibility } from '../components/Settings/EditAccessibility';
+import { EditCaretaker } from '../components/Settings/EditCaretaker';
+import { EditNotifications } from '../components/Settings/EditNotifications';
+import { EditPassword } from '../components/Settings/EditPassword';
+import { EditProfile } from '../components/Settings/EditProfile';
+import { EditTripPreferences } from '../components/Settings/EditTripPreferences';
+import { SettingsModal } from '../components/Settings/SettingsModal';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../context/RootStore';
+import { useStore } from '../context/RootStore';
 
-export const Settings = observer(({ view }) => {
+const Settings = observer(({ view }) => {
   const navigate = useNavigate();
   const { user } = useStore().authentication;
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -188,6 +188,8 @@ export const Settings = observer(({ view }) => {
   );
 });
 
+export default Settings;
+
 function switchViews({ view, user, setActivePanel, setCaretakerId }) {
   if (view) console.log('[settings]', view);
   switch (view) {
@@ -255,8 +257,8 @@ function LinkButton({ item }) {
         pathname.includes(l.path) || pathname.includes(l.title.toLowerCase())
           ? 'white'
           : colorMode === 'light'
-          ? 'brand'
-          : 'white'
+            ? 'brand'
+            : 'white'
       }
     >
       {l.title}

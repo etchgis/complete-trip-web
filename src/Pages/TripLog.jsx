@@ -1,11 +1,11 @@
 import { Box, Heading, useDisclosure } from '@chakra-ui/react';
 
-import CustomModal from '../../components/Modal';
-import TripTable from '../../components/TripTable';
-import { VerticalTripPlanModal } from '../Home/Home';
+import CustomModal from '../components/Modal';
+import TripTable from '../components/TripTable';
+import { VerticalTripPlanModal } from './Home';
 import { useState } from 'react';
 
-export const TripLog = () => {
+const TripLog = () => {
   const {
     isOpen: isVTModalOpen,
     onOpen: openModal,
@@ -33,3 +33,5 @@ export const TripLog = () => {
     </>
   );
 };
+
+export default TripLog;

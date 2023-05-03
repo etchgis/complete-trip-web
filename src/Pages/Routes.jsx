@@ -9,7 +9,6 @@ import { toJS, trace } from 'mobx';
 import { Box } from '@chakra-ui/react';
 import Home from './Home';
 import Layout from './Layout';
-import { MapView } from '../components/Map/MapView';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';

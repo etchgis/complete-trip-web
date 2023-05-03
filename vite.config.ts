@@ -8,6 +8,7 @@ export default defineConfig({
   root: '.',
   build: {
     outDir: './build',
+    sourcemap: false,
   },
   server: {
     port: 5174,

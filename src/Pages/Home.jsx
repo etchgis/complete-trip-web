@@ -11,16 +11,16 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 
-import { Calendar } from '../../components/TripCalendar/Calendar';
-import CustomModal from '../../components/Modal';
-import { ScheduleTripHeader } from '../../components/ScheduleTripHeader';
-import TripCardList from '../../components/TripCardList';
-import VerticalTripPlan from '../../components/ScheduleTripModal/VerticalTripPlan';
+import { Calendar } from '../components/TripCalendar/Calendar';
+import CustomModal from '../components/Modal';
+import { ScheduleTripHeader } from '../components/ScheduleTripHeader';
+import TripCardList from '../components/TripCardList';
+import VerticalTripPlan from '../components/ScheduleTripModal/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
-import overviewMap from '../../assets/overview-map.png';
+import overviewMap from '../assets/overview-map.png';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useStore } from '../../context/RootStore';
+import { useStore } from '../context/RootStore';
 
 // import { ChevronRightIcon } from '@chakra-ui/icons';
 
@@ -29,13 +29,7 @@ import { useStore } from '../../context/RootStore';
 
 
 // import config from '../../config';
-
-
-
-
-
-
-export const Home = observer(() => {
+const Home = observer(() => {
   // const {
   //   isOpen: isModalOpen,
   //   onOpen: openModal,
@@ -115,7 +109,7 @@ export const Home = observer(() => {
   );
 });
 
-
+export default Home;
 
 export const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
   const { cancel } = useStore().schedule;
