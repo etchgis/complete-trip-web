@@ -5,9 +5,7 @@ import { theme } from '../../theme';
 
 // import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
-
-
-console.log(theme)
+console.log(theme);
 export const mapLayers = e => {
   const map = e.target ? e.target : e;
   // console.log('[map] checking sources');
@@ -59,6 +57,20 @@ export const mapLayers = e => {
       },
     },
     {
+      id: 'points',
+      type: 'circle',
+      source: 'points',
+      paint: {
+        'circle-radius': 3,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': 'rgba(255,255,255,1)',
+        'circle-blur': 0.1,
+        'circle-color': 'lightgray',
+        'circle-opacity': 0.8,
+      },
+      minzoom: 10,
+    },
+    {
       id: 'routes-highlight',
       type: 'line',
       source: 'routes-highlight',
@@ -81,30 +93,16 @@ export const mapLayers = e => {
     //   filter: ['==', ['get', 'rt_shrt_nm'], ''],
     // },
     {
-      id: 'points',
-      type: 'circle',
-      source: 'points',
-      paint: {
-        'circle-radius': 3,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': 'rgba(255,255,255,1)',
-        'circle-blur': 0.1,
-        'circle-color': 'lightgray',
-        'circle-opacity': 0.8
-      },
-      minzoom: 10,
-    },
-    {
       id: 'stops',
       type: 'circle',
       source: 'stops',
       paint: {
-        'circle-radius': 8,
-        'circle-stroke-width': 4,
+        'circle-radius': 6,
+        'circle-stroke-width': 2.5,
         'circle-stroke-color': 'rgba(255,255,255,1)',
         'circle-blur': 0.1,
         'circle-color': theme.colors.nfta,
-        'circle-opacity': 0.8
+        'circle-opacity': 1,
       },
       minzoom: 10,
     },

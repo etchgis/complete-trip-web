@@ -152,6 +152,18 @@ class MapStore {
     }
   };
 
+  getPatternStops = async id => {
+    try {
+      const app = 'COMPLETE_TRIP';
+      const stops = await otp.patterns.stops(id, app);
+      if (!stops.length) throw new Error('No stops found.');
+      return Promise.resolve(this.toPoints(stops));
+    } catch (error) {
+      console.log(error);
+      return Promise.reject('An error occurred while fetching routes.');
+    }
+  };
+
   getRoutePatterns = async id => {
     try {
       const app = 'COMPLETE_TRIP';

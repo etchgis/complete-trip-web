@@ -37,6 +37,7 @@ export const MapView = observer(({ showMap }) => {
     getNearestStops,
     getRoutePatterns,
     getRoutePatternGeometry,
+    getPatternStops,
   } = useStore().mapStore;
   const mapRef = useRef(null);
   const mapContainer = useRef(null);
@@ -51,7 +52,6 @@ export const MapView = observer(({ showMap }) => {
 
   const getRouteList = (e, x, y) => {
     const exists = mapState.patterns.length;
-    console.log({ exists });
     if (exists) return;
     setMapState('patterns', []);
     const map = e.target ? e.target : e;
@@ -79,11 +79,14 @@ export const MapView = observer(({ showMap }) => {
 
   const patternClickHandler = async e => {
     if (!e.target.dataset.patternid) return;
-    // mapRef.current.getSource('routes-highlight').setData(featureCollection([]));
     const { patterns } = mapState;
     const geojson = await getRoutePatternGeometry(
       patterns.find(p => p.id === e.target.dataset.patternid)
     );
+    const stops = await getPatternStops(e.target.dataset.patternid);
+    if (mapRef.current.getSource('stops')) {
+      mapRef.current.getSource('stops').setData(stops);
+    }
     if (geojson.features.length) {
       mapRef.current.getSource('routes-highlight').setData(geojson);
       mapRef.current.fitBounds(geojson.bbox, { padding: 50 });
