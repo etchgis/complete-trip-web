@@ -16,6 +16,7 @@ export const SearchForm = observer(
     label,
     required,
     clearResult,
+    resultsMaxWidth
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
@@ -120,6 +121,7 @@ export const SearchForm = observer(
         loadingState={list.loadingState}
         onLoadMore={list.loadMore}
         name={name || 'address'}
+        resultsMaxWidth={resultsMaxWidth}
       >
         {item => (
           <Item key={item.childKey} favorite={item.alias ? true : false}>

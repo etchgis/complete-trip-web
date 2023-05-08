@@ -2,16 +2,12 @@
 
 ![blitzwing](blitzwing.jpg)
 
-## Questions?
-
-> Sidebar, Modals, or Dashboard to handle user accounts & preferences (prefer sidebar or modals)
-
 ## Task List
 
-- [ ] Add Leave By to Trip Wizard
-- [ ] Add transport to trip wizard
-- [ ] Add map to final result trip wizard
-- [ ] add formatted result to trip wizard
+- [x] Add Leave By to Trip Wizard
+- [x] Add transport to trip wizard
+- [x] Add map to final result trip wizard
+- [x] add formatted result to trip wizard
 
 ### User Functions
 
@@ -19,7 +15,7 @@
 
 - [x] Create Account with email and password
 - [x] Terms and Conditions (move to front)
-- [ ] Password Checker & Icons
+- [x] Password Checker & Icons
 - [x] Email Verify (fake)
 
 #### Wizard
@@ -65,3 +61,4 @@ pass: Test etc.
 ## Notes
 
 - `git commit -m "feat: description"`
+- `git commit -m "patch: description"`

@@ -20,7 +20,7 @@ import { useStore } from '../context/RootStore';
 export const Routes = observer(() => {
   //add trace if env is development
   if (process.env.NODE_ENV === 'development') {
-    trace(false);
+    trace(true);
   }
   const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;
@@ -52,7 +52,7 @@ export const Routes = observer(() => {
   //   // eslint-disable-next-line
   // }, [user]);
 
-  //INIT AUTH & USER 
+  //INIT AUTH & USER
   useEffect(() => {
     (async () => {
       if (user?.refreshToken && !loggedIn) {
@@ -61,7 +61,7 @@ export const Routes = observer(() => {
           await auth(); //any errors will be handled by auth()
           if (user?.profile) {
             const _user = toJS(user);
-            console.log({ _user })
+            console.log({ _user });
           }
         } catch (error) {
           console.log(error); //TODO what happens here? Does the errorToastMessage show?

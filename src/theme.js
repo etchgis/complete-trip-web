@@ -20,6 +20,8 @@ const customTheme = {
   colors: {
     // brand: '#3C8AFF',
     // brandDark: '#165BC1',
+    nfta: '#004490',
+    nftaLight: 'hsl(213.33deg 100% 40%)',
     brand: '#2465B1',
     brandDark: '#1d5290',
     brandText: '#1B69DC',

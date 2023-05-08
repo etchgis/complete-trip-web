@@ -76,7 +76,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     <>
       <Stack maxW={{ base: '100%', sm: '540px' }} gap={4} id="trip-card-list">
         {!trips.length ? (
-          <Box>No upcoming trips found.</Box>
+          <Box p={2} background={colorMode === 'light' ? 'white' : 'gray.800'} borderRadius={'md'}>No upcoming trips found.</Box>
         ) : (
           trips.map(trip => {
             // console.log(trip);

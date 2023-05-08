@@ -29,7 +29,7 @@ export function Popover(props) {
         borderRadius="md"
         zIndex="10"
         width="100%"
-        maxW="465px"
+        maxW={props.maxWidth}
         // maxW="calc(100vw - 94px)"
         boxShadow="lg"
       >

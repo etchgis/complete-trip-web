@@ -68,6 +68,7 @@ export const Autocomplete = props => {
           state={state}
           isNonModal
           placement="bottom start"
+          maxWidth={props.resultsMaxWidth || '465px'}
         >
           <ListBox
             {...listBoxProps}
