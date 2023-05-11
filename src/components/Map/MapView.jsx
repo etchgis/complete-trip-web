@@ -77,6 +77,7 @@ export const MapView = observer(({ showMap }) => {
     console.log('route click handler', route);
     try {
       const id = route?.id || route?.routeId || null;
+      setMapState('activeRoute', id)
       const patterns = await getRoutePatterns(id);
       if (!patterns?.features.length) throw new Error('no patterns found');
       const stoptimes = await getRouteStops(id);
@@ -217,29 +218,31 @@ export const MapView = observer(({ showMap }) => {
         p={0}
         id="map-sidebar"
       >
-        <Box p={2}>
+        <Box>
           {/* TODO find a way to clear to search result */}
-          <SearchForm
-            saveAddress={() => {}}
-            setGeocoderResult={e => {
-              if (mapRef?.current) {
-                //TODO change this to a function
-                const zoom = mapRef.current.getZoom();
-                mapRef.current.flyTo({
-                  center: [e?.point?.lng, e?.point?.lat],
-                  zoom: zoom < 16 ? 16 : zoom,
-                });
-              }
-            }}
-            label="Find Nearby Routes"
-            resultsMaxWidth="322px"
-          />
+          <Box p={2}>
+            <SearchForm
+              saveAddress={() => { }}
+              setGeocoderResult={e => {
+                if (mapRef?.current) {
+                  //TODO change this to a function
+                  const zoom = mapRef.current.getZoom();
+                  mapRef.current.flyTo({
+                    center: [e?.point?.lng, e?.point?.lat],
+                    zoom: zoom < 16 ? 16 : zoom,
+                  });
+                }
+              }}
+              label="Find Nearby Routes"
+              resultsMaxWidth="322px"
+            />
+          </Box>
+          <BackButton backClickHandler={backClickHandler} />
         </Box>
         {/* ROUTES AND STOPS LIST */}
         <RouteList routeClickHandler={routeClickHandler} />
         <StopTimesList
           stopClickHandler={stopClickHandler}
-          backClickHandler={backClickHandler}
         />
         {/*  */}
       </Flex>
@@ -264,12 +267,41 @@ export const MapView = observer(({ showMap }) => {
   );
 });
 
-const StopTimesList = observer(({ stopClickHandler, backClickHandler }) => {
+const BackButton = observer(({ backClickHandler }) => {
   const { stoptimes } = useStore().mapStore.mapState;
-  console.log(toJS(stoptimes.features[0]));
   return (
     <>
       {stoptimes?.features.length ? (
+        <Button
+          // display={'flex'}
+          my={2}
+          width="100%"
+          borderRadius={0}
+          colorScheme="yellow"
+          onClick={backClickHandler}
+          fontSize="md"
+          fontWeight="bold"
+          minH={'40px'}
+        >
+          Back
+        </Button>
+      ) : (
+        ''
+      )}
+    </>
+  );
+});
+
+const StopTimesList = observer(({ stopClickHandler }) => {
+  const { stoptimes, activeRoute } = useStore().mapStore.mapState;
+  console.log(toJS(stoptimes.features[0]));
+  console.log(activeRoute);
+  // const stopIds = stoptimes?.features.map(s => s.properties.stopId) || [];
+  // const uniqueStops = [...new Set(stopIds)]; // these are already in order of arrival time;
+
+  return (
+    <>
+      {stoptimes.features.length ? (
         <Flex
           mt={2}
           flexDir={'column'}
@@ -277,24 +309,12 @@ const StopTimesList = observer(({ stopClickHandler, backClickHandler }) => {
           overflowY={'auto'}
           id="map-stoptimes"
         >
-          {stoptimes?.features.length ? (
-            <Button
-              display="flex"
-              borderRadius={0}
-              colorScheme="yellow"
-              onClick={backClickHandler}
-              fontSize="md"
-              fontWeight="bold"
-              minH={'40px'}
-            >
-              Back
-            </Button>
-          ) : (
-            ''
-          )}
           <Stack spacing={0} mt={2}>
-            {stoptimes?.features.length
-              ? stoptimes.features.map((s, i) => (
+            {stoptimes.features.length
+              ? stoptimes.features.map((s, i) => {
+                // const stop = stoptimes.features.find(st => st.properties.stopId === s);
+                // const times = stoptimes.features.filter(st => st.properties.stop_id === s);
+                return (
                   <Button
                     display="block"
                     flexWrap={'wrap'}
@@ -314,43 +334,50 @@ const StopTimesList = observer(({ stopClickHandler, backClickHandler }) => {
                   >
                     <Box textAlign={'left'}>
                       <Text fontSize={'sm'} fontWeight={'bold'}>
-                        {s.properties?.id} - {s.properties.name}
+                        {s?.properties?.id} - {s?.properties?.name}
                       </Text>
                     </Box>
+                    {/* <Box>
+                      {s?.properties?.arrival ? formatters.datetime.asHHMMA(new Date(s.properties.arrival)) : ''}
+                    </Box> */}
                     <Box py={1}>
+                      {!s.properties?.stoptimes.length || s.properties?.stoptimes[0].times[0].arrival === 0 ? (<Text>N/A</Text>) : ''}
                       {s.properties?.stoptimes.length
-                        ? s.properties?.stoptimes.map((pattern, idx0) => {
-                            return (
-                              <Box key={idx0.toString()}>
-                                {pattern?.times?.length
-                                  ? pattern.times.map((time, idx) => {
-                                      return (
-                                        <Flex
-                                          justifyContent={'space-between'}
-                                          key={idx.toString()}
-                                        >
-                                          <Text fontSize={'xs'}>
-                                            {pattern?.times[0]?.headsign ||
-                                              'No Stop Times Available'}
-                                          </Text>
-                                          <Text fontSize="xs">
-                                            {!time.arrival
-                                              ? ''
-                                              : formatters.datetime.asHHMMA(
-                                                  new Date(time.arrival)
-                                                )}
-                                          </Text>
-                                        </Flex>
-                                      );
-                                    })
-                                  : ''}
-                              </Box>
-                            );
-                          })
+                        ? s.properties?.stoptimes.map((trip, idx0) => {
+                          return (
+                            <Box key={idx0.toString()}>
+                              {trip.pattern?.routeId === activeRoute && trip?.times?.length
+                                ? trip.times.map((time, idx) => {
+                                  return (
+                                    <Flex
+                                      justifyContent={'space-between'}
+                                      key={idx.toString()}
+                                    >
+                                      <Text fontSize={'xs'}>
+                                        {trip?.times[0]?.headsign ||
+                                          'No Stop Times Available'}
+                                      </Text>
+                                      <Text fontSize="xs">
+                                        {/* {!time.arrival ? '' : formatters.datetime.asHHMMA(new Date(time.arrival))}
+                                        {' '} */}
+                                        {!time.arrival
+                                          ? ''
+                                          : formatters.datetime.asDuration(
+                                            (new Date(time.arrival).valueOf() - Date.now()) / 1000
+                                          ) || '1 min'}
+                                      </Text>
+                                    </Flex>
+                                  );
+                                })
+                                : ''}
+                            </Box>
+                          );
+                        })
                         : ''}
                     </Box>
                   </Button>
-                ))
+                )
+              })
               : ''}
           </Stack>
         </Flex>
@@ -371,6 +398,7 @@ const RouteList = observer(({ routeClickHandler }) => {
         ''
       ) : (
         <Flex
+          position={'relative'}
           mt={2}
           flexDir={'column'}
           flex={1}
@@ -379,32 +407,32 @@ const RouteList = observer(({ routeClickHandler }) => {
         >
           {routes.length
             ? routes.map((r, i) => (
-                <Button
-                  display="flex"
-                  justifyContent={'flex-start'}
-                  key={i.toString()}
-                  background={
-                    r?.color ? `#${r.color.replace('#', '')}` : 'nfta'
-                  }
-                  color={r?.outlineColor || 'white'}
-                  p={'2'}
-                  _hover={{
-                    filter: 'brightness(1.1) saturate(1.3)',
-                  }}
-                  fontSize="sm"
-                  fontWeight="bold"
-                  minH={'40px'}
-                  margin={0}
-                  borderRadius={0}
-                  outline={'solid 1px white'}
-                  onClick={() => routeClickHandler(r)}
-                >
-                  <span style={{ width: '40px', textAlign: 'left' }}>
-                    {r.routeId}
-                  </span>{' '}
-                  {r?.mode} {r?.longName ? r.longName.slice(0, 25) : ''}
-                </Button>
-              ))
+              <Button
+                display="flex"
+                justifyContent={'flex-start'}
+                key={i.toString()}
+                background={
+                  r?.color ? `#${r.color.replace('#', '')}` : 'nfta'
+                }
+                color={r?.outlineColor || 'white'}
+                p={'2'}
+                _hover={{
+                  filter: 'brightness(1.1) saturate(1.3)',
+                }}
+                fontSize="sm"
+                fontWeight="bold"
+                minH={'40px'}
+                margin={0}
+                borderRadius={0}
+                outline={'solid 1px white'}
+                onClick={() => routeClickHandler(r)}
+              >
+                <span style={{ width: '40px', textAlign: 'left' }}>
+                  {r.routeId}
+                </span>{' '}
+                {r?.mode} {r?.longName ? r.longName.slice(0, 25) : ''}
+              </Button>
+            ))
             : ''}
         </Flex>
       )}

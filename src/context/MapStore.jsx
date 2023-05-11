@@ -11,9 +11,38 @@ import { toJS } from 'mobx';
 
 const { otp } = mobility;
 
+const flattenStoptimes = (arr) => {
+  const array = [];
+
+  arr.forEach((item) => {
+    const itemProps = Object.assign({}, item);
+    delete itemProps.stoptimes;
+    itemProps["stopId"] = item.id;
+    if (item.stoptimes.length) {
+      item.stoptimes.forEach((st) => {
+        const patternProps = Object.assign({}, st?.pattern);
+        patternProps["patternId"] = st?.pattern?.id;
+        if (st.times.length) {
+          st.times.forEach(t => {
+            array.push({
+              ...itemProps,
+              ...patternProps,
+              ...t
+            })
+          })
+        }
+      });
+    } else {
+      array.push(itemProps)
+    }
+  });
+  return array;
+}
+
 class MapStore {
   mapStyle = 'DAY';
   mapState = {
+    activeRoute: '',
     patterns: [],
     stoptimes: featureCollection([]),
     routes: [],
@@ -64,8 +93,8 @@ class MapStore {
         const bgColor = routes[i]?.color || '000';
         routes[i].stops = await fetch(
           'https://ctp-otp.etch.app/otp/routers/default/index/routes/' +
-            routes[i].id +
-            '/stops'
+          routes[i].id +
+          '/stops'
         ).then(res => res.json());
         //this.mapCache.stops.length ? this.mapCache.stops.filter(s => s.routeId === routes[i].id) :
         //TODO convert this to a separate function - getColor
@@ -235,7 +264,7 @@ class MapStore {
       if (!stops.length) throw new Error('No stops found.');
 
       //break stops into chunks of stops.length / 5, then call otp.stops.one in a for loop
-      const chunks = this.chunk(stops, 25);
+      const chunks = this.chunk(stops, 10);
       const stoptimes = [];
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
@@ -243,35 +272,45 @@ class MapStore {
         const results = await Promise.all(
           chunk.map(async s => {
             const pattern = await otp.stops.one(s.id, 'COMPLETE_TRIP');
-            if (!pattern?.stoptimes.length)
-              pattern['stoptimes'] = [{ times: [] }];
-            pattern.stoptimes.forEach(st => {
-              st.times.forEach(t => {
-                t['arrival'] =
-                  (t.serviceDay +
-                    (t.realtime ? t.realtimeArrival : t.scheduledArrival)) *
-                  1000;
+            if (!pattern.stoptimes || !pattern.stoptimes.length) {
+              pattern['stoptimes'] = [];
+            } else {
+              const _stoptimes = [...pattern.stoptimes];
+              pattern.stoptimes = [];
+              _stoptimes.forEach(st => {
+                if (st?.pattern?.routeId === id) {
+                  st.times.forEach(t => {
+                    t['arrival'] =
+                      (t.serviceDay +
+                        (t.realtime ? t.realtimeArrival : t.scheduledArrival)) *
+                      1000;
+                  })
+                  pattern.stoptimes.push(st);
+                }
               });
-              if (!st.times.length)
-                st['times'] = [
-                  {
-                    arrival: 0,
-                  },
-                ];
+            }
+            pattern.stoptimes.forEach(st => {
+              st.times = st.times.sort((a, b) => a.arrival - b.arrival);
             });
-
+            if (!pattern.stoptimes.length) pattern.stoptimes.push({ times: [{ arrival: 0 }] })
+            pattern.stoptimes = pattern.stoptimes.sort((a, b) => a.times[0].arrival - b.times[0].arrival);
             return pattern;
           })
         );
         stoptimes.push(...results);
       }
-      const sorted = stoptimes.sort(
-        (a, b) =>
-          a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival
-      );
-      const existing = sorted.filter(s => s.stoptimes[0].times[0].arrival);
-      const missing = sorted.filter(s => !s.stoptimes[0].times[0].arrival);
-      const parsed = [...existing, ...missing];
+
+      // const flattened = flattenStoptimes(stoptimes);
+      stoptimes.forEach(s => {
+        if (!s.stoptimes.length) console.log(s);
+      })
+      const existing = stoptimes.filter(s => s.stoptimes[0].times[0].arrival);
+      const missing = stoptimes.filter(s => !s.stoptimes[0].times[0].arrival);
+      const sorted = existing.sort((a, b) => a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival);
+      console.log(existing);
+      const parsed = [...sorted, ...missing];
+      // console.log(id);
+      // console.log(parsed)
       const geojson = this.toPoints(parsed);
       runInAction(() => {
         this.mapState.stoptimes = geojson;
