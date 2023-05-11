@@ -1,12 +1,13 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
-import { featureCollection, point } from '@turf/helpers';
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import bbox from '@turf/bbox';
-import buffer from '@turf/buffer';
+import { featureCollection } from '@turf/helpers';
 import knn from 'sphere-knn';
 import { mobility } from '@etchgis/mobility-transport-layer';
-import within from '@turf/boolean-within';
+import { sortBy } from 'lodash';
+import tinycolor from 'tinycolor2';
+import { toJS } from 'mobx';
 
 const { otp } = mobility;
 
@@ -14,20 +15,20 @@ class MapStore {
   mapStyle = 'DAY';
   mapState = {
     patterns: [],
+    stoptimes: featureCollection([]),
     routes: [],
     center: [],
     zoom: 12,
   };
-  routes = []; //cache of routes
-  featuresCache = []; //cache of features
-  mapData = {
+  mapCache = {
+    routes: [], //cache of routes
     stops: [], //all stops
     stopsIndex: null, //knn index of stops using sphere-knn
   };
 
   constructor(rootStore) {
-    this.initRoutes();
     this.initStops();
+    this.initRoutes();
 
     makeAutoObservable(this);
     this.rootStore = rootStore;
@@ -39,7 +40,7 @@ class MapStore {
     ) {
       makePersistable(this, {
         name: 'MapMode',
-        properties: ['mapStyle'],
+        properties: ['mapStyle', 'mapCache'],
         storage: localStorage,
       });
     }
@@ -60,15 +61,30 @@ class MapStore {
       ).then(res => res.json());
       if (!routes.length) return console.error('routes not found');
       for (let i = 0; i < routes.length; i++) {
+        const bgColor = routes[i]?.color || '000';
         routes[i].stops = await fetch(
           'https://ctp-otp.etch.app/otp/routers/default/index/routes/' +
             routes[i].id +
             '/stops'
         ).then(res => res.json());
+        //this.mapCache.stops.length ? this.mapCache.stops.filter(s => s.routeId === routes[i].id) :
+        //TODO convert this to a separate function - getColor
         routes[i]['routeId'] = routes[i].id;
+
+        const isBlackReadable = tinycolor.isReadable(
+          '#000',
+          '#' + bgColor.replace('#', ''),
+          {
+            level: 'AAA',
+            size: 'small',
+          }
+        );
+        routes[i]['routeColor'] = '#' + bgColor.replace('#', '');
+        routes[i]['outlineColor'] = isBlackReadable ? '#121212' : '#fff';
       }
+
       runInAction(() => {
-        this.routes = routes;
+        this.mapCache.routes = routes;
       });
       console.log('[map-store] init routes done', Date.now() - now);
     } catch (error) {
@@ -77,14 +93,18 @@ class MapStore {
     }
   };
 
+  getRouteColor = r => {
+    return r;
+  };
+
   initStops = async () => {
     console.log('[map-store] init stops');
     try {
       const stops = await otp.stops.all('COMPLETE_TRIP');
       if (!stops.length) return console.error('stops not found');
       runInAction(() => {
-        this.mapData.stops = stops;
-        this.mapData.stopsIndex = knn(stops);
+        this.mapCache.stops = stops;
+        this.mapCache.stopsIndex = knn(stops);
       });
       console.log('[map-store] init stops done');
     } catch (error) {
@@ -109,40 +129,86 @@ class MapStore {
       };
       geojson.features.push(feature);
     }
+    geojson['bbox'] = bbox(geojson);
+
     return geojson;
   };
+  //TODO convert map state to mapcache
 
   getNearestStops = (lat, lng, limit = 10) => {
-    if (!this.mapData.stops.length) return [];
-    // const stops = this.mapData.stops;
-    // const circle = buffer(point([lng, lat]), 1, { units: 'kilometers' });
-    // const nearestStops = [];
-    // for (let i = 0; i < stops.length; i++) {
-    //   const stop = stops[i];
-    //   if (within(point([stop.lon, stop.lat]), circle)) {
-    //     nearestStops.push();
-    //   }
-    // }
-    const _stops = this.mapData.stopsIndex(lat, lng, limit);
+    if (!this.mapCache.stops.length) return [];
+    const _stops = this.mapCache.stopsIndex(lat, lng, limit);
     return this.toPoints(_stops);
   };
 
-  getRoutePatternGeometry = async pattern => {
-    const { id } = pattern;
-    try {
-      const app = 'COMPLETE_TRIP',
-        geojson = featureCollection([]);
-      const geometry = await otp.patterns.geometry(id, app);
-      const stops = await otp.patterns.stops(id, app);
-      if (geometry) {
-        const feature = {
-          type: 'Feature',
-          geometry,
-          properties: { ...pattern, stops: stops },
-        };
-        geojson.features.push(feature);
-      }
+  // getPatternStops = async id => {
+  //   try {
+  //     const app = 'COMPLETE_TRIP';
+  //     const stops = await otp.patterns.stops(id, app);
+  //     if (!stops.length) throw new Error('No stops found.');
+  //     return Promise.resolve(this.toPoints(stops));
+  //   } catch (error) {
+  //     console.log(error);
+  //     return Promise.reject('An error occurred while fetching routes.');
+  //   }
+  // };
 
+  getRoutes = stops => {
+    const routes = [];
+    for (let i = 0; i < stops.features.length; i++) {
+      const stop = stops.features[i];
+      const stopRoutes = this.mapCache.routes.filter(r =>
+        r.stops.find(s => s.id === stop.properties.id)
+      );
+      stopRoutes.forEach(r => {
+        if (!routes.find(route => route.id === r.id)) routes.push(r);
+      });
+    }
+    return sortBy(routes, 'longName');
+  };
+
+  getRoutePatterns = async id => {
+    try {
+      const app = 'COMPLETE_TRIP';
+      const routePatterns = await otp.routes.one(id, app);
+      if (!routePatterns?.patterns?.length)
+        throw new Error('No patterns found!');
+      const geojson = await this.getRouteGeometry(
+        routePatterns.patterns,
+        routePatterns?.color
+      );
+      return Promise.resolve(geojson);
+    } catch (error) {
+      console.log(error);
+      return Promise.reject('An error occurred while fetching routes.');
+    }
+  };
+
+  getRouteGeometry = async (patterns, color) => {
+    try {
+      const geojson = {
+        type: 'FeatureCollection',
+        features: patterns.map(p => {
+          p['routeColor'] = color ? '#' + color.replace('#', '') : '#121212';
+          const bgColor = color || 'fff';
+          const isBlackReadable = tinycolor.isReadable(
+            '#000',
+            '#' + bgColor.replace('#', ''),
+            {
+              level: 'AAA',
+              size: 'small',
+            }
+          );
+          p['outlineColor'] = isBlackReadable ? '#121212' : '#fff';
+          const { geometry, ...properties } = p;
+          const feature = {
+            type: 'Feature',
+            geometry,
+            properties,
+          };
+          return feature;
+        }),
+      };
       if (!geojson.features.length) throw new Error('No routes found.');
       geojson['bbox'] = bbox(geojson);
       return Promise.resolve(geojson);
@@ -152,57 +218,78 @@ class MapStore {
     }
   };
 
-  getPatternStops = async id => {
-    try {
-      const app = 'COMPLETE_TRIP';
-      const stops = await otp.patterns.stops(id, app);
-      if (!stops.length) throw new Error('No stops found.');
-      return Promise.resolve(this.toPoints(stops));
-    } catch (error) {
-      console.log(error);
-      return Promise.reject('An error occurred while fetching routes.');
+  chunk = (array, size) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
     }
+    return chunks;
   };
 
-  getRoutePatterns = async id => {
+  getRouteStops = async id => {
     try {
-      const app = 'COMPLETE_TRIP';
-      const routePatterns = await otp.routes.patterns(id, app);
-      return Promise.resolve(routePatterns);
-    } catch (error) {
-      console.log(error);
-      return Promise.reject('An error occurred while fetching routes.');
-    }
-  };
-
-  getRoutes = stops => {
-    const routes = [];
-    for (let i = 0; i < stops.features.length; i++) {
-      const stop = stops.features[i];
-      const stopRoutes = this.routes.filter(r =>
-        r.stops.find(s => s.id === stop.properties.id)
-      );
-      stopRoutes.forEach(r => {
-        if (!routes.find(route => route.id === r.id)) routes.push(r);
+      runInAction(() => {
+        this.rootStore.uiStore.setLoading(true);
       });
-    }
-    return routes;
-  };
+      const stops = this.mapCache.routes.find(r => r.id === id)?.stops || [];
+      if (!stops.length) throw new Error('No stops found.');
 
-  getPatternStopTimes = async id => {
-    try {
-      const app = 'COMPLETE_TRIP';
-      const routeStopTimes = await otp.patterns.stops(id, app);
-      return Promise.resolve(routeStopTimes);
+      //break stops into chunks of stops.length / 5, then call otp.stops.one in a for loop
+      const chunks = this.chunk(stops, 25);
+      const stoptimes = [];
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        console.log(chunk.length);
+        const results = await Promise.all(
+          chunk.map(async s => {
+            const pattern = await otp.stops.one(s.id, 'COMPLETE_TRIP');
+            if (!pattern?.stoptimes.length)
+              pattern['stoptimes'] = [{ times: [] }];
+            pattern.stoptimes.forEach(st => {
+              st.times.forEach(t => {
+                t['arrival'] =
+                  (t.serviceDay +
+                    (t.realtime ? t.realtimeArrival : t.scheduledArrival)) *
+                  1000;
+              });
+              if (!st.times.length)
+                st['times'] = [
+                  {
+                    arrival: 0,
+                  },
+                ];
+            });
+
+            return pattern;
+          })
+        );
+        stoptimes.push(...results);
+      }
+      const sorted = stoptimes.sort(
+        (a, b) =>
+          a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival
+      );
+      const existing = sorted.filter(s => s.stoptimes[0].times[0].arrival);
+      const missing = sorted.filter(s => !s.stoptimes[0].times[0].arrival);
+      const parsed = [...existing, ...missing];
+      const geojson = this.toPoints(parsed);
+      runInAction(() => {
+        this.mapState.stoptimes = geojson;
+        this.rootStore.uiStore.setLoading(false);
+      });
+      return Promise.resolve(geojson);
     } catch (error) {
       console.log(error);
+      runInAction(() => {
+        this.rootStore.uiStore.setLoading(false);
+      });
       return Promise.reject('An error occurred while fetching routes.');
     }
   };
 
   setData = (data, type) => {
     runInAction(() => {
-      this.mapData[type] = data;
+      this.mapCache[type] = data;
     });
   };
 

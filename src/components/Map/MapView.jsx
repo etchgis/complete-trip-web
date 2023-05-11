@@ -1,7 +1,6 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-import { Box, Button, Flex } from '@chakra-ui/react';
-import { set, toJS } from 'mobx';
+import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
 import Loader from '../Loader';
@@ -10,11 +9,14 @@ import SearchForm from '../AddressSearchForm';
 import config from '../../config';
 import debounce from '../../utils/debounce';
 import { featureCollection } from '@turf/helpers';
+import formatters from '../../utils/formatters';
+import { getLocation } from '../../utils/getLocation';
 import { mapControls } from './mapControls';
 import { mapLayers } from './mapLayers';
 import { mapListeners } from './mapListeners';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 
@@ -28,13 +30,13 @@ export const MapView = observer(({ showMap }) => {
   console.log('[map-view] rendering');
   const { pathname } = useLocation();
   const {
-    routes: otpRoutes,
     mapStyle,
-    getRoutes,
-    mapData,
+    mapCache,
     mapState,
     setMapState,
     getNearestStops,
+    getRoutes,
+    getRouteStops,
     getRoutePatterns,
     getRoutePatternGeometry,
     getPatternStops,
@@ -51,9 +53,9 @@ export const MapView = observer(({ showMap }) => {
   });
 
   const getRouteList = (e, x, y) => {
-    const exists = mapState.patterns.length;
+    const exists = mapState.stoptimes?.features.length;
     if (exists) return;
-    setMapState('patterns', []);
+    setMapState('stoptimes', featureCollection([]));
     const map = e.target ? e.target : e;
     const { lng, lat } = map.getCenter();
     const stops = getNearestStops(y || lat, x || lng);
@@ -65,54 +67,72 @@ export const MapView = observer(({ showMap }) => {
       return;
     }
     // console.log({ stops })
-    if (map.getSource('stops')) map.getSource('stops').setData(stops);
+    // if (map.getSource('stops')) map.getSource('stops').setData(stops);
     setMapState('routes', getRoutes(stops));
     setMapState('center', [lng, lat]);
     setMapState('zoom', map.getZoom());
   };
 
-  const routeClickHandler = async e => {
-    if (!e.target.dataset.routeid || e.target.dataset.desc) return;
-    const patterns = await getRoutePatterns(e.target.dataset.routeid);
-    setMapState('patterns', patterns);
+  const routeClickHandler = async route => {
+    console.log('route click handler', route);
+    try {
+      const id = route?.id || route?.routeId || null;
+      const patterns = await getRoutePatterns(id);
+      if (!patterns?.features.length) throw new Error('no patterns found');
+      const stoptimes = await getRouteStops(id);
+      if (!stoptimes?.features.length) throw new Error('no stoptimes found');
+      if (mapRef.current.getSource('routes-highlight'))
+        mapRef.current.getSource('routes-highlight').setData(patterns);
+      if (mapRef.current.getSource('stops')) {
+        mapRef.current.getSource('stops').setData(stoptimes);
+        mapRef.current.setPaintProperty(
+          'stops',
+          'circle-stroke-color',
+          route?.routeColor || '#000'
+        );
+        mapRef.current.setPaintProperty(
+          'stops',
+          'circle-color',
+          route?.outlineColor || '#fff'
+        );
+        mapRef.current.fitBounds(stoptimes.bbox, { padding: 50 });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const patternClickHandler = async e => {
-    if (!e.target.dataset.patternid) return;
-    const { patterns } = mapState;
-    const geojson = await getRoutePatternGeometry(
-      patterns.find(p => p.id === e.target.dataset.patternid)
-    );
-    const stops = await getPatternStops(e.target.dataset.patternid);
-    if (mapRef.current.getSource('stops')) {
-      mapRef.current.getSource('stops').setData(stops);
-    }
-    if (geojson.features.length) {
-      mapRef.current.getSource('routes-highlight').setData(geojson);
-      mapRef.current.fitBounds(geojson.bbox, { padding: 50 });
+  const stopClickHandler = async stop => {
+    if (stop && stop.geometry) {
+      mapRef.current.flyTo({
+        center: stop.geometry.coordinates,
+        zoom: mapRef.current.getZoom() > 17 ? mapRef.current.getZoom() : 17,
+      });
     }
   };
 
   const backClickHandler = () => {
-    setMapState('patterns', []);
+    setMapState('stoptimes', featureCollection([]));
     mapRef.current.flyTo({ center: mapState.center, zoom: mapState.zoom });
     mapRef.current.getSource('routes-highlight').setData(featureCollection([]));
+    mapRef.current.getSource('stops').setData(featureCollection([]));
   };
 
   useEffect(() => {
-    if (otpRoutes.length) {
+    if (mapCache.routes.length) {
       setRoutesAreLoaded(true);
-      if (mapRef?.current) getRouteList(mapRef.current);
+      if (mapRef?.current && !mapState.routes.length)
+        getRouteList(mapRef.current);
     }
-  }, [otpRoutes]);
+  }, [mapCache.routes]);
 
   //DEBUG
-  // useEffect(() => {
-  //   const _routes = toJS(otpRoutes);
-  //   const _stops = toJS(mapData.stops);
-  //   console.log({ _routes })
-  //   console.log({ _stops })
-  // }, [routes, mapData.stops])
+  useEffect(() => {
+    const _routes = toJS(mapCache.routes);
+    const _stops = toJS(mapCache.stops);
+    console.log({ _routes });
+    console.log({ _stops });
+  }, [mapCache.stops, mapCache.routes]);
 
   useEffect(() => {
     if (mapRef?.current && showMap) mapRef.current.resize();
@@ -139,35 +159,44 @@ export const MapView = observer(({ showMap }) => {
       getRouteList(mapRef.current, latitude, longitude);
     });
 
-    if (!mapRef?.current) {
-      mapRef.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: config.MAP.BASEMAPS[mapStyle],
-        center: [config.MAP.CENTER[1], config.MAP.CENTER[0]],
-        zoom: 12,
-      })
-        .addControl(mapControls.nav, 'top-right')
-        .addControl(mapControls.locate, 'top-right')
-        .on('load', initMap)
-        .on('style.load', mapLayers)
-        .on('moveend', e => {
-          debounce(getRouteList(e.target), 1000);
+    (async () => {
+      const userLocation = await getLocation();
+      const center = userLocation?.center || [
+        config.MAP.CENTER[1],
+        config.MAP.CENTER[0],
+      ];
+
+      if (!mapRef?.current) {
+        mapRef.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: config.MAP.BASEMAPS[mapStyle], //change to style from store
+          center: center,
+          zoom: 16,
         })
-        .on('contextmenu', e => {
-          console.log(e.target.getZoom());
-          console.log(e.lngLat);
-        });
-    }
+          .addControl(mapControls.nav, 'top-right')
+          .addControl(mapControls.locate, 'top-right')
+          .addControl(mapControls.bookmarks, 'top-right')
+          .on('load', initMap)
+          .on('style.load', mapLayers)
+          .on('moveend', e => {
+            debounce(getRouteList(e.target), 1000);
+          })
+          .on('contextmenu', e => {
+            console.log(e.target.getZoom());
+            console.log(e.lngLat);
+          });
+      }
+    })();
 
     function initMap() {
-      const map = this;
-      // locateControl.trigger();
+      // const map = this;
+      // mapControls.locate.trigger();
       setMapIsLoaded(true);
       // mapListeners(map, setMapIsLoaded);
     }
 
     //eslint-disable-next-line
-  }, [mapStyle, pathname, mapData.stops]);
+  }, [mapStyle, pathname, mapCache.stops]);
 
   return (
     <Flex
@@ -206,12 +235,15 @@ export const MapView = observer(({ showMap }) => {
             resultsMaxWidth="322px"
           />
         </Box>
-        <RouteList
-          routeClickHandler={routeClickHandler}
-          patternClickHandler={patternClickHandler}
+        {/* ROUTES AND STOPS LIST */}
+        <RouteList routeClickHandler={routeClickHandler} />
+        <StopTimesList
+          stopClickHandler={stopClickHandler}
           backClickHandler={backClickHandler}
         />
+        {/*  */}
       </Flex>
+
       {/* MAIN */}
       <Flex flex="1" flexDir={'column'} id="map-main">
         {/* HEADER */}
@@ -232,61 +264,150 @@ export const MapView = observer(({ showMap }) => {
   );
 });
 
-const RouteList = observer(
-  ({ routeClickHandler, patternClickHandler, backClickHandler }) => {
-    const { routes, patterns } = useStore().mapStore.mapState;
-    const elements = patterns.length ? patterns : routes;
-    console.log({ elements });
-    return (
-      // TODO add back button to go back to route list - generated from routes[0].routeId
-      <Flex mt={2} flexDir={'column'} flex={1} overflowY={'auto'}>
-        {patterns.length ? (
-          <Button
-            display="flex"
-            borderRadius={0}
-            colorScheme="yellow"
-            onClick={backClickHandler}
-          >
-            Back
-          </Button>
-        ) : (
-          ''
-        )}
-        {elements.length ? (
-          elements.map((r, i) => (
+const StopTimesList = observer(({ stopClickHandler, backClickHandler }) => {
+  const { stoptimes } = useStore().mapStore.mapState;
+  console.log(toJS(stoptimes.features[0]));
+  return (
+    <>
+      {stoptimes?.features.length ? (
+        <Flex
+          mt={2}
+          flexDir={'column'}
+          flex={1}
+          overflowY={'auto'}
+          id="map-stoptimes"
+        >
+          {stoptimes?.features.length ? (
             <Button
               display="flex"
-              justifyContent={'flex-start'}
-              key={i.toString()}
-              background={'nfta'}
-              color="white"
-              p={'2'}
-              _hover={{
-                background: 'nftaLight',
-              }}
-              fontSize="sm"
+              borderRadius={0}
+              colorScheme="yellow"
+              onClick={backClickHandler}
+              fontSize="md"
               fontWeight="bold"
               minH={'40px'}
-              margin={0}
-              borderRadius={0}
-              outline={'solid 1px white'}
-              onClick={
-                patterns.length ? patternClickHandler : routeClickHandler
-              }
-              data-routeid={r?.routeId}
-              data-desc={r?.desc}
-              data-patternid={patterns.length ? r.id : null}
             >
-              <span style={{ width: '40px', textAlign: 'left' }}>
-                {r.routeId}
-              </span>{' '}
-              {r?.mode} {r?.longName ? r.longName.slice(0, 25) : r?.desc || ''}
+              Back
             </Button>
-          ))
-        ) : (
-          <Box px={4}>No routes found</Box>
-        )}
-      </Flex>
-    );
-  }
-);
+          ) : (
+            ''
+          )}
+          <Stack spacing={0} mt={2}>
+            {stoptimes?.features.length
+              ? stoptimes.features.map((s, i) => (
+                  <Button
+                    display="block"
+                    flexWrap={'wrap'}
+                    textAlign={'left'}
+                    backgroundColor={'white'}
+                    justifyContent={'flex-start'}
+                    key={i.toString()}
+                    fontSize="sm"
+                    fontWeight="bold"
+                    minH={'40px'}
+                    height={'auto'}
+                    margin={0}
+                    px={2}
+                    py={2}
+                    borderRadius={0}
+                    onClick={() => stopClickHandler(s)}
+                  >
+                    <Box textAlign={'left'}>
+                      <Text fontSize={'sm'} fontWeight={'bold'}>
+                        {s.properties?.id} - {s.properties.name}
+                      </Text>
+                    </Box>
+                    <Box py={1}>
+                      {s.properties?.stoptimes.length
+                        ? s.properties?.stoptimes.map((pattern, idx0) => {
+                            return (
+                              <Box key={idx0.toString()}>
+                                {pattern?.times?.length
+                                  ? pattern.times.map((time, idx) => {
+                                      return (
+                                        <Flex
+                                          justifyContent={'space-between'}
+                                          key={idx.toString()}
+                                        >
+                                          <Text fontSize={'xs'}>
+                                            {pattern?.times[0]?.headsign ||
+                                              'No Stop Times Available'}
+                                          </Text>
+                                          <Text fontSize="xs">
+                                            {!time.arrival
+                                              ? ''
+                                              : formatters.datetime.asHHMMA(
+                                                  new Date(time.arrival)
+                                                )}
+                                          </Text>
+                                        </Flex>
+                                      );
+                                    })
+                                  : ''}
+                              </Box>
+                            );
+                          })
+                        : ''}
+                    </Box>
+                  </Button>
+                ))
+              : ''}
+          </Stack>
+        </Flex>
+      ) : (
+        ''
+      )}
+    </>
+  );
+});
+
+const RouteList = observer(({ routeClickHandler }) => {
+  const { routes, stoptimes } = useStore().mapStore.mapState;
+  console.log(toJS(routes));
+
+  return (
+    <>
+      {stoptimes?.features.length ? (
+        ''
+      ) : (
+        <Flex
+          mt={2}
+          flexDir={'column'}
+          flex={1}
+          overflowY={'auto'}
+          id="map-route-list"
+        >
+          {routes.length
+            ? routes.map((r, i) => (
+                <Button
+                  display="flex"
+                  justifyContent={'flex-start'}
+                  key={i.toString()}
+                  background={
+                    r?.color ? `#${r.color.replace('#', '')}` : 'nfta'
+                  }
+                  color={r?.outlineColor || 'white'}
+                  p={'2'}
+                  _hover={{
+                    filter: 'brightness(1.1) saturate(1.3)',
+                  }}
+                  fontSize="sm"
+                  fontWeight="bold"
+                  minH={'40px'}
+                  margin={0}
+                  borderRadius={0}
+                  outline={'solid 1px white'}
+                  onClick={() => routeClickHandler(r)}
+                >
+                  <span style={{ width: '40px', textAlign: 'left' }}>
+                    {r.routeId}
+                  </span>{' '}
+                  {r?.mode} {r?.longName ? r.longName.slice(0, 25) : ''}
+                </Button>
+              ))
+            : ''}
+        </Flex>
+      )}
+    </>
+  );
+});

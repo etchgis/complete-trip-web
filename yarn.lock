@@ -1320,10 +1320,10 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.18.tgz#3a8e57153905308db357fd02f57c180ee3a0a1fa"
   integrity sha512-qU25Ma1I3NqTSHJUOKi9sAH1/Mzuvlke0ioMJRthLXKm7JiSKVwFghlGbDLOO2sARECGhja4xYfRAZNPAkooYg==
 
-"@etchgis/mobility-transport-layer@^1.0.5":
-  version "1.0.5"
-  resolved "https://npm.pkg.github.com/download/@etchgis/mobility-transport-layer/1.0.5/553efb43049f4c14d0b972bda625f4f65b8a71c1#553efb43049f4c14d0b972bda625f4f65b8a71c1"
-  integrity sha512-6eVLdk8/onJ7ZYsnZh7e6wGVzr4ajXEp3C9fjsJInGOwvJPaaiOyV4U2POH1+JazRj0JaEkMbWrHzZ4jNzdnPQ==
+"@etchgis/mobility-transport-layer@^1.0.6":
+  version "1.0.6"
+  resolved "https://npm.pkg.github.com/download/@etchgis/mobility-transport-layer/1.0.6/1d5451b8b55b3f018bb8c6c15f4c4b35cc7da705#1d5451b8b55b3f018bb8c6c15f4c4b35cc7da705"
+  integrity sha512-qE5LIDvTxZerZfR098RP17vaJoVH1L163agyb6kG89QKgbHDU8pivyB2lHXbv8cGnt3CxRa24glAnrDFkEO3CQ==
   dependencies:
     "@turf/distance" "^6.5.0"
     "@turf/helpers" "^6.5.0"
@@ -3070,6 +3070,14 @@
   dependencies:
     "@turf/helpers" "^6.5.0"
     "@turf/meta" "^6.5.0"
+
+"@turf/bearing@^6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@turf/bearing/-/bearing-6.5.0.tgz#462a053c6c644434bdb636b39f8f43fb0cd857b0"
+  integrity sha512-dxINYhIEMzgDOztyMZc20I7ssYVNEpSv04VbMo5YPQsqa80KO3TFvbuCahMsCAW5z8Tncc8dwBlEFrmRjJG33A==
+  dependencies:
+    "@turf/helpers" "^6.5.0"
+    "@turf/invariant" "^6.5.0"
 
 "@turf/boolean-point-in-polygon@^6.5.0":
   version "6.5.0"
@@ -6129,6 +6137,11 @@ tinybench@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/tinybench/-/tinybench-2.4.0.tgz#83f60d9e5545353610fe7993bd783120bc20c7a7"
   integrity sha512-iyziEiyFxX4kyxSp+MtY1oCH/lvjH3PxFN8PGCDeqcZWAJ/i+9y+nL85w99PxVzrIvew/GSkSbDYtiGVa85Afg==
+
+tinycolor2@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.6.0.tgz#f98007460169b0263b97072c5ae92484ce02d09e"
+  integrity sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==
 
 tinypool@^0.4.0:
   version "0.4.0"

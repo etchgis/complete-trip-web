@@ -9,25 +9,15 @@ import MapStore from './MapStore';
 import Preferences from './Preferences';
 import Schedule from './Schedule';
 import Trip from './Trip';
-
-// import Profile from './Profile.jsx.bak';
-
-// import Display from './Display';
-// import MapManager from './MapManager';
-
-// import Registration from './Registration';
+import UIStore from './UIStore';
 
 export default class RootStore {
   constructor() {
     this.authentication = new Authentication(this);
+    this.uiStore = new UIStore(this);
     this.mapStore = new MapStore(this);
-    // this.display = new Display(this);
     this.favorites = new Favorites(this);
-    // this.mapManager = new MapManager(this);
-    // this.navigation = new Navigation();
     this.preferences = new Preferences(this);
-    // this.profile = new Profile(this);
-    // this.registration = new Registration(this);
     this.schedule = new Schedule(this);
     this.trip = new Trip(this);
   }

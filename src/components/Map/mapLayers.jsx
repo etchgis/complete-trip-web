@@ -1,11 +1,11 @@
 import { featureCollection } from '@turf/helpers';
-import lines from './mapdata/lines.json';
-import points from './mapdata/stops.json';
 import { theme } from '../../theme';
+
+// import lines from './mapdata/lines.json';
+// import points from './mapdata/stops.json';
 
 // import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
-console.log(theme);
 export const mapLayers = e => {
   const map = e.target ? e.target : e;
   // console.log('[map] checking sources');
@@ -15,18 +15,18 @@ export const mapLayers = e => {
       data: featureCollection([]),
     });
   }
-  if (!map.getSource('points')) {
-    map.addSource('points', {
-      type: 'geojson',
-      data: points,
-    });
-  }
-  if (!map.getSource('lines')) {
-    map.addSource('lines', {
-      type: 'geojson',
-      data: lines,
-    });
-  }
+  // if (!map.getSource('points')) {
+  //   map.addSource('points', {
+  //     type: 'geojson',
+  //     data: points,
+  //   });
+  // }
+  // if (!map.getSource('lines')) {
+  //   map.addSource('lines', {
+  //     type: 'geojson',
+  //     data: lines,
+  //   });
+  // }
   if (!map.getSource('routes-highlight')) {
     map.addSource('routes-highlight', {
       type: 'geojson',
@@ -35,49 +35,69 @@ export const mapLayers = e => {
   }
 
   const layers = [
-    {
-      id: 'lines-outline',
-      type: 'line',
-      source: 'lines',
-      paint: {
-        'line-color': 'white',
-        'line-width': 8,
-        'line-opacity': 0.6,
-      },
-    },
+    // {
+    //   id: 'lines-outline',
+    //   type: 'line',
+    //   source: 'lines',
+    //   paint: {
+    //     'line-color': 'white',
+    //     'line-width': 8,
+    //     'line-opacity': 0.6,
+    //   },
+    // },
 
+    // {
+    //   id: 'lines',
+    //   type: 'line',
+    //   source: 'lines',
+    //   paint: {
+    //     'line-color': 'red',
+    //     'line-width': 4,
+    //     'line-opacity': 0.6,
+    //   },
+    // },
+    // {
+    //   id: 'points',
+    //   type: 'circle',
+    //   source: 'points',
+    //   paint: {
+    //     'circle-radius': 3,
+    //     'circle-stroke-width': 1,
+    //     'circle-stroke-color': 'rgba(255,255,255,1)',
+    //     'circle-blur': 0.1,
+    //     'circle-color': 'lightgray',
+    //     'circle-opacity': 0.8,
+    //   },
+    //   minzoom: 10,
+    // },
     {
-      id: 'lines',
+      id: 'routes-outline',
       type: 'line',
-      source: 'lines',
+      source: 'routes-highlight',
       paint: {
-        'line-color': 'red',
-        'line-width': 4,
-        'line-opacity': 0.6,
+        'line-color': [
+          'case',
+          ['has', 'outlineColor'],
+          ['get', 'outlineColor'],
+          '#fff',
+        ],
+        'line-width': 10,
+        'line-opacity': 1,
       },
-    },
-    {
-      id: 'points',
-      type: 'circle',
-      source: 'points',
-      paint: {
-        'circle-radius': 3,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': 'rgba(255,255,255,1)',
-        'circle-blur': 0.1,
-        'circle-color': 'lightgray',
-        'circle-opacity': 0.8,
-      },
-      minzoom: 10,
     },
     {
       id: 'routes-highlight',
       type: 'line',
       source: 'routes-highlight',
       paint: {
-        'line-color': theme.colors.nfta,
+        'line-color': [
+          'case',
+          ['has', 'routeColor'],
+          ['get', 'routeColor'],
+          '#121212',
+        ],
         'line-width': 6,
-        'line-opacity': 0.8,
+        'line-opacity': 1,
       },
     },
 
@@ -97,28 +117,24 @@ export const mapLayers = e => {
       type: 'circle',
       source: 'stops',
       paint: {
-        'circle-radius': 6,
-        'circle-stroke-width': 2.5,
-        'circle-stroke-color': 'rgba(255,255,255,1)',
-        'circle-blur': 0.1,
-        'circle-color': theme.colors.nfta,
+        'circle-radius': 5,
+        'circle-stroke-width': 3.5,
+        'circle-stroke-color': [
+          'case',
+          ['has', 'routeColor'],
+          ['get', 'routeColor'],
+          '#121212',
+        ],
+        'circle-blur': 0,
+        'circle-color': [
+          'case',
+          ['has', 'outlineColor'],
+          ['get', 'outlineColor'],
+          '#fff',
+        ],
         'circle-opacity': 1,
       },
       minzoom: 10,
-    },
-    {
-      id: 'stops-highlight',
-      type: 'circle',
-      source: 'stops',
-      paint: {
-        'circle-radius': 6,
-        'circle-stroke-width': 3,
-        'circle-stroke-color': '#e91e63',
-        'circle-blur': 0,
-        'circle-color': '#1A202C',
-        'circle-opacity': 1,
-      },
-      filter: ['==', ['get', 'stop_code'], ''],
     },
   ];
 

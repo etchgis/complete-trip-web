@@ -18,17 +18,10 @@ import { useStore } from '../context/RootStore';
 
 const Layout = observer(({ showMap, children }) => {
   const { colorMode } = useColorMode();
-  const {
-    user,
-    updateUser,
-    loggedIn,
-    inTransaction,
-    requireMFA,
-    setRequireMFA,
-    setInTransaction,
-    auth,
-    reset,
-  } = useStore().authentication;
+  const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
+    useStore().authentication;
+
+  const { isLoading } = useStore().uiStore;
 
   if (loggedIn && !user?.profile?.onboarded)
     console.log('[layout] onboarded:', user?.profile?.onboarded);
@@ -98,7 +91,7 @@ const Layout = observer(({ showMap, children }) => {
       <CustomModal
         isOpen={
           (loggedIn && !user?.profile?.onboarded) ||
-            user?.profile?.onboarded === false
+          user?.profile?.onboarded === false
             ? true
             : false
         }
@@ -128,8 +121,7 @@ const Layout = observer(({ showMap, children }) => {
       <ErrorToastMessage></ErrorToastMessage>
 
       {/* LOADER */}
-      <Loader isOpen={inTransaction}></Loader>
-
+      <Loader isOpen={inTransaction || isLoading}></Loader>
     </Flex>
   );
 });
