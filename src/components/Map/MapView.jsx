@@ -175,7 +175,7 @@ export const MapView = observer(({ showMap }) => {
         })
           .addControl(mapControls.nav, 'top-right')
           .addControl(mapControls.locate, 'top-right')
-          .addControl(mapControls.bookmarks, 'top-right')
+          // .addControl(mapControls.bookmarks, 'top-right')
           .on('load', initMap)
           .on('style.load', mapLayers)
           .on('moveend', e => {
