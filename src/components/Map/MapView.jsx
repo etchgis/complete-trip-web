@@ -11,7 +11,7 @@ import debounce from '../../utils/debounce';
 import { featureCollection } from '@turf/helpers';
 import formatters from '../../utils/formatters';
 import { getLocation } from '../../utils/getLocation';
-import { mapControls } from './mapControls';
+import { mapControls } from './mapboxControls.js';
 import { mapLayers } from './mapLayers';
 // import { mapListeners } from './mapListeners';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
