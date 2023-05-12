@@ -13,13 +13,12 @@ import formatters from '../../utils/formatters';
 import { getLocation } from '../../utils/getLocation';
 import { mapControls } from './mapControls';
 import { mapLayers } from './mapLayers';
-import { mapListeners } from './mapListeners';
+// import { mapListeners } from './mapListeners';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
-import { map } from 'lodash';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
