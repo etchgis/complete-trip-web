@@ -4,6 +4,8 @@ import { makeAutoObservable, runInAction } from 'mobx';
 class UIStore {
   mode = 'light';
   isLoading = false;
+  toastMessage = '';
+  toastStatus = '';
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -21,6 +23,18 @@ class UIStore {
       });
     }
   }
+
+  setToastMessage = value => {
+    runInAction(() => {
+      this.toastMessage = value;
+    });
+  };
+
+  setToastStatus = value => {
+    runInAction(() => {
+      this.toastStatus = value;
+    });
+  };
 
   setLoading = value => {
     runInAction(() => {

@@ -1,6 +1,6 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-import { Box, Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Stack, Text, useColorMode } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
 import Loader from '../Loader';
@@ -19,6 +19,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
+import { map } from 'lodash';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
@@ -53,9 +54,9 @@ export const MapView = observer(({ showMap }) => {
   });
 
   const getRouteList = (e, x, y) => {
-    const exists = mapState.stoptimes?.features.length;
+    const exists = mapState.stoptimes?.features.length; //NOTE this disables the map from updating when the user pans if the stops are already loaded
     if (exists) return;
-    setMapState('stoptimes', featureCollection([]));
+    // setMapState('stoptimes', featureCollection([]));
     const map = e.target ? e.target : e;
     const { lng, lat } = map.getCenter();
     const stops = getNearestStops(y || lat, x || lng);
@@ -73,8 +74,9 @@ export const MapView = observer(({ showMap }) => {
     setMapState('zoom', map.getZoom());
   };
 
-  const routeClickHandler = async route => {
-    console.log('route click handler', route);
+  const routeClickHandler = async (route, retry) => {
+    // if (retry) console.log('retrying route click handler')
+    console.log('[map-view] route click handler');
     try {
       const id = route?.id || route?.routeId || null;
       setMapState('activeRoute', id)
@@ -99,6 +101,8 @@ export const MapView = observer(({ showMap }) => {
         mapRef.current.fitBounds(stoptimes.bbox, { padding: 50 });
       }
     } catch (error) {
+      // if (!retry) routeClickHandler(route, true);
+      setMapState('activeRoute', '')
       console.log(error);
     }
   };
@@ -109,14 +113,23 @@ export const MapView = observer(({ showMap }) => {
         center: stop.geometry.coordinates,
         zoom: mapRef.current.getZoom() > 17 ? mapRef.current.getZoom() : 17,
       });
+      if (mapState.marker) {
+        mapState.marker.setLngLat(stop.geometry.coordinates)
+          .addTo(mapRef.current);
+      }
     }
   };
 
   const backClickHandler = () => {
-    setMapState('stoptimes', featureCollection([]));
-    mapRef.current.flyTo({ center: mapState.center, zoom: mapState.zoom });
+    //CLEAR THE STATES
+    setMapState('stoptimes', featureCollection([])); //NOTE this clears the stoptimes list and allows the route list to be displayed
+    setMapState('activeRoute', '') //Clear the active route
+    if (mapState.marker) mapState.marker.remove();
     mapRef.current.getSource('routes-highlight').setData(featureCollection([]));
     mapRef.current.getSource('stops').setData(featureCollection([]));
+
+    //RESET TO THE PREVIOUS LOCATION AND CALL THE ROUTE LIST FUNCTION
+    mapRef.current.flyTo({ center: mapState.center, zoom: mapRef.current.getZoom() }); //This will now trigger the getRouteList function
   };
 
   useEffect(() => {
@@ -168,6 +181,15 @@ export const MapView = observer(({ showMap }) => {
       ];
 
       if (!mapRef?.current) {
+
+        const markerEl = document.createElement('div');
+        markerEl.className = 'mapboxgl-user-location-dot current-stop';
+        const marker = new mapboxgl.Marker({
+          element: markerEl,
+        });
+
+        setMapState('marker', marker);
+
         mapRef.current = new mapboxgl.Map({
           container: mapContainer.current,
           style: config.MAP.BASEMAPS[mapStyle], //change to style from store
@@ -212,7 +234,7 @@ export const MapView = observer(({ showMap }) => {
       <Flex
         flexDir={'column'}
         height="100%"
-        width="340px"
+        width="420px"
         borderRight={'1px'}
         borderColor={mapStyle === 'DAY' ? 'gray.200' : 'gray.900'}
         p={0}
@@ -234,7 +256,7 @@ export const MapView = observer(({ showMap }) => {
                 }
               }}
               label="Find Nearby Routes"
-              resultsMaxWidth="322px"
+              resultsMaxWidth="402px"
             />
           </Box>
           <BackButton backClickHandler={backClickHandler} />
@@ -293,9 +315,10 @@ const BackButton = observer(({ backClickHandler }) => {
 });
 
 const StopTimesList = observer(({ stopClickHandler }) => {
+  const { colorMode } = useColorMode();
   const { stoptimes, activeRoute } = useStore().mapStore.mapState;
-  console.log(toJS(stoptimes.features[0]));
-  console.log(activeRoute);
+  if (stoptimes.features.length) console.log(toJS(stoptimes.features[0]));
+  if (activeRoute) console.log('[map-view] active route', toJS(activeRoute))
   // const stopIds = stoptimes?.features.map(s => s.properties.stopId) || [];
   // const uniqueStops = [...new Set(stopIds)]; // these are already in order of arrival time;
 
@@ -303,13 +326,13 @@ const StopTimesList = observer(({ stopClickHandler }) => {
     <>
       {stoptimes.features.length ? (
         <Flex
-          mt={2}
           flexDir={'column'}
           flex={1}
           overflowY={'auto'}
           id="map-stoptimes"
+          overflowX={'hidden'}
         >
-          <Stack spacing={0} mt={2}>
+          <Stack spacing={0}>
             {stoptimes.features.length
               ? stoptimes.features.map((s, i) => {
                 // const stop = stoptimes.features.find(st => st.properties.stopId === s);
@@ -319,7 +342,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                     display="block"
                     flexWrap={'wrap'}
                     textAlign={'left'}
-                    backgroundColor={'white'}
+                    background={colorMode === 'light' ? 'white' : 'gray.800'}
                     justifyContent={'flex-start'}
                     key={i.toString()}
                     fontSize="sm"
@@ -331,10 +354,14 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                     py={2}
                     borderRadius={0}
                     onClick={() => stopClickHandler(s)}
+                    borderBottom={'solid 1px lightgray'}
+                    borderLeft={'none'}
+                    borderRight={'none'}
+
                   >
-                    <Box textAlign={'left'}>
-                      <Text fontSize={'sm'} fontWeight={'bold'}>
-                        {s?.properties?.id} - {s?.properties?.name}
+                    <Box textAlign={'left'} my={1}>
+                      <Text fontSize={'md'} fontWeight={'bold'}>
+                        {s?.properties?.name}
                       </Text>
                     </Box>
                     {/* <Box>
@@ -347,28 +374,31 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                           return (
                             <Box key={idx0.toString()}>
                               {trip.pattern?.routeId === activeRoute && trip?.times?.length
-                                ? trip.times.map((time, idx) => {
-                                  return (
-                                    <Flex
-                                      justifyContent={'space-between'}
-                                      key={idx.toString()}
-                                    >
-                                      <Text fontSize={'xs'}>
-                                        {trip?.times[0]?.headsign ||
-                                          'No Stop Times Available'}
-                                      </Text>
-                                      <Text fontSize="xs">
-                                        {/* {!time.arrival ? '' : formatters.datetime.asHHMMA(new Date(time.arrival))}
+                                ? (
+                                  <Flex
+                                    justifyContent={'start'}
+                                    opacity={0.8}
+                                    my={1}
+                                  // key={idx.toString()}
+                                  >
+                                    <Text fontSize="sm" width="80px" overflow={'hidden'} mr={1} color={colorMode === 'light' ? 'gray.500' : 'gray.400'}>
+                                      {/* {!time.arrival ? '' : formatters.datetime.asHHMMA(new Date(time.arrival))}
                                         {' '} */}
-                                        {!time.arrival
-                                          ? ''
-                                          : formatters.datetime.asDuration(
-                                            (new Date(time.arrival).valueOf() - Date.now()) / 1000
-                                          ) || '1 min'}
-                                      </Text>
-                                    </Flex>
-                                  );
-                                })
+                                      {!trip?.times[0].arrival
+                                        ? ''
+                                        : formatters.datetime.asDuration(
+                                          (new Date(trip.times[0].arrival).valueOf() - Date.now()) / 1000
+                                        ) || '1 min'}
+                                    </Text>
+                                    <Text fontSize={'sm'}>
+                                      {trip?.times[0]?.headsign ||
+                                        'No Stop Times Available'}
+                                    </Text>
+                                    <Text>{trip?.times[0]?.delayed ? '!!' : ''}</Text>
+
+                                  </Flex>
+                                )
+
                                 : ''}
                             </Box>
                           );
@@ -390,7 +420,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
 
 const RouteList = observer(({ routeClickHandler }) => {
   const { routes, stoptimes } = useStore().mapStore.mapState;
-  console.log(toJS(routes));
+  if (routes.length) console.log(toJS(routes));
 
   return (
     <>

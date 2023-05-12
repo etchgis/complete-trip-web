@@ -51,3 +51,9 @@ sub {
 .chakra-ui-dark .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
   border-top-color: #1A202C;
 }
+
+.mapboxgl-user-location-dot.current-stop,
+.mapboxgl-user-location-dot.current-stop,
+.mapboxgl-user-location-dot.current-stop:before {
+  background-color: #212121;
+}

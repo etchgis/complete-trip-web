@@ -7,7 +7,6 @@ import knn from 'sphere-knn';
 import { mobility } from '@etchgis/mobility-transport-layer';
 import { sortBy } from 'lodash';
 import tinycolor from 'tinycolor2';
-import { toJS } from 'mobx';
 
 const { otp } = mobility;
 
@@ -164,7 +163,7 @@ class MapStore {
   };
   //TODO convert map state to mapcache
 
-  getNearestStops = (lat, lng, limit = 10) => {
+  getNearestStops = (lat, lng, limit = 20) => {
     if (!this.mapCache.stops.length) return [];
     const _stops = this.mapCache.stopsIndex(lat, lng, limit);
     return this.toPoints(_stops);
@@ -264,11 +263,11 @@ class MapStore {
       if (!stops.length) throw new Error('No stops found.');
 
       //break stops into chunks of stops.length / 5, then call otp.stops.one in a for loop
-      const chunks = this.chunk(stops, 10);
+      const chunks = this.chunk(stops, 5);
       const stoptimes = [];
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
-        console.log(chunk.length);
+        // console.log(chunk.length);
         const results = await Promise.all(
           chunk.map(async s => {
             const pattern = await otp.stops.one(s.id, 'COMPLETE_TRIP');
@@ -284,6 +283,11 @@ class MapStore {
                       (t.serviceDay +
                         (t.realtime ? t.realtimeArrival : t.scheduledArrival)) *
                       1000;
+                    if (t?.realtimeArrival && t?.scheduledArrival && t?.realtimeArrival !== t?.scheduledArrival && t?.realtimeArrival > t?.scheduledArrival) {
+                      t["delayed"] = true;
+                    } else {
+                      t["delayed"] = false;
+                    }
                   })
                   pattern.stoptimes.push(st);
                 }
@@ -305,9 +309,15 @@ class MapStore {
         if (!s.stoptimes.length) console.log(s);
       })
       const existing = stoptimes.filter(s => s.stoptimes[0].times[0].arrival);
+      // if (!existing.length) {
+      //   runInAction(() => {
+      //     this.rootStore.uiStore.setToastStatus('Error')
+      //     this.rootStore.uiStore.setToastMessage('No active stops found.');
+      //   })
+      //   throw new Error('No stoptimes found.')
+      // }
       const missing = stoptimes.filter(s => !s.stoptimes[0].times[0].arrival);
       const sorted = existing.sort((a, b) => a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival);
-      console.log(existing);
       const parsed = [...sorted, ...missing];
       // console.log(id);
       // console.log(parsed)

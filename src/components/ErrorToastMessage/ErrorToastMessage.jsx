@@ -5,15 +5,17 @@ import { useToast } from '@chakra-ui/react';
 
 export const ErrorToastMessage = observer(({ message }) => {
   const { errorToastMessage, setErrorToastMessage } = useStore().authentication;
+  const { toastMessage, toastStatus, setToastMessage, setToastStatus } = useStore().uiStore;
+
   const toast = useToast();
 
   useEffect(() => {
-    if (!errorToastMessage && !message) return;
-    console.log({ errorToastMessage });
+    if (!errorToastMessage && !toastMessage && !message) return;
+    const msg = message || errorToastMessage || toastMessage;
     toast({
-      title: 'Error',
-      description: message || errorToastMessage || '',
-      status: 'error',
+      title: toastStatus || 'Error',
+      description: msg,
+      status: toastStatus?.toLowerCase() || 'error',
       duration: 3000,
       isClosable: true,
       position: 'top-right',
@@ -21,8 +23,10 @@ export const ErrorToastMessage = observer(({ message }) => {
     });
     setTimeout(() => {
       setErrorToastMessage(null);
+      setToastMessage(null);
+      setToastStatus(null);
     }, 4000);
     // eslint-disable-next-line
-  }, [errorToastMessage]);
+  }, [errorToastMessage, toastMessage]);
   return <></>;
 });

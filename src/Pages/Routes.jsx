@@ -19,7 +19,7 @@ import { useStore } from '../context/RootStore';
 
 export const Routes = observer(() => {
   //add trace if env is development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     trace(true);
   }
   const { pathname } = useLocation();
