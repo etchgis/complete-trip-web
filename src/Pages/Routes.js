@@ -56,7 +56,6 @@ export const Routes = observer(() => {
 
 
   useEffect(() => {
-    console.log(process.env)
     Gleap.initialize(process.env.REACT_APP_GLEAP || "");
   }, []);
 
