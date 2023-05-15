@@ -15,6 +15,7 @@ import { observer } from 'mobx-react-lite';
 import { trace } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
+import Gleap from "gleap";
 
 // import { toJS } from 'mobx';
 
@@ -52,6 +53,12 @@ export const Routes = observer(() => {
   //   console.log({ _schedule });
   //   // eslint-disable-next-line
   // }, [userr]);
+
+
+  useEffect(() => {
+    console.log(process.env)
+    Gleap.initialize(process.env.REACT_APP_GLEAP || "");
+  }, []);
 
   useEffect(() => {
     (async () => {
