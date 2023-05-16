@@ -59,9 +59,9 @@ export const ScheduleTripModal = observer(
     const [selectedTrip, setSelectedTrip] = useState({});
     // console.log(toJS(stagedTrip));
     if (
-      favoriteTrip.origin &&
-      favoriteTrip.destination &&
-      favoriteTrip.id &&
+      favoriteTrip?.origin &&
+      favoriteTrip?.destination &&
+      favoriteTrip?.id &&
       !stagedTrip.request.origin.text &&
       !stagedTrip.request.destination.text &&
       !stagedTrip.request.id

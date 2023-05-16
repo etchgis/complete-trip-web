@@ -11,7 +11,8 @@ export const ErrorToastMessage = observer(({ message }) => {
 
   useEffect(() => {
     if (!errorToastMessage && !toastMessage && !message) return;
-    const msg = message || errorToastMessage || toastMessage;
+    const msg = errorToastMessage || toastMessage;
+    if (!msg) setToastMessage(message);
     toast({
       title: toastStatus || 'Error',
       description: msg,

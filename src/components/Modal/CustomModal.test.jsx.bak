@@ -1,9 +1,10 @@
+import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
 import { CustomModal } from './CustomModal';
 import { TestWrapper } from '../../setupTests';
 
-test('renders the landing page', () => {
+test('Renders a Modal', () => {
   render(
     <TestWrapper>
       <CustomModal
@@ -14,6 +15,6 @@ test('renders the landing page', () => {
     </TestWrapper>
   );
   // verify page content for default route
-  expect(screen.getByText(/test modal/i)).toBeInTheDocument();
-  expect(screen.getByText(/children/i)).toBeInTheDocument();
+  expect(screen.getByText(/test modal/i)).toBeTruthy();
+  expect(screen.getByText(/Children/i)).toBeTruthy();
 });

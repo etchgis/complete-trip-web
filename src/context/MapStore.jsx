@@ -39,6 +39,12 @@ const flattenStoptimes = (arr) => {
 }
 
 class MapStore {
+  map = null;
+  setMap = (map) => {
+    runInAction(() => {
+      this.map = map;
+    });
+  };
   mapStyle = 'DAY';
   mapState = {
     activeRoute: '',

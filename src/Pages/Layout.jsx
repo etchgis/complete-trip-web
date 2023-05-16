@@ -91,7 +91,7 @@ const Layout = observer(({ showMap, children }) => {
       <CustomModal
         isOpen={
           (loggedIn && !user?.profile?.onboarded) ||
-          user?.profile?.onboarded === false
+            user?.profile?.onboarded === false
             ? true
             : false
         }

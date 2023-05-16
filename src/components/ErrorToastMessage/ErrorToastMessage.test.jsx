@@ -6,16 +6,16 @@ import { render, screen } from '@testing-library/react';
 import { ErrorToastMessage } from './ErrorToastMessage';
 import { TestWrapper } from '../../setupTests';
 
-// import { useEffect } from 'react';
-// import { useStore } from '../../context/RootStore';
-
 test('Custom Message', () => {
+
   render(
     <TestWrapper>
       <ErrorToastMessage message={'message'}></ErrorToastMessage>
     </TestWrapper>
   );
 
-  expect(screen.getByText(/Error/i)).toBeInTheDocument();
-  expect(screen.getByText(/message/i)).toBeInTheDocument();
+  const exists = screen.queryAllByText(/error/i);
+  expect(exists.length).toBeTruthy();
+  const message = screen.getByText(/message/i);
+  expect(message).toBeDefined();
 });

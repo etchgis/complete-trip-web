@@ -5,14 +5,14 @@
 
 // import '@testing-library/jest-dom';
 
-// import RootStore, { StoreProvider } from './context/RootStore';
+import RootStore, { StoreProvider } from './context/RootStore';
 
 import { ChakraProvider } from '@chakra-ui/react';
 
-// const store = new RootStore();
+const store = new RootStore();
 
 export const TestWrapper = ({ children }) => (
-  // <StoreProvider store={store}>
-  <ChakraProvider>{children}</ChakraProvider>
-  // </StoreProvider>
+  <StoreProvider store={store}>
+    <ChakraProvider>{children}</ChakraProvider>
+  </StoreProvider>
 );

@@ -5,14 +5,14 @@ import * as React from 'react';
 import { expect, test } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import { ChakraProvider } from '@chakra-ui/react';
+import { TestWrapper } from '../../setupTests';
 import { Loader } from './Loader';
 
 test('Renders the Loader', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Loader isOpen={true} />
-    </ChakraProvider>
+    </TestWrapper>
   );
   const exists = screen.queryByTestId('loader');
   expect(exists).not.toBeNull();
@@ -20,9 +20,9 @@ test('Renders the Loader', () => {
 
 test('Does not renders the Loader', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Loader isOpen={false} />
-    </ChakraProvider>
+    </TestWrapper>
   );
   const exists = screen.queryByTestId('loader') || null;
   expect(exists).toBeNull();

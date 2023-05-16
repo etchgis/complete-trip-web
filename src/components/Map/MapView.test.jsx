@@ -8,18 +8,13 @@ import { TestWrapper } from '../../setupTests';
 import {
   BrowserRouter as Router,
 } from 'react-router-dom';
-import RootStore, { StoreProvider } from '../../context/RootStore';
-
-const store = new RootStore();
 
 test('Delete', () => {
   render(
     <TestWrapper>
-      <StoreProvider store={store}>
-        <Router>
-          <MapView showMap={true}></MapView>
-        </Router>
-      </StoreProvider>
+      <Router>
+        <MapView showMap={true}></MapView>
+      </Router>
     </TestWrapper>
   );
 
