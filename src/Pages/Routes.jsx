@@ -14,6 +14,7 @@ import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
+import Gleap from "gleap";
 
 // import { toJS } from 'mobx';
 
@@ -31,6 +32,11 @@ export const Routes = observer(() => {
 
   console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);
+
+  useEffect(() => {
+    console.log(import.meta.env)
+    Gleap.initialize(import.meta.env.VITE_GLEAP);
+  }, []);
 
   //NOTE useEffect does not work with MobX 100%
   // useEffect(() => {

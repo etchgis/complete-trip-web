@@ -35,8 +35,8 @@ export default defineConfig({
     ],
     exclude: [],
   },
-  // test: {
-  //   globals: true,
-  //   environment: 'jsdom',
-  // },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
 });

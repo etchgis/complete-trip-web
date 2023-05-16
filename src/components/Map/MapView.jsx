@@ -189,24 +189,30 @@ export const MapView = observer(({ showMap }) => {
 
         setMapState('marker', marker);
 
-        mapRef.current = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: config.MAP.BASEMAPS[mapStyle], //change to style from store
-          center: center,
-          zoom: 16,
-        })
-          .addControl(mapControls.nav, 'top-right')
-          .addControl(mapControls.locate, 'top-right')
-          // .addControl(mapControls.bookmarks, 'top-right')
-          .on('load', initMap)
-          .on('style.load', mapLayers)
-          .on('moveend', e => {
-            debounce(getRouteList(e.target), 1000);
+        try {
+          mapRef.current = new mapboxgl.Map({
+            container: mapContainer.current,
+            style: config.MAP.BASEMAPS[mapStyle], //change to style from store
+            center: center,
+            zoom: 16,
           })
-          .on('contextmenu', e => {
-            console.log(e.target.getZoom());
-            console.log(e.lngLat);
-          });
+            .addControl(mapControls.nav, 'top-right')
+            .addControl(mapControls.locate, 'top-right')
+            // .addControl(mapControls.bookmarks, 'top-right')
+            .on('load', initMap)
+            .on('style.load', mapLayers)
+            .on('moveend', e => {
+              debounce(getRouteList(e.target), 1000);
+            })
+            .on('contextmenu', e => {
+              console.log(e.target.getZoom());
+              console.log(e.lngLat);
+            });
+        } catch (error) {
+          console.log(error);
+        }
+
+
       }
     })();
 
