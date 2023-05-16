@@ -2,6 +2,12 @@
 
 ![blitzwing](blitzwing.jpg)
 
+## Gleap
+
+## Questions?
+
+> Sidebar, Modals, or Dashboard to handle user accounts & preferences (prefer sidebar or modals)
+
 ## Task List
 
 - [x] Add Leave By to Trip Wizard
