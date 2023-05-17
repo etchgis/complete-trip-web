@@ -1,11 +1,10 @@
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-import { Box, Flex, } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
+import { Box } from '@chakra-ui/react';
 import Loader from '../Loader';
 import config from '../../config';
-import debounce from '../../utils/debounce';
 import { getLocation } from '../../utils/getLocation';
 import { mapControls } from './mapboxControls.js';
 import { mapLayers } from './mapLayers';
@@ -21,14 +20,16 @@ import { useStore } from '../../context/RootStore';
 
 mapboxgl.accessToken = config.MAP.MAPBOX_TOKEN;
 
-export const MapComponent = observer(({ showMap, getRouteList }) => {
+export const MapComponent = observer(({ showMap }) => {
   console.log('[map-view] rendering');
   const { pathname } = useLocation();
   const {
+    setMapX,
     setMap,
     mapStyle,
     mapCache,
     setMapState,
+    setMapGeolocation,
   } = useStore().mapStore;
   const mapRef = useRef(null);
   const mapContainer = useRef(null);
@@ -62,7 +63,7 @@ export const MapComponent = observer(({ showMap, getRouteList }) => {
     mapControls.locate.on('geolocate', e => {
       const { latitude, longitude } = e.coords;
       console.log({ latitude, longitude });
-      getRouteList(mapRef.current, latitude, longitude);
+      setMapState('geolocation', [longitude, latitude]);
     });
 
     (async () => {
@@ -73,7 +74,6 @@ export const MapComponent = observer(({ showMap, getRouteList }) => {
       ];
 
       if (!mapRef?.current) {
-
         const markerEl = document.createElement('div');
         markerEl.className = 'mapboxgl-user-location-dot current-stop';
         const marker = new mapboxgl.Marker({
@@ -95,23 +95,24 @@ export const MapComponent = observer(({ showMap, getRouteList }) => {
             .on('load', initMap)
             .on('style.load', mapLayers)
             .on('moveend', e => {
-              debounce(getRouteList(e.target), 1000);
+              console.log('moveend');
+              const { lng, lat } = e.target.getCenter();
+              setMapState('geolocation', [lng, lat]);
+              // debounce(getRouteList(e.target), 1000);
             })
             .on('contextmenu', e => {
               console.log(e.target.getZoom());
               console.log(e.lngLat);
             });
         } catch (error) {
+          setMapIsLoaded(true);
           console.log(error);
         }
-
-
       }
     })();
 
     function initMap() {
-      const map = this;
-      setMap(map)
+      setMap(this);
       // mapControls.locate.trigger();
       setMapIsLoaded(true);
       // mapListeners(map, setMapIsLoaded);
@@ -121,25 +122,14 @@ export const MapComponent = observer(({ showMap, getRouteList }) => {
   }, [mapStyle, pathname, mapCache.stops]);
 
   return (
-    <Flex
-      flex={1}
-      display={showMap ? 'flex' : 'none'}
-      flexDir={'row'}
-      id="map-component"
-      height={'calc(100vh - 60px)'}
-      overflow={'hidden'}
-    >
+    <>
       <Box
         ref={mapContainer}
         className="mapbox"
         style={{ height: '100%', flex: 1 }}
         id="map-container"
       />
-
-      {/* NOTE only show loader when map is actually open */}
-      <Loader
-        isOpen={!mapIsLoaded && pathname === '/map'}
-      ></Loader>
-    </Flex>
+      <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
+    </>
   );
 });

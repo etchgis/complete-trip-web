@@ -6,8 +6,16 @@ class UIStore {
   isLoading = false;
   toastMessage = '';
   toastStatus = '';
+  debug = false;
 
   constructor(rootStore) {
+    if (window && window.location) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const debug = urlParams.get('debug');
+      runInAction(() => {
+        this.debug = debug === 'true';
+      });
+    }
     makeAutoObservable(this);
     this.rootStore = rootStore;
 

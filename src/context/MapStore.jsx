@@ -10,41 +10,36 @@ import tinycolor from 'tinycolor2';
 
 const { otp } = mobility;
 
-const flattenStoptimes = (arr) => {
-  const array = [];
+// const flattenStoptimes = arr => {
+//   const array = [];
 
-  arr.forEach((item) => {
-    const itemProps = Object.assign({}, item);
-    delete itemProps.stoptimes;
-    itemProps["stopId"] = item.id;
-    if (item.stoptimes.length) {
-      item.stoptimes.forEach((st) => {
-        const patternProps = Object.assign({}, st?.pattern);
-        patternProps["patternId"] = st?.pattern?.id;
-        if (st.times.length) {
-          st.times.forEach(t => {
-            array.push({
-              ...itemProps,
-              ...patternProps,
-              ...t
-            })
-          })
-        }
-      });
-    } else {
-      array.push(itemProps)
-    }
-  });
-  return array;
-}
+//   arr.forEach(item => {
+//     const itemProps = Object.assign({}, item);
+//     delete itemProps.stoptimes;
+//     itemProps['stopId'] = item.id;
+//     if (item.stoptimes.length) {
+//       item.stoptimes.forEach(st => {
+//         const patternProps = Object.assign({}, st?.pattern);
+//         patternProps['patternId'] = st?.pattern?.id;
+//         if (st.times.length) {
+//           st.times.forEach(t => {
+//             array.push({
+//               ...itemProps,
+//               ...patternProps,
+//               ...t,
+//             });
+//           });
+//         }
+//       });
+//     } else {
+//       array.push(itemProps);
+//     }
+//   });
+//   return array;
+// };
 
 class MapStore {
   map = null;
-  setMap = (map) => {
-    runInAction(() => {
-      this.map = map;
-    });
-  };
   mapStyle = 'DAY';
   mapState = {
     activeRoute: '',
@@ -53,6 +48,7 @@ class MapStore {
     routes: [],
     center: [],
     zoom: 12,
+    geolocation: [],
   };
   mapCache = {
     routes: [], //cache of routes
@@ -80,6 +76,12 @@ class MapStore {
     }
   }
 
+  setMap = map => {
+    runInAction(() => {
+      this.map = map;
+    });
+  };
+
   setMapState = (key, value) => {
     runInAction(() => {
       this.mapState[key] = value;
@@ -98,8 +100,8 @@ class MapStore {
         const bgColor = routes[i]?.color || '000';
         routes[i].stops = await fetch(
           'https://ctp-otp.etch.app/otp/routers/default/index/routes/' +
-          routes[i].id +
-          '/stops'
+            routes[i].id +
+            '/stops'
         ).then(res => res.json());
         //this.mapCache.stops.length ? this.mapCache.stops.filter(s => s.routeId === routes[i].id) :
         //TODO convert this to a separate function - getColor
@@ -289,12 +291,17 @@ class MapStore {
                       (t.serviceDay +
                         (t.realtime ? t.realtimeArrival : t.scheduledArrival)) *
                       1000;
-                    if (t?.realtimeArrival && t?.scheduledArrival && t?.realtimeArrival !== t?.scheduledArrival && t?.realtimeArrival > t?.scheduledArrival) {
-                      t["delayed"] = true;
+                    if (
+                      t?.realtimeArrival &&
+                      t?.scheduledArrival &&
+                      t?.realtimeArrival !== t?.scheduledArrival &&
+                      t?.realtimeArrival > t?.scheduledArrival
+                    ) {
+                      t['delayed'] = true;
                     } else {
-                      t["delayed"] = false;
+                      t['delayed'] = false;
                     }
-                  })
+                  });
                   pattern.stoptimes.push(st);
                 }
               });
@@ -302,8 +309,11 @@ class MapStore {
             pattern.stoptimes.forEach(st => {
               st.times = st.times.sort((a, b) => a.arrival - b.arrival);
             });
-            if (!pattern.stoptimes.length) pattern.stoptimes.push({ times: [{ arrival: 0 }] })
-            pattern.stoptimes = pattern.stoptimes.sort((a, b) => a.times[0].arrival - b.times[0].arrival);
+            if (!pattern.stoptimes.length)
+              pattern.stoptimes.push({ times: [{ arrival: 0 }] });
+            pattern.stoptimes = pattern.stoptimes.sort(
+              (a, b) => a.times[0].arrival - b.times[0].arrival
+            );
             return pattern;
           })
         );
@@ -313,7 +323,7 @@ class MapStore {
       // const flattened = flattenStoptimes(stoptimes);
       stoptimes.forEach(s => {
         if (!s.stoptimes.length) console.log(s);
-      })
+      });
       const existing = stoptimes.filter(s => s.stoptimes[0].times[0].arrival);
       // if (!existing.length) {
       //   runInAction(() => {
@@ -323,7 +333,10 @@ class MapStore {
       //   throw new Error('No stoptimes found.')
       // }
       const missing = stoptimes.filter(s => !s.stoptimes[0].times[0].arrival);
-      const sorted = existing.sort((a, b) => a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival);
+      const sorted = existing.sort(
+        (a, b) =>
+          a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival
+      );
       const parsed = [...sorted, ...missing];
       // console.log(id);
       // console.log(parsed)

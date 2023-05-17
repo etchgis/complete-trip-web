@@ -16,7 +16,7 @@ export const SearchForm = observer(
     label,
     required,
     clearResult,
-    resultsMaxWidth
+    resultsMaxWidth,
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
@@ -44,8 +44,9 @@ export const SearchForm = observer(
         )}&limit=10`;
 
         if (center?.lng) {
-          uri += `&center=${(center.lng * 1000 || 0) / 1000},${(center.lat * 1000 || 0) / 1000
-            }`;
+          uri += `&center=${(center.lng * 1000 || 0) / 1000},${
+            (center.lat * 1000 || 0) / 1000
+          }`;
         }
         // console.log(uri);
         let items = await fetch(cursor || uri, { signal }).then(res =>
@@ -92,6 +93,7 @@ export const SearchForm = observer(
       <Autocomplete
         required={required || false}
         label={label}
+        aria-label={label}
         placeholder="Start typing an address..."
         items={list.items}
         inputValue={address}
@@ -124,7 +126,11 @@ export const SearchForm = observer(
         resultsMaxWidth={resultsMaxWidth}
       >
         {item => (
-          <Item key={item.childKey} favorite={item.alias ? true : false}>
+          <Item
+            key={item.childKey}
+            favorite={item.alias ? true : false}
+            // aria-label={item?.name}
+          >
             {item?.name}
           </Item>
         )}

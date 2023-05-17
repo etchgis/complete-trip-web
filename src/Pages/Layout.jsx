@@ -5,7 +5,7 @@ import ErrorToastMessage from '../components/ErrorToastMessage';
 import Loader from '../components/Loader';
 import LoginRegister from '../components/LoginRegister';
 import { MFAVerify } from '../components/MFA/MFAVerify';
-import MapboxMap from '../components/Map';
+import Map from './Map';
 import Navbar from '../components/Navbar';
 import ResponsiveSidebar from '../components/Sidebar';
 import Wizard from '../components/Wizard';
@@ -70,7 +70,8 @@ const Layout = observer(({ showMap, children }) => {
           onClose={onClose}
         ></ResponsiveSidebar>
         {/* MAP */}
-        <MapboxMap showMap={showMap}></MapboxMap>
+        {/* NOTE the map is always loaded so we dont have to re-load it each time we navigate to the map route */}
+        <Map showMap={showMap}></Map>
         {children}
       </Grid>
 

@@ -11,9 +11,9 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 
-import { Calendar } from '../components/TripCalendar/Calendar';
+import Calendar from '../components/TripCalendar';
 import CustomModal from '../components/Modal';
-import { ScheduleTripHeader } from '../components/ScheduleTripHeader';
+import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TripCardList from '../components/TripCardList';
 import VerticalTripPlan from '../components/ScheduleTripModal/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';

@@ -10,13 +10,14 @@ import plan from '../sample-trip.json';
 /**
  * Basic test to ensure the component renders
  */
-test('Vertical Trip Plan', () => {
+test('Vertical Trip Plan Renders', async () => {
   render(
     <TestWrapper>
       <VerticalTripPlan requst={{}} plan={plan}></VerticalTripPlan>
     </TestWrapper>
   );
-
-  expect(screen.getByText(/LaSalle Station/i)).toBeInTheDocument();
-  expect(screen.getByText(/11:39/i)).toBeInTheDocument();
+  const el = await screen.findByTestId('vertical-trip-plan');
+  expect(el).toBeTruthy();
+  expect(screen.getByText(/LaSalle Station/i)).toBeTruthy();
+  expect(screen.getByText(/1 Transfer/i)).toBeTruthy();
 });

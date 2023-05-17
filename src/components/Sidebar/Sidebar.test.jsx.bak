@@ -5,13 +5,13 @@ import * as React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 
-import { ChakraProvider } from '@chakra-ui/react';
 import { ResponsiveSidebar } from './Sidebar';
+import { TestWrapper } from '../../setupTests';
 
 //BUG useNavigate and useLocation need a mocked Router
 test('Renders the Desktop Sidebar as a guest user', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Router>
         <Routes>
           <Route
@@ -25,7 +25,7 @@ test('Renders the Desktop Sidebar as a guest user', () => {
           />
         </Routes>
       </Router>
-    </ChakraProvider>
+    </TestWrapper>
   );
   const exists = screen.getByText(/Home/i);
   expect(exists).toBeInTheDocument();
@@ -39,7 +39,7 @@ test('Renders the Desktop Sidebar as a guest user', () => {
 
 test('Renders the Desktop Sidebar as a logged in user', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Router>
         <Routes>
           <Route
@@ -50,7 +50,7 @@ test('Renders the Desktop Sidebar as a logged in user', () => {
           />
         </Routes>
       </Router>
-    </ChakraProvider>
+    </TestWrapper>
   );
   const exists4 = screen.queryByText(/profile and settings/i);
   expect(exists4).toBeInTheDocument();
@@ -58,7 +58,7 @@ test('Renders the Desktop Sidebar as a logged in user', () => {
 
 test('Renders the mobile sidebar', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Router>
         <Routes>
           <Route
@@ -69,7 +69,7 @@ test('Renders the mobile sidebar', () => {
           />
         </Routes>
       </Router>
-    </ChakraProvider>
+    </TestWrapper>
   );
   const exists = screen.queryByText(/test content/i);
   expect(exists).toBeInTheDocument();
@@ -77,7 +77,7 @@ test('Renders the mobile sidebar', () => {
 
 test('Does not redner the mobile sidebar', () => {
   render(
-    <ChakraProvider>
+    <TestWrapper>
       <Router>
         <Routes>
           <Route
@@ -88,7 +88,7 @@ test('Does not redner the mobile sidebar', () => {
           />
         </Routes>
       </Router>
-    </ChakraProvider>
+    </TestWrapper>
   );
   const exists = screen.queryByText(/test content/i);
   expect(exists).not.toBeInTheDocument();

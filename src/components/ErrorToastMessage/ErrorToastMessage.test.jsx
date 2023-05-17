@@ -7,7 +7,6 @@ import { ErrorToastMessage } from './ErrorToastMessage';
 import { TestWrapper } from '../../setupTests';
 
 test('Custom Message', () => {
-
   render(
     <TestWrapper>
       <ErrorToastMessage message={'message'}></ErrorToastMessage>

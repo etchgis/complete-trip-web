@@ -1,11 +1,11 @@
 import { Button, Icon, Stack, useDisclosure } from "@chakra-ui/react";
 
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import ScheduleTripModal from "./ScheduleTripModal";
+import ScheduleTripModal from "../ScheduleTripModal";
 import { observer } from "mobx-react-lite"
 import { useColorMode } from "@chakra-ui/color-mode";
 import { useState } from "react";
-import { useStore } from "../context/RootStore";
+import { useStore } from "../../context/RootStore";
 
 export const ScheduleTripHeader = observer(() => {
   const { trips: favoriteTrips } = useStore().favorites;
