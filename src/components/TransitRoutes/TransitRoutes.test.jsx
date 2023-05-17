@@ -14,7 +14,7 @@ import { TransitRoutes } from './TransitRoutes';
 
 test('UI Shows Up', async () => {
   render(
-    <TestWrapper>
+    <TestWrapper route={'/map'}>
       <TransitRoutes></TransitRoutes>
     </TestWrapper>
   );
@@ -39,7 +39,7 @@ test('Input Accepts Value', async () => {
 
 test('Waits for Routes to Load', async () => {
   render(
-    <TestWrapper>
+    <TestWrapper route={'/map'}>
       <TransitRoutes></TransitRoutes>
     </TestWrapper>
   );

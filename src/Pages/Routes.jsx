@@ -7,6 +7,7 @@ import {
 import { toJS, trace } from 'mobx';
 
 import { Box } from '@chakra-ui/react';
+import Gleap from 'gleap';
 import Home from './Home';
 import Layout from './Layout';
 import Settings from './Settings';
@@ -14,13 +15,16 @@ import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
-import Gleap from "gleap";
+
 // import { toJS } from 'mobx';
 
 export const Routes = observer(() => {
   //add trace if env is development
-  if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
-    trace(true);
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NODE_ENV !== 'test'
+  ) {
+    trace(false);
   }
   const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;

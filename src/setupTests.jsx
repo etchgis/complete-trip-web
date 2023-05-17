@@ -8,11 +8,14 @@
 import RootStore, { StoreProvider } from './context/RootStore';
 
 import { ChakraProvider } from '@chakra-ui/react';
+import { MemoryRouter } from 'react-router-dom';
 
 const store = new RootStore();
 
-export const TestWrapper = ({ children }) => (
-  <StoreProvider store={store}>
-    <ChakraProvider>{children}</ChakraProvider>
-  </StoreProvider>
+export const TestWrapper = ({ children, route }) => (
+  <MemoryRouter initialEntries={[route || '/']}>
+    <StoreProvider store={store}>
+      <ChakraProvider>{children}</ChakraProvider>
+    </StoreProvider>
+  </MemoryRouter>
 );

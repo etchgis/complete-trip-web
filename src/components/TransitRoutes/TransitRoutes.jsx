@@ -8,6 +8,7 @@ import { featureCollection } from '@turf/helpers';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
+import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 
 export const TransitRoutes = observer(({}) => {
@@ -26,6 +27,7 @@ export const TransitRoutes = observer(({}) => {
   const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
   const [defaultAddress, setDefaultAddress] = useState('');
   const [searchResult, setSearchResult] = useState(false);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     //NOTE this fires on map moveend and on map GPS button
@@ -186,7 +188,7 @@ export const TransitRoutes = observer(({}) => {
         <StopTimesList stopClickHandler={stopClickHandler} />
       </Flex>
       {/* NOTE only show loader when map is actually open */}
-      <Loader isOpen={!routesAreLoaded}></Loader>
+      <Loader isOpen={!routesAreLoaded && pathname === '/map'}></Loader>
       {/* ----------------------- */}
       {/* ----------------------- */}
     </>
