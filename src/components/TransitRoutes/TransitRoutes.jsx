@@ -68,12 +68,15 @@ export const TransitRoutes = observer(({}) => {
     console.log('no stops found');
     if (map && map.getSource('stops'))
       map.getSource('stops').setData(featureCollection([]));
-    setMapState('routes', []);
+    // setMapState('routes', []);
+    setMapState('stoptimes', featureCollection([]));
+    setMapState('activeRoute', '');
   };
 
   const routeClickHandler = async route => {
     console.log('[map-view] route click handler');
     try {
+      setDefaultAddress('');
       const id = route?.id || route?.routeId || null;
       setMapState('activeRoute', id);
       const patterns = await getRoutePatterns(id);
@@ -174,6 +177,7 @@ export const TransitRoutes = observer(({}) => {
                   });
                   setDefaultAddress(e.name);
                   setSearchResult(true);
+                  reset();
                 }
               }}
               defaultAddress={defaultAddress}
