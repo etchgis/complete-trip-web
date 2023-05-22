@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import Loader from '../Loader';
 import SearchForm from '../AddressSearchForm';
+import { WarningTwoIcon } from '@chakra-ui/icons';
 import debounce from '../../utils/debounce';
 import { featureCollection } from '@turf/helpers';
 import formatters from '../../utils/formatters';
@@ -244,16 +245,18 @@ const StopTimesList = observer(({ stopClickHandler }) => {
           <Stack spacing={0}>
             {stoptimes.features.length
               ? stoptimes.features.map((s, i) => {
+                  const trip = s.properties;
                   // const stop = stoptimes.features.find(st => st.properties.stopId === s);
                   // const times = stoptimes.features.filter(st => st.properties.stop_id === s);
                   return (
                     <Button
+                      key={i.toString()}
                       display="block"
                       flexWrap={'wrap'}
                       textAlign={'left'}
                       background={colorMode === 'light' ? 'white' : 'gray.800'}
+                      __hover={{ backgroundColor: 'gray.100' }}
                       justifyContent={'flex-start'}
-                      key={i.toString()}
                       fontSize="sm"
                       fontWeight="bold"
                       minH={'40px'}
@@ -266,73 +269,76 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                       borderBottom={'solid 1px lightgray'}
                       borderLeft={'none'}
                       borderRight={'none'}
+                      width="100%"
                     >
-                      <Box textAlign={'left'} my={1}>
-                        <Text fontSize={'md'} fontWeight={'bold'}>
-                          {s?.properties?.name}
-                        </Text>
-                      </Box>
-                      {/* <Box>
-                      {s?.properties?.arrival ? formatters.datetime.asHHMMA(new Date(s.properties.arrival)) : ''}
-                    </Box> */}
-                      <Box py={1}>
-                        {!s.properties?.stoptimes.length ||
-                        s.properties?.stoptimes[0].times[0].arrival === 0 ? (
-                          <Text>N/A</Text>
-                        ) : (
-                          ''
-                        )}
-                        {s.properties?.stoptimes.length
-                          ? s.properties?.stoptimes.map((trip, idx0) => {
-                              return (
-                                <Box key={idx0.toString()}>
-                                  {trip.pattern?.routeId === activeRoute &&
-                                  trip?.times?.length ? (
-                                    <Flex
-                                      justifyContent={'start'}
-                                      opacity={0.8}
-                                      my={1}
-                                      // key={idx.toString()}
-                                    >
-                                      <Text
-                                        fontSize="sm"
-                                        width="80px"
-                                        overflow={'hidden'}
-                                        mr={1}
-                                        color={
-                                          colorMode === 'light'
-                                            ? 'gray.500'
-                                            : 'gray.400'
-                                        }
-                                      >
-                                        {/* {!time.arrival ? '' : formatters.datetime.asHHMMA(new Date(time.arrival))}
-                                        {' '} */}
-                                        {!trip?.times[0].arrival
-                                          ? ''
-                                          : formatters.datetime.asDuration(
-                                              (new Date(
-                                                trip.times[0].arrival
-                                              ).valueOf() -
-                                                Date.now()) /
-                                                1000
-                                            ) || '1 min'}
-                                      </Text>
-                                      <Text fontSize={'sm'}>
-                                        {trip?.times[0]?.headsign ||
-                                          'No Stop Times Available'}
-                                      </Text>
-                                      <Text>
-                                        {trip?.times[0]?.delayed ? '!!' : ''}
-                                      </Text>
-                                    </Flex>
-                                  ) : (
-                                    ''
-                                  )}
-                                </Box>
-                              );
-                            })
-                          : ''}
-                      </Box>
+                      {!trip?.arrival || trip.arrival === 0 ? (
+                        <Flex p={2}>
+                          <Text width="50px">N/A</Text>
+                          <Text fontSize={'md'}>
+                            {trip?.headsign || trip?.name}
+                          </Text>
+                        </Flex>
+                      ) : (
+                        <Box data-id="stoptime-el">
+                          {trip?.routeId === activeRoute ? (
+                            <Flex
+                              justifyContent={'start'}
+                              alignItems={'center'}
+                              opacity={0.8}
+                              my={1}
+                              // key={idx.toString()}
+                            >
+                              <Flex
+                                flexDir={'column'}
+                                color="nfta"
+                                width="50px"
+                                alignItems={'center'}
+                                pr={2}
+                              >
+                                <Text fontSize="xl">
+                                  {!trip?.arrival
+                                    ? ''
+                                    : formatStopTime(trip?.arrival)[0]}
+                                </Text>
+                                <Text fontSize="xs">
+                                  {!trip?.arrival
+                                    ? ''
+                                    : formatStopTime(trip?.arrival)[1]}
+                                </Text>
+                              </Flex>
+                              <Box flex={1}>
+                                <Text fontSize={'sm'} fontWeight="bold">
+                                  {trip?.headsign || 'No Stop Times Available'}
+                                </Text>
+                                <Text fontSize={'sm'} opacity={0.7} mt={1}>
+                                  {trip?.name}
+                                </Text>
+                              </Box>
+                              <Flex
+                                flexDir={'column'}
+                                justifyContent={'center'}
+                                alignItems={'center'}
+                                color="red.600"
+                              >
+                                {trip?.delayed ? (
+                                  <>
+                                    <WarningTwoIcon
+                                    // color
+                                    />
+                                    <Box as="span" fontSize={'xs'}>
+                                      {trip?.delay}
+                                    </Box>
+                                  </>
+                                ) : (
+                                  ''
+                                )}
+                              </Flex>
+                            </Flex>
+                          ) : (
+                            ''
+                          )}
+                        </Box>
+                      )}
                     </Button>
                   );
                 })
@@ -400,3 +406,132 @@ const RouteList = observer(({ routeClickHandler }) => {
     </>
   );
 });
+
+function formatStopTime(time) {
+  const now = Date.now();
+  const date = new Date(time);
+  return Number((date - now) / 1000 / 60).toFixed(0) > 1
+    ? [Number((date - now) / 1000 / 60).toFixed(0), 'minutes']
+    : ['< 1', 'minute'];
+}
+
+/*
+old
+
+         <Stack spacing={0}>
+            {stoptimes.features.length
+              ? stoptimes.features.map((s, i) => {
+                  // const stop = stoptimes.features.find(st => st.properties.stopId === s);
+                  // const times = stoptimes.features.filter(st => st.properties.stop_id === s);
+                  return (
+                    <Box key={i.toString()}>
+                      {!s.properties?.arrival || s.properties.arrival === 0 ? (
+                        <Text>N/A</Text>
+                      ) : (
+                        ''
+                      )}
+                      {s.properties?.stoptimes.length
+                        ? s.properties?.stoptimes.map((trip, idx0) => {
+                            return (
+                              <Button
+                                key={idx0.toString()}
+                                display="block"
+                                flexWrap={'wrap'}
+                                textAlign={'left'}
+                                background={
+                                  colorMode === 'light' ? 'white' : 'gray.800'
+                                }
+                                justifyContent={'flex-start'}
+                                fontSize="sm"
+                                fontWeight="bold"
+                                minH={'40px'}
+                                height={'auto'}
+                                margin={0}
+                                px={2}
+                                py={2}
+                                borderRadius={0}
+                                onClick={() => stopClickHandler(s)}
+                                borderBottom={'solid 1px lightgray'}
+                                borderLeft={'none'}
+                                borderRight={'none'}
+                                width="100%"
+                              >
+                                <Box data-id="stoptime-el">
+                                  {trip.pattern?.routeId === activeRoute &&
+                                  trip?.times?.length ? (
+                                    <Flex
+                                      justifyContent={'start'}
+                                      alignItems={'center'}
+                                      opacity={0.8}
+                                      my={1}
+                                      // key={idx.toString()}
+                                    >
+                                      <Flex
+                                        flexDir={'column'}
+                                        color="nfta"
+                                        width="50px"
+                                        alignItems={'center'}
+                                        pr={2}
+                                      >
+                                        <Text fontSize="xl">
+                                          {!trip?.times[0].arrival
+                                            ? ''
+                                            : formatStopTime(
+                                                trip.times[0].arrival
+                                              )[0]}
+                                        </Text>
+                                        <Text fontSize="xs">
+                                          {!trip?.times[0].arrival
+                                            ? ''
+                                            : formatStopTime(
+                                                trip.times[0].arrival
+                                              )[1]}
+                                        </Text>
+                                      </Flex>
+                                      <Box flex={1}>
+                                        <Text fontSize={'sm'} fontWeight="bold">
+                                          {trip?.times[0]?.headsign ||
+                                            'No Stop Times Available'}
+                                        </Text>
+                                        <Text
+                                          fontSize={'sm'}
+                                          opacity={0.7}
+                                          mt={1}
+                                        >
+                                          {s?.properties?.name}
+                                        </Text>
+                                      </Box>
+                                      <Flex
+                                        flexDir={'column'}
+                                        justifyContent={'center'}
+                                        alignItems={'center'}
+                                        color="red.600"
+                                      >
+                                        {trip?.times[0]?.delayed ? (
+                                          <>
+                                            <WarningTwoIcon
+                                            // color
+                                            />
+                                            <Box as="span" fontSize={'xs'}>
+                                              {trip?.times[0]?.delay}
+                                            </Box>
+                                          </>
+                                        ) : (
+                                          ''
+                                        )}
+                                      </Flex>
+                                    </Flex>
+                                  ) : (
+                                    ''
+                                  )}
+                                </Box>
+                              </Button>
+                            );
+                          })
+                        : ''}
+                    </Box>
+                  );
+                })
+              : ''}
+          </Stack>
+          */

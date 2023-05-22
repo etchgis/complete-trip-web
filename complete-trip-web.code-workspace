@@ -3,6 +3,9 @@
     {
       "path": "."
     },
+    {
+      "path": "../complete-trip"
+    }
   ],
   "settings": {
     "editor.formatOnSave": true,

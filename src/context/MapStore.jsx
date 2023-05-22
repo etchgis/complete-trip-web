@@ -10,33 +10,33 @@ import tinycolor from 'tinycolor2';
 
 const { otp } = mobility;
 
-// const flattenStoptimes = arr => {
-//   const array = [];
+const flattenStoptimes = arr => {
+  const array = [];
 
-//   arr.forEach(item => {
-//     const itemProps = Object.assign({}, item);
-//     delete itemProps.stoptimes;
-//     itemProps['stopId'] = item.id;
-//     if (item.stoptimes.length) {
-//       item.stoptimes.forEach(st => {
-//         const patternProps = Object.assign({}, st?.pattern);
-//         patternProps['patternId'] = st?.pattern?.id;
-//         if (st.times.length) {
-//           st.times.forEach(t => {
-//             array.push({
-//               ...itemProps,
-//               ...patternProps,
-//               ...t,
-//             });
-//           });
-//         }
-//       });
-//     } else {
-//       array.push(itemProps);
-//     }
-//   });
-//   return array;
-// };
+  arr.forEach(item => {
+    const itemProps = Object.assign({}, item);
+    delete itemProps.stoptimes;
+    itemProps['stopId'] = item.id;
+    if (item.stoptimes.length) {
+      item.stoptimes.forEach(st => {
+        const patternProps = Object.assign({}, st?.pattern);
+        patternProps['patternId'] = st?.pattern?.id;
+        if (st.times.length) {
+          st.times.forEach(t => {
+            array.push({
+              ...itemProps,
+              ...patternProps,
+              ...t,
+            });
+          });
+        }
+      });
+    } else {
+      array.push(itemProps);
+    }
+  });
+  return array;
+};
 
 class MapStore {
   map = null;
@@ -321,9 +321,7 @@ class MapStore {
       }
 
       // const flattened = flattenStoptimes(stoptimes);
-      stoptimes.forEach(s => {
-        if (!s.stoptimes.length) console.log(s);
-      });
+
       const existing = stoptimes.filter(s => s.stoptimes[0].times[0].arrival);
       // if (!existing.length) {
       //   runInAction(() => {
@@ -337,10 +335,44 @@ class MapStore {
         (a, b) =>
           a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival
       );
+
+      const gtfsStopDelays = await this.getGTFSStopDelays(id);
+      console.log({ gtfsStopDelays });
+
+      sorted.forEach(s => {
+        if (!s.stoptimes.length) {
+          console.log(s);
+        } else {
+          const delay = gtfsStopDelays.find(d => d.stop_id === s.code);
+          if (delay) {
+            s.stoptimes.forEach(st => {
+              st.times.forEach(t => {
+                const delayTime = Number(delay.arrival.delay / 60).toFixed(0);
+                t['delayed'] = true;
+                t['delay'] =
+                  delayTime <= 1
+                    ? delayTime + ' minute'
+                    : delayTime + ' minutes';
+              });
+            });
+          }
+        }
+      });
+
       const parsed = [...sorted, ...missing];
-      // console.log(id);
+      console.log({ parsed });
+      const flattened = flattenStoptimes(parsed);
+      flattened.sort((a, b) => {
+        if (a.arrival === 0 && b.arrival !== 0) {
+          return 1;
+        } else if (a.arrival !== 0 && b.arrival === 0) {
+          return -1;
+        }
+        return a.arrival - b.arrival;
+      });
+      console.log({ flattened });
       // console.log(parsed)
-      const geojson = this.toPoints(parsed);
+      const geojson = this.toPoints(flattened);
       runInAction(() => {
         this.mapState.stoptimes = geojson;
         this.rootStore.uiStore.setLoading(false);
@@ -352,6 +384,30 @@ class MapStore {
         this.rootStore.uiStore.setLoading(false);
       });
       return Promise.reject('An error occurred while fetching routes.');
+    }
+  };
+
+  getGTFSStopDelays = async id => {
+    try {
+      const delays = [];
+      const routeId = id.split(':')[1];
+      const { entity: gtfs } = await fetch(
+        'https://gtfsr.nfta.com/api/tripupdates?format=json'
+      ).then(res => res.json());
+      const route = gtfs.filter(r => r.trip_update.trip.route_id === routeId);
+      const tripUpdates = route.length
+        ? route.reduce((a, r) => [...a, r.trip_update], [])
+        : [];
+      tripUpdates.forEach(tu => {
+        const { stop_time_update } = tu;
+        stop_time_update.forEach(stu => {
+          if (stu?.arrival?.delay && stu.arrival.delay > 0) delays.push(stu);
+        });
+      });
+      return delays;
+    } catch (error) {
+      console.log(error);
+      return [];
     }
   };
 
