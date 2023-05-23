@@ -395,7 +395,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                   onClick={() => routeClickHandler(r)}
                 >
                   <span style={{ width: '40px', textAlign: 'left' }}>
-                    {r.routeId}
+                    {r?.mode === 'TRAM' ? 'RAIL' : r?.shortName || ''}
                   </span>{' '}
                   {r?.mode} {r?.longName ? r.longName.slice(0, 25) : ''}
                 </Button>
