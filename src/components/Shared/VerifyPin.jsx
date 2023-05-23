@@ -42,25 +42,32 @@ export const VerifyPin = observer(
                   return;
                 }
                 if (channel === 'email') {
-                  const newUser = await registerUser(stagedUser);
-                  if (!newUser.error) {
+                  try {
+                    const newUser = await registerUser(stagedUser);
+                    console.log({ newUser });
                     if (setActiveView) setActiveView('login');
                     if (setLoginMessage)
                       setLoginMessage(
                         'Your account has been created. Please login.'
                       );
+                  } catch (error) {
+                    setActiveView('login');
                   }
                 } else {
                   const profile = Object.assign({}, toJS(user?.profile), {
                     onboarded: true,
                   });
-                  // const updated = await updateProperty('onboarded', true);
-                  const updated = await updateUserProfile(profile);
-                  console.log(updated);
-                  if (!updated || updated.error) {
+                  try {
+                    const updated = await updateUserProfile(profile);
+                    console.log(updated);
+                    if (!updated || updated.error) {
+                      return false;
+                    }
+                    return updated;
+                  } catch (error) {
+                    console.log(error);
                     return false;
                   }
-                  return updated;
                 }
               }}
               size="lg"

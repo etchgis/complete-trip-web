@@ -72,6 +72,7 @@ export const LoginRegister = observer(({ hideModal }) => {
           error={authError}
           setError={authSetError}
           loginMessage={loginMessage}
+          setLoginMessage={setLoginMessage}
           setStagedUser={setStagedUser}
           verifyUser={verifyUser}
         ></CreateAccountOrLogin>
@@ -87,6 +88,7 @@ export const LoginRegister = observer(({ hideModal }) => {
           error={authError}
           setError={authSetError}
           loginMessage={loginMessage}
+          setLoginMessage={setLoginMessage}
           setStagedUser={setStagedUser}
           verifyUser={verifyUser}
         ></CreateAccountOrLogin>
@@ -147,7 +149,7 @@ export const LoginRegister = observer(({ hideModal }) => {
         w="100%"
         id="stack"
         bg={useColorModeValue('white', 'gray.700')}
-      // boxShadow={'lg'}
+        // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image src={'/buffalo_logo_full.png'} h={'200px'} />
@@ -214,6 +216,7 @@ const CreateAccountOrLogin = ({
   error,
   setError,
   loginMessage,
+  setLoginMessage,
   setStagedUser,
   verifyUser,
 }) => {
@@ -224,12 +227,15 @@ const CreateAccountOrLogin = ({
   const [hideTerms, setHideTerms] = useState(true);
   const [shownTerms, setShownTerms] = useState(false);
 
-  const { auth, initUser } = useStore().authentication;
+  const { auth } = useStore().authentication;
 
   useEffect(() => {
-    console.log(error);
-
-    if (error) return setLoginHasError(true);
+    if (error) {
+      if (error === 'Conflict')
+        setLoginMessage('This email is already registered. Please login.');
+      console.log({ error });
+      return setLoginHasError(true);
+    }
     setLoginHasError(false);
     //eslint-disable-next-line
   }, [error]);

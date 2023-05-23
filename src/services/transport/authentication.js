@@ -29,7 +29,7 @@ const authentication = {
     return fetch(`${config.SERVICES.auth.url}/login?source=${_source}`, {
       method: 'POST',
       body: JSON.stringify({
-        email,
+        email: email.toLowerCase(),
         password,
       }),
       headers: {
@@ -99,7 +99,7 @@ const authentication = {
     return fetch(`${config.SERVICES.auth.url}/register`, {
       method: 'POST',
       body: JSON.stringify({
-        email,
+        email: email.toLowerCase(),
         phone,
         password,
         profile,
@@ -132,6 +132,7 @@ const authentication = {
     };
     if (channel === 'email') {
       data.channelConfiguration = config.VERIFY.CHANNEL_CONFIGURATION;
+      data.to = data.to.toLowerCase();
     }
     return fetch(`${config.SERVICES.auth.url}/verify`, {
       method: 'POST',
@@ -159,7 +160,7 @@ const authentication = {
       method: 'POST',
       body: JSON.stringify({
         sid,
-        to,
+        to: to.toLowerCase(),
         code,
       }),
       headers: {
@@ -358,7 +359,7 @@ const authentication = {
    */
   recover(email, mfa) {
     var data = {
-      username: email,
+      username: email.toLowerCase(),
       mfa,
       sid: config.VERIFY.SID,
     };
@@ -394,7 +395,7 @@ const authentication = {
     );
     const data = JSON.stringify({
       code: code,
-      username: email,
+      username: email.toLowerCase(),
       password: newPassword,
     });
     console.log('{services-transport-auth} data', data);

@@ -14,36 +14,28 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { FaChevronRight, FaRegStar, FaStar } from 'react-icons/fa';
-import { useRef, useState } from 'react';
 
 import { ArrowForwardIcon } from '@chakra-ui/icons';
-import CustomModal from '../Modal';
+import TripFavModal from '../TripFavModal';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
 export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode } = useColorMode();
-  const inputRef = useRef();
   const [tripId, setTripId] = useState(null);
   const { trips: allTrips } = useStore().schedule;
   const navigate = useNavigate();
 
   const {
     trips: favoriteTrips,
-    addTrip: addTripFav,
     removeTrip: removeTripFav,
     locations,
   } = useStore().favorites;
 
-  // const _allTrips = toJS(allTrips);
-
-  // console.log({ _allTrips });
-
-  //sort by plan.startTime
   const trips = allTrips
     .slice()
     .sort((a, b) => {
@@ -51,32 +43,18 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
     })
     .slice(0, 3);
 
-  // console.log({ trips });
-
-  const updateFavoriteTrips = async (id, isFavorite) => {
-    if (isFavorite) {
-      // console.log('removeTrip', id);
-      removeTripFav(id);
-    } else {
-      onClose();
-      const trip = trips.find(t => t.id === id) || null;
-      if (!trip) return;
-      let favoriteTrip = {
-        ...trip.plan.request,
-      };
-      favoriteTrip.alias = inputRef.current.value;
-      // console.log('addTrip', tripId, favoriteTrip);
-      addTripFav(tripId, favoriteTrip);
-      setTripId(null);
-    }
-  };
-
   return (
     // TODO make this card be rows on mobile
     <>
       <Stack maxW={{ base: '100%', sm: '540px' }} gap={4} id="trip-card-list">
         {!trips.length ? (
-          <Box p={2} background={colorMode === 'light' ? 'white' : 'gray.800'} borderRadius={'md'}>No upcoming trips found.</Box>
+          <Box
+            p={2}
+            background={colorMode === 'light' ? 'white' : 'gray.800'}
+            borderRadius={'md'}
+          >
+            No upcoming trips found.
+          </Box>
         ) : (
           trips.map(trip => {
             // console.log(trip);
@@ -148,9 +126,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                     <IconButton
                       icon={<FaStar />}
                       variant="ghost"
-                      onClick={() =>
-                        updateFavoriteTrips(trip.plan.request.id, true)
-                      }
+                      onClick={() => removeTripFav(trip.plan.request.id)}
                       colorScheme="red"
                       fontSize={'2xl'}
                     />
@@ -199,24 +175,12 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
           </Button>
         )}
       </Stack>
-      <CustomModal isOpen={isOpen} onClose={onClose} size="md">
-        <Box
-          as="form"
-          onSubmit={e => {
-            e.preventDefault();
-            updateFavoriteTrips(tripId, false);
-          }}
-          p={10}
-        >
-          <FormControl>
-            <FormLabel>Trip Name</FormLabel>
-            <Input ref={inputRef} type="text" isRequired />
-          </FormControl>
-          <Button type="submit" w="100%" mt={4}>
-            Save Favorite
-          </Button>
-        </Box>
-      </CustomModal>
+      <TripFavModal
+        isOpen={isOpen}
+        onClose={onClose}
+        tripId={tripId}
+        setTripId={setTripId}
+      />
     </>
   );
 });

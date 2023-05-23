@@ -19,7 +19,7 @@ import { BsCircleFill } from 'react-icons/bs';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
-export const WizardStepThroughForm = ({ content, cancelAction }) => {
+export const WizardStepThroughForm = ({ content }) => {
   const { colorMode } = useColorMode();
   const steps = content || [
     { id: 'form1', content: <Box>1</Box>, step: 1 },
