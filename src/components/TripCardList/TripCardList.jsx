@@ -2,10 +2,7 @@ import {
   Box,
   Button,
   StatLabel as ChakraStatLabel,
-  FormControl,
-  FormLabel,
   IconButton,
-  Input,
   Stack,
   Stat,
   StatGroup,
@@ -52,6 +49,8 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
             p={2}
             background={colorMode === 'light' ? 'white' : 'gray.800'}
             borderRadius={'md'}
+            border="solid 1px gray"
+            borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
           >
             No upcoming trips found.
           </Box>

@@ -26,7 +26,7 @@ export const Routes = observer(() => {
   ) {
     trace(false);
   }
-  const { pathname } = useLocation();
+  // const { pathname } = useLocation();
   // const { locations, trips } = useStore().favorites;
   // const profile = useStore().profile;
   // const preferences = useStore().preferences;
@@ -38,26 +38,6 @@ export const Routes = observer(() => {
   useEffect(() => {
     Gleap.initialize(import.meta.env.VITE_GLEAP);
   }, []);
-
-  //NOTE useEffect does not work with MobX 100%
-  // useEffect(() => {
-  //   if (!loggedIn) return;
-  //   const _user = toJS(user);
-  //   const _locations = toJS(locations);
-  //   const _trips = toJS(trips);
-  //   const _profile = toJS(profile);
-  //   const _preferences = toJS(preferences);
-  //   const _schedule = toJS(schedule);
-
-  //   console.log({ _trips });
-  //   console.log({ _user });
-  //   console.log({ _locations });
-  //   console.log({ _trips });
-  //   console.log({ _profile });
-  //   console.log({ _preferences });
-  //   console.log({ _schedule });
-  //   // eslint-disable-next-line
-  // }, [user]);
 
   //INIT AUTH & USER
   useEffect(() => {
@@ -81,18 +61,10 @@ export const Routes = observer(() => {
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
-      <Route
-        path={'/:url(/+)'}
-        element={<Navigate to={pathname.slice(0, -1)} />}
-      />
-      {/* Home */}
-      <Route path={'/'} element={<Layout children={<Home />}></Layout>} />
-
-      {/* Trips */}
-      <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
+      <Route path={'/:url(/+)'} element={<Navigate to={'/map'} />} />
+      <Route path={'/'} element={<Navigate to={'/map'} />} />
 
       {/* Map */}
-      {/* <Route path={'/map'} element={<Layout children={<MapView showMap={true} />} />} /> */}
       <Route
         path={'/map'}
         element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
@@ -101,6 +73,15 @@ export const Routes = observer(() => {
       {/* Profile */}
       {loggedIn ? (
         <>
+          {/* Home */}
+          <Route
+            path={'/home'}
+            element={<Layout children={<Home />}></Layout>}
+          />
+
+          {/* Trips */}
+          <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
+
           <Route
             path={'/settings/profile'}
             element={
@@ -141,10 +122,13 @@ export const Routes = observer(() => {
           />
         </>
       ) : (
-        <Route
-          path="/settings/*"
-          element={<Layout children={<Box p={10}></Box>} />}
-        />
+        <>
+          {/* <Route
+            path="/settings/*"
+            element={<Layout children={<Box p={10}></Box>} />}
+          /> */}
+          <Route path="*" element={<Navigate to="/map" />} />
+        </>
       )}
     </ReactRoutes>
   );

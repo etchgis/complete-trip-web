@@ -8,7 +8,7 @@ import {
   Grid,
   Stack,
   useColorMode,
-  useDisclosure
+  useDisclosure,
 } from '@chakra-ui/react';
 
 import Calendar from '../components/TripCalendar';
@@ -17,16 +17,14 @@ import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TripCardList from '../components/TripCardList';
 import VerticalTripPlan from '../components/ScheduleTripModal/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
-import overviewMap from '../assets/overview-map.png';
-import { useNavigate } from 'react-router-dom';
+// import overviewMap from '../assets/overview-map.png';
+// import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useStore } from '../context/RootStore';
 
 // import { ChevronRightIcon } from '@chakra-ui/icons';
 
-
 // import ScheduleTripModal from '../../components/ScheduleTripModal';
-
 
 // import config from '../../config';
 const Home = observer(() => {
@@ -43,11 +41,10 @@ const Home = observer(() => {
   const { colorMode } = useColorMode();
   const [selectedTrip, setSelectedTrip] = useState({});
   // const [tripPlan, setTripPlan] = useState({});
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   return (
     <Flex flexDir={'column'}>
-
       {/* HEADER */}
       <ScheduleTripHeader />
 
@@ -65,18 +62,18 @@ const Home = observer(() => {
         //   ''
         // )}/static/${config.MAP.CENTER[1]},${config.MAP.CENTER[0]},12/1280x1280?&access_token=${config.MAP.MAPBOX_TOKEN
         //   }`}
-        backgroundImage={overviewMap}
-        backgroundPosition="center"
-        backgroundRepeat="no-repeat"
-        backgroundSize="cover"
-        onClick={(e) => {
-          const target = e.target.id;
-          // console.log(e.target)
-          if (target === 'home-grid-container' || target === 'trip-card-list') {
-            // console.log('clicked')
-            navigate("/map")
-          }
-        }}
+        // backgroundImage={overviewMap}
+        // backgroundPosition="center"
+        // backgroundRepeat="no-repeat"
+        // backgroundSize="cover"
+        // onClick={(e) => {
+        //   const target = e.target.id;
+        //   // console.log(e.target)
+        //   if (target === 'home-grid-container' || target === 'trip-card-list') {
+        //     // console.log('clicked')
+        //     navigate("/map")
+        //   }
+        // }}
         cursor="pointer"
       >
         <TripCardList

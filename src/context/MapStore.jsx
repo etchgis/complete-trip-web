@@ -172,7 +172,7 @@ class MapStore {
   //TODO convert map state to mapcache
 
   getNearestStops = (lat, lng, limit = 20) => {
-    if (!this.mapCache.stops.length) return [];
+    if (!this.mapCache.stops.length || !this.mapCache.stopsIndex) return [];
     const _stops = this.mapCache.stopsIndex(lat, lng, limit);
     return this.toPoints(_stops);
   };

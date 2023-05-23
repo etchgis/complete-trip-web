@@ -10,18 +10,24 @@ import Navbar from '../components/Navbar';
 import ResponsiveSidebar from '../components/Sidebar';
 import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/RootStore';
 
-// import { toJS } from 'mobx';
 // import { useEffect } from 'react';
 
 const Layout = observer(({ showMap, children }) => {
+  const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
     useStore().authentication;
 
   const { isLoading } = useStore().uiStore;
+  const { trips } = useStore().schedule;
+
+  const _trips = toJS(trips);
+  console.log({ _trips });
 
   if (loggedIn && !user?.profile?.onboarded)
     console.log('[layout] onboarded:', user?.profile?.onboarded);
@@ -45,6 +51,14 @@ const Layout = observer(({ showMap, children }) => {
     }
     // eslint-disable-next-line
   }, [requireMFA]);
+
+  // REDIRECT TO HOME IF THE USER HAS TRIPS SCHEDULED
+  useEffect(() => {
+    if (loggedIn && user?.profile?.onboarded && trips.length) {
+      navigate('/home');
+    }
+    // eslint-disable-next-line
+  }, [loggedIn, trips]);
 
   return (
     <Flex
@@ -92,7 +106,7 @@ const Layout = observer(({ showMap, children }) => {
       <CustomModal
         isOpen={
           (loggedIn && !user?.profile?.onboarded) ||
-            user?.profile?.onboarded === false
+          user?.profile?.onboarded === false
             ? true
             : false
         }
