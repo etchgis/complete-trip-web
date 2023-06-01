@@ -4,6 +4,7 @@
 import { createContext, useContext } from 'react';
 
 import Authentication from './Authentication';
+import Caregivers from './CaregiversStore';
 import Favorites from './Favorites';
 import MapStore from './MapStore';
 import Preferences from './Preferences';
@@ -20,6 +21,7 @@ export default class RootStore {
     this.preferences = new Preferences(this);
     this.schedule = new Schedule(this);
     this.trip = new Trip(this);
+    this.caregivers = new Caregivers(this);
   }
 }
 

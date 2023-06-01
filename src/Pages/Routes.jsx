@@ -1,15 +1,11 @@
-import {
-  Navigate,
-  Routes as ReactRoutes,
-  Route,
-  useLocation,
-} from 'react-router-dom';
+import { Navigate, Routes as ReactRoutes, Route } from 'react-router-dom';
 import { toJS, trace } from 'mobx';
 
-import { Box } from '@chakra-ui/react';
+import CargiverLink from './CargiverLink';
 import Gleap from 'gleap';
 import Home from './Home';
 import Layout from './Layout';
+import Login from './Login';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
@@ -26,11 +22,6 @@ export const Routes = observer(() => {
   ) {
     trace(false);
   }
-  // const { pathname } = useLocation();
-  // const { locations, trips } = useStore().favorites;
-  // const profile = useStore().profile;
-  // const preferences = useStore().preferences;
-  // const schedule = useStore().schedule;
   const { user, loggedIn, auth } = useStore().authentication;
 
   console.log('[routes] logged in:', loggedIn);
@@ -70,16 +61,25 @@ export const Routes = observer(() => {
         element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
       />
 
+      {/* CAREGIVER LINK */}
+      <Route
+        path={'/caregiver'}
+        element={<Layout children={<CargiverLink />}></Layout>}
+      />
+      {/* 
+        <Route to={{ pathname: '/caregiver', search: `?id=${caregiverId}` }}>
+         Go to caregiver
+        </Route>
+      */}
+
       {/* Profile */}
       {loggedIn ? (
         <>
-          {/* Home */}
           <Route
             path={'/home'}
             element={<Layout children={<Home />}></Layout>}
           />
 
-          {/* Trips */}
           <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
           <Route
@@ -89,8 +89,12 @@ export const Routes = observer(() => {
             }
           />
           <Route
-            path="/settings/caretakers"
-            element={<Layout children={<Settings view="caretakers" />} />}
+            path="/settings/caregivers"
+            element={<Layout children={<Settings view="caregivers" />} />}
+          />
+          <Route
+            path="/settings/dependents"
+            element={<Layout children={<Settings view="dependents" />} />}
           />
           <Route
             path="/settings/favorites"
@@ -124,9 +128,11 @@ export const Routes = observer(() => {
       ) : (
         <>
           {/* <Route
-            path="/settings/*"
-            element={<Layout children={<Box p={10}></Box>} />}
-          /> */}
+            path={'/home'}
+            element={<Layout children={<Login />}></Layout>}
+          />
+          <Route path={'/trips'} element={<Layout children={<Login />} />} /> */}
+          <Route path="/settings/*" element={<Layout children={<Login />} />} />
           <Route path="*" element={<Navigate to="/map" />} />
         </>
       )}

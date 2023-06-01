@@ -192,7 +192,7 @@ class Authentication {
     });
   };
 
-  hydrate = async (profile) => {
+  hydrate = async profile => {
     if (!profile) return;
     console.log('[auth-store] hydrating profile');
     return new Promise(resolve => {
@@ -200,6 +200,7 @@ class Authentication {
         // this.rootStore.profile.hydrate(profile);
         this.rootStore.preferences.hydrate(profile);
         this.rootStore.favorites.hydrate(profile);
+        this.rootStore.caregivers.hydrate();
         this.rootStore.schedule.getRange(
           moment().hour(0).valueOf(),
           moment().add(1, 'month').valueOf()
@@ -241,9 +242,9 @@ class Authentication {
 
   /**
    * Returns the user object from the database and sets login to true
-   * @param {*} email 
-   * @param {*} password 
-   * @returns { Promise<Object> || null } 
+   * @param {*} email
+   * @param {*} password
+   * @returns { Promise<Object> || null }
    */
   auth = async (email, password, forgot) => {
     const refreshToken = this.user?.refreshToken || this.refreshToken;
@@ -254,7 +255,7 @@ class Authentication {
     if ((!email || !password) && !refreshToken) {
       console.log('[auth-store] auth missing email/password or token');
       this.reset();
-      return null
+      return null;
     }
 
     if (refreshToken && validateJWT(refreshToken)) {
@@ -275,9 +276,11 @@ class Authentication {
         } else {
           //SOME ERROR OCCURRED GETTING USER THAT DIDNT THROW AN ERROR
           runInAction(() => {
-            this.reset()
+            this.reset();
           });
-          return Promise.reject(new Error('An unknown error occurred. Please log in again.'));
+          return Promise.reject(
+            new Error('An unknown error occurred. Please log in again.')
+          );
         }
       } catch (error) {
         runInAction(() => {
@@ -295,21 +298,28 @@ class Authentication {
         console.log('[auth-store] auth with email and password');
         const user = await this.login(email, password);
         if (user) {
+          console.log({ user });
           if (user?.profile?.onboarded && !forgot) {
-            console.log('[auth-store] auth email password onboarded = true && forgot = false -- forcing MFA');
+            console.log(
+              '[auth-store] auth email password onboarded = true && forgot = false -- forcing MFA'
+            );
             runInAction(() => {
-              this.requireMFA = true
+              this.requireMFA = true;
               this.contact = {
                 email: user.email,
                 phone: user.phone,
-              }
+              };
               this.refreshToken = user.refreshToken;
               this.inTransaction = false;
             });
             return Promise.resolve(null);
           } else {
-            console.log('[auth-store] auth email password onboarded = false || forgot = true, skpping MFA');
-            console.log('[auth-store] if onboarded = false, user will be prompted to onboard after login, else user is logged in');
+            console.log(
+              '[auth-store] auth email password onboarded = false || forgot = true, skpping MFA'
+            );
+            console.log(
+              '[auth-store] if onboarded = false, user will be prompted to onboard after login, else user is logged in'
+            );
             //NOTE the user could change their onboarded status client side - why they would do this, I don't know, but they could and then be able to just login without onboarding and verifying their phone
             runInAction(() => {
               this.accessToken = user.accessToken;
@@ -321,10 +331,11 @@ class Authentication {
             return Promise.resolve(user);
           }
         } else {
-          return Promise.reject(new Error('An unknown error occurred. Please log in again.'));
+          return Promise.reject(
+            new Error('An unknown error occurred. Please log in again.')
+          );
         }
       } catch (error) {
-
         runInAction(() => {
           this.reset();
         });
@@ -345,14 +356,16 @@ class Authentication {
   };
 
   /**
- * Get the user's access token, renewing if necessary.
- * Several modules might call this in parallel, but it won't do a separate query for
- * each one.
- * @returns {Promise} - the user access token.
- */
+   * Get the user's access token, renewing if necessary.
+   * Several modules might call this in parallel, but it won't do a separate query for
+   * each one.
+   * @returns {Promise} - the user access token.
+   */
   fetchToken = () => {
     if (this.accessTokenPromise) {
-      console.log('[auth-store] fetchToken accessTokenPromise exists, returning promise');
+      console.log(
+        '[auth-store] fetchToken accessTokenPromise exists, returning promise'
+      );
       return this.accessTokenPromise;
     }
     const refreshToken = this.user?.refreshToken || this.refreshToken;
@@ -365,18 +378,20 @@ class Authentication {
     if (validateJWT(this.accessToken)) {
       return Promise.resolve(this.accessToken);
     }
-    return this.accessTokenPromise = authentication.refreshAccessToken(refreshToken)
-      .then((result) => {
+    return (this.accessTokenPromise = authentication
+      .refreshAccessToken(refreshToken)
+      .then(result => {
         this.accessTokenPromise = null;
         if (result.accessToken) {
           runInAction(() => {
             this.accessToken = result.accessToken;
           });
+          console.log(result.accessToken);
           return result.accessToken;
         }
         throw new Error('Error refreshing session, please login again.');
-      });
-  }
+      }));
+  };
 
   /**
    *
@@ -419,14 +434,14 @@ class Authentication {
         this.reset();
       });
     }, 1000);
-  }
+  };
 
   /**
- * Get the user's access token, renewing if necessary.
- * Several modules might call this in parallel, but it won't do a separate query for
- * each one.
- * @returns {Promise} - the user access token.
- */
+   * Get the user's access token, renewing if necessary.
+   * Several modules might call this in parallel, but it won't do a separate query for
+   * each one.
+   * @returns {Promise} - the user access token.
+   */
   //NOTE REMOVE DEPRECATED - renamed new function to ease merging in git
   fetchAccessToken = skipHydrate => {
     console.log('[auth-store] fetchAccessToken auth flow');
@@ -518,7 +533,9 @@ class Authentication {
           throw new Error('user access failed');
         })
         .catch(e => {
-          console.log('[auth-store--reset] error on trying to refresh access token');
+          console.log(
+            '[auth-store--reset] error on trying to refresh access token'
+          );
           console.log(e);
           runInAction(() => {
             this.reset();
@@ -556,14 +573,14 @@ class Authentication {
     });
   };
 
-  get = async (accessToken) => {
+  get = async accessToken => {
     try {
       const user = await authentication.get(accessToken);
       return Promise.resolve(user);
     } catch (error) {
       return Promise.reject('An unknown error occurred fetching the user.');
     }
-  }
+  };
 
   updateUser = user => {
     return new Promise(resolve => {

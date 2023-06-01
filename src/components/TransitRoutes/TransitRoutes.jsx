@@ -23,6 +23,8 @@ export const TransitRoutes = observer(({}) => {
     getRoutePatterns,
     getRoutes,
     getNearestStops,
+    initRoutes,
+    initStops,
   } = useStore().mapStore;
   const { debug } = useStore().uiStore;
   const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
@@ -137,7 +139,12 @@ export const TransitRoutes = observer(({}) => {
     if (mapCache.routes.length && mapCache.stopsIndex) {
       setRoutesAreLoaded(true);
       if (!mapState.routes.length) getRouteList();
+    } else {
+      setRoutesAreLoaded(false);
+      initRoutes();
+      initStops();
     }
+    // eslint-disable-next-line
   }, [mapCache.routes]);
 
   //DEBUG

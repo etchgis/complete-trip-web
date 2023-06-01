@@ -221,14 +221,14 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
           color={
             colorMode === 'dark'
               ? 'white'
-              : location === '/'
+              : location === '/home'
               ? 'brandDark'
               : 'brand'
           }
-          fontWeight={location === '/' ? '600' : 400}
+          fontWeight={location === '/home' ? '600' : 400}
           onClick={() => {
             if (onClose) onClose();
-            return navigate('/');
+            return navigate('/home');
           }}
         >
           Home

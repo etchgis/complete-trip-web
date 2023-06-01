@@ -1,0 +1,62 @@
+### GET ALL CAREGIVERS - EXPIRES NOV 29 2023
+
+GET https://staging.lambda.etch.app/caregivers
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZWM5MTEyOC1kYTI0LTRlMTgtYjlmYS1lMzVkNWFjNmZlMzUiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU1NTc1MTAsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzAxMzIwMzk5fQ.ZbZJBeBuz6bqLgqtmc3ql67xKBaISaq3tj1WDJVgB3E
+content-type: application/json
+x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
+
+### GET A SINGLE CAREGIVER as malcolmtmeyer@gmail.com
+
+GET https://staging.lambda.etch.app/caregivers/a38ccaca-e3dc-4e9d-9d69-08eff8eb3151
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZWM5MTEyOC1kYTI0LTRlMTgtYjlmYS1lMzVkNWFjNmZlMzUiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU1NTc1MTAsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzAxMzIwMzk5fQ.ZbZJBeBuz6bqLgqtmc3ql67xKBaISaq3tj1WDJVgB3E
+content-type: application/json
+x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
+
+##########################################
+##########################################
+
+### GET ALL DEPENDENTS as malcolm@getbounds.com
+
+GET https://staging.lambda.etch.app/caregivers/dependents
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxZjBkZTQ4ZS1hMjE4LTRhOTEtYWRhMi00NWViOTQ5OTQ3NDYiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU2MjMwMzEsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzAxNDA2Nzk5fQ.H_GuRWMUyLwlP9pxECKU9fhYk1xlOD4Ri4RN9Q45nBo
+content-type: application/json
+x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
+
+### UPDATE REQUEST pending, received, approved, denied CAREGIVER
+
+PUT https://staging.lambda.etch.app/caregivers/a38ccaca-e3dc-4e9d-9d69-08eff8eb3151
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxZjBkZTQ4ZS1hMjE4LTRhOTEtYWRhMi00NWViOTQ5OTQ3NDYiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU2MjMwMzEsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzAxNDA2Nzk5fQ.H_GuRWMUyLwlP9pxECKU9fhYk1xlOD4Ri4RN9Q45nBo
+content-type: application/json
+x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
+
+{
+  "user": "1f0de48e-a218-4a91-ada2-45eb94994746",
+  "status": "received" 
+}
+
+### DELETE CAREGIVER
+
+DELETE https://staging.lambda.etch.app/caregivers/f85e9d09-73be-49fd-b98d-3745bfeeb7ca
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxZjBkZTQ4ZS1hMjE4LTRhOTEtYWRhMi00NWViOTQ5OTQ3NDYiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU0ODA5NDAsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNjg1NTkxOTk5fQ.gM3wdVvjL6OZL8Y9Oip32Od3BBcCHR7GhNgT1OmsQIc
+content-type: application/json
+x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
+
+
+
+
+
+
+
+
+
+## SEND REQUEST DEPENDENT
+
+POST https://staging.lambda.etch.app/caregivers 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZWM5MTEyOC1kYTI0LTRlMTgtYjlmYS1lMzVkNWFjNmZlMzUiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU1NTc1MTAsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzAxMzIwMzk5fQ.ZbZJBeBuz6bqLgqtmc3ql67xKBaISaq3tj1WDJVgB3E
+content-type: application/json
+x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
+
+{
+  "email": "malcolm@getbounds.com",
+  "name": "Malcolm Meyer"
+}

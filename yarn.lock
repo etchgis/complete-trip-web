@@ -1320,7 +1320,7 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.18.tgz#3a8e57153905308db357fd02f57c180ee3a0a1fa"
   integrity sha512-qU25Ma1I3NqTSHJUOKi9sAH1/Mzuvlke0ioMJRthLXKm7JiSKVwFghlGbDLOO2sARECGhja4xYfRAZNPAkooYg==
 
-"@etchgis/mobility-transport-layer@^1.0.7":
+"@etchgis/mobility-transport-layer@^1.0.8":
   version "1.0.7"
   resolved "https://npm.pkg.github.com/download/@etchgis/mobility-transport-layer/1.0.7/46938a7e2208a1b30a8df6b3ce93fd3a825e15d5#46938a7e2208a1b30a8df6b3ce93fd3a825e15d5"
   integrity sha512-aHv9eU/LgmplsTnOag0ElxBj3U8bqI8l2j9ntIEB7VpQy6hfY2VPhBo56H1U4VHnEm2xKIGDT8cq2FReWROU8A==
@@ -3791,6 +3791,11 @@ cross-spawn@^7.0.0:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
 
 css-box-model@1.2.1:
   version "1.2.1"

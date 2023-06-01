@@ -60,7 +60,7 @@ class Schedule {
 
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
-      console.log({ token });
+
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });
@@ -95,7 +95,7 @@ class Schedule {
     });
   };
 
-  cancel = (tripId) => {
+  cancel = tripId => {
     return new Promise(async (resolve, reject) => {
       //NOTE skip hydration as it hydrates *after* the call to cancel so that it returns the same trip again
       const token = await this.rootStore.authentication.fetchToken();
@@ -130,7 +130,7 @@ class Schedule {
     });
   };
 
-  get = (datetime) => {
+  get = datetime => {
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
       runInAction(() => {
@@ -191,7 +191,7 @@ class Schedule {
   updateTripRequest = (id, request) => {
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
-      console.log({ token });
+
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });

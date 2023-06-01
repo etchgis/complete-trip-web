@@ -4,6 +4,9 @@ import { GrWheelchairActive } from 'react-icons/gr';
 
 const ENV = 'stage';
 
+const CAREGIVER_SECRET =
+  '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
+
 const API = {
   stage: {
     admin: {
@@ -37,6 +40,10 @@ const API = {
     verifications: {
       url: 'https://staging.lambda.etch.app/verifications',
       xApiKey: '4pJ5BNCYYj4fz3eyJWhZVadrPgeyl39D8ykWgCS8',
+    },
+    caregivers: {
+      url: 'https://staging.lambda.etch.app/caregivers',
+      xApiKey: 'SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE',
     },
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
     streamsocket: 'wss://{org}.etch.app/services',
@@ -92,7 +99,7 @@ const MODES = [
     label: 'Walk',
     icon: 'walking',
     _webIcon: FaWalking,
-    type: 'personal',
+    type: 'walk',
     accessible: true,
     color: '#616161',
     api: '',
@@ -107,7 +114,7 @@ const MODES = [
     sort: 5,
     label: 'Car',
     icon: 'car',
-    type: 'personal',
+    type: 'car',
     _webIcon: FaCar,
     accessible: true,
     color: '#3da9da',
@@ -116,16 +123,15 @@ const MODES = [
       path: 'M80 296C80 282.7 90.75 272 104 272C117.3 272 128 282.7 128 296C128 309.3 117.3 320 104 320C90.75 320 80 309.3 80 296zM432 296C432 309.3 421.3 320 408 320C394.7 320 384 309.3 384 296C384 282.7 394.7 272 408 272C421.3 272 432 282.7 432 296zM48.29 204.7L82.99 89.01C93.14 55.17 124.3 32 159.6 32H352.4C387.7 32 418.9 55.17 429 89.01L463.7 204.7C492.6 221.2 512 252.3 512 288V464C512 472.8 504.8 480 496 480C487.2 480 480 472.8 480 464V416H32V464C32 472.8 24.84 480 16 480C7.164 480 0 472.8 0 464V288C0 252.3 19.44 221.2 48.29 204.7zM85.33 192.6C88.83 192.2 92.39 192 96 192H416C419.6 192 423.2 192.2 426.7 192.6L398.4 98.21C392.3 77.9 373.6 64 352.4 64H159.6C138.4 64 119.7 77.9 113.6 98.21L85.33 192.6zM32 288V384H480V288C480 260.3 462.4 236.7 437.7 227.8L437.3 227.9L437.2 227.6C430.5 225.3 423.4 224 416 224H96C88.58 224 81.46 225.3 74.83 227.6L74.73 227.9L74.27 227.8C49.62 236.7 32 260.3 32 288V288z',
       viewBox: '0 0 512 512',
     },
-    option: 'car',
   },
   {
     id: 'bicycle',
-    mode: 'bike',
+    mode: 'bicyle',
     sort: 2,
     label: 'Bike',
     icon: 'bicycle',
     _webIcon: FaBiking,
-    type: 'personal',
+    type: 'bicyle',
     accessible: false,
     color: '#AF272F',
     api: '',
@@ -133,16 +139,15 @@ const MODES = [
       path: 'M347.2 32C356.1 32 364.3 36.94 368.4 44.82L466.1 232.1C480.1 226.9 496.2 224 512 224C582.7 224 640 281.3 640 352C640 422.7 582.7 480 512 480C441.3 480 384 422.7 384 352C384 308.6 405.6 270.2 438.7 247.1L417.5 206.7L334 359.7C331.2 364.8 325.9 368 320 368H255C247.1 431.1 193.3 480 128 480C57.31 480 0 422.7 0 352C0 281.3 57.31 223.1 128 223.1C142.9 223.1 157.2 226.5 170.5 231.2L197 178.2L166.9 128H112C103.2 128 96 120.8 96 112C96 103.2 103.2 96 112 96H176C181.6 96 186.8 98.95 189.7 103.8L223.5 160H392.9L342.3 64H304C295.2 64 288 56.84 288 48C288 39.16 295.2 32 304 32H347.2zM416 352C416 405 458.1 448 512 448C565 448 608 405 608 352C608 298.1 565 256 512 256C501.5 256 491.5 257.7 482.1 260.8L526.2 344.5C530.3 352.4 527.3 362 519.5 366.2C511.6 370.3 501.1 367.3 497.8 359.5L453.8 275.7C430.8 293.2 416 320.9 416 352V352zM156 260.2C147.2 257.5 137.8 256 127.1 256C74.98 256 31.1 298.1 31.1 352C31.1 405 74.98 448 127.1 448C175.6 448 215.1 413.4 222.7 368H133.2C118.9 368 109.6 352.1 116 340.2L156 260.2zM291.7 336L216.5 210.7L153.9 336H291.7zM242.7 192L319.3 319.8L389 192H242.7z',
       viewBox: '0 0 640 512',
     },
-    option: 'bike',
   },
   {
     id: 'bus',
-    mode: 'transit',
+    mode: 'bus',
     sort: 1,
     label: 'Bus',
     icon: 'bus-alt',
     _webIcon: FaBusAlt,
-    type: 'provider',
+    type: 'transit',
     accessible: true,
     color: '#00205B',
     api: '',
@@ -157,7 +162,7 @@ const MODES = [
     sort: 1,
     label: 'Metro Rail',
     icon: 'bus-alt',
-    type: 'provider',
+    type: 'transit',
     accessible: true,
     color: '#00205B',
     api: '',
@@ -217,6 +222,7 @@ const defaults = {
   WHEELCHAIR,
   MODES,
   TRANSIT_MODES,
+  CAREGIVER_SECRET,
 };
 const config = { ...defaults, defaults };
 

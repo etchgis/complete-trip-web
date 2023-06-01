@@ -1,11 +1,7 @@
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   Box,
   Button,
-  Card,
-  CardBody,
-  CardFooter,
   Divider,
   Heading,
   IconButton,
@@ -15,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 
 import ConfirmDialog from '../ConfirmDialog';
+import { DeleteIcon } from '@chakra-ui/icons';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +20,7 @@ import { useStore } from '../../context/RootStore';
 export const ProfileInformation = observer(({ action }) => {
   const { user, removeUser } = useStore().authentication;
   const { setInTransaction } = useStore().authentication;
-  
+
   const navigate = useNavigate();
   /**
    *
@@ -34,7 +31,7 @@ export const ProfileInformation = observer(({ action }) => {
     const deleted = await removeUser();
     if (deleted) {
       setInTransaction(false);
-      navigate("/")
+      navigate('/');
       return true;
     } else {
       setInTransaction(false);
@@ -209,67 +206,6 @@ export const Accessibility = observer(({ action }) => {
     </Stack>
   );
 });
-
-export const CaretakerCards = ({ action, caretakers }) => {
-  return (
-    <>
-      <Stack spacing={6}>
-        {caretakers.map((caretaker, i) => (
-          <CaretakerCard
-            key={i.toString()}
-            caretaker={caretaker}
-            action={() => {
-              action(i);
-            }}
-          />
-        ))}
-      </Stack>
-
-      <Button
-        mt={6}
-        variant={'outline'}
-        color={'brand'}
-        // bg={'brand'}
-        // _hover={{
-        //   opacity: '0.8',
-        // }}
-        leftIcon={<AddIcon />}
-        onClick={() => action(null)}
-      >
-        Add Caretaker
-      </Button>
-    </>
-  );
-};
-
-export const CaretakerCard = ({ action, caretaker }) => {
-  return (
-    <Card maxW="sm" variant={'outline'}>
-      <CardBody>
-        <Stack spacing="3">
-          <Heading size="md">
-            {caretaker?.firstName} {caretaker?.lastName}
-          </Heading>
-          <Text>{formatters.phone.asDomestic(caretaker?.phone.slice(2))}</Text>
-          <Text>{caretaker?.email}</Text>
-        </Stack>
-      </CardBody>
-      <Divider />
-      <CardFooter p={2}>
-        <Button
-          bg="brand"
-          _hover={{
-            opacity: '0.8',
-          }}
-          color="white"
-          onClick={action}
-        >
-          Edit
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
 
 export const TermsOfUse = () => {
   return (

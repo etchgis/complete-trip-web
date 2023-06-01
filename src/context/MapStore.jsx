@@ -57,8 +57,8 @@ class MapStore {
   };
 
   constructor(rootStore) {
-    this.initStops();
-    this.initRoutes();
+    // this.initStops();
+    // this.initRoutes();
 
     makeAutoObservable(this);
     this.rootStore = rootStore;

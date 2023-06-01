@@ -14,6 +14,7 @@ import { useRef, useState } from 'react';
 
 export const ConfirmDialog = ({
   confirmFn,
+  title,
   buttonText,
   confirmText,
   verifyText,
@@ -56,8 +57,8 @@ export const ConfirmDialog = ({
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="red.500">
-              {buttonText}
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              {title || buttonText || ''}
             </AlertDialogHeader>
 
             <AlertDialogBody>

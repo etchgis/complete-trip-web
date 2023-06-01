@@ -1,6 +1,5 @@
 import {
   Accessibility,
-  CaretakerCards,
   FavoritesList,
   PrivacyPolicy,
   ProfileInformation,
@@ -19,8 +18,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { AddCaregiver } from '../components/Settings/AddCaregiver';
+import { CaregiversList } from '../components/Settings/CaregiversList';
+import { DependentsList } from '../components/Settings/DependentsList';
 import { EditAccessibility } from '../components/Settings/EditAccessibility';
-import { EditCaretaker } from '../components/Settings/EditCaretaker';
 import { EditNotifications } from '../components/Settings/EditNotifications';
 import { EditPassword } from '../components/Settings/EditPassword';
 import { EditProfile } from '../components/Settings/EditProfile';
@@ -31,7 +32,7 @@ import { useStore } from '../context/RootStore';
 
 const Settings = observer(({ view }) => {
   const navigate = useNavigate();
-  const { user } = useStore().authentication;
+  const { caregivers, dependents } = useStore().caregivers;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activePanel, setActivePanel] = useState();
   const [caretakerId, setCaretakerId] = useState();
@@ -52,10 +53,17 @@ const Settings = observer(({ view }) => {
       action: () => navigate('/settings/profile'),
     },
     {
-      title: 'Caretakers',
-      path: 'caretakers',
+      title: 'Caregivers',
+      path: 'caregivers',
       type: 'account',
-      action: () => navigate('/settings/caretakers'),
+      action: () => navigate('/settings/caregivers'),
+    },
+    {
+      title: 'Dependents',
+      path: 'dependents',
+      type: 'account',
+      hide: !dependents.length,
+      action: () => navigate('/settings/dependents'),
     },
     {
       title: 'Favorites',
@@ -105,12 +113,12 @@ const Settings = observer(({ view }) => {
       el: <EditProfile onClose={onClose} />,
     },
     {
-      title: 'Edit Caretaker',
-      el: <EditCaretaker id={caretakerId} onClose={onClose} />,
+      title: 'Remove Caregiver',
+      el: <AddCaregiver id={caretakerId} onClose={onClose} />,
     },
     {
-      title: 'Add Caretaker',
-      el: <EditCaretaker onClose={onClose} />,
+      title: 'Add Caregiver',
+      el: <AddCaregiver onClose={onClose} />,
     },
     {
       title: 'Trip Preferences',
@@ -144,7 +152,7 @@ const Settings = observer(({ view }) => {
             </Heading>
             {views.map((l, i) => {
               l['id'] = i;
-              if (l.type === 'account') {
+              if (l.type === 'account' && !l?.hide) {
                 return <LinkButton item={l} key={i.toString()} />;
               } else {
                 return '';
@@ -171,7 +179,7 @@ const Settings = observer(({ view }) => {
           p={{ base: 10, md: 10 }}
           maxW={{ base: '100%', md: '600px' }}
         >
-          {switchViews({ view, user, setActivePanel, setCaretakerId })}
+          {switchViews({ view, caregivers, setActivePanel, setCaretakerId })}
         </Box>
       </Grid>
       <SettingsModal
@@ -190,20 +198,19 @@ const Settings = observer(({ view }) => {
 
 export default Settings;
 
-function switchViews({ view, user, setActivePanel, setCaretakerId }) {
+function switchViews({ view, setActivePanel }) {
   if (view) console.log('[settings]', view);
   switch (view) {
-    case 'caretakers':
+    case 'caregivers':
       return (
-        <CaretakerCards
-          action={id => {
-            if (!id && id !== 0) {
-              return setActivePanel('Add Caretaker');
-            }
-            setActivePanel('Edit Caretaker');
-            setCaretakerId(id);
-          }}
-          caretakers={user?.profile?.caretakers || []}
+        <CaregiversList
+          action={() => setActivePanel('Add Caregiver')}
+          //   if (!id && id !== 0) {
+          //     return setActivePanel('Add Caregiver');
+          //   }
+          //   setActivePanel('Remove Caregiver');
+          //   setCaretakerId(id);
+          // }}
         />
       );
     case 'preferences':
@@ -222,6 +229,8 @@ function switchViews({ view, user, setActivePanel, setCaretakerId }) {
       return <PrivacyPolicy />;
     case 'favorites':
       return <FavoritesList />;
+    case 'dependents':
+      return <DependentsList />;
     default:
       return (
         <ProfileInformation
@@ -257,8 +266,8 @@ function LinkButton({ item }) {
         pathname.includes(l.path) || pathname.includes(l.title.toLowerCase())
           ? 'white'
           : colorMode === 'light'
-            ? 'brand'
-            : 'white'
+          ? 'brand'
+          : 'white'
       }
     >
       {l.title}

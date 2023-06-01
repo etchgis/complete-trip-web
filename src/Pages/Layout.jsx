@@ -1,4 +1,5 @@
 import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import CustomModal from '../components/Modal';
 import ErrorToastMessage from '../components/ErrorToastMessage';
@@ -10,9 +11,8 @@ import Navbar from '../components/Navbar';
 import ResponsiveSidebar from '../components/Sidebar';
 import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
+import { set } from 'lodash';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/RootStore';
 
 // import { useEffect } from 'react';
@@ -20,14 +20,16 @@ import { useStore } from '../context/RootStore';
 const Layout = observer(({ showMap, children }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
+  const { code: inviteCode } = useStore().caregivers;
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
     useStore().authentication;
 
   const { isLoading } = useStore().uiStore;
   const { trips } = useStore().schedule;
 
-  const _trips = toJS(trips);
-  console.log({ _trips });
+  // const _trips = toJS(trips);
+  // console.log({ _trips });
 
   if (loggedIn && !user?.profile?.onboarded)
     console.log('[layout] onboarded:', user?.profile?.onboarded);
@@ -45,16 +47,39 @@ const Layout = observer(({ showMap, children }) => {
     onClose: hideLogin,
   } = useDisclosure();
 
+  //////////////////////////
+  // SPRINT 7 CAREGIVER LINK
+  //////////////////////////
+
+  // SHOW LOGIN MODAL USING QUERY PARAMS SO WE CAN OPEN IT FROM THE CAREGIVER LINK
+  useEffect(() => {
+    if (!loggedIn && searchParams.get('login')) {
+      showLogin();
+      setSearchParams({});
+    }
+    // eslint-disable-next-line
+  }, [searchParams]);
+
   useEffect(() => {
     if (requireMFA) {
       hideLogin();
     }
-    // eslint-disable-next-line
-  }, [requireMFA]);
+  }, [requireMFA, hideLogin]);
 
+  // // CLEAR QUERY PARAMS WHEN THE LOGIN MODAL IS CLOSED
+  // useEffect(() => {
+  //   if (!loginIsOpen && !loggedIn) {
+  //     console.log('[layout] clearing params');
+  //     setSearchParams({});
+  //   }
+  // }, []);
+
+  // OPEN THE CAREGIVER LINK MODAL IF THE USER HAS A PENDING CAREGIVER CODE
   // REDIRECT TO HOME IF THE USER HAS TRIPS SCHEDULED
   useEffect(() => {
-    if (loggedIn && user?.profile?.onboarded && trips.length) {
+    if (loggedIn && inviteCode) {
+      navigate('/caregiver?invited=true');
+    } else if (loggedIn && user?.profile?.onboarded && trips.length) {
       navigate('/home');
     }
     // eslint-disable-next-line
