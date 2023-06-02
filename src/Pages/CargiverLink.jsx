@@ -60,7 +60,8 @@ const CargiverLink = observer(() => {
       const result = await caregivers.update(caregivers.code, status);
       console.log({ result });
       if (status === 'approved' || status === 'denied') {
-        if (status === 'approved') setToastStatus('success');
+        if (status === 'approved') setToastStatus('Success');
+        if (status === 'denied') setToastStatus('Info');
         setToastMessage(`Caregiver request ${status}.`);
         navigate('/settings/dependents');
         onClose();

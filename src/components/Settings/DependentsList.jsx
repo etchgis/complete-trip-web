@@ -63,11 +63,12 @@ const DependentCard = ({ dependent }) => {
     try {
       const result = await update(id, status);
       console.log({ result });
-      if (status === 'approved') setToastStatus('success');
-      if (status === 'denied') setToastStatus('warning');
+      if (status === 'approved') setToastStatus('Success');
+      if (status === 'denied') setToastStatus('Info');
       setToastMessage(`Caregiver request ${status}.`);
     } catch (error) {
       console.log({ error });
+      
       setToastMessage('An error occurred with the request.'); //TODO what to do here?
     }
   };

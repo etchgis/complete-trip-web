@@ -1,3 +1,4 @@
+import { AddIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Button,
@@ -10,7 +11,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 
-import { AddIcon } from '@chakra-ui/icons';
 import ConfirmDialog from '../ConfirmDialog';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
@@ -78,8 +78,8 @@ export const CaregiverCard = ({ caregiver }) => {
     <Card maxW="sm" variant={'outline'}>
       <CardBody>
         <Stack spacing="3">
-          <Heading size="md">
-            {caregiver?.firstName} {caregiver?.lastName}
+          <Heading size="md" display={'flex'} alignItems={'center'}>
+            {caregiver?.firstName} {caregiver?.lastName} {caregiver?.status === 'approved' ? <CheckCircleIcon color='green.400' ml={2}/> : ''}
           </Heading>
           {/* <Text>{formatters.phone.asDomestic(caregiver?.phone.slice(2))}</Text> */}
           <Text>{caregiver?.email}</Text>

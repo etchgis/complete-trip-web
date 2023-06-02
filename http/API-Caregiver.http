@@ -7,7 +7,7 @@ x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
 
 ### GET A SINGLE CAREGIVER as malcolmtmeyer@gmail.com
 
-GET https://staging.lambda.etch.app/caregivers/541b97c3-cd87-46c7-8328-14fbb7ab24be
+GET https://staging.lambda.etch.app/caregivers/b4d7c90c-7f45-4e7b-ba2d-b8282a3de710
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwZGI5ZDQxMi04YjE1LTRkNzMtYWQ5MS1hY2RiOWU2ZWZmMWEiLCJyb2xlIjoicmlkZXIiLCJvcmdhbml6YXRpb24iOiIzNzM4ZjJlYS1kZGMwLTRkODYtOWE4YS00ZjJlZDUzMWE0ODYiLCJpYXQiOjE2ODU3MTg1NjMsImlzcyI6ImV0Y2hnaXMuY29tIiwiZXhwIjoxNzAxNDkzMTk5fQ.HuBXlfwCCf241gCUcgZZ2XRsbvawGV7lm00xrvWtYkM
 content-type: application/json
 x-api-key: SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE
