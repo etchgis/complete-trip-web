@@ -2,12 +2,13 @@ import config from '../../config';
 
 const traveler = {
   caregivers: {
-    invite(email, name, accessToken) {
+    invite(email, firstName, lastName, accessToken) {
       return fetch(`${config.SERVICES.caregivers.url}`, {
         method: 'POST',
         body: JSON.stringify({
           email,
-          name,
+          firstName,
+          lastName,
         }),
         headers: {
           Authorization: `Bearer ${accessToken}`,

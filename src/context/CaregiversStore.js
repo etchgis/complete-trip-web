@@ -7,15 +7,39 @@ class Caregivers {
   code = null;
   caregivers = [];
   dependents = [];
+  stagedCaregiver = {
+    firstName: null,
+    lastName: null,
+    email: null,
+  };
 
   constructor(rootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
   }
 
+  reset = () => {
+    runInAction(() => {
+      this.code = null;
+      this.caregivers = [];
+      this.dependents = [];
+      this.stagedCaregiver = {
+        firstName: null,
+        lastName: null,
+        email: null,
+      };
+    });
+  };
+
   setCode = value => {
     runInAction(() => {
       this.code = value ? decryptCode(value) : null;
+    });
+  };
+
+  setStagedCaregiver = update => {
+    runInAction(() => {
+      this.stagedCaregiver = { ...this.stagedCaregiver, ...update };
     });
   };
 
@@ -29,25 +53,39 @@ class Caregivers {
         reject({
           message: 'An unknown error occurred.',
         });
+
+      const validCaregivers = caregivers?.member?.filter(c => {
+        return (
+          c.status === 'pending' ||
+          c.status === 'received' ||
+          c.status === 'approved' || 
+          c.status === 'denied'
+        );
+      });
       const validDependents = dependents?.member?.filter(d => {
         return d.status === 'approved' || d.status === 'received';
       });
       runInAction(() => {
-        this.caregivers = caregivers?.member;
+        this.caregivers = validCaregivers;
         this.dependents = validDependents;
       });
       resolve(true);
     });
   };
-
-  invite = (email, name) => {
+  //TODO change this when API changes
+  invite = (email, firstName, lastName) => {
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });
       travelerAPI.caregivers
-        .invite(email.toLowerCase().trim(), name.trim(), token)
+        .invite(
+          email.toLowerCase().trim(),
+          firstName.trim(),
+          lastName.trim(),
+          token
+        )
         .then(response => {
           resolve(response); //TODO show success message? maybe inside the component
         })

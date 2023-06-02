@@ -50,7 +50,7 @@ export const Wizard = observer(({ hideModal }) => {
         w="100%"
         id="stack"
         bg={useColorModeValue('white', 'gray.700')}
-      // boxShadow={'lg'}
+        // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image src={'/buffalo_logo_full.png'} h={'200px'} />
@@ -69,6 +69,7 @@ export const Wizard = observer(({ hideModal }) => {
 const WizardStepThrough = observer(() => {
   const { user, updateUserProfile, updateUserPhone, verifyUser } =
     useStore().authentication;
+  const { setStagedCaregiver } = useStore().caregivers;
 
   return (
     <WizardStepThroughForm
@@ -118,28 +119,17 @@ const WizardStepThrough = observer(() => {
           skip: true,
         },
         {
-          title: 'caretaker',
-          content: () => <Caretaker></Caretaker>,
-          action: async e => {
+          title: 'caregiver',
+          content: () => <Caregiver></Caregiver>,
+          action: e => {
             const data = new FormData(e.target);
-            // if (data.get('changed') === 'false') return true;
-
-            const profile = Object.assign({}, toJS(user?.profile), {
-              caretakers: [
-                {
-                  firstName: data.get('caretakerFirstName'),
-                  lastName: data.get('caretakerLastName'),
-                  email: data.get('caretakerEmail'),
-                  phone: `+1${data.get('caretakerPhone').replace(/-/g, '')}`,
-                },
-              ],
-            });
-            const updated = await updateUserProfile(profile);
-            console.log('updated', updated);
-            if (!updated || updated.error) {
-              return false;
-            }
-            return updated;
+            const caregiver = {
+              firstName: data.get('caregiverFirstName'),
+              lastName: data.get('caregiverLastName'),
+              email: data.get('caregiverEmail'),
+            };
+            setStagedCaregiver(caregiver);
+            return true;
           },
           skip: true,
         },
@@ -198,8 +188,8 @@ const ContactInfo = observer(() => {
     user?.phone && user.phone === '+15555555555'
       ? ''
       : user?.phone
-        ? formatters.phone.asDomestic(user?.phone.slice(2))
-        : ''
+      ? formatters.phone.asDomestic(user?.phone.slice(2))
+      : ''
   );
 
   return (
@@ -341,7 +331,7 @@ const HomeAddress = observer(({ index }) => {
           center={center}
           defaultAddress={defaultAddress}
           setGeocoderResult={setGeocoderResult}
-          label='Home Address'
+          label="Home Address"
         ></AddressSearchForm>
       </FormControl>
       <VisuallyHiddenInput
@@ -384,28 +374,23 @@ const HomeAddress = observer(({ index }) => {
   );
 });
 
-const Caretaker = observer(() => {
+const Caregiver = observer(() => {
   const { colorMode } = useColorMode();
-  const { user } = useStore().authentication;
-  const [caretakerFirstName, setCaretakerFirstName] = useState(
-    user?.profile?.caretakers && user.profile.caretakers.length
-      ? user.profile.caretakers[0]?.firstName
-      : ''
-  );
-  const [caretakerLastName, setCaretakerLastName] = useState(
-    user?.profile?.caretakers && user.profile.caretakers.length
-      ? user.profile.caretakers[0]?.lastName
-      : ''
-  );
-  const [caretakerEmail, setCaretakerEmail] = useState(
-    (user?.profile?.caretakers && user?.profile?.caretakers[0]?.email) || ''
-  );
-  const [caretakerPhone, setCaretakerPhone] = useState(
-    user?.profile?.caretakers && user.profile.caretakers.length
-      ? formatters.phone.asDomestic(user.profile.caretakers[0]?.phone.slice(2))
-      : ''
-  );
-
+  const { stagedCaregiver } = useStore().caregivers;
+  // const [caregiverFirstName, setCaregiverFirstName] = useState(
+  //   user?.profile?.caretakers && user.profile.caretakers.length
+  //     ? user.profile.caretakers[0]?.firstName
+  //     : ''
+  // );
+  // const [caretakerLastName, setCaregiverLastName] = useState(
+  //   user?.profile?.caretakers && user.profile.caretakers.length
+  //     ? user.profile.caretakers[0]?.lastName
+  //     : ''
+  // );
+  // const [caretakerEmail, setCaregiverEmail] = useState(
+  //   (user?.profile?.caretakers && user?.profile?.caretakers[0]?.email) || ''
+  // );
+  //TODO change from setting the caregiver each time to just set them at the on submit
   return (
     <Stack spacing={4}>
       <Heading
@@ -414,55 +399,38 @@ const Caretaker = observer(() => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Primary Caretaker
+        Add Primary Caregiver
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         Notify your companions in 1-touch for any of your trips.
       </Text>
       <HStack>
-        <FormControl>
+        <FormControl isRequired>
           <FormLabel>First Name</FormLabel>
           <Input
             type="text"
-            name="caretakerFirstName"
-            onChange={e => setCaretakerFirstName(e.target.value)}
-            value={caretakerFirstName || ''}
+            name="caregiverFirstName"
+            // onChange={e => setStagedCaregiver('firstName', e.target.value)}
+            defaultValue={stagedCaregiver?.firstName || ''}
           />
         </FormControl>
-        <FormControl>
+        <FormControl isRequired>
           <FormLabel>Last Name</FormLabel>
           <Input
             type="text"
-            name="caretakerLastName"
-            onChange={e => setCaretakerLastName(e.target.value)}
-            value={caretakerLastName || ''}
+            name="caregiverLastName"
+            // onChange={e => setStagedCaregiver('lastName', e.target.value)}
+            defaultValue={stagedCaregiver?.lastName || ''}
           />
         </FormControl>
       </HStack>
-
-      <FormControl>
+      <FormControl isRequired>
         <FormLabel>Email</FormLabel>
         <Input
           type="email"
-          name="caretakerEmail"
-          onChange={e => setCaretakerEmail(e.target.value)}
-          value={caretakerEmail || ''}
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Phone</FormLabel>
-        <Input
-          type="tel"
-          name="caretakerPhone"
-          pattern="^\d{3}-\d{3}-\d{4}$"
-          onChange={e => {
-            const input = e.target.value.length ? e.target.value : null;
-            if (input)
-              return setCaretakerPhone(formatters.phone.asDomestic(input));
-            return setCaretakerPhone();
-          }}
-          value={caretakerPhone || ''}
-          placeholder="000-000-0000"
+          name="caregiverEmail"
+          // onChange={e => setStagedCaregiver('email', e.target.value)}
+          defaultValue={stagedCaregiver?.email || ''}
         />
       </FormControl>
     </Stack>
@@ -650,6 +618,7 @@ const MobilityOptions = observer(() => {
 
 const Complete = observer(() => {
   const { user } = useStore().authentication;
+  const { stagedCaregiver } = useStore().caregivers;
 
   return (
     <Box m={4}>
@@ -671,30 +640,12 @@ const Complete = observer(() => {
       </Box>
 
       <Heading as="h3" size="md">
-        Caretakers
+        Caregiver
       </Heading>
-
       <Text>
-        {user?.profile?.caretakers && user?.profile?.caretakers.length
-          ? user.profile.caretakers[0]?.firstName
-          : ''}{' '}
-        {user?.profile?.caretakers && user?.profile?.caretakers.length
-          ? user.profile.caretakers[0]?.lastName
-          : ''}
+        {stagedCaregiver?.firstName || ''} {stagedCaregiver?.lastName || ''}
       </Text>
-      <Text>
-        {user?.profile?.caretakers && user?.profile?.caretakers.length
-          ? user.profile.caretakers[0]?.email
-          : ''}
-      </Text>
-
-      <Text>
-        {user?.profile?.caretakers && user?.profile?.caretakers.length
-          ? formatters.phone.asDomestic(
-            user.profile.caretakers[0]?.phone.slice(2)
-          )
-          : ''}
-      </Text>
+      <Text>{stagedCaregiver?.email || ''}</Text>
     </Box>
   );
 });

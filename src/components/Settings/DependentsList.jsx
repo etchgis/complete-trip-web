@@ -26,7 +26,9 @@ export const DependentsList = observer(() => {
     hydrate();
   }, [hydrate]);
 
-  if (!dependents.length) navigate('/settings/profile');
+  useEffect(() => {
+    if (!dependents.length) navigate('/settings/profile');
+  }, [dependents, navigate]);
 
   return (
     <Box>
@@ -35,7 +37,7 @@ export const DependentsList = observer(() => {
           Dependents
         </Heading>
         {dependents.map((d, i) => (
-          <DependentCard key={i} caregiver={d} />
+          <DependentCard key={i} dependent={d} />
         ))}
         {dependents.length === 0 && <Text>No Dependents Found.</Text>}
       </Stack>
@@ -43,8 +45,7 @@ export const DependentsList = observer(() => {
   );
 });
 
-const DependentCard = ({ caregiver }) => {
-  const { dependent } = caregiver;
+const DependentCard = ({ dependent }) => {
   const { removeDependent: remove, update } = useStore().caregivers;
   const { setToastMessage, setToastStatus } = useStore().uiStore;
   const removeDependent = async id => {
@@ -80,13 +81,13 @@ const DependentCard = ({ caregiver }) => {
         <Text>{dependent?.email}</Text>
       </CardBody>
       <CardFooter p={2}>
-        {caregiver.status === 'approved' ? (
+        {dependent?.status === 'approved' ? (
           <ConfirmDialog
             title="Remove Dependent"
             confirmText={'Remove'}
             message="Are you sure you want to remove this dependent? This process cannot be undone."
             buttonText="Remove Dependent"
-            confirmFn={() => removeDependent(caregiver.id)}
+            confirmFn={() => removeDependent(dependent?.id)}
             // confirmFn={() => updateHandler(caregiver.id, 'pending')}
           />
         ) : (
@@ -98,14 +99,14 @@ const DependentCard = ({ caregiver }) => {
             <Button
               colorScheme="facebook"
               mr={2}
-              onClick={() => updateHandler(caregiver.id, 'approved')}
+              onClick={() => updateHandler(dependent.id, 'approved')}
             >
               Approve Request
             </Button>
             <Button
               colorScheme="red"
               variant="outline"
-              onClick={() => updateHandler(caregiver.id, 'denied')}
+              onClick={() => updateHandler(dependent.id, 'denied')}
             >
               Deny Request
             </Button>

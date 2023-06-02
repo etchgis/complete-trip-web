@@ -78,7 +78,9 @@ export const CaregiverCard = ({ caregiver }) => {
     <Card maxW="sm" variant={'outline'}>
       <CardBody>
         <Stack spacing="3">
-          <Heading size="md">{caregiver?.name}</Heading>
+          <Heading size="md">
+            {caregiver?.firstName} {caregiver?.lastName}
+          </Heading>
           {/* <Text>{formatters.phone.asDomestic(caregiver?.phone.slice(2))}</Text> */}
           <Text>{caregiver?.email}</Text>
         </Stack>
@@ -111,13 +113,6 @@ export const CaregiverCard = ({ caregiver }) => {
         ) : (
           ''
         )}
-
-        {/* <Button
-          colorScheme="red"
-          onClick={() => removeCaregiver(caregiver?.id)}
-        >
-          Remove Caregiver
-        </Button> */}
       </CardFooter>
     </Card>
   );

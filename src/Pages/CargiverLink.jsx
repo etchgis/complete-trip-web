@@ -63,6 +63,7 @@ const CargiverLink = observer(() => {
         if (status === 'approved') setToastStatus('success');
         setToastMessage(`Caregiver request ${status}.`);
         navigate('/settings/dependents');
+        onClose();
         caregivers.setCode(null);
       }
     } catch (error) {

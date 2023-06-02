@@ -6,19 +6,15 @@ import {
   HStack,
   Input,
   Stack,
-  VisuallyHiddenInput,
 } from '@chakra-ui/react';
 
-import { hydrate } from 'react-dom';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
-export const AddCaregiver = ({ id, onClose }) => {
+export const AddCaregiver = ({ onClose }) => {
   const { invite, hydrate } = useStore().caregivers;
   const [changed, setChanged] = useState(false);
   const { setErrorToastMessage } = useStore().authentication;
-  // console.log({ caregivers });
-  console.log({ id });
 
   return (
     <Box
@@ -27,13 +23,11 @@ export const AddCaregiver = ({ id, onClose }) => {
       onSubmit={async e => {
         e.preventDefault();
         const data = new FormData(e.target);
-        const name = `${data.get('caregiverFirstName')} ${data.get(
-          'caregiverLastName'
-        )}`;
+        const firstName = data.get('caregiverFirstName');
+        const lastName = data.get('caregiverLastName');
         try {
-          await invite(data.get('caregiverEmail'), name);
-          await hydrate();
-          onClose();
+          const reponse = await invite(data.get('caregiverEmail'), firstName, lastName);
+          console.log(reponse);
           //TODO show success message
         } catch (error) {
           onClose();
@@ -43,10 +37,14 @@ export const AddCaregiver = ({ id, onClose }) => {
             );
           } else {
             setErrorToastMessage(
-              'There was an error sending the invite. Please try again or contact support.'
+              'There was an error sending the invite.'
             );
           }
         }
+
+        hydrate();
+        onClose();
+
       }}
     >
       <Stack spacing={4}>
@@ -63,14 +61,6 @@ export const AddCaregiver = ({ id, onClose }) => {
         <FormControl isRequired>
           <FormLabel>Email</FormLabel>
           <Input type="email" name="caregiverEmail" isRequired />
-        </FormControl>
-        <FormControl>
-          <VisuallyHiddenInput
-            type="number"
-            name="id"
-            value={id}
-            readOnly
-          ></VisuallyHiddenInput>
         </FormControl>
         <Button
           bg={'brand'}

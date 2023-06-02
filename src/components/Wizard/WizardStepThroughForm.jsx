@@ -16,22 +16,29 @@ import {
 } from '@chakra-ui/react';
 
 import { BsCircleFill } from 'react-icons/bs';
+import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { useStore } from '../../context/RootStore';
 
 export const WizardStepThroughForm = ({ content }) => {
   const { colorMode } = useColorMode();
-  const steps = content || [
-    { id: 'form1', content: <Box>1</Box>, step: 1 },
-    { id: 'form2', content: <Box>2</Box>, step: 2 },
-    { id: 'form3', content: <Box>3</Box>, step: 3 },
-  ];
+  const steps = content || [];
   const [tabIndex, setTabIndex] = useState(0);
   const [changed, setChanged] = useState(false);
+  const { stagedCaregiver, setStagedCaregiver } = useStore().caregivers;
 
+  // Reset the staged caregiver when the form is opened
   useEffect(() => {
-    console.log({ changed });
-  }, [changed]);
+    setStagedCaregiver({
+      firstName: '',
+      lastName: '',
+      email: '',
+    });
+    // eslint-disable-next-line
+  }, []);
+  const _cg = toJS(stagedCaregiver);
+  console.log(_cg);
 
   useEffect(() => {
     setChanged(false);

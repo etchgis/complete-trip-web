@@ -17,6 +17,8 @@ export const VerifyPin = observer(
   ({ channel, stagedUser, setActiveView, setLoginMessage }) => {
     const { user, confirmUser, registerUser, updateUserProfile } =
       useStore().authentication;
+    const { stagedCaregiver, invite: inviteCaregiver } = useStore().caregivers;
+
     const [verifyError, setVerifyError] = useState(false);
     const to = channel === 'email' ? stagedUser.email : user?.phone;
 
@@ -32,6 +34,7 @@ export const VerifyPin = observer(
         </Text>
         <Center flexDirection={'column'}>
           <HStack py={20}>
+            {/* TODO move this somewhere else so this can be a generic component */}
             <PinInput
               otp
               onChange={() => setVerifyError(false)}
@@ -63,6 +66,18 @@ export const VerifyPin = observer(
                     if (!updated || updated.error) {
                       return false;
                     }
+
+                    if (
+                      Object.values(stagedCaregiver).filter(v => !!v).length ===
+                      3
+                    ) {
+                      await inviteCaregiver(
+                        stagedCaregiver?.email,
+                        stagedCaregiver?.firstName,
+                        stagedCaregiver?.lastName
+                      );
+                    }
+
                     return updated;
                   } catch (error) {
                     console.log(error);

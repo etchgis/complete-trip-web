@@ -563,6 +563,7 @@ class Authentication {
       this.rootStore.favorites.reset();
       this.rootStore.schedule.reset();
       this.rootStore.preferences.reset();
+      this.rootStore.caregivers.reset();
       this.inTransaction = false;
       this.refreshToken = null;
       this.requireMFA = false;

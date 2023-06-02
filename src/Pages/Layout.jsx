@@ -11,7 +11,6 @@ import Navbar from '../components/Navbar';
 import ResponsiveSidebar from '../components/Sidebar';
 import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
-import { set } from 'lodash';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 

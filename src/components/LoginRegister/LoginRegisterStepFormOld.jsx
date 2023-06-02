@@ -786,7 +786,7 @@ const Caretaker = ({ stagedUser }) => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Primary Caretaker
+        Add Primary Caregiver
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         Notify your companions in 1-touch for any of your trips.
