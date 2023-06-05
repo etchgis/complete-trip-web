@@ -28,6 +28,29 @@ const traveler = {
         });
     },
 
+    reinvite(id, accessToken) {
+      return fetch(`${config.SERVICES.caregivers.url}/${id}/reinvite`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'x-api-key': config.SERVICES.caregivers.xApiKey,
+        },
+      })
+        .then(async response => {
+          console.log(response.status);
+          const json = await response.json();
+          if (response.status === 200) {
+            return json;
+          }
+          throw json?.message || json?.error?.reason;
+        })
+        .catch(err => {
+          throw err;
+        });
+    },
+
     get: {
       all(accessToken) {
         return fetch(`${config.SERVICES.caregivers.url}`, {

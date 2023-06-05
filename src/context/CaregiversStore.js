@@ -7,6 +7,7 @@ class Caregivers {
   code = null;
   caregivers = [];
   dependents = [];
+  denied = [];
   stagedCaregiver = {
     firstName: null,
     lastName: null,
@@ -58,9 +59,11 @@ class Caregivers {
         return (
           c.status === 'pending' ||
           c.status === 'received' ||
-          c.status === 'approved' || 
-          c.status === 'denied'
+          c.status === 'approved'
         );
+      });
+      const deniedCaregivers = caregivers?.member?.filter(c => {
+        return c.status === 'denied';
       });
       const validDependents = dependents?.member?.filter(d => {
         return d.status === 'approved' || d.status === 'received';
@@ -68,36 +71,44 @@ class Caregivers {
       runInAction(() => {
         this.caregivers = validCaregivers;
         this.dependents = validDependents;
+        this.denied = deniedCaregivers;
       });
       resolve(true);
     });
   };
-  //TODO change this when API changes
+
   invite = (email, firstName, lastName) => {
     return new Promise(async (resolve, reject) => {
-      const token = await this.rootStore.authentication.fetchToken();
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });
-      travelerAPI.caregivers
-        .invite(
-          email.toLowerCase().trim(),
-          firstName.trim(),
-          lastName.trim(),
-          token
-        )
-        .then(response => {
-          resolve(response); //TODO show success message? maybe inside the component
-        })
-        .catch(err => {
-          console.log('err', err); //TODO show error message
-          reject(err);
-        })
-        .finally(() => {
-          runInAction(() => {
-            this.rootStore.authentication.inTransaction = false;
-          });
+      //CHECK IF THE CAREGIVER WAS PREVIOULSY DENIED
+      let deniedId = null;
+      this.denied.forEach(c => {
+        if (c.email === email.toLowerCase().trim()) deniedId = c.id;
+      });
+      console.log('wasDenied', deniedId);
+      const token = await this.rootStore.authentication.fetchToken();
+      try {
+        const invited = deniedId
+          ? await travelerAPI.caregivers.reinvite(deniedId, token)
+          : await travelerAPI.caregivers.invite(
+              email.toLowerCase().trim(),
+              firstName.trim(),
+              lastName.trim(),
+              token
+            );
+        resolve(invited);
+        runInAction(() => {
+          this.rootStore.authentication.inTransaction = false;
         });
+      } catch (error) {
+        console.log('error', error);
+        runInAction(() => {
+          this.rootStore.authentication.inTransaction = false;
+        });
+        reject(error);
+      }
     });
   };
 
