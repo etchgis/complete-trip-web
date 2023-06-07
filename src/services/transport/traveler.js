@@ -9,6 +9,12 @@ const traveler = {
           email,
           firstName,
           lastName,
+          sendgridEnvironment:
+            config.ENV === 'dev'
+              ? '-dev'
+              : config.ENV === 'stage'
+              ? '-stage'
+              : '',
         }),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -31,7 +37,14 @@ const traveler = {
     reinvite(id, accessToken) {
       return fetch(`${config.SERVICES.caregivers.url}/${id}/reinvite`, {
         method: 'POST',
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          sendgridEnvironment:
+            config.ENV === 'dev'
+              ? '-dev'
+              : config.ENV === 'stage'
+              ? '-stage'
+              : '',
+        }),
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',

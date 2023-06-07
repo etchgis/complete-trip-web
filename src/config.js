@@ -2,7 +2,8 @@ import { FaBiking, FaBusAlt, FaCar, FaClock, FaWalking } from 'react-icons/fa';
 
 import { GrWheelchairActive } from 'react-icons/gr';
 
-const ENV = 'stage';
+const API_ENV = 'stage';
+const ENV = 'dev';
 
 const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
@@ -198,8 +199,9 @@ const BASEMAPS = {
 };
 
 const defaults = {
+  ENV: ENV,
   DEBUG: false,
-  SERVICES: API[ENV],
+  SERVICES: API[API_ENV],
   MAP: {
     BASEMAPS,
     MAPBOX_TOKEN:
@@ -224,6 +226,6 @@ const defaults = {
   TRANSIT_MODES,
   CAREGIVER_SECRET,
 };
-const config = { ...defaults, defaults };
+const config = { ...defaults };
 
 export default config;
