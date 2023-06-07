@@ -19,25 +19,26 @@ import { useStore } from '../context/RootStore';
 
 const CargiverLink = observer(() => {
   const navigate = useNavigate();
-  const { isOpen, onOpen, onClose, defaultIsOpen = true } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { caregivers } = useStore();
+  const { reset, inviteCode, setInviteCode, stagedDependent, update } =
+    useStore().caregivers;
   const { loggedIn, inTransaction } = useStore().authentication;
   const { isLoading, setToastMessage, setToastStatus } = useStore().uiStore;
 
   useEffect(() => {
-    console.log('render', searchParams.get('code'), caregivers.code);
+    console.log('render', searchParams.get('code'), inviteCode);
 
     // REDIRECT IF THERE IS NO CODE OR STAGED CODE
-    if (!searchParams.get('code') && !caregivers.code) navigate('/');
+    if (!searchParams.get('code') && !inviteCode) navigate('/');
 
     // SAVE THE CODE IN THE STORE
     if (searchParams.get('code')) {
-      caregivers.setCode(searchParams.get('code'));
+      setInviteCode(searchParams.get('code'));
       setSearchParams({ invited: true });
     }
 
-    if (searchParams.get('invited') && caregivers.code) {
+    if (searchParams.get('invited') && inviteCode) {
       if (loggedIn) updateHandler('received');
       onOpen();
     }
@@ -50,14 +51,14 @@ const CargiverLink = observer(() => {
   }, [loggedIn, searchParams]);
 
   useEffect(() => {
-    console.log('[debug]', caregivers.code);
-  }, [caregivers.code]);
+    console.log('[debug]', inviteCode);
+  }, [inviteCode]);
 
   const updateHandler = async status => {
     console.log(`[caregiver] ${status}`);
-    console.log(caregivers.code);
+    console.log(inviteCode);
     try {
-      const result = await caregivers.update(caregivers.code, status);
+      const result = await update(inviteCode, status);
       console.log({ result });
       if (status === 'approved' || status === 'denied') {
         if (status === 'approved') setToastStatus('Success');
@@ -65,7 +66,7 @@ const CargiverLink = observer(() => {
         setToastMessage(`Caregiver request ${status}.`);
         navigate('/settings/dependents');
         onClose();
-        caregivers.setCode(null);
+        reset();
       }
     } catch (error) {
       console.log({ error });
@@ -98,8 +99,16 @@ const CargiverLink = observer(() => {
               ) : loggedIn ? (
                 <Box>
                   <Text>
-                    You have been requested to be a caregiver. Do you want to
-                    accept it?
+                    You have been requested to be a caregiver
+                    {stagedDependent?.firstName ? ' for' : '.'}
+                    {stagedDependent?.firstName && (
+                      <span style={{ fontWeight: 'bold' }}>
+                        {' '}
+                        {stagedDependent?.firstName} {stagedDependent?.lastName}
+                        .
+                      </span>
+                    )}{' '}
+                    Do you want to accept it?
                   </Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button

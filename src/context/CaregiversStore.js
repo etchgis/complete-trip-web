@@ -4,10 +4,19 @@ import { decryptCode } from '../utils/decryptCode';
 import travelerAPI from '../services/transport/traveler';
 
 class Caregivers {
-  code = null;
+  //FOR EMAIL LINK CAREGIVER INVITE
+  inviteCode = null;
+  stagedDependent = {
+    firstName: null,
+    lastName: null,
+  };
+  //
+
   caregivers = [];
   dependents = [];
   denied = [];
+
+  //FOR REGISTERING A NEW CAREGIVER UPON SIGNUP
   stagedCaregiver = {
     firstName: null,
     lastName: null,
@@ -21,7 +30,8 @@ class Caregivers {
 
   reset = () => {
     runInAction(() => {
-      this.code = null;
+      this.inviteCode = null;
+      this.stagedDependent = clearJSON(this.stagedDependent);
       this.caregivers = [];
       this.dependents = [];
       this.stagedCaregiver = {
@@ -32,10 +42,26 @@ class Caregivers {
     });
   };
 
-  setCode = value => {
-    runInAction(() => {
-      this.code = value ? decryptCode(value) : null;
-    });
+  setInviteCode = value => {
+    try {
+      const decrypted = decryptCode(value);
+      console.log('{caregivers-store}', decrypted);
+      if (!decrypted || !decrypted.caregiver)
+        throw new Error('invalid invite code');
+      runInAction(() => {
+        this.inviteCode = decrypted?.caregiver;
+        this.stagedDependent = {
+          firstName: decrypted?.dependentFirstName,
+          lastName: decrypted?.dependentLastName,
+        };
+      });
+    } catch (error) {
+      console.log('{caregivers-store} error', error);
+      runInAction(() => {
+        this.inviteCode = null;
+        this.stagedDependent = clearJSON(this.stagedDependent);
+      });
+    }
   };
 
   setStagedCaregiver = update => {
@@ -191,3 +217,13 @@ class Caregivers {
 }
 
 export default Caregivers;
+
+function clearJSON(obj) {
+  for (let key in obj) {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      setAllValuesToNull(obj[key]);
+    } else {
+      obj = { ...obj, [key]: null };
+    }
+  }
+}

@@ -5,8 +5,8 @@ const secret = config.CAREGIVER_SECRET;
 
 export const decryptCode = code => {
   const bytes = CryptoJS.AES.decrypt(code, secret);
-  const caregiverId = bytes.toString(CryptoJS.enc.Utf8);
-  return caregiverId || null;
+  const obj = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  return obj || {};
 };
 
 /*

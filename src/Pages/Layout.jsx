@@ -19,7 +19,7 @@ import { useStore } from '../context/RootStore';
 const Layout = observer(({ showMap, children }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
-  const { code: inviteCode } = useStore().caregivers;
+  const { inviteCode } = useStore().caregivers;
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
     useStore().authentication;
