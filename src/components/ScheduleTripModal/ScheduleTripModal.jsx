@@ -131,10 +131,10 @@ export const ScheduleTripModal = observer(
             {step === 0
               ? 'Schedule a Trip'
               : step === 1
-                ? 'Select your Transportation'
-                : step === 2
-                  ? 'Select a Trip'
-                  : ''}
+              ? 'Select your Transportation'
+              : step === 2
+              ? 'Select a Trip'
+              : ''}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody
@@ -307,7 +307,7 @@ const First = observer(({ setStep, trip }) => {
           center={{ lng: -78.878738, lat: 42.88023 }}
           defaultAddress={
             locations?.start?.id &&
-              favLocations.find(f => f.id === locations.start.id)
+            favLocations.find(f => f.id === locations.start.id)
               ? locations?.start?.alias || locations?.start?.text
               : locations?.start?.text || ''
           }
@@ -413,11 +413,11 @@ const First = observer(({ setStep, trip }) => {
 
       <FormControl isInvalid={endError}>
         <AddressSearchForm
-          saveAddress={() => { }}
+          saveAddress={() => {}}
           center={{ lng: -78.878738, lat: 42.88023 }}
           defaultAddress={
             locations?.end?.id &&
-              favLocations.find(f => f.id === locations.end.id)
+            favLocations.find(f => f.id === locations.end.id)
               ? locations?.end?.alias || locations?.end?.text
               : locations?.end?.text || ''
           }
@@ -656,6 +656,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
 
 const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   const { trip } = useStore();
+  console.log({ trip });
   useEffect(() => {
     if (!Object.keys(selectedTrip).length) {
       trip.generatePlans();
@@ -777,14 +778,14 @@ const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
     <>
       {trips.length
         ? trips.map((t, i) => (
-          <TripCard
-            setStep={setStep}
-            tripPlan={t}
-            index={i}
-            key={i.toString()}
-            setSelectedTrip={setSelectedTrip}
-          />
-        ))
+            <TripCard
+              setStep={setStep}
+              tripPlan={t}
+              index={i}
+              key={i.toString()}
+              setSelectedTrip={setSelectedTrip}
+            />
+          ))
         : 'No trips found'}
     </>
   );
@@ -873,7 +874,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
                       mode === 'WALK' && wheelchair
                         ? config.WHEELCHAIR.webIcon
                         : config.MODES.find(m => m.id === mode.toLowerCase())
-                          .webIcon
+                            .webIcon
                     }
                     boxSize={6}
                   />

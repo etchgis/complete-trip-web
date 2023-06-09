@@ -6,7 +6,6 @@ import TripRequest from '../models/trip-request';
 // import { makePersistable, PersistStoreMap } from 'mobx-persist-store';
 
 class Trip {
-
   request = new TripRequest();
   plans = [];
   selectedPlan = null;
@@ -72,11 +71,11 @@ class Trip {
     });
     return new Promise((resolve, reject) => {
       TripPlan.generate(this.request, this.rootStore.preferences, this.queryId)
-        .then((results) => {
-          // console.log('results', results);
-          if (this.queryId === results.id) {
+        .then(tripPlanResults => {
+          console.log({ tripPlanResults });
+          if (this.queryId === tripPlanResults.id) {
             runInAction(() => {
-              this.plans = results.plans;
+              this.plans = tripPlanResults.plans;
               this.generatingPlans = false;
             });
             resolve(this.plans);
@@ -89,7 +88,7 @@ class Trip {
           runInAction(() => {
             this.generatingPlans = false;
           });
-        })
+        });
     });
   }
 
@@ -100,7 +99,6 @@ class Trip {
       this.selected = false;
     });
   }
-
 }
 
 export default Trip;

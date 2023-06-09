@@ -1,20 +1,16 @@
 export default class TripRequest {
-  // origin = {'description': '3226 Bailey Avenue, University, Buffalo', 'distance': '4.1 mi', 'point': {'lat': 42.94277, 'lng': -78.814113}, 'text': 'Buffalo Fire Station Engine 23, 3226 Bailey Avenue, University, Buffalo', 'title': 'Buffalo Fire Station Engine 23'};
-  // destination = {'description': '1054 Elmwood Avenue, Elmwood, Buffalo', 'distance': '2.2 mi', 'point': {'lat': 42.925911, 'lng': -78.877254}, 'text': "Cameron's 24 Hour Store, 1054 Elmwood Avenue, Elmwood, Buffalo", 'title': "Cameron's 24 Hour Store"};
-  // origin = {
-  //   point: {
-  //     lat: 0,
-  //     lng: 0,
-  //   },
-  // };
-  // destination = {
-  //   point: {
-  //     lat: 0,
-  //     lng: 0,
-  //   },
-  // }
-  origin = null;
-  destination = null;
+  origin = {
+    point: {
+      lat: 0,
+      lng: 0,
+    },
+  };
+  destination = {
+    point: {
+      lat: 0,
+      lng: 0,
+    },
+  };
   whenAction = 'asap';
   whenTime = new Date();
   requirements = [];
@@ -22,6 +18,8 @@ export default class TripRequest {
   bannedAgencies = [];
   bannedProviders = [];
   sortBy = 'fastest';
+  caretaker = '';
+  id = null;
 
   constructor(options) {
     Object.assign(this, options);
@@ -76,6 +74,7 @@ export default class TripRequest {
    * @returns {boolean}
    */
   hasMode(name) {
+    console.log(this.modes);
     return this.modes.indexOf(name) !== -1;
   }
 

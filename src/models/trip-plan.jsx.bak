@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
+
 import TripRequest from './trip-request';
 import formatters from '../utils/formatters';
 import { otp } from '../services/transport';
-/* eslint-disable no-unused-vars */
 import { v5 as uuidv5 } from 'uuid';
 
 export default class TripPlan {
@@ -31,7 +32,7 @@ export default class TripPlan {
  */
 const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
   const whenTime = tripRequest.whenTime || new Date();
-  const walkLimit = preferences.maxWalk;
+  const walkLimit = preferences?.maxWalk;
   let doExtraBikeQuery = false;
 
   const routeTypes = pickRouteTypes(tripRequest);
@@ -137,7 +138,7 @@ const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
               if (otpPlan.plan) {
                 otpPlan.plan.itineraries.forEach(plan => {
                   plan = createPlan(plan, tripRequest);
-                  plan.id = Date.now(); //uuidv5(`app.etch-${Date.now}`, uuidv5.DNS);
+                  plan.id = uuidv5('app.etch', uuidv5.DNS);
                   if (filterPlan(plan, preferences, tripRequest.modes)) {
                     results.push(plan);
                   }
@@ -509,6 +510,4 @@ const filterPlan = (plan, preferences, modes) => {
     return false;
   }
   return true;
-
-  //TODO ad condtion for specific mode preferences (ex. TRAM and BUS are both under TRANSIT)
 };
