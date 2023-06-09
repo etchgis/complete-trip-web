@@ -186,7 +186,7 @@ const pickRouteTypes = trip => {
       modeSets.push('hail'); // temp?
     }
 
-    if (trip.hasMode('bike')) {
+    if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bikeToTransit');
     }
 
@@ -205,7 +205,7 @@ const pickRouteTypes = trip => {
     if (trip.hasMode('hail')) {
       modeSets.push('hail');
     }
-    if (trip.hasMode('bike')) {
+    if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bike');
     }
     if (trip.hasMode('scooter') || trip.hasMode('bike_rental')) {
