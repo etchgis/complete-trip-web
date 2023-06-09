@@ -176,7 +176,6 @@ const RouteTypes = {
  */
 const pickRouteTypes = trip => {
   const modeSets = [];
-
   if (trip.hasMode('bus') || trip.hasMode('tram')) {
     if (trip.hasMode('car')) {
       modeSets.push('carParkAndRide');

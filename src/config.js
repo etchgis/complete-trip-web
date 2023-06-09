@@ -127,7 +127,7 @@ const MODES = [
   },
   {
     id: 'bicycle',
-    mode: 'bicyle',
+    mode: 'bicycle',
     sort: 2,
     label: 'Bike',
     icon: 'bicycle',
