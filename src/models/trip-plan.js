@@ -50,7 +50,7 @@ const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
       maxHours: 5,
       useRequestedDateTimeInMaxHours: true,
       waitAtBeginningFactor: 0.6,
-      walkReluctance: tripRequest.hasMode('walk') ? 15 : 75,
+      walkReluctance: preferences.minimizeWalking ? 15 : 75,
     };
 
     const modes = RouteTypes[routeType].join(',');
@@ -108,7 +108,7 @@ const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
       walkSpeed: 1.25, // meters/sec
       maxHours: 5,
       waitAtBeginningFactor: 0.6,
-      walkReluctance: tripRequest.hasMode('walk') ? 15 : 75,
+      walkReluctance: preferences.minimizeWalking ? 15 : 75,
       bannedVehicles: 'scooter',
     };
 
