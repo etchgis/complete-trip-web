@@ -38,8 +38,8 @@ const TimelineStep = ({ start, label, steps }) => {
     !steps || !steps.length
       ? []
       : showDetails
-      ? [{ name: start }, ...steps]
-      : [{ name: start }, { name: label }, steps[steps.length - 1]];
+        ? [{ name: start }, ...steps]
+        : [{ name: start }, { name: label }, steps[steps.length - 1]];
   const accentColor = colorMode === 'light' ? '#00205b' : 'gray.400';
   return (
     <Box style={{ margin: '10px 0 10px 10px' }} id="box">
@@ -92,8 +92,8 @@ const TimelineStep = ({ start, label, steps }) => {
                     i === details.length - 1
                       ? accentColor
                       : colorMode === 'light'
-                      ? '#fff'
-                      : 'gray.800'
+                        ? '#fff'
+                        : 'gray.800'
                   }
                   outline="solid 4px #00205b"
                   outlineColor={accentColor}
@@ -147,20 +147,31 @@ export const VerticalTripPlan = ({ request, plan }) => {
       ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
       : null
   );
-  const geojson = simplify(
-    {
-      type: 'Feature',
-      properties: {
-        'stroke-width': 4,
-        stroke: '#02597E',
-      },
-      geometry: {
-        type: 'LineString',
-        coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
-      },
+  // const geojson = simplify(
+  //   {
+  //     type: 'Feature',
+  //     properties: {
+  //       'stroke-width': 4,
+  //       stroke: '#02597E',
+  //     },
+  //     geometry: {
+  //       type: 'LineString',
+  //       coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
+  //     },
+  //   },
+  //   0.001
+  // );
+  const geojson = {
+    type: 'Feature',
+    properties: {
+      'stroke-width': 4,
+      stroke: '#02597E',
     },
-    0.001
-  );
+    geometry: {
+      type: 'LineString',
+      coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
+    },
+  };
   return (
     <Grid
       gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
@@ -253,9 +264,8 @@ export const VerticalTripPlan = ({ request, plan }) => {
             ''
           )}/static/geojson(${encodeURIComponent(
             JSON.stringify(geojson)
-          )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${
-            config.MAP.MAPBOX_TOKEN
-          }`}
+          )})/auto/540x960?padding=120,20,20,20&before_layer=waterway-label&access_token=${config.MAP.MAPBOX_TOKEN
+            }`}
           alt="map"
           borderRadius={'md'}
           margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
@@ -337,8 +347,8 @@ const VerticalTripPlanDetail = ({ request, plan }) => {
             title === 'WAIT'
               ? config.WAIT
               : name.toLowerCase() === 'roll'
-              ? config.WHEELCHAIR
-              : config.MODES.find(m => m.id === name);
+                ? config.WHEELCHAIR
+                : config.MODES.find(m => m.id === name);
           // console.log(name, title, mode);
           if (name === 'scooter') {
             // later
