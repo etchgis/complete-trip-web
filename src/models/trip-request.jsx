@@ -25,6 +25,9 @@ export default class TripRequest {
 
   constructor(options) {
     Object.assign(this, options);
+    if (this.modes.indexOf('walk') === -1) {
+      this.modes.push('walk');
+    }
   }
 
   /**

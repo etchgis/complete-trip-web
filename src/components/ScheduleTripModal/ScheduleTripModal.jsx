@@ -45,6 +45,7 @@ import { useEffect, useRef } from 'react';
 import AddressSearchForm from '../AddressSearchForm';
 import CreateIcon from '../CreateIcon';
 import VerticalTripPlan from './VerticalTripPlan';
+import _ from 'lodash';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -556,13 +557,18 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     (acc, mode) => [...acc, mode.mode],
     []
   );
+  const _modes = [];
+  trip.request.modes.forEach(mode => {
+    if (mode !== 'walk') _modes.push(mode);
+  });
+  // console.log('check modes', _modes);
   const [modes, setModes] = useState(
-    trip?.request?.modes.length
+    _modes.filter(m => m !== 'walk').length
       ? trip.request.modes
       : user?.profile?.preferences?.modes || []
   );
-
-  // console.log(toJS(user.profile));
+  // const tripModes = toJS(trip.request.modes);
+  // console.log('tripModes', tripModes);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -582,7 +588,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         trip.addMode(mode);
       }
       trip.request.modes.forEach(m =>
-        !modes.includes(m) ? trip.removeMode(m) : null
+        !modes.includes(m) && m !== 'walk' ? trip.removeMode(m) : null
       );
     });
     //eslint-disable-next-line

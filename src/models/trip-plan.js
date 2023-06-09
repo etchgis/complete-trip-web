@@ -176,6 +176,7 @@ const RouteTypes = {
  */
 const pickRouteTypes = trip => {
   const modeSets = [];
+
   if (trip.hasMode('bus') || trip.hasMode('tram')) {
     if (trip.hasMode('car')) {
       modeSets.push('carParkAndRide');
@@ -496,18 +497,17 @@ const scorePlan = (plan, request) => {
  * @returns
  */
 const filterPlan = (plan, preferences, modes) => {
-  if (plan.displayPrice > preferences.maxCost) return false;
-  if (plan.legs.some(leg => leg.providerDown)) return false;
-
-  const modeList = [...new Set(plan.legs.map(leg => leg.mode.toLowerCase()))];
-
-  if (modeList.length === 1 && modeList[0] === 'walk') return false;
-
-  const validModes = modeList.filter(mode => mode !== 'walk');
-  const valid = validModes.every(mode => modes.includes(mode));
-  console.log('valid', valid, validModes, modes);
-  if (!valid) return false;
-
+  for (var i = plan.legs.length; i--; ) {
+    if (plan.legs[i].providerDown) {
+      return false;
+    }
+    if (modes.indexOf(plan.legs[i].mode.toLowerCase()) === -1) {
+      return false;
+    }
+  }
+  if (plan.displayPrice > preferences.maxCost) {
+    return false;
+  }
   return true;
 
   //TODO ad condtion for specific mode preferences (ex. TRAM and BUS are both under TRANSIT)
