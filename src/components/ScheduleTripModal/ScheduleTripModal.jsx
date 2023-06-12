@@ -63,9 +63,9 @@ export const ScheduleTripModal = observer(
       favoriteTrip?.origin &&
       favoriteTrip?.destination &&
       favoriteTrip?.id &&
-      !stagedTrip.request.origin.text &&
-      !stagedTrip.request.destination.text &&
-      !stagedTrip.request.id
+      !stagedTrip.request?.origin?.text &&
+      !stagedTrip.request?.destination?.text &&
+      !stagedTrip.request?.id
     ) {
       stagedTrip.updateOrigin(favoriteTrip?.origin);
       stagedTrip.updateDestination(favoriteTrip?.destination);
