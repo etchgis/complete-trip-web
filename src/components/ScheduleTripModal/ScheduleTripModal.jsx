@@ -63,9 +63,9 @@ export const ScheduleTripModal = observer(
       favoriteTrip?.origin &&
       favoriteTrip?.destination &&
       favoriteTrip?.id &&
-      !stagedTrip.request.origin.text &&
-      !stagedTrip.request.destination.text &&
-      !stagedTrip.request.id
+      !stagedTrip.request?.origin?.text &&
+      !stagedTrip.request?.destination?.text &&
+      !stagedTrip.request?.id
     ) {
       stagedTrip.updateOrigin(favoriteTrip?.origin);
       stagedTrip.updateDestination(favoriteTrip?.destination);
@@ -577,7 +577,8 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     // console.log([...data]);
 
     trip.updateProperty('riders', +data.get('riders'));
-    trip.updateProperty('caretaker', data.get('caretaker'));
+    if (data.get('caretaker'))
+      trip.updateProperty('caretaker', data.get('caretaker'));
 
     setStep(current => current + 1);
   };
@@ -594,9 +595,9 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     //eslint-disable-next-line
   }, [modes]);
 
-  const setCaretaker = e => {
-    trip.updateProperty('caretaker', e.target.value);
-  };
+  // const setCaretaker = e => {
+  //   trip.updateProperty('caretaker', e.target.value);
+  // };
 
   return (
     <Stack
@@ -633,7 +634,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         </Select>
       </FormControl>
 
-      <FormControl>
+      {/* <FormControl>
         <FormLabel>Select a Caretaker</FormLabel>
         <Select
           name="caretaker"
@@ -650,7 +651,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
             </option>
           ))}
         </Select>
-      </FormControl>
+      </FormControl> */}
 
       <Button type="submit" colorScheme="blue">
         Next
