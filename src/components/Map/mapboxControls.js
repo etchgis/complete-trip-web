@@ -1,3 +1,4 @@
+import { MapboxGLFullPage } from './MapboxFullPageControl';
 import mapboxgl from 'mapbox-gl';
 
 class MapboxControl {
@@ -81,4 +82,6 @@ export const mapControls = {
     showUserHeading: false,
   }),
   nav: new mapboxgl.NavigationControl(),
+  fullscreen: new MapboxGLFullPage(),
+  fullscreen2: new mapboxgl.FullscreenControl(),
 };

@@ -21,6 +21,7 @@ import { FaGenderless, FaStar } from 'react-icons/fa';
 import CreateIcon from '../../CreateIcon';
 import { FaArrowRight } from 'react-icons/fa';
 import { RxDotFilled } from 'react-icons/rx';
+import { TripPlanMap } from './TripPlanMap';
 import config from '../../../config';
 import { fillGaps } from '../../../utils/tripplan';
 import formatters from '../../../utils/formatters';
@@ -38,8 +39,8 @@ const TimelineStep = ({ start, label, steps }) => {
     !steps || !steps.length
       ? []
       : showDetails
-        ? [{ name: start }, ...steps]
-        : [{ name: start }, { name: label }, steps[steps.length - 1]];
+      ? [{ name: start }, ...steps]
+      : [{ name: start }, { name: label }, steps[steps.length - 1]];
   const accentColor = colorMode === 'light' ? '#00205b' : 'gray.400';
   return (
     <Box style={{ margin: '10px 0 10px 10px' }} id="box">
@@ -92,8 +93,8 @@ const TimelineStep = ({ start, label, steps }) => {
                     i === details.length - 1
                       ? accentColor
                       : colorMode === 'light'
-                        ? '#fff'
-                        : 'gray.800'
+                      ? '#fff'
+                      : 'gray.800'
                   }
                   outline="solid 4px #00205b"
                   outlineColor={accentColor}
@@ -172,19 +173,30 @@ export const VerticalTripPlan = ({ request, plan }) => {
       coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
     },
   };
+
   return (
     <Grid
-      gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
-      gap={4}
+      gridTemplateColumns={{
+        base: 'minmax(0, 1fr)',
+        md: 'minmax(0, 1fr) minmax(0, 1fr)',
+      }}
+      gap={10}
       position="relative"
       data-testid="vertical-trip-plan"
     >
-      <Box
+      {/* MAP SECTION */}
+      <Flex
         position={'relative'}
-        width={{ base: '100%', md: '324px' }}
+        flexDirection={'column'}
+        width={{ base: '100%', md: '100%' }}
         maxW="100%"
+        minH={'70vh'}
+        maxH={'80vh'}
+        borderRadius={'lg'}
+        boxShadow={'md'}
       >
-        <Center>
+        {/* HEADING */}
+        {/* <Center>
           <Heading as="h3" size="md" mb={2}>
             {new Date(plan.startTime).toLocaleDateString('en-US', {
               weekday: 'long',
@@ -193,7 +205,9 @@ export const VerticalTripPlan = ({ request, plan }) => {
               day: 'numeric',
             })}
           </Heading>
-        </Center>
+        </Center> */}
+
+        {/* TO FROM */}
         <Flex
           position="absolute"
           zIndex={2}
@@ -208,7 +222,7 @@ export const VerticalTripPlan = ({ request, plan }) => {
             //   'linear-gradient(90deg, hsl(202deg 100% 60%), hsl(240deg 46% 61%) 100%)'
             // }
             backgroundColor={'trip'}
-            mt={'40px'}
+            mt={'20px'}
             mx="auto"
             px={2}
             py={4}
@@ -243,7 +257,7 @@ export const VerticalTripPlan = ({ request, plan }) => {
               </Center>
             </Flex>
 
-            <Box textAlign="center" mx={2} boxShadow={'md'}>
+            <Box textAlign="center" mx={2}>
               <Text fontSize={'sm'}>Arrive</Text>
               <Box>
                 {formatters.datetime
@@ -258,7 +272,12 @@ export const VerticalTripPlan = ({ request, plan }) => {
             </Box>
           </Grid>
         </Flex>
-        <Image
+
+        {/* MAP */}
+        <Flex flex={1}>
+          <TripPlanMap geojson={geojson} />
+        </Flex>
+        {/* <Image
           src={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.DAY.replace(
             'mapbox://styles/',
             ''
@@ -269,11 +288,14 @@ export const VerticalTripPlan = ({ request, plan }) => {
           alt="map"
           borderRadius={'md'}
           margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
-        />
-      </Box>
+        /> */}
+      </Flex>
+
+      {/* PLAN SECTION */}
       <Card
         size={{ base: 'lg', lg: 'lg' }}
-        borderRadius={'md'}
+        borderRadius={'lg'}
+        boxShadow={'md'}
         background={colorMode === 'light' ? 'white' : 'gray.800'}
       >
         <CardHeader pb={0}>
@@ -347,8 +369,8 @@ const VerticalTripPlanDetail = ({ request, plan }) => {
             title === 'WAIT'
               ? config.WAIT
               : name.toLowerCase() === 'roll'
-                ? config.WHEELCHAIR
-                : config.MODES.find(m => m.id === name);
+              ? config.WHEELCHAIR
+              : config.MODES.find(m => m.id === name);
           // console.log(name, title, mode);
           if (name === 'scooter') {
             // later
