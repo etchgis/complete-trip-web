@@ -49,5 +49,10 @@ class UIStore {
       this.isLoading = value;
     });
   };
+  setIsLoading = value => {
+    runInAction(() => {
+      this.isLoading = value;
+    });
+  };
 }
 export default UIStore;

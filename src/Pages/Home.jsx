@@ -15,7 +15,7 @@ import Calendar from '../components/TripCalendar';
 import CustomModal from '../components/Modal';
 import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TripCardList from '../components/TripCardList';
-import VerticalTripPlan from '../components/ScheduleTripModal/VerticalTripPlan';
+import VerticalTripPlan from '../components/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
 // import overviewMap from '../assets/overview-map.png';
 // import { useNavigate } from 'react-router-dom';

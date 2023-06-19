@@ -1,34 +1,24 @@
-import * as polyline from '@mapbox/polyline';
-
 import {
   Box,
   Card,
   CardBody,
   CardHeader,
-  Center,
   Divider,
   Flex,
-  Grid,
-  Heading,
   Icon,
-  Image,
   Text,
   VStack,
   useColorMode,
 } from '@chakra-ui/react';
 import { FaGenderless, FaStar } from 'react-icons/fa';
 
-import CreateIcon from '../../CreateIcon';
-import { FaArrowRight } from 'react-icons/fa';
 import { RxDotFilled } from 'react-icons/rx';
-import { TripPlanMap } from './TripPlanMap';
-import config from '../../../config';
-import { fillGaps } from '../../../utils/tripplan';
-import formatters from '../../../utils/formatters';
-import simplify from 'simplify-geojson';
-import { theme } from '../../../theme';
+import config from '../../config';
+import { fillGaps } from '../../utils/tripplan';
+import formatters from '../../utils/formatters';
+import { theme } from '../../theme';
 import { useState } from 'react';
-import { useStore } from '../../../context/RootStore';
+import { useStore } from '../../context/RootStore';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
 
@@ -42,6 +32,7 @@ const TimelineStep = ({ start, label, steps }) => {
       ? [{ name: start }, ...steps]
       : [{ name: start }, { name: label }, steps[steps.length - 1]];
   const accentColor = colorMode === 'light' ? '#00205b' : 'gray.400';
+
   return (
     <Box style={{ margin: '10px 0 10px 10px' }} id="box">
       <VStack pos={'relative'} align={'start'}>
@@ -54,8 +45,8 @@ const TimelineStep = ({ start, label, steps }) => {
                 pos={'absolute'}
                 left={'3px'}
                 top={'8px'}
-                height={'30px'}
-                borderLeft="solid 4px #00205b"
+                height={'60px'}
+                borderLeft="dashed 4px #00205b"
                 borderColor={accentColor}
               ></Box>
             ) : null}
@@ -65,7 +56,7 @@ const TimelineStep = ({ start, label, steps }) => {
                 alignItems="center"
                 pos={'absolute'}
                 left={'3px'}
-                height={'60px'}
+                height={showDetails ? '200px' : '170px'}
                 borderLeft="solid 4px #00205b"
                 borderColor={accentColor}
               ></Box>
@@ -127,8 +118,8 @@ const TimelineStep = ({ start, label, steps }) => {
             textDecoration={'underline'}
             color="rgb(36, 101, 177)"
             cursor={'pointer'}
+            pl={'24px'}
           >
-            {' '}
             Hide Details
           </Text>
         ) : null}
@@ -137,66 +128,77 @@ const TimelineStep = ({ start, label, steps }) => {
   );
 };
 
-export const VerticalTripPlan = ({ request, plan }) => {
+const CreateCircleIcon = ({ svg, backgroundColor }) => {
+  return (
+    <Flex
+      w={7}
+      h={7}
+      mr={2}
+      ml={'1px'}
+      justifyContent={'center'}
+      alignItems={'center'}
+      backgroundColor={backgroundColor || 'red'}
+      borderRadius={'full'}
+    >
+      <Icon viewBox={svg?.viewBox || '0 0 512 512'} boxSize={'5'}>
+        <path
+          fill={'white'}
+          d={
+            svg?.path ||
+            'M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0'
+          }
+        />
+      </Icon>
+    </Flex>
+  );
+};
+
+export const TripPlanSchedule = ({ tripRequest: request, tripPlan: plan }) => {
   // console.log({ request });
   // console.log({ plan });
   const { colorMode } = useColorMode();
-  const planLegs = fillGaps(plan.legs);
-  const features = [];
-  planLegs.forEach(v =>
-    v?.legGeometry?.points
-      ? features.push(polyline.toGeoJSON(v?.legGeometry?.points))
-      : null
-  );
-  // const geojson = simplify(
-  //   {
-  //     type: 'Feature',
-  //     properties: {
-  //       'stroke-width': 4,
-  //       stroke: '#02597E',
-  //     },
-  //     geometry: {
-  //       type: 'LineString',
-  //       coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
-  //     },
-  //   },
-  //   0.001
+  // const planLegs = fillGaps(toJS(plan.legs));
+  // console.log(planLegs);
+  // const featureCollection = {
+  //   type: 'FeatureCollection',
+  //   features: [],
+  // };
+  // const colors = [
+  //   '#00205b',
+  //   '#02597E',
+  //   '#0079C2',
+  //   '#0099E6',
+  //   '#00BFFF',
+  //   '#00CCFF',
+  //   '#00E5FF',
+  //   '#00FFFF',
+  //   '#1AFFFF',
+  //   '#33FFFF',
+  //   '#4DFFFF',
+  //   '#66FFFF',
+  //   '#80FFFF',
+  //   '#99FFFF',
+  //   '#B3FFFF',
+  //   '#CCFFFF',
+  //   '#E5FFFF',
+  //   '#FFFFFF',
+  // ];
+  // planLegs.forEach((v, i) =>
+  //   v?.legGeometry?.points
+  //     ? featureCollection.features.push({
+  //         type: 'Feature',
+  //         properties: { ...v, stroke: colors[i] },
+  //         geometry: polyline.toGeoJSON(v?.legGeometry?.points),
+  //       })
+  //     : null
   // );
-  const geojson = {
-    type: 'Feature',
-    properties: {
-      'stroke-width': 4,
-      stroke: '#02597E',
-    },
-    geometry: {
-      type: 'LineString',
-      coordinates: features.reduce((a, f) => [...a, ...f.coordinates], []),
-    },
-  };
 
   return (
-    <Grid
-      gridTemplateColumns={{
-        base: 'minmax(0, 1fr)',
-        md: 'minmax(0, 1fr) minmax(0, 1fr)',
-      }}
-      gap={10}
-      position="relative"
-      data-testid="vertical-trip-plan"
-    >
+    <Box flex={1} id="trip-plan-schedule">
       {/* MAP SECTION */}
-      <Flex
-        position={'relative'}
-        flexDirection={'column'}
-        width={{ base: '100%', md: '100%' }}
-        maxW="100%"
-        minH={'70vh'}
-        maxH={'80vh'}
-        borderRadius={'lg'}
-        boxShadow={'md'}
-      >
-        {/* HEADING */}
-        {/* <Center>
+
+      {/* HEADING */}
+      {/* <Center>
           <Heading as="h3" size="md" mb={2}>
             {new Date(plan.startTime).toLocaleDateString('en-US', {
               weekday: 'long',
@@ -207,8 +209,8 @@ export const VerticalTripPlan = ({ request, plan }) => {
           </Heading>
         </Center> */}
 
-        {/* TO FROM */}
-        <Flex
+      {/* TO FROM */}
+      {/* <Flex
           position="absolute"
           zIndex={2}
           w={{ base: '100%', md: '100%' }}
@@ -271,13 +273,13 @@ export const VerticalTripPlan = ({ request, plan }) => {
               </Box>
             </Box>
           </Grid>
-        </Flex>
+        </Flex> */}
 
-        {/* MAP */}
-        <Flex flex={1}>
-          <TripPlanMap geojson={geojson} />
-        </Flex>
-        {/* <Image
+      {/* MAP */}
+      {/* <Flex flex={1}>
+          <TripPlanMap geojson={featureCollection} />
+        </Flex> */}
+      {/* <Image
           src={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.DAY.replace(
             'mapbox://styles/',
             ''
@@ -289,19 +291,16 @@ export const VerticalTripPlan = ({ request, plan }) => {
           borderRadius={'md'}
           margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
         /> */}
-      </Flex>
 
       {/* PLAN SECTION */}
       <Card
         size={{ base: 'lg', lg: 'lg' }}
-        borderRadius={'lg'}
-        boxShadow={'md'}
+        height={'100%'}
+        borderRadius={0}
+        boxShadow={'none'}
         background={colorMode === 'light' ? 'white' : 'gray.800'}
       >
         <CardHeader pb={0}>
-          {/* <Heading size="md" as="h3" mb={2}>
-            Trip Plan
-          </Heading> */}
           <Text>{request?.destination?.title}</Text>
           <Text>{request?.destination?.description}</Text>
         </CardHeader>
@@ -309,7 +308,7 @@ export const VerticalTripPlan = ({ request, plan }) => {
           <VerticalTripPlanDetail request={request} plan={plan} />
         </CardBody>
       </Card>
-    </Grid>
+    </Box>
   );
 };
 
@@ -411,9 +410,10 @@ const VerticalTripPlanDetail = ({ request, plan }) => {
           // const multiplier = 15.5;
           // console.log(leg?.intermediateStops);
           // console.log({ mode });
-
+          const accentColor = mode.mode === 'walk' ? 'gray.500' : mode.color;
           return (
             <VStack
+              pos={'relative'}
               key={i.toString()}
               alignItems={'flex-start'}
               spacing={1}
@@ -423,27 +423,59 @@ const VerticalTripPlanDetail = ({ request, plan }) => {
               borderColor={colorMode === 'light' ? 'gray.200' : 'gray.200'}
             >
               <Flex alignItems={'center'} mt={2}>
-                {mode?.webIcon ? (
-                  <Icon as={mode.webIcon} mr={2} />
-                ) : mode?.svg ? (
-                  CreateIcon(mode.svg)
-                ) : null}
+                {mode?.svg
+                  ? CreateCircleIcon({
+                      svg: mode.svg,
+                      backgroundColor: accentColor,
+                    })
+                  : null}
                 <Text>{title}</Text>
               </Flex>
               <Box>
-                {route && (
+                {route ? (
                   <>
-                    <Text>{headsign}</Text>
-                    <Text>{route}</Text>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      pos={'absolute'}
+                      left={'13px'}
+                      top={'36px'}
+                      height={'100px'}
+                      borderLeft="solid 4px #00205b"
+                      borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
+                      borderColor={accentColor}
+                    ></Box>
+                    <Box ml={'36px'}>
+                      <Text>{headsign} a</Text>
+                      <Text>{route} b</Text>
+                    </Box>
+                  </>
+                ) : (
+                  <>
+                    {i < plan.legs.length - 1 && (
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        pos={'absolute'}
+                        left={'13px'}
+                        top={'36px'}
+                        height={'100px'}
+                        borderLeft="solid 4px #00205b"
+                        borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
+                        borderColor={accentColor}
+                      ></Box>
+                    )}
                   </>
                 )}
               </Box>
               {leg.intermediateStops ? (
-                <TimelineStep
-                  start={leg.from.name}
-                  label={intermediateStopsLabel}
-                  steps={leg.intermediateStops}
-                />
+                <>
+                  <TimelineStep
+                    start={leg.from.name}
+                    label={intermediateStopsLabel}
+                    steps={leg.intermediateStops}
+                  />
+                </>
               ) : null}
               <Box>
                 <Divider />

@@ -201,10 +201,7 @@ class Authentication {
         this.rootStore.preferences.hydrate(profile);
         this.rootStore.favorites.hydrate(profile);
         this.rootStore.caregivers.hydrate();
-        this.rootStore.schedule.getRange(
-          moment().hour(0).valueOf(),
-          moment().add(1, 'month').valueOf()
-        );
+        this.rootStore.schedule.hydrate();
         resolve();
       });
     });

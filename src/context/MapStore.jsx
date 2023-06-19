@@ -2,11 +2,13 @@ import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import bbox from '@turf/bbox';
+import config from '../config';
 import { featureCollection } from '@turf/helpers';
 import knn from 'sphere-knn';
 import { mobility } from '@etchgis/mobility-transport-layer';
 import { sortBy } from 'lodash';
 import tinycolor from 'tinycolor2';
+import { toGeoJSON } from '../utils/polyline';
 
 const { otp } = mobility;
 
@@ -426,18 +428,146 @@ class MapStore {
 
 export default MapStore;
 
-// import { create } from 'zustand';
-// import { persist } from 'zustand/middleware';
+const generateRoute = tripPlan => {
+  var route = {
+    type: 'FeatureCollection',
+    features: [],
+  };
+  for (var i = 0; i < tripPlan.legs.length; i++) {
+    var leg = tripPlan.legs[i];
+    var properties = {
+      lineColor: getModeColor(leg.mode),
+      lineWidth: 4,
+      lineOpacity: 1,
+      lineJoin: 'round',
+    };
+    if (leg.mode.toLowerCase() === 'walk') {
+      properties.lineDashPattern = [1, 0.5];
+    }
+    var legGeometry = toGeoJSON(leg.legGeometry.points);
+    if (legGeometry.coordinates.length === 0) {
+      legGeometry.coordinates.push([leg.from.lon, leg.from.lat]);
+    }
+    route.features.push({
+      type: 'Feature',
+      geometry: legGeometry,
+      properties: properties,
+    });
+  }
+  return route;
+};
 
-// export const useMapStore = create(
-//   persist(
-//     (set, get) => ({
-//       mapStyle: 'DAY',
-//       setMapStyle: style => set(() => ({ mapStyle: style })),
-//     }),
-//     {
-//       name: '__mba_maptheme',
-//       // partialize: state => ({ user: state.mapStyle }),
-//     }
-//   )
-// );
+const generateIntermediateStops = tripPlan => {
+  var intermediateStops = {
+    type: 'FeatureCollection',
+    features: [],
+  };
+  for (var i = 0; i < tripPlan.legs.length; i++) {
+    var leg = tripPlan.legs[i],
+      color = getModeColor(leg.mode), //leg.routeColor,
+      legGeometry = toGeoJSON(leg.legGeometry.points);
+    if (leg.intermediateStops && leg.intermediateStops.length > 0) {
+      for (var j = 0; j < leg.intermediateStops.length; j++) {
+        var iStop = leg.intermediateStops[j];
+        var pt = {
+          type: 'Point',
+          coordinates: [iStop.lon, iStop.lat],
+        };
+        var snapped = nearestPointOnLine(legGeometry, pt);
+        var stopProperties = {
+          circleColor: '#ffffff',
+          circleRadius: 3,
+          circleStrokeColor: color === '#FFFFFF' ? '#70BFDA' : color,
+          circleStrokeWidth: 3,
+        };
+        intermediateStops.features.push({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [
+              snapped.geometry.coordinates[0],
+              snapped.geometry.coordinates[1],
+            ],
+          },
+          properties: stopProperties,
+        });
+      }
+    }
+  }
+  return intermediateStops;
+};
+
+const generateModeIconSymbols = (tripPlan, hasWheelchair) => {
+  var lyrs = {
+    walk: { type: 'FeatureCollection', features: [] },
+    roll: { type: 'FeatureCollection', features: [] },
+    car: { type: 'FeatureCollection', features: [] },
+    bike: { type: 'FeatureCollection', features: [] },
+    bus: { type: 'FeatureCollection', features: [] },
+    tram: { type: 'FeatureCollection', features: [] },
+    destination: { type: 'FeatureCollection', features: [] },
+  };
+  for (var i = 0; i < tripPlan.legs.length; i++) {
+    var leg = tripPlan.legs[i],
+      mode = leg.mode,
+      ftr = leg.from;
+    switch (mode.toLowerCase()) {
+      case 'walk':
+        // don't show a walk icon if we're going less than 1/10 mi
+        if (leg.distance > 161) {
+          if (hasWheelchair) {
+            lyrs.roll.features.push({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },
+            });
+          } else {
+            lyrs.walk.features.push({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },
+            });
+          }
+        }
+        break;
+      case 'car':
+        lyrs.car.features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },
+        });
+        break;
+      case 'bike':
+        lyrs.bike.features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },
+        });
+        break;
+      case 'bus':
+        lyrs.bus.features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },
+        });
+        break;
+      case 'tram':
+        lyrs.tram.features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },
+        });
+        break;
+      default:
+        break;
+    }
+  }
+  var lastLeg = tripPlan.legs[tripPlan.legs.length - 1];
+  lyrs.destination.features.push({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [lastLeg.to.lon, lastLeg.to.lat] },
+  });
+  return lyrs;
+};
+
+const getModeColor = mode => {
+  let color = '#616161';
+  const found = config.MODES.find(
+    m => m.mode.toLowerCase() === mode.toLowerCase()
+  );
+  return found.color || color;
+};

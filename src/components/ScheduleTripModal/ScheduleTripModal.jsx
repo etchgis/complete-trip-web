@@ -44,7 +44,7 @@ import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import CreateIcon from '../CreateIcon';
-import VerticalTripPlan from './VerticalTripPlan';
+import VerticalTripPlan from '../VerticalTripPlan';
 import _ from 'lodash';
 import config from '../../config';
 import formatters from '../../utils/formatters';
@@ -125,9 +125,10 @@ export const ScheduleTripModal = observer(
           stagedTrip.create();
         }}
         size="full"
+        scrollBehavior="inside"
       >
         <ModalOverlay />
-        <ModalContent textAlign={'center'} pt={10}>
+        <ModalContent textAlign={'center'} pt={0}>
           <ModalHeader>
             {step === 0
               ? 'Schedule a Trip'
@@ -135,14 +136,19 @@ export const ScheduleTripModal = observer(
               ? 'Select your Transportation'
               : step === 2
               ? 'Select a Trip'
+              : step === 3
+              ? 'Trip Plan Overview'
               : ''}
           </ModalHeader>
-          <ModalCloseButton />
+          {/* <ModalCloseButton /> */}
           <ModalBody
             width="auto"
-            minW={{ base: '100%', md: 'lg' }}
+            minW={{ base: '100%', md: '500px' }}
             maxW="100%"
             margin="0 auto"
+            display={'flex'}
+            flexDir={'column'}
+            p={0}
           >
             {Wizard.find((w, i) => i === step).component}
           </ModalBody>
@@ -299,6 +305,7 @@ const First = observer(({ setStep, trip }) => {
       as="form"
       spacing={6}
       onSubmit={handleSubmit}
+      width="100%"
       maxWidth="lg"
       margin={'0 auto'}
       textAlign={'left'}
@@ -603,6 +610,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     <Stack
       as="form"
       spacing={6}
+      width="100%"
       maxWidth="lg"
       margin={'0 auto'}
       textAlign={'left'}
@@ -672,7 +680,13 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   }, []);
 
   return (
-    <Stack spacing={6} maxWidth="lg" margin={'0 auto'} textAlign={'left'}>
+    <Stack
+      spacing={6}
+      width="100%"
+      maxWidth="lg"
+      margin={'0 auto'}
+      textAlign={'left'}
+    >
       <VStack spacing={6}>
         {trip.generatingPlans ? (
           <>
@@ -743,39 +757,24 @@ const Fourth = ({
       trip.create();
     }
   }
-
   // console.log(toJS(trip));
   return (
     <Stack
       as="form"
       spacing={6}
-      width={{ base: '100%', lg: '800px' }}
-      maxW={{ base: '100%', lg: '800px' }}
-      maxWidth="2xl"
+      width="100%"
       margin={'0 auto'}
       textAlign={'left'}
+      flex={1}
+      overflow={'hidden'}
+      id="vertical-trip-plan-form"
     >
       <VerticalTripPlan
-        request={trip.request}
-        plan={selectedTrip}
+        tripRequest={trip.request}
+        tripPlan={selectedTrip}
+        scheduleTripHandler={scheduleTrip}
+        backClickHandler={() => setStep(current => current - 1)}
       ></VerticalTripPlan>
-
-      <Stack spacing={6} alignItems="center">
-        <Button
-          onClick={scheduleTrip}
-          colorScheme="blue"
-          isDisabled={!loggedIn}
-          width={{ base: '100%', md: '65%' }}
-        >
-          Schedule Trip
-        </Button>
-        <Button
-          width={{ base: '100%', md: '65%' }}
-          onClick={() => setStep(current => current - 1)}
-        >
-          Back
-        </Button>
-      </Stack>
     </Stack>
   );
 };

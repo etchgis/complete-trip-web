@@ -1320,7 +1320,7 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.17.18.tgz#3a8e57153905308db357fd02f57c180ee3a0a1fa"
   integrity sha512-qU25Ma1I3NqTSHJUOKi9sAH1/Mzuvlke0ioMJRthLXKm7JiSKVwFghlGbDLOO2sARECGhja4xYfRAZNPAkooYg==
 
-"@etchgis/mobility-transport-layer@^1.0.8":
+"@etchgis/mobility-transport-layer@^1.0.12":
   version "1.0.12"
   resolved "https://npm.pkg.github.com/download/@etchgis/mobility-transport-layer/1.0.12/a21010a88aa9279ac8bff4311692eb59aea4f53a#a21010a88aa9279ac8bff4311692eb59aea4f53a"
   integrity sha512-w/paIQCAbPkqOCsmO/imIJ3bmaB2l0niBrqcBgXYyGX0rZ/oyJa5E0scnIRiKk+R0e4HmqRw4R1LPAbdkiERRg==

@@ -10,6 +10,7 @@ import trips from '../services/transport/trips';
 
 class Schedule {
   trips = [];
+  dependentTrips = [];
   selectedTrip = null;
   error = null;
 
@@ -29,6 +30,53 @@ class Schedule {
     //   });
     // }
   }
+
+  hydrate = async () => {
+    return await this.getRange(
+      moment().hour(0).valueOf(),
+      moment().add(1, 'month').valueOf()
+    );
+  };
+
+  hydrateDependentTrips = async () => {
+    const dependents = this.rootStore.caregivers.dependents.map(
+      d => d.dependent
+    );
+    console.log({ dependents });
+    if (!dependents.length) return Promise.resolve();
+    try {
+      runInAction(() => {
+        this.rootStore.uiStore.setIsLoading(true);
+        this.dependentTrips = [];
+      });
+      await Promise.all(
+        dependents.map(async d => {
+          const trips = await this.getDependentSchedule(
+            d,
+            moment().hour(0).valueOf(),
+            moment().add(10, 'days').valueOf()
+          );
+          runInAction(() => {
+            this.dependentTrips.push(
+              ...trips.map(trip => ({
+                ...trip,
+                dependent: d,
+                origin: trip?.plan?.request?.origin?.title,
+                destination: trip?.plan?.request?.destination?.title,
+              }))
+            );
+          });
+        })
+      );
+      runInAction(() => {
+        this.rootStore.uiStore.setIsLoading(false);
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.rootStore.uiStore.setIsLoading(false);
+      });
+    }
+  };
 
   selectTrip = trip => {
     runInAction(() => {
@@ -187,6 +235,30 @@ class Schedule {
         });
     });
   };
+
+  getDependentSchedule(dependentId, from, to) {
+    return new Promise(async (resolve, reject) => {
+      const token = await this.rootStore.authentication.fetchToken();
+      trips
+        .getDependentsRange(dependentId, from, to, token)
+        .then(result => {
+          this.error = null;
+          const dependentTrips = result?.member || [];
+          if (dependentTrips.length > 0) {
+            dependentTrips.sort(
+              (a, b) => a.plan?.startTime - b.plan?.startTime
+            );
+          }
+          resolve(dependentTrips);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e;
+          });
+          reject(e);
+        });
+    });
+  }
 
   updateTripRequest = (id, request) => {
     return new Promise(async (resolve, reject) => {

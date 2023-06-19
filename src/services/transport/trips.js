@@ -107,6 +107,30 @@ const trips = {
       });
   },
 
+  getDependentsRange(id, from, to, accessToken) {
+    return fetch(
+      `${config.SERVICES.trips.url}/dependents/${id}?from=${from}&to=${to}&timezone=America/New_York`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'x-api-key': config.SERVICES.trips.xApiKey,
+        },
+      }
+    )
+      .then(async response => {
+        const json = await response.json();
+        if (response.status === 200) {
+          return json;
+        }
+        throw json?.message || json?.error.reason;
+      })
+      .catch(err => {
+        throw err;
+      });
+  },
+
   update: {
     plan(id, plan, accessToken) {
       return fetch(`${config.SERVICES.trips.url}/${id}`, {

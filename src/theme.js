@@ -9,6 +9,11 @@ const customTheme = {
         fontWeight: 'bold',
       },
     },
+    Heading: {
+      baseStyle: {
+        marginBottom: '2rem',
+      },
+    },
     Button: {
       baseStyle: {
         cursor: 'pointer',

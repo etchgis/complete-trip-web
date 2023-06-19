@@ -78,11 +78,9 @@ const Layout = observer(({ showMap, children }) => {
   useEffect(() => {
     if (loggedIn && inviteCode) {
       navigate('/caregiver?invited=true');
-    } else if (loggedIn && user?.profile?.onboarded && trips.length) {
-      navigate('/home');
     }
     // eslint-disable-next-line
-  }, [loggedIn, trips]);
+  }, [loggedIn]);
 
   return (
     <Flex
