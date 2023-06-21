@@ -22,6 +22,7 @@
     "@turf/buffer": "^6.5.0",
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
+    "@turf/nearest-point-on-line": "^6.5.0",
     "axios": "^1.2.2",
     "chakra-ui-autocomplete": "^1.4.5",
     "chakra-ui-steps": "^2.0.1",

@@ -1,69 +1,46 @@
-import * as polyline from '@mapbox/polyline';
-
 import { Box, useColorMode } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 
 import bbox from '@turf/bbox';
 import config from '../../config';
-import { fillGaps } from '../../utils/tripplan';
 import { mapControls } from '../Map/mapboxControls.js';
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { observer } from 'mobx-react-lite';
+import { theme } from '../../theme';
 import { toJS } from 'mobx';
+import { useStore } from '../../context/RootStore';
 
-export const TripPlanMap = observer(({ tripPlan }) => {
+export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
   const mapRef = useRef(null);
   const mapContainer = useRef(null);
   const { colorMode } = useColorMode();
   const mapStyle = colorMode === 'light' ? 'DAY' : 'NIGHT';
-
-  const planLegs = fillGaps(toJS(tripPlan.legs));
-  console.log(planLegs);
-  const geojson = {
-    type: 'FeatureCollection',
-    features: [],
-  };
-  const colors = [
-    '#00205b',
-    '#02597E',
-    '#0079C2',
-    '#0099E6',
-    '#00BFFF',
-    '#00CCFF',
-    '#00E5FF',
-    '#00FFFF',
-    '#1AFFFF',
-    '#33FFFF',
-    '#4DFFFF',
-    '#66FFFF',
-    '#80FFFF',
-    '#99FFFF',
-    '#B3FFFF',
-    '#CCFFFF',
-    '#E5FFFF',
-    '#FFFFFF',
-  ];
-  planLegs.forEach((v, i) =>
-    v?.legGeometry?.points
-      ? geojson.features.push({
-          type: 'Feature',
-          properties: { ...v, stroke: colors[i] },
-          geometry: polyline.toGeoJSON(v?.legGeometry?.points),
-        })
-      : null
-  );
+  const {
+    map: tripMapStoreMap,
+    setMap: setTripMapStoreMap,
+    setData,
+  } = useStore().tripMapStore;
 
   /*
   TODO METHOD TO UPDATE COLOR OF TRIP PATH WHEN DATA RECEIVED FROM WEB SOCKET
-  TODO METHOD TO DRAW TRIP PATH WHEN DATA RECEIVED FROM WEB SOCKET
-  TODO ADD ICONS FOR INT STOPS
+  TODO make a layers object in either tripPlanMapStore or another store or config
+  TODO match language of mobile vertical trip plan
+  TODO make trip plan show up when clicked from the trip list
   */
 
   useEffect(() => {
-    if (!geojson) return;
-    if (mapRef?.current) return updateTripPath(mapRef.current);
+    if (mapRef?.current) {
+      console.log('mapRef.current exists');
+      return;
+    }
 
-    const popup = new mapboxgl.Popup();
+    //TODO move this all to the TripMapStore?
+    const __data = setData(tripPlan);
+    // console.log(toJS(__data.stops));
+    // console.log(toJS(__data.modeIcons));
+    // console.log(toJS(__data.route));
+
+    // const popup = new mapboxgl.Popup();
     const fs = new mapboxgl.FullscreenControl();
 
     mapRef.current = new mapboxgl.Map({
@@ -76,75 +53,102 @@ export const TripPlanMap = observer(({ tripPlan }) => {
       .addControl(mapControls.locate, 'bottom-right')
       // .addControl(mapControls.fullscreen, 'bottom-right')
       .addControl(fs, 'bottom-right')
-      .on('load', updateTripPath)
+      .on('load', initMap)
       .on('style.load', e => {
         console.log('style loaded');
+        // console.log(e.target.getStyle());
       })
       .on('contextmenu', e => {
         console.log(e.target.getZoom());
         console.log(e.lngLat);
-      })
-      .on('click', addPopups);
-
-    function updateTripPath(e) {
-      const map = e.target || e;
-      map.resize();
-      if (!map.getSource('trip')) {
-        map.addSource('trip', {
-          type: 'geojson',
-          data: geojson,
-        });
-      } else {
-        map.getSource('trip').setData(geojson);
-      }
-      // if (map.getLayer('trip')) map.removeLayer('trip');
-      // if (map.getLayer('trip-case')) map.removeLayer('trip-case');
-      if (!map.getLayer('trip-case')) {
-        map.addLayer({
-          id: 'trip-case',
-          type: 'line',
-          source: 'trip',
-          paint: {
-            'line-color': 'white',
-            'line-width': 6,
-          },
-        });
-        map.addLayer({
-          id: 'trip',
-          type: 'line',
-          source: 'trip',
-          paint: {
-            'line-color': ['get', 'stroke'],
-            'line-width': 4,
-          },
-        });
-      }
-      map.fitBounds(bbox(geojson), { padding: 50 });
-      map.removeControl(fs);
-      map.addControl(fs, 'bottom-right');
-    }
-
-    function addPopups(e) {
-      const map = e.target || e;
-      const features = map.queryRenderedFeatures(e.point, {
-        layers: ['trip', 'trip-case'],
       });
-      if (!features.length) return;
-      popup.remove();
-      setTimeout(() => {
-        popup.setLngLat(e.lngLat);
-        const html = Object.keys(features[0].properties)
-          .map(key => {
-            return `<div><strong>${key}</strong>: ${features[0].properties[key]}</div>`;
-          })
-          .join('');
-        popup.setHTML(html);
-        popup.addTo(map);
-      }, 0);
+
+    //TODO move this all to the TripMapStore?
+    function initMap(e) {
+      const map = e.target || e;
+      setTripMapStoreMap(map);
+      map.resize();
+      if (!map.getSource('route')) {
+        map.addSource('route', {
+          type: 'geojson',
+          data: __data.route,
+        });
+        map.addSource('stops', {
+          type: 'geojson',
+          data: __data.stops,
+        });
+        map.addSource('mode-icons', {
+          type: 'geojson',
+          data: __data.modeIcons,
+        });
+        map.addSource('user', {
+          type: 'geojson',
+          data: __data.user,
+        });
+      }
+      map.addLayer({
+        id: 'route-case',
+        type: 'line',
+        source: 'route',
+        paint: {
+          'line-color': 'white',
+          'line-width':
+            __data?.route?.features[0]?.properties?.lineWidth || 4 + 2,
+        },
+      });
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        paint: {
+          'line-color': ['get', 'lineColor'],
+          'line-width': ['get', 'lineWidth'],
+          'line-opacity': ['get', 'lineOpacity'],
+          'line-dasharray': ['get', 'lineDasharray'],
+        },
+      });
+      map.addLayer({
+        id: 'stops',
+        type: 'circle',
+        source: 'stops',
+        paint: {
+          'circle-radius': ['get', 'circleRadius'],
+          'circle-color': ['get', 'circleColor'],
+          'circle-stroke-color': ['get', 'circleStrokeColor'],
+          'circle-stroke-width': ['get', 'circleStrokeWidth'],
+        },
+      });
+      map.addLayer({
+        id: 'mode-icons',
+        type: 'symbol',
+        source: 'mode-icons',
+        layout: {
+          'icon-image': ['get', 'icon'],
+          'icon-size': 0.8,
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+          // 'icon-offset': ['get', 'offset'],
+        },
+      });
+      map.addLayer({
+        id: 'user',
+        type: 'circle',
+        source: 'user',
+        paint: {
+          'circle-radius': 8,
+          'circle-stroke-width': 4,
+          'circle-stroke-color': theme.colors.brand,
+          'circle-color': 'white',
+        },
+      });
+
+      map.fitBounds(bbox(__data.route), { padding: 50 });
+      // map.removeControl(fs);
+      // map.addControl(fs, 'bottom-right');
     }
 
     //eslint-disable-next-line
-  }, [colorMode]);
+  }, []);
 
   return <Box id="trip-plan-map" ref={mapContainer} style={{ flex: 1 }} />;
 });

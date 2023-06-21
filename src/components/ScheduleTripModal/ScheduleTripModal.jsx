@@ -139,8 +139,8 @@ export const ScheduleTripModal = observer(
               : step === 3
               ? 'Trip Plan Overview'
               : ''}
+            <ModalCloseButton p={6} />
           </ModalHeader>
-          {/* <ModalCloseButton /> */}
           <ModalBody
             width="auto"
             minW={{ base: '100%', md: '500px' }}

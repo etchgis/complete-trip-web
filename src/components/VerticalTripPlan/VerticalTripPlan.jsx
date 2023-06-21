@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Stack } from '@chakra-ui/react';
+import { Button, Flex, Stack } from '@chakra-ui/react';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
@@ -6,7 +6,13 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
 export const VerticalTripPlan = observer(
-  ({ tripPlan, tripRequest, scheduleTripHandler, backClickHandler }) => {
+  ({
+    tripPlan,
+    tripRequest,
+    scheduleTripHandler,
+    backClickHandler,
+    cancelClickHandler,
+  }) => {
     return (
       <Flex
         id="vertical-trip-plan"
@@ -23,13 +29,14 @@ export const VerticalTripPlan = observer(
           id="vertical-trip-plan-sidebar"
           w={{ base: '100%', md: '380px' }}
         >
-          <Box overflow={'auto'}>
+          <Flex flexDir={'column'} overflow={'auto'} flex={1} py={2}>
+            <TripPlanSchedule tripPlan={tripPlan} tripRequest={tripRequest} />
             <TripPlanScheduleButtons
               scheduleTripHandler={scheduleTripHandler}
               backClickHandler={backClickHandler}
+              cancelClickHandler={cancelClickHandler}
             />
-            <TripPlanSchedule tripPlan={tripPlan} tripRequest={tripRequest} />
-          </Box>
+          </Flex>
         </Flex>
 
         <TripPlanMap tripPlan={tripPlan} flex={1} />
@@ -39,20 +46,32 @@ export const VerticalTripPlan = observer(
 );
 
 const TripPlanScheduleButtons = observer(
-  ({ scheduleTripHandler, backClickHandler }) => {
+  ({ scheduleTripHandler, backClickHandler, cancelClickHandler }) => {
     const { loggedIn } = useStore().authentication;
     return (
       <Stack spacing={4} alignItems="center" py={4} px={2}>
-        <Button
-          onClick={scheduleTripHandler ? scheduleTripHandler : null}
-          colorScheme="blue"
-          isDisabled={!loggedIn}
-          width={'100%'}
-        >
-          Schedule Trip
-        </Button>
+        {scheduleTripHandler && (
+          <Button
+            onClick={scheduleTripHandler ? scheduleTripHandler : null}
+            colorScheme="blue"
+            isDisabled={!loggedIn}
+            width={'100%'}
+          >
+            Schedule Trip
+          </Button>
+        )}
+        {cancelClickHandler && (
+          <Button
+            width={'100%'}
+            variant={'solid'}
+            colorScheme="red"
+            onClick={cancelClickHandler}
+          >
+            Cancel Trip
+          </Button>
+        )}
         <Button width={'100%'} onClick={backClickHandler}>
-          Back
+          {scheduleTripHandler ? 'Back' : 'Close'}
         </Button>
       </Stack>
     );

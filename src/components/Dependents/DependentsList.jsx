@@ -14,12 +14,10 @@ import {
   Icon,
   IconButton,
   Popover,
-  PopoverAnchor,
   PopoverArrow,
   PopoverBody,
   PopoverCloseButton,
   PopoverContent,
-  PopoverFooter,
   PopoverHeader,
   PopoverTrigger,
   Stack,
@@ -30,6 +28,7 @@ import {
 import { FaCalendarAlt, FaEllipsisV } from 'react-icons/fa';
 
 import ConfirmDialog from '../ConfirmDialog';
+import { DependentsTripsTable } from './DependentsTripsTable';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
@@ -141,10 +140,8 @@ const DependentCard = ({ dependent }) => {
 };
 
 export const DependentsList = observer(({ dependents, trips }) => {
-  const _d = toJS(dependents);
-  console.log({ _d });
-  const { onOpen, onClose, isOpen } = useDisclosure();
-  const { colorMode } = useColorMode();
+  // const _d = toJS(dependents);
+  // console.log({ _d });
   const { removeDependent } = useStore().caregivers;
   const { setToastMessage, setToastStatus } = useStore().uiStore;
   const removeDependentHandler = async id => {
@@ -168,57 +165,10 @@ export const DependentsList = observer(({ dependents, trips }) => {
               {({ isExpanded }) => (
                 <>
                   <Flex>
-                    <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
-                      <PopoverTrigger>
-                        <IconButton
-                          aria-label="Delete Dependent"
-                          variant={'ghost'}
-                          borderRadius={0}
-                          icon={<FaEllipsisV />}
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <PopoverArrow />
-                        <PopoverCloseButton />
-                        <PopoverHeader>Delete Dependent</PopoverHeader>
-                        <PopoverBody fontSize={'md'}>
-                          <Text>
-                            Are you sure you want to delete this dependent?
-                          </Text>
-                          <Box
-                            p={4}
-                            my={2}
-                            background={
-                              colorMode === 'light' ? 'gray.50' : 'gray.700'
-                            }
-                          >
-                            <Text>
-                              {d.firstName} {d.lastName}
-                            </Text>
-                            <Text> {d.email}</Text>
-                          </Box>
-
-                          <HStack justifyContent={'space-between'} py={2}>
-                            <Button
-                              type="submit"
-                              colorScheme="blue"
-                              variant={'outline'}
-                              onClick={onClose}
-                              size="sm"
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              onClick={() => removeDependentHandler(d.id)}
-                              colorScheme="red"
-                              size="sm"
-                            >
-                              Delete Dependent
-                            </Button>
-                          </HStack>
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Popover>
+                    <DeleteDependentPopover
+                      dependent={d}
+                      removeDependentHandler={removeDependentHandler}
+                    />
                     <AccordionButton>
                       <Box as="span" flex="1" textAlign="left">
                         {d.firstName} {d.lastName}
@@ -234,14 +184,16 @@ export const DependentsList = observer(({ dependents, trips }) => {
                       )}
                     </AccordionButton>
                   </Flex>
-                  <AccordionPanel pb={4} fontSize={'md'}>
-                    {!trips.filter(t => t.dependent === d.dependent)
-                      ?.length && <Box>No trips found.</Box>}
-                    {trips
-                      .filter(t => t.dependent === d.dependent)
-                      .map((trip, i) => (
-                        <Box key={i}>{trip?.destination}</Box>
-                      ))}
+                  <AccordionPanel
+                    pb={4}
+                    fontSize={'md'}
+                    maxH="300px"
+                    overflow={'auto'}
+                  >
+                    <DependentsTripsTable
+                      trips={trips.filter(t => t.dependent === d.dependent)}
+                      hideTitle={true}
+                    />
                   </AccordionPanel>
                 </>
               )}
@@ -252,3 +204,58 @@ export const DependentsList = observer(({ dependents, trips }) => {
     </Box>
   );
 });
+
+const DeleteDependentPopover = ({ dependent: d, removeDependentHandler }) => {
+  const { onOpen, onClose, isOpen } = useDisclosure();
+
+  const { colorMode } = useColorMode();
+  return (
+    <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+      <PopoverTrigger>
+        <IconButton
+          aria-label="Delete Dependent"
+          variant={'ghost'}
+          borderRadius={0}
+          icon={<FaEllipsisV />}
+        />
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverHeader>Delete Dependent</PopoverHeader>
+        <PopoverBody fontSize={'md'}>
+          <Text>Are you sure you want to delete this dependent?</Text>
+          <Box
+            p={4}
+            my={2}
+            background={colorMode === 'light' ? 'gray.50' : 'gray.700'}
+          >
+            <Text>
+              {d.firstName} {d.lastName}
+            </Text>
+            <Text> {d.email}</Text>
+          </Box>
+
+          <HStack justifyContent={'space-between'} py={2}>
+            <Button
+              type="submit"
+              colorScheme="blue"
+              variant={'outline'}
+              onClick={onClose}
+              size="sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => removeDependentHandler(d.id)}
+              colorScheme="red"
+              size="sm"
+            >
+              Delete Dependent
+            </Button>
+          </HStack>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  );
+};

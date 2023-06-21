@@ -1,23 +1,24 @@
 import {
   Box,
-  Card,
-  CardBody,
-  CardHeader,
+  Center,
   Divider,
   Flex,
+  Grid,
+  Heading,
   Icon,
   Text,
   VStack,
   useColorMode,
 } from '@chakra-ui/react';
-import { FaGenderless, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaStar } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
 
 import { RxDotFilled } from 'react-icons/rx';
 import config from '../../config';
 import { fillGaps } from '../../utils/tripplan';
 import formatters from '../../utils/formatters';
+import { observer } from 'mobx-react-lite';
 import { theme } from '../../theme';
-import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
@@ -45,7 +46,7 @@ const TimelineStep = ({ start, label, steps }) => {
                 pos={'absolute'}
                 left={'3px'}
                 top={'8px'}
-                height={'60px'}
+                height={'10px'}
                 borderLeft="dashed 4px #00205b"
                 borderColor={accentColor}
               ></Box>
@@ -56,7 +57,19 @@ const TimelineStep = ({ start, label, steps }) => {
                 alignItems="center"
                 pos={'absolute'}
                 left={'3px'}
-                height={showDetails ? '200px' : '170px'}
+                height={showDetails ? '60px' : '40px'}
+                borderLeft="solid 4px #00205b"
+                borderColor={accentColor}
+              ></Box>
+            ) : null}
+            {i === details.length - 1 ? (
+              <Box
+                display="flex"
+                alignItems="center"
+                pos={'absolute'}
+                left={'3px'}
+                bottom={'-25px'}
+                height={'30px'}
                 borderLeft="solid 4px #00205b"
                 borderColor={accentColor}
               ></Box>
@@ -153,52 +166,272 @@ const CreateCircleIcon = ({ svg, backgroundColor }) => {
   );
 };
 
-export const TripPlanSchedule = ({ tripRequest: request, tripPlan: plan }) => {
-  // console.log({ request });
-  // console.log({ plan });
-  const { colorMode } = useColorMode();
-  // const planLegs = fillGaps(toJS(plan.legs));
-  // console.log(planLegs);
-  // const featureCollection = {
-  //   type: 'FeatureCollection',
-  //   features: [],
-  // };
-  // const colors = [
-  //   '#00205b',
-  //   '#02597E',
-  //   '#0079C2',
-  //   '#0099E6',
-  //   '#00BFFF',
-  //   '#00CCFF',
-  //   '#00E5FF',
-  //   '#00FFFF',
-  //   '#1AFFFF',
-  //   '#33FFFF',
-  //   '#4DFFFF',
-  //   '#66FFFF',
-  //   '#80FFFF',
-  //   '#99FFFF',
-  //   '#B3FFFF',
-  //   '#CCFFFF',
-  //   '#E5FFFF',
-  //   '#FFFFFF',
-  // ];
-  // planLegs.forEach((v, i) =>
-  //   v?.legGeometry?.points
-  //     ? featureCollection.features.push({
-  //         type: 'Feature',
-  //         properties: { ...v, stroke: colors[i] },
-  //         geometry: polyline.toGeoJSON(v?.legGeometry?.points),
-  //       })
-  //     : null
-  // );
+export const TripPlanSchedule = observer(
+  ({ tripRequest: request, tripPlan: plan }) => {
+    const { colorMode } = useColorMode();
+    const { user } = useStore().authentication;
+    const { activeLegIndex } = useStore().tripMapStore;
+    const [legIndex, setL] = useState(-1);
+    const { wheelchair } = user?.profile?.preferences || false;
+    const planLegs = fillGaps(plan.legs);
 
-  return (
-    <Box flex={1} id="trip-plan-schedule">
-      {/* MAP SECTION */}
+    // console.log(toJS(request));
+    // console.log(toJS(plan));
 
-      {/* HEADING */}
-      {/* <Center>
+    useEffect(() => {
+      // console.log('activeLegIndex', activeLegIndex);
+      if (activeLegIndex !== legIndex) {
+        setL(activeLegIndex);
+      }
+    }, [activeLegIndex]);
+
+    return (
+      <Box px={4} flex={1}>
+        <Grid
+          gridTemplateColumns={'1fr 1fr 1fr'}
+          width="80%"
+          margin="10px auto 20px auto"
+          py={2}
+          fontWeight={'bold'}
+          border="solid thin lightgray"
+          borderRadius="md"
+        >
+          <Box textAlign="center">
+            <Text fontSize={'sm'}>Leave</Text>
+            <Box>
+              {formatters.datetime
+                .asHMA(new Date(plan?.startTime))
+                .replace('am', '')
+                .replace('pm', '')}
+              <sub style={{ textTransform: 'uppercase' }}>
+                {' '}
+                {formatters.datetime.asHMA(new Date(plan?.startTime)).slice(-2)}
+              </sub>
+            </Box>
+          </Box>
+
+          <Flex alignItems={'center'} justifyContent={'center'}>
+            <Center
+              background={'rgba(255,255,255,0.5)'}
+              h={10}
+              w={10}
+              borderRadius="lg"
+            >
+              <Icon as={FaArrowRight} color={'nftaLight'} />
+            </Center>
+          </Flex>
+
+          <Box textAlign="center" mx={2}>
+            <Text fontSize={'sm'}>Arrive</Text>
+            <Box>
+              {formatters.datetime
+                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                .replace('am', '')
+                .replace('pm', '')}
+              <sub style={{ textTransform: 'uppercase' }}>
+                {' '}
+                {formatters.datetime
+                  .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                  .slice(-2)}
+              </sub>
+            </Box>
+          </Box>
+        </Grid>
+
+        <Text>
+          To{' '}
+          <strong>
+            {request?.destination?.title} {request?.destination?.description}
+          </strong>
+        </Text>
+
+        <Flex alignItems={'center'} mx={0}>
+          <Text mr={1} fontSize={'sm'}>
+            {formatters.datetime.asDuration(plan.duration)} (
+            {formatters.distance.asMiles(
+              plan.legs.reduce((acc, leg) => {
+                return acc + leg.distance;
+              }, 0)
+            )}
+            )
+          </Text>
+          <Icon as={RxDotFilled} fontSize={'lg'} />
+          <Text fontSize={'sm'}>
+            {plan.transfers +
+              (plan.transfers === 1 ? ' transfer' : ' transfers')}
+          </Text>
+        </Flex>
+
+        <Box pt={4} pb={0} mb={-2}>
+          <Divider borderColor="nftaLight" borderWidth={2} />
+        </Box>
+
+        <Box py={2}>
+          <Divider />
+        </Box>
+        <Box>
+          {plan.legs.map((leg, i) => {
+            let title = formatLegTitle(leg, wheelchair);
+            let name = getLegModeName(leg, wheelchair);
+            const mode =
+              title === 'WAIT'
+                ? config.WAIT
+                : name.toLowerCase() === 'roll'
+                ? config.WHEELCHAIR
+                : config.MODES.find(m => m.id === name);
+            // console.log(name, title, mode);
+            if (name === 'scooter') {
+              // later
+            } else if (name === 'bus') {
+              title += ' (' + leg.mode.toLowerCase() + ')';
+            }
+
+            let route, headsign;
+            if (leg.agencyName && leg.route) {
+              route = leg.route;
+              headsign = leg.headsign;
+            }
+
+            let fillColor = getLegColor(leg);
+            if (fillColor === '#FFFFFF') {
+              fillColor = theme.colors.primary1;
+            }
+
+            let intermediateStopsLabel;
+
+            if (leg.intermediateStops && leg.intermediateStops.length > 0) {
+              const lbl =
+                leg.intermediateStops.length +
+                ' stop' +
+                (leg.intermediateStops.length === 1 ? '' : 's');
+              const dur = formatters.datetime.asDuration(leg.duration);
+              intermediateStopsLabel = `${lbl}, ${dur}`;
+            }
+            const accentColor = mode.mode === 'walk' ? 'gray.500' : mode.color;
+            return (
+              <VStack
+                pos={'relative'}
+                key={i.toString()}
+                alignItems={'flex-start'}
+                spacing={1}
+                borderBottom={
+                  i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
+                }
+                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.200'}
+                filter={
+                  legIndex !== -1 && legIndex === i
+                    ? 'opacity(1)'
+                    : legIndex === -1
+                    ? 'unset'
+                    : 'opacity(0.5)'
+                }
+              >
+                <Flex alignItems={'center'} mt={2}>
+                  {mode?.svg
+                    ? CreateCircleIcon({
+                        svg: mode.svg,
+                        backgroundColor: accentColor,
+                      })
+                    : null}
+                  <Heading as="h3" size="md" m={0} fontWeight={'extrabold'}>
+                    {route || title}
+                  </Heading>
+                </Flex>
+                <Box>
+                  {route ? (
+                    <>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        pos={'absolute'}
+                        left={'13px'}
+                        top={'36px'}
+                        height={'60px'}
+                        borderLeft="solid 4px #00205b"
+                        borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
+                        borderColor={accentColor}
+                      ></Box>
+                      <Box ml={'36px'}>
+                        <Text fontWeight={'semibold'} fontSize={'xs'}>
+                          To {headsign}
+                        </Text>
+                        <Text
+                          fontWeight={'black'}
+                          fontSize={'sm'}
+                          textTransform={'uppercase'}
+                          color={'trip'}
+                        >
+                          {leg?.to?.name}
+                        </Text>
+                      </Box>
+                    </>
+                  ) : (
+                    <>
+                      {i < plan.legs.length - 1 && (
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          pos={'absolute'}
+                          left={'13px'}
+                          top={'36px'}
+                          height={'20px'}
+                          borderLeft="solid 4px #00205b"
+                          borderStyle={
+                            mode.mode === 'walk' ? 'dashed' : 'solid'
+                          }
+                          borderColor={accentColor}
+                        ></Box>
+                      )}
+                    </>
+                  )}
+                </Box>
+                {leg.intermediateStops ? (
+                  <>
+                    <TimelineStep
+                      start={leg.from.name}
+                      label={intermediateStopsLabel}
+                      steps={leg.intermediateStops}
+                    />
+                  </>
+                ) : null}
+                <Box>
+                  <Divider />
+                </Box>
+              </VStack>
+            );
+          })}
+
+          <Flex alignItems={'center'} my={4}>
+            <Icon as={FaStar} mr={2} />
+            <Text fontWeight={'bold'}>
+              Arrive at {request?.destination?.title}{' '}
+              {formatters.datetime
+                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                .replace('am', '')
+                .replace('pm', '')}
+              <sub style={{ textTransform: 'uppercase' }}>
+                {' '}
+                {formatters.datetime
+                  .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                  .slice(-2)}
+              </sub>
+            </Text>
+          </Flex>
+        </Box>
+      </Box>
+    );
+  }
+);
+
+{
+  /* MAP SECTION */
+}
+
+{
+  /* HEADING */
+}
+{
+  /* <Center>
           <Heading as="h3" size="md" mb={2}>
             {new Date(plan.startTime).toLocaleDateString('en-US', {
               weekday: 'long',
@@ -207,10 +440,14 @@ export const TripPlanSchedule = ({ tripRequest: request, tripPlan: plan }) => {
               day: 'numeric',
             })}
           </Heading>
-        </Center> */}
+        </Center> */
+}
 
-      {/* TO FROM */}
-      {/* <Flex
+{
+  /* TO FROM */
+}
+{
+  /* <Flex
           position="absolute"
           zIndex={2}
           w={{ base: '100%', md: '100%' }}
@@ -273,13 +510,19 @@ export const TripPlanSchedule = ({ tripRequest: request, tripPlan: plan }) => {
               </Box>
             </Box>
           </Grid>
-        </Flex> */}
+        </Flex> */
+}
 
-      {/* MAP */}
-      {/* <Flex flex={1}>
+{
+  /* MAP */
+}
+{
+  /* <Flex flex={1}>
           <TripPlanMap geojson={featureCollection} />
-        </Flex> */}
-      {/* <Image
+        </Flex> */
+}
+{
+  /* <Image
           src={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.DAY.replace(
             'mapbox://styles/',
             ''
@@ -290,220 +533,12 @@ export const TripPlanSchedule = ({ tripRequest: request, tripPlan: plan }) => {
           alt="map"
           borderRadius={'md'}
           margin={{ base: '60px 0', md: 'calc(calc(100% - 200px) / 2) 0' }}
-        /> */}
+        /> */
+}
 
-      {/* PLAN SECTION */}
-      <Card
-        size={{ base: 'lg', lg: 'lg' }}
-        height={'100%'}
-        borderRadius={0}
-        boxShadow={'none'}
-        background={colorMode === 'light' ? 'white' : 'gray.800'}
-      >
-        <CardHeader pb={0}>
-          <Text>{request?.destination?.title}</Text>
-          <Text>{request?.destination?.description}</Text>
-        </CardHeader>
-        <CardBody fontWeight={'bold'} py={2}>
-          <VerticalTripPlanDetail request={request} plan={plan} />
-        </CardBody>
-      </Card>
-    </Box>
-  );
-};
-
-const VerticalTripPlanDetail = ({ request, plan }) => {
-  const { colorMode } = useColorMode();
-  const { user } = useStore().authentication;
-  const { wheelchair } = user?.profile?.preferences || false;
-  // const hasHours = Math.round(plan.duration / 60) / 60 > 1;
-  const planLegs = fillGaps(plan.legs);
-
-  return (
-    <Box>
-      <Flex alignItems={'center'}>
-        <Text mr={1} fontSize={'sm'}>
-          {formatters.datetime.asDuration(plan.duration)} (
-          {formatters.distance.asMiles(
-            plan.legs.reduce((acc, leg) => {
-              return acc + leg.distance;
-            }, 0)
-          )}
-          )
-        </Text>
-        <Icon as={RxDotFilled} fontSize={'lg'} />
-        <Text fontSize={'sm'}>
-          {plan.transfers + (plan.transfers === 1 ? ' transfer' : ' transfers')}
-        </Text>
-      </Flex>
-
-      <Box py={2}>
-        <Divider borderColor="tripDark" borderWidth={2} />
-      </Box>
-
-      <Flex display={'flex'} alignItems="center">
-        <Icon as={FaGenderless} boxSize={6} mr={1} ml={-1} />
-        <Text p={0} mr={1}>
-          Leave By
-        </Text>
-        <Box as="span">
-          {formatters.datetime
-            .asHMA(new Date(plan?.startTime))
-            .replace('am', '')
-            .replace('pm', '')}
-          <sub style={{ textTransform: 'uppercase' }}>
-            {' '}
-            {formatters.datetime.asHMA(new Date(plan?.startTime)).slice(-2)}
-          </sub>
-        </Box>
-      </Flex>
-      <Box py={2}>
-        <Divider />
-      </Box>
-      <Box>
-        {plan.legs.map((leg, i) => {
-          let title = formatLegTitle(leg, wheelchair);
-          let name = getLegModeName(leg, wheelchair);
-          const mode =
-            title === 'WAIT'
-              ? config.WAIT
-              : name.toLowerCase() === 'roll'
-              ? config.WHEELCHAIR
-              : config.MODES.find(m => m.id === name);
-          // console.log(name, title, mode);
-          if (name === 'scooter') {
-            // later
-          } else if (name === 'bus') {
-            title += ' (' + leg.mode.toLowerCase() + ')';
-          }
-
-          let route, headsign;
-          if (leg.agencyName && leg.route) {
-            route = leg.route;
-            headsign = leg.headsign;
-          }
-
-          let fillColor = getLegColor(leg);
-          if (fillColor === '#FFFFFF') {
-            fillColor = theme.colors.primary1;
-          }
-
-          let intermediateStopsLabel;
-
-          if (leg.intermediateStops && leg.intermediateStops.length > 0) {
-            const lbl =
-              leg.intermediateStops.length +
-              ' stop' +
-              (leg.intermediateStops.length === 1 ? '' : 's');
-            const dur = formatters.datetime.asDuration(leg.duration);
-            intermediateStopsLabel = `${lbl}, ${dur}`;
-          }
-
-          // let fromFontSize = 10,
-          //   fromFill = '#111111',
-          //   fromWeight = 'normal',
-          //   toFontSize = 10,
-          //   toFill = '#111111',
-          //   toWeight = 'normal',
-          //   toName = leg.to ? leg.to.name || '' : ' (YOUR STOP)';
-          // if (leg?.intermediateStops) console.log(leg.intermediateStops.length);
-          // const multiplier = 15.5;
-          // console.log(leg?.intermediateStops);
-          // console.log({ mode });
-          const accentColor = mode.mode === 'walk' ? 'gray.500' : mode.color;
-          return (
-            <VStack
-              pos={'relative'}
-              key={i.toString()}
-              alignItems={'flex-start'}
-              spacing={1}
-              borderBottom={
-                i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
-              }
-              borderColor={colorMode === 'light' ? 'gray.200' : 'gray.200'}
-            >
-              <Flex alignItems={'center'} mt={2}>
-                {mode?.svg
-                  ? CreateCircleIcon({
-                      svg: mode.svg,
-                      backgroundColor: accentColor,
-                    })
-                  : null}
-                <Text>{title}</Text>
-              </Flex>
-              <Box>
-                {route ? (
-                  <>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      pos={'absolute'}
-                      left={'13px'}
-                      top={'36px'}
-                      height={'100px'}
-                      borderLeft="solid 4px #00205b"
-                      borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
-                      borderColor={accentColor}
-                    ></Box>
-                    <Box ml={'36px'}>
-                      <Text>{headsign} a</Text>
-                      <Text>{route} b</Text>
-                    </Box>
-                  </>
-                ) : (
-                  <>
-                    {i < plan.legs.length - 1 && (
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        pos={'absolute'}
-                        left={'13px'}
-                        top={'36px'}
-                        height={'100px'}
-                        borderLeft="solid 4px #00205b"
-                        borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
-                        borderColor={accentColor}
-                      ></Box>
-                    )}
-                  </>
-                )}
-              </Box>
-              {leg.intermediateStops ? (
-                <>
-                  <TimelineStep
-                    start={leg.from.name}
-                    label={intermediateStopsLabel}
-                    steps={leg.intermediateStops}
-                  />
-                </>
-              ) : null}
-              <Box>
-                <Divider />
-              </Box>
-            </VStack>
-          );
-        })}
-
-        <Flex alignItems={'center'} my={4}>
-          <Icon as={FaStar} mr={2} />
-          <Text fontWeight={'bold'}>
-            Arrive at {request?.destination?.title}{' '}
-            {formatters.datetime
-              .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-              .replace('am', '')
-              .replace('pm', '')}
-            <sub style={{ textTransform: 'uppercase' }}>
-              {' '}
-              {formatters.datetime
-                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                .slice(-2)}
-            </sub>
-          </Text>
-        </Flex>
-      </Box>
-    </Box>
-  );
-};
+{
+  /* PLAN SECTION */
+}
 
 // function trimText(text, threshold) {
 //   if (text.length <= threshold) {

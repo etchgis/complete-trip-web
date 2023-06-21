@@ -10,6 +10,7 @@ import MapStore from './MapStore';
 import Preferences from './Preferences';
 import Schedule from './Schedule';
 import Trip from './Trip';
+import TripMapStore from './TripMapStore';
 import UIStore from './UIStore';
 
 export default class RootStore {
@@ -22,6 +23,7 @@ export default class RootStore {
     this.schedule = new Schedule(this);
     this.trip = new Trip(this);
     this.caregivers = new Caregivers(this);
+    this.tripMapStore = new TripMapStore(this);
   }
 }
 

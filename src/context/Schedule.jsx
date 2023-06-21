@@ -53,8 +53,10 @@ class Schedule {
         dependents.map(async d => {
           const trips = await this.getDependentSchedule(
             d,
-            moment().hour(0).valueOf(),
-            moment().add(10, 'days').valueOf()
+            moment().subtract(2, 'months').valueOf(),
+            moment().add(1, 'month').valueOf()
+            // moment().hour(0).valueOf(),
+            // moment().add(10, 'days').valueOf()
           );
           runInAction(() => {
             this.dependentTrips.push(
