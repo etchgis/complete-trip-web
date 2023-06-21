@@ -25,7 +25,7 @@ export const DependentsTripsTable = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { dependentTracker, resetMap } = useStore().tripMapStore;
   const [selectedTrip, setSelectedTrip] = useState({});
-
+  console.log(trips);
   /*
   10 days of trips
   total duration of trip
@@ -122,7 +122,7 @@ export const DependentsTripsTable = ({
         plan={selectedTrip?.plan}
         request={selectedTrip?.plan?.request}
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={backClickHandler}
         backClickHandler={backClickHandler}
       />
     </>
