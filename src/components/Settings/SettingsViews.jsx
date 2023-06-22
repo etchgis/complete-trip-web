@@ -93,7 +93,7 @@ export const FavoritesList = observer(() => {
   // console.log(favoriteTrips);
   // console.log(favoriteLocations);
   return (
-    <>
+    <Box maxW={{ base: '100%', md: 'md' }}>
       <Box py={6}>
         <Divider />
       </Box>
@@ -138,7 +138,7 @@ export const FavoritesList = observer(() => {
           />
         ))}
       </Stack>
-    </>
+    </Box>
   );
 });
 
@@ -183,7 +183,7 @@ export const Accessibility = observer(({ action }) => {
   const { user } = useStore().authentication;
 
   return (
-    <Stack p={4}>
+    <Stack p={4} maxW={{ base: '100%', md: 'md' }}>
       <Box fontWeight="bold" fontSize="sm">
         Display Language
       </Box>

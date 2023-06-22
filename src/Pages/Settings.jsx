@@ -207,7 +207,7 @@ const Settings = observer(({ view }) => {
 export default Settings;
 
 function switchViews({ view, setActivePanel }) {
-  if (view) console.log('[settings]', view);
+  // if (view) console.log('[settings]', view, 'view');
   switch (view) {
     case 'caregivers':
       return (

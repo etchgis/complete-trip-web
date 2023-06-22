@@ -186,7 +186,7 @@ export const TripPlanSchedule = observer(
     }, [activeLegIndex]);
 
     return (
-      <Box px={4} flex={1}>
+      <Box px={4} flex={1} id="trip-plan-schedule">
         <Grid
           gridTemplateColumns={'1fr 1fr 1fr'}
           width="80%"
@@ -194,6 +194,7 @@ export const TripPlanSchedule = observer(
           py={2}
           fontWeight={'bold'}
           border="solid thin lightgray"
+          borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
           borderRadius="md"
         >
           <Box textAlign="center">
@@ -238,7 +239,7 @@ export const TripPlanSchedule = observer(
           </Box>
         </Grid>
 
-        <Text>
+        <Text textAlign={'left'}>
           To{' '}
           <strong>
             {request?.destination?.title} {request?.destination?.description}
@@ -269,6 +270,7 @@ export const TripPlanSchedule = observer(
         <Box py={2}>
           <Divider />
         </Box>
+
         <Box>
           {plan.legs.map((leg, i) => {
             let title = formatLegTitle(leg, wheelchair);
@@ -317,7 +319,7 @@ export const TripPlanSchedule = observer(
                 borderBottom={
                   i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
                 }
-                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.200'}
+                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
                 filter={
                   legIndex !== -1 && legIndex === i
                     ? 'opacity(1)'

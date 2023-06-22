@@ -1,4 +1,4 @@
-import { Button, Flex, Stack } from '@chakra-ui/react';
+import { Box, Button, Flex, Stack, useColorMode } from '@chakra-ui/react';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
@@ -13,6 +13,7 @@ export const VerticalTripPlan = observer(
     backClickHandler,
     cancelClickHandler,
   }) => {
+    const { colorMode } = useColorMode();
     return (
       <Flex
         id="vertical-trip-plan"
@@ -20,23 +21,32 @@ export const VerticalTripPlan = observer(
         width={'100vw'}
         borderTop="solid thin lightgray"
         borderBottom="solid thin lightgray"
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
         height={'100%'}
         overflow={'hidden'}
       >
         <Flex
           flexDir={'column'}
           borderRight="solid thin lightgray"
-          id="vertical-trip-plan-sidebar"
+          borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
           w={{ base: '100%', md: '380px' }}
+          id="vertical-trip-plan-sidebar"
         >
-          <Flex flexDir={'column'} overflow={'auto'} flex={1} py={2}>
+          <Box
+            display="flex"
+            flexDir={'column'}
+            overflow={'auto'}
+            flex={1}
+            py={2}
+            id="vertical-trip-plan-schedule-container"
+          >
             <TripPlanSchedule tripPlan={tripPlan} tripRequest={tripRequest} />
-            <TripPlanScheduleButtons
-              scheduleTripHandler={scheduleTripHandler}
-              backClickHandler={backClickHandler}
-              cancelClickHandler={cancelClickHandler}
-            />
-          </Flex>
+          </Box>
+          <TripPlanScheduleButtons
+            scheduleTripHandler={scheduleTripHandler}
+            backClickHandler={backClickHandler}
+            cancelClickHandler={cancelClickHandler}
+          />
         </Flex>
 
         <TripPlanMap tripPlan={tripPlan} flex={1} />
@@ -49,7 +59,13 @@ const TripPlanScheduleButtons = observer(
   ({ scheduleTripHandler, backClickHandler, cancelClickHandler }) => {
     const { loggedIn } = useStore().authentication;
     return (
-      <Stack spacing={4} alignItems="center" py={4} px={2}>
+      <Stack
+        spacing={4}
+        alignItems="center"
+        py={4}
+        px={2}
+        id="trip-plan-schedule-buttons"
+      >
         {scheduleTripHandler && (
           <Button
             onClick={scheduleTripHandler ? scheduleTripHandler : null}

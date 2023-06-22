@@ -3,6 +3,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import config from '../config';
+import { isEqual } from 'lodash';
 import moment from 'moment';
 import trips from '../services/transport/trips';
 
@@ -39,27 +40,32 @@ class Schedule {
   };
 
   hydrateDependentTrips = async () => {
-    const dependents = this.rootStore.caregivers.dependents.map(
-      d => d.dependent
+    const dependents = this.rootStore.caregivers.dependents.filter(
+      d => d.status === 'approved'
     );
-    console.log({ dependents });
-    if (!dependents.length) return Promise.resolve();
+    console.log('{schedule-store}', dependents);
+    if (!dependents.length) {
+      runInAction(() => {
+        this.dependentTrips = [];
+      });
+      return Promise.resolve();
+    }
     try {
       runInAction(() => {
         this.rootStore.uiStore.setIsLoading(true);
-        this.dependentTrips = [];
       });
+      const _trips = [];
       await Promise.all(
         dependents.map(async d => {
           const trips = await this.getDependentSchedule(
-            d,
-            moment().subtract(2, 'months').valueOf(),
-            moment().add(1, 'month').valueOf()
-            // moment().hour(0).valueOf(),
-            // moment().add(10, 'days').valueOf()
+            d.dependent,
+            // moment().subtract(2, 'months').valueOf(),
+            // moment().add(1, 'month').valueOf()
+            moment().hour(0).valueOf(),
+            moment().add(10, 'days').valueOf()
           );
           runInAction(() => {
-            this.dependentTrips.push(
+            _trips.push(
               ...trips.map(trip => ({
                 ...trip,
                 dependent: d,
@@ -70,7 +76,10 @@ class Schedule {
           });
         })
       );
+      const equals = isEqual(_trips, this.dependentTrips);
+      console.log('{schedule-store} dependent trips have changed', !equals);
       runInAction(() => {
+        if (!equals) this.dependentTrips = _trips;
         this.rootStore.uiStore.setIsLoading(false);
       });
     } catch (error) {

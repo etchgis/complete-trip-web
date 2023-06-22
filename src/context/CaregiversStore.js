@@ -76,7 +76,7 @@ class Caregivers {
       const token = await this.rootStore.authentication.fetchToken();
       const caregivers = await travelerAPI.caregivers.get.all(token);
       const dependents = await travelerAPI.dependents.get.all(token);
-      console.log('dependents', dependents);
+      // console.log('{caregivers-store} de', dependents);
       if (!caregivers?.member || !dependents?.member)
         reject({
           message: 'An unknown error occurred.',

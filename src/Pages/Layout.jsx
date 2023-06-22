@@ -25,7 +25,7 @@ const Layout = observer(({ showMap, children }) => {
     useStore().authentication;
 
   const { isLoading } = useStore().uiStore;
-  const { trips } = useStore().schedule;
+  // const { trips } = useStore().schedule;
 
   // const _trips = toJS(trips);
   // console.log({ _trips });

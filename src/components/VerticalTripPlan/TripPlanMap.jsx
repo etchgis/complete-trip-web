@@ -54,8 +54,8 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
       // .addControl(mapControls.fullscreen, 'bottom-right')
       .addControl(fs, 'bottom-right')
       .on('load', initMap)
-      .on('style.load', e => {
-        console.log('style loaded');
+      .on('style.load', () => {
+        console.log('[trip-map] style loaded');
         // console.log(e.target.getStyle());
       })
       .on('contextmenu', e => {

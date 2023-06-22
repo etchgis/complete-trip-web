@@ -1,18 +1,15 @@
 import { DependentsList } from './DependentsList';
 import { DependentsTripsTable } from './DependentsTripsTable';
 import { Grid } from '@chakra-ui/react';
-import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
 
-export const Dependents = observer(() => {
-  const { dependents, hydrate } = useStore().caregivers;
+export const Dependents = () => {
+  const { hydrate } = useStore().caregivers;
   const { setIsLoading } = useStore().uiStore;
-  const { dependentTrips: trips, hydrateDependentTrips } = useStore().schedule;
-  const _trips = toJS(trips);
-  console.log({ _trips });
+  const { hydrateDependentTrips } = useStore().schedule;
 
+  //NOTE hydrate the trips in this component so we dont have to in the child components
   useEffect(() => {
     //GET DEPENDENTS
     (async () => {
@@ -35,8 +32,8 @@ export const Dependents = observer(() => {
       gridTemplateRows={'repeat(auto-fill, minmax(50%, 1fr))'}
       gridGap={{ base: '40px', md: '20px' }}
     >
-      <DependentsTripsTable dependents={dependents} trips={_trips} limit={5} />
-      <DependentsList dependents={dependents} trips={_trips} limit={null} />
+      <DependentsTripsTable limit={5} />
+      <DependentsList limit={null} />
     </Grid>
   );
-});
+};

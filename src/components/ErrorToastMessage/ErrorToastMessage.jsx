@@ -5,7 +5,8 @@ import { useToast } from '@chakra-ui/react';
 
 export const ErrorToastMessage = observer(({ message }) => {
   const { errorToastMessage, setErrorToastMessage } = useStore().authentication;
-  const { toastMessage, toastStatus, setToastMessage, setToastStatus } = useStore().uiStore;
+  const { toastMessage, toastStatus, setToastMessage, setToastStatus } =
+    useStore().uiStore;
 
   const toast = useToast();
 
@@ -26,7 +27,7 @@ export const ErrorToastMessage = observer(({ message }) => {
       setErrorToastMessage(null);
       setToastMessage(null);
       setToastStatus(null);
-    }, 4000);
+    }, 30000);
     // eslint-disable-next-line
   }, [errorToastMessage, toastMessage]);
   return <></>;

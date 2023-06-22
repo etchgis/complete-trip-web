@@ -82,13 +82,13 @@ class TripMapStore {
       });
 
       socket.onopen = e => {
-        '[open] Connection established', e;
+        '{trip-map-store} socket established', e;
       };
 
       socket.onmessage = event => {
-        console.log(`[message] Data received from server`);
+        console.log(`{trip-map-store} data received`);
         const data = JSON.parse(JSON.parse(event.data));
-        // console.log(data);
+        console.log('{trip-map-store} navigating', data?.navigating);
         if (!this.map) return;
         if (data?.longitude) {
           if (this.map.getSource('user')) {
@@ -102,6 +102,9 @@ class TripMapStore {
             );
           }
         }
+        if (!data.longitude && !data.navigating) {
+          this.map.getSource('user').setData(featureCollection([]));
+        }
         const legIndex = data?.legIndex === 0 ? 0 : data?.legIndex || -1;
         this.setActiveLeg(legIndex);
       };
@@ -109,17 +112,17 @@ class TripMapStore {
       socket.onclose = event => {
         if (event.wasClean) {
           console.log(
-            `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+            `{trip-map-store} socket closed cleanly, code=${event.code} reason=${event.reason}`
           );
         } else {
           // e.g. server process killed or network down
           // event.code is usually 1006 in this case
-          console.log('[close] Connection died');
+          console.log('{trip-map-store} socket died');
         }
       };
 
       socket.onerror = function (error) {
-        console.log(`[error]`, error);
+        console.log(`{trip-map-store}`, error);
       };
     },
 

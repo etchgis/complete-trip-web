@@ -1,41 +1,49 @@
 import {
   Box,
   Heading,
+  Icon,
   IconButton,
   Table,
   Tbody,
   Td,
   Tr,
+  useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
 
 import { ChevronRightIcon } from '@chakra-ui/icons';
+import { RxDotFilled } from 'react-icons/rx';
 import { TripPlanStandaloneModal } from '../VerticalTripPlan/TripPlanStandaloneModal';
 import formatters from '../../utils/formatters';
+import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
-export const DependentsTripsTable = ({
-  dependents,
-  trips,
-  hideTitle,
-  limit,
-}) => {
+export const DependentsTripsTable = observer(({ hideTitle, limit }) => {
+  const { colorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { dependentTrips } = useStore().schedule;
+  const { isLoading } = useStore().uiStore;
   const { dependentTracker, resetMap } = useStore().tripMapStore;
   const [selectedTrip, setSelectedTrip] = useState({});
-  console.log(trips);
-  /*
-  10 days of trips
-  total duration of trip
-  date - time range - name - destination
-  */
+  const allTrips = toJS(dependentTrips);
+
+  const trips = [];
+  const tripCount = {};
+
+  allTrips.forEach(trip => {
+    if (!tripCount[trip.dependent]) tripCount[trip.dependent] = 0;
+    if (tripCount[trip.dependent] < limit || !limit) {
+      trips.push(trip);
+      tripCount[trip.dependent] += 1;
+    }
+  });
 
   const openVerticalTripPlan = trip => {
-    dependentTracker.start(trip.dependent);
+    dependentTracker.start(trip.dependent?.dependent);
     setSelectedTrip(trip);
-    console.log(toJS(trip));
+    console.log({ trip });
     onOpen();
   };
 
@@ -55,12 +63,13 @@ export const DependentsTripsTable = ({
             Upcoming Dependent Trips
           </Heading>
         )}
+        {!isLoading && !trips.length && <p>No trips found.</p>}
         {!trips.length ? (
-          'No upcoming trips.'
+          ''
         ) : (
           <Box
-            border="solid thin lightgray"
-            borderColor={limit ? 'lightgray' : 'transparent'}
+            border={limit ? 'solid thin lightgray' : 'none'}
+            borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
           >
             <Table
               size="md"
@@ -73,35 +82,32 @@ export const DependentsTripsTable = ({
                     ''
                   ) : (
                     <Tr key={i.toString()}>
-                      <Td>
+                      <Td fontWeight={'bold'} textTransform={'uppercase'}>
                         {formatters.datetime
                           .asMD(new Date(trip?.plan?.startTime))
                           .join(' ')}
                       </Td>
                       <Td>{trip?.destination}</Td>
                       <Td>
-                        {formatters.datetime.asHHMMA(
-                          new Date(trip?.plan?.startTime)
-                        )}{' '}
-                        -{' '}
-                        {formatters.datetime.asHHMMA(
-                          new Date(trip?.plan?.endTime)
-                        )}
+                        <Box
+                          fontSize={'xs'}
+                          display={'flex'}
+                          flexDir={'row'}
+                          alignItems={'center'}
+                        >
+                          {formatters.datetime.asHHMMA(
+                            new Date(trip?.plan?.startTime)
+                          )}{' '}
+                          -{' '}
+                          {formatters.datetime.asHHMMA(
+                            new Date(trip?.plan?.endTime)
+                          )}
+                          <Icon as={RxDotFilled} fontSize={'lg'} />
+                          {formatters.datetime.asDuration(trip?.plan?.duration)}
+                        </Box>
                       </Td>
                       <Td>
-                        {!dependents ? (
-                          ''
-                        ) : (
-                          <>
-                            {dependents.find(
-                              d => d.dependent === trip.dependent
-                            )?.firstName +
-                              ' ' +
-                              dependents.find(
-                                d => d.dependent === trip.dependent
-                              )?.lastName || ''}
-                          </>
-                        )}
+                        {trip.dependent?.firstName} {trip.dependent?.lastName}
                       </Td>
                       <Td>
                         <IconButton
@@ -127,4 +133,4 @@ export const DependentsTripsTable = ({
       />
     </>
   );
-};
+});
