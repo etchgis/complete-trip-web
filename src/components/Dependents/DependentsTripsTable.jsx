@@ -40,6 +40,10 @@ export const DependentsTripsTable = observer(({ hideTitle, limit }) => {
     }
   });
 
+  trips.sort((a, b) => {
+    return new Date(a.plan.startTime) - new Date(b.plan.startTime);
+  });
+
   const openVerticalTripPlan = trip => {
     dependentTracker.start(trip.dependent?.dependent);
     setSelectedTrip(trip);

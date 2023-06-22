@@ -77,7 +77,7 @@ export const DependentsList = observer(() => {
         border="solid thin lightgray"
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
       >
-        <Accordion allowMultiple>
+        <Accordion allowToggle>
           {dependents.map((d, i) => (
             <AccordionItem
               key={i.toString()}
