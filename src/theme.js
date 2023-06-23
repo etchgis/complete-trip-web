@@ -28,6 +28,30 @@ const customTheme = {
     // brand: {
     //   primary: '#2465B1',
     // },
+    //TODO remove 'brand' color and replace with colorScheme 'brand' - light mode is 500, dark is 200
+    //TODO make the error, warning, success, highlight color schemes
+    //TODO get rid of all other custom colors so that all buttons, icons, etc will be updated with one theme
+    blue: {
+      50: '#e6f0ff',
+      100: '#b3d0ff',
+      200: '#80afff',
+      300: '#4d8fff',
+      400: '#1a6fff',
+      500: '#005bcc',
+      600: '#004490',
+      700: '#00316c',
+      800: '#00234a',
+      900: '#00152a',
+    },
+    theme: {
+      primary: '#005bcc',
+      light: '#0072ff',
+      dark: '#004490',
+      //NOTE BELOW NEED TO WORK IN LIGHT AND DARK MODE
+      warning: '#ffc107',
+      error: '#dc3545',
+      success: '#20c997',
+    },
     nfta: '#004490',
     nftaLight: 'hsl(213.33deg 100% 40%)',
     brand: '#2465B1',

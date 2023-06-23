@@ -83,8 +83,11 @@ const TimelineStep = ({ start, label, steps }) => {
                   fontSize="sm"
                   onClick={() => setShowDetails(!showDetails)}
                   textDecoration={'underline'}
-                  color="rgb(36, 101, 177)"
+                  color={
+                    colorMode === 'light' ? 'theme.primary' : 'theme.light'
+                  }
                   cursor={'pointer'}
+                  data-name="step-name"
                 >
                   {step.name}
                 </Text>
@@ -115,6 +118,7 @@ const TimelineStep = ({ start, label, steps }) => {
                     fontWeight="bold"
                     fontSize="sm"
                     opacity={!i || i === details.length - 1 ? 1 : 0.7}
+                    data-name="step-name"
                   >
                     {step.name}
                   </Text>
@@ -124,17 +128,29 @@ const TimelineStep = ({ start, label, steps }) => {
           </Box>
         ))}
         {showDetails ? (
-          <Text
-            fontWeight="bold"
-            fontSize="sm"
-            onClick={() => setShowDetails(!showDetails)}
-            textDecoration={'underline'}
-            color="rgb(36, 101, 177)"
-            cursor={'pointer'}
-            pl={'24px'}
-          >
-            Hide Details
-          </Text>
+          <>
+            <Box
+              display="flex"
+              alignItems="center"
+              pos={'absolute'}
+              bottom={0}
+              left={'3px'}
+              height={'40px'}
+              borderLeft="solid 4px #00205b"
+              borderColor={accentColor}
+            ></Box>
+            <Text
+              fontWeight="bold"
+              fontSize="sm"
+              onClick={() => setShowDetails(!showDetails)}
+              textDecoration={'underline'}
+              color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+              cursor={'pointer'}
+              pl={'24px'}
+            >
+              Hide Details
+            </Text>
+          </>
         ) : null}
       </VStack>
     </Box>
@@ -212,13 +228,11 @@ export const TripPlanSchedule = observer(
           </Box>
 
           <Flex alignItems={'center'} justifyContent={'center'}>
-            <Center
-              background={'rgba(255,255,255,0.5)'}
-              h={10}
-              w={10}
-              borderRadius="lg"
-            >
-              <Icon as={FaArrowRight} color={'nftaLight'} />
+            <Center h={10} w={10} borderRadius="lg">
+              <Icon
+                as={FaArrowRight}
+                color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+              />
             </Center>
           </Flex>
 
@@ -239,14 +253,14 @@ export const TripPlanSchedule = observer(
           </Box>
         </Grid>
 
-        <Text textAlign={'left'}>
+        <Text textAlign={'left'} data-name="to">
           To{' '}
           <strong>
             {request?.destination?.title} {request?.destination?.description}
           </strong>
         </Text>
 
-        <Flex alignItems={'center'} mx={0}>
+        <Flex alignItems={'center'} mx={0} data-name="transfers">
           <Text mr={1} fontSize={'sm'}>
             {formatters.datetime.asDuration(plan.duration)} (
             {formatters.distance.asMiles(
@@ -264,7 +278,12 @@ export const TripPlanSchedule = observer(
         </Flex>
 
         <Box pt={4} pb={0} mb={-2}>
-          <Divider borderColor="nftaLight" borderWidth={2} />
+          <Divider
+            borderColor={
+              colorMode === 'light' ? 'theme.primary' : 'theme.light'
+            }
+            borderWidth={2}
+          />
         </Box>
 
         <Box py={2}>
@@ -309,7 +328,7 @@ export const TripPlanSchedule = observer(
               const dur = formatters.datetime.asDuration(leg.duration);
               intermediateStopsLabel = `${lbl}, ${dur}`;
             }
-            const accentColor = mode.mode === 'walk' ? 'gray.500' : mode.color;
+            const accentColor = mode.mode === 'walk' ? 'gray.400' : mode.color;
             return (
               <VStack
                 pos={'relative'}
@@ -335,7 +354,13 @@ export const TripPlanSchedule = observer(
                         backgroundColor: accentColor,
                       })
                     : null}
-                  <Heading as="h3" size="md" m={0} fontWeight={'extrabold'}>
+                  <Heading
+                    as="h3"
+                    size="md"
+                    m={0}
+                    fontWeight={'extrabold'}
+                    data-name="route-or-title"
+                  >
                     {route || title}
                   </Heading>
                 </Flex>
@@ -348,20 +373,30 @@ export const TripPlanSchedule = observer(
                         pos={'absolute'}
                         left={'13px'}
                         top={'36px'}
-                        height={'60px'}
+                        height={'80px'}
                         borderLeft="solid 4px #00205b"
                         borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
                         borderColor={accentColor}
                       ></Box>
                       <Box ml={'36px'}>
-                        <Text fontWeight={'semibold'} fontSize={'xs'}>
+                        <Text
+                          fontWeight={'semibold'}
+                          fontSize={'xs'}
+                          data-name="headsign"
+                        >
                           To {headsign}
                         </Text>
                         <Text
                           fontWeight={'black'}
                           fontSize={'sm'}
                           textTransform={'uppercase'}
-                          color={'trip'}
+                          color={
+                            colorMode === 'light'
+                              ? 'theme.primary'
+                              : 'theme.light'
+                          }
+                          data-name="leg-to-name"
+                          textAlign={'left'}
                         >
                           {leg?.to?.name}
                         </Text>

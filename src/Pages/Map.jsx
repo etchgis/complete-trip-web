@@ -17,7 +17,7 @@ const Map = ({ showMap }) => {
       {/* SIDEBAR */}
       <TransitRoutes />
       {/* MAIN */}
-      <Flex flex="1" flexDir={'column'} id="map-and-schedule-button">
+      <Flex flex="1" flexDir={'column'} data-name="map-and-schedule-button">
         {/* HEADER */}
         <ScheduleTripHeader />
         {/* MAP */}
