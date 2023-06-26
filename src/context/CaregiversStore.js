@@ -42,10 +42,11 @@ class Caregivers {
     });
   };
 
-  setInviteCode = value => {
+  setInviteCode = async value => {
     try {
+      if (!value) throw new Error('missing invite code');
       const decrypted = decryptCode(value);
-      console.log('{caregivers-store}', decrypted);
+      console.log('{caregivers-store} - decrypted invite code', decrypted);
       if (!decrypted || !decrypted.caregiver)
         throw new Error('invalid invite code');
       runInAction(() => {
@@ -61,6 +62,23 @@ class Caregivers {
         this.inviteCode = null;
         this.stagedDependent = clearJSON(this.stagedDependent);
       });
+    }
+  };
+
+  validInvitedCaregiver = async userEmail => {
+    try {
+      const token = await this.rootStore.authentication.fetchToken();
+      const result = await travelerAPI.caregivers.get.byId(
+        this.inviteCode,
+        token
+      );
+      console.log('{caregivers-store} - caregiver', result, userEmail);
+      if (!result?.email) throw new Error('Caregiver not found!');
+      if (result.email !== userEmail) throw new Error('Invalid caregiver!');
+      return Promise.resolve(true);
+    } catch (error) {
+      console.log('{caregivers-store} error', error);
+      return Promise.resolve(false);
     }
   };
 
