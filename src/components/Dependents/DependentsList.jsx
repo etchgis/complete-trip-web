@@ -66,8 +66,6 @@ export const DependentsList = observer(() => {
     }
   };
 
-  const trips = toJS(dependentTrips);
-
   return (
     <Box>
       <Heading as="h2" size="md">
@@ -134,10 +132,7 @@ export const DependentsList = observer(() => {
                     maxH="300px"
                     overflow={'auto'}
                   >
-                    <DependentsTripsTable
-                      trips={trips.filter(t => t.dependent === d.dependent)}
-                      hideTitle={true}
-                    />
+                    <DependentsTripsTable dependent={d.id} hideTitle={true} />
                   </AccordionPanel>
                 </>
               )}
