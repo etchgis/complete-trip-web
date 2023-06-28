@@ -9,7 +9,7 @@ export const Dependents = () => {
   const { setIsLoading } = useStore().uiStore;
   const { hydrateDependentTrips } = useStore().schedule;
 
-  //NOTE hydrate the trips in this component so we dont have to in the child components
+  //NOTE hydrate the caregivers and trips on each page load
   useEffect(() => {
     //GET DEPENDENTS
     (async () => {
@@ -32,8 +32,8 @@ export const Dependents = () => {
       gridTemplateRows={'repeat(auto-fill, minmax(50%, 1fr))'}
       gridGap={{ base: '40px', md: '20px' }}
     >
-      <DependentsTripsTable limit={5} />
-      <DependentsList limit={null} />
+      <DependentsTripsTable limit={3} />
+      <DependentsList />
     </Grid>
   );
 };

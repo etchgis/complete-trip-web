@@ -27,7 +27,6 @@ import { FaCalendarAlt, FaTrashAlt } from 'react-icons/fa';
 
 import { DependentsTripsTable } from './DependentsTripsTable';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const DependentsList = observer(() => {
@@ -37,7 +36,7 @@ export const DependentsList = observer(() => {
     dependents,
     update: updateDepdentStatus,
   } = useStore().caregivers;
-  const { dependentTrips, hydrateDependentTrips } = useStore().schedule;
+  const { hydrateDependentTrips } = useStore().schedule;
   const { setToastMessage, setToastStatus } = useStore().uiStore;
 
   const removeDependentHandler = async id => {

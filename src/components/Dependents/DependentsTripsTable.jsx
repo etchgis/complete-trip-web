@@ -34,13 +34,16 @@ export const DependentsTripsTable = observer(
     const tripCount = {};
 
     allTrips.forEach(trip => {
-      if (!tripCount[trip.dependent]) tripCount[trip.dependent] = 0;
-      if (tripCount[trip.dependent] < limit || !limit) {
+      console.log({ trip });
+      if (!tripCount[trip.dependent.dependent])
+        tripCount[trip.dependent.dependent] = 0;
+      if (tripCount[trip.dependent.dependent] < limit || !limit) {
         stagedTrips.push(trip);
         // console.log({ trip });
-        tripCount[trip.dependent] += 1;
+        tripCount[trip.dependent.dependent] += 1;
       }
     });
+    console.log(tripCount);
 
     const trips = dependent
       ? stagedTrips.filter(t => t.dependent.id === dependent)

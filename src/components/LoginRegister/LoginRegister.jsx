@@ -462,8 +462,8 @@ const CreateAccountOrLogin = ({
           <Center p={6}>
             <Text color={'gray.500'}>
               {showLogin
-                ? 'Already have an account?'
-                : "Don't have an account?"}
+                ? "Don't have an account?"
+                : 'Already have an account?'}
             </Text>
             <Button
               color={colorMode === 'light' ? 'brandDark' : 'white'}
