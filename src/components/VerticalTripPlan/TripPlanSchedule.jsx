@@ -383,6 +383,7 @@ export const TripPlanSchedule = observer(
                           fontWeight={'semibold'}
                           fontSize={'xs'}
                           data-name="headsign"
+                          textAlign={'left'}
                         >
                           To {headsign}
                         </Text>

@@ -21,7 +21,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AddCaregiver } from '../components/Settings/AddCaregiver';
 import { CaregiversList } from '../components/Settings/CaregiversList';
 import { Dependents } from '../components/Dependents/Dependents';
-import { DependentsDetail } from '../components/Dependents/DependentsDetail';
 import { EditAccessibility } from '../components/Settings/EditAccessibility';
 import { EditNotifications } from '../components/Settings/EditNotifications';
 import { EditPassword } from '../components/Settings/EditPassword';
@@ -239,8 +238,6 @@ function switchViews({ view, setActivePanel }) {
       return <FavoritesList />;
     case 'dependents':
       return <Dependents />;
-    case 'dependents-detail':
-      return <DependentsDetail />;
     default:
       return (
         <ProfileInformation

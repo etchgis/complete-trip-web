@@ -97,12 +97,6 @@ export const Routes = observer(() => {
             element={<Layout children={<Settings view="dependents" />} />}
           />
           <Route
-            path="/settings/dependents/:id"
-            element={
-              <Layout children={<Settings view="dependents-detail" />} />
-            }
-          />
-          <Route
             path="/settings/favorites"
             element={<Layout children={<Settings view="favorites" />} />}
           />
