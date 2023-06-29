@@ -147,6 +147,7 @@ export const DependentsTripsTable = observer(
           isOpen={isOpen}
           onClose={backClickHandler}
           backClickHandler={backClickHandler}
+          title={`Tracking ${selectedTrip?.dependent?.firstName} ${selectedTrip?.dependent?.lastName}'s Trip`}
         />
       </>
     );

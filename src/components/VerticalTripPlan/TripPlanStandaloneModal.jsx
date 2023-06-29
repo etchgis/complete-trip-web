@@ -14,6 +14,7 @@ import { VerticalTripPlan } from './VerticalTripPlan';
 export const TripPlanStandaloneModal = ({
   plan,
   request,
+  title,
   backClickHandler,
   cancelClickHandler,
   isOpen,
@@ -31,7 +32,7 @@ export const TripPlanStandaloneModal = ({
       <ModalOverlay />
       <ModalContent textAlign={'center'} pt={0}>
         <ModalHeader>
-          Trip Plan Overview
+          {title || 'Trip Plan Overview'}
           <ModalCloseButton p={6} />
         </ModalHeader>
         <ModalBody
