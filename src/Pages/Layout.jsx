@@ -25,7 +25,7 @@ const Layout = observer(({ showMap, children }) => {
     useStore().authentication;
 
   const { isLoading } = useStore().uiStore;
-  const { trips } = useStore().schedule;
+  // const { trips } = useStore().schedule;
 
   // const _trips = toJS(trips);
   // console.log({ _trips });
@@ -78,11 +78,9 @@ const Layout = observer(({ showMap, children }) => {
   useEffect(() => {
     if (loggedIn && inviteCode) {
       navigate('/caregiver?invited=true');
-    } else if (loggedIn && user?.profile?.onboarded && trips.length) {
-      navigate('/home');
     }
     // eslint-disable-next-line
-  }, [loggedIn, trips]);
+  }, [loggedIn]);
 
   return (
     <Flex

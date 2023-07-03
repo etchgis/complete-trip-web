@@ -42,10 +42,11 @@ class Caregivers {
     });
   };
 
-  setInviteCode = value => {
+  setInviteCode = async value => {
     try {
+      if (!value) throw new Error('missing invite code');
       const decrypted = decryptCode(value);
-      console.log('{caregivers-store}', decrypted);
+      console.log('{caregivers-store} - decrypted invite code', decrypted);
       if (!decrypted || !decrypted.caregiver)
         throw new Error('invalid invite code');
       runInAction(() => {
@@ -64,6 +65,23 @@ class Caregivers {
     }
   };
 
+  validInvitedCaregiver = async userEmail => {
+    try {
+      const token = await this.rootStore.authentication.fetchToken();
+      const result = await travelerAPI.caregivers.get.byId(
+        this.inviteCode,
+        token
+      );
+      console.log('{caregivers-store} - caregiver', result, userEmail);
+      if (!result?.email) throw new Error('Caregiver not found!');
+      if (result.email !== userEmail) throw new Error('Invalid caregiver!');
+      return Promise.resolve(true);
+    } catch (error) {
+      console.log('{caregivers-store} error', error);
+      return Promise.resolve(false);
+    }
+  };
+
   setStagedCaregiver = update => {
     runInAction(() => {
       this.stagedCaregiver = { ...this.stagedCaregiver, ...update };
@@ -76,6 +94,7 @@ class Caregivers {
       const token = await this.rootStore.authentication.fetchToken();
       const caregivers = await travelerAPI.caregivers.get.all(token);
       const dependents = await travelerAPI.dependents.get.all(token);
+      // console.log('{caregivers-store} de', dependents);
       if (!caregivers?.member || !dependents?.member)
         reject({
           message: 'An unknown error occurred.',

@@ -21,7 +21,7 @@ import { useStore } from '../../context/RootStore';
 mapboxgl.accessToken = config.MAP.MAPBOX_TOKEN;
 
 export const MapComponent = observer(({ showMap }) => {
-  console.log('[map-view] rendering');
+  // console.log('[map-view] rendering');
   const { pathname } = useLocation();
   const {
     setMapX,

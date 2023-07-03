@@ -1,11 +1,11 @@
-import { Button, Icon, Stack, useDisclosure } from "@chakra-ui/react";
+import { Button, Flex, Icon, Stack, useDisclosure } from '@chakra-ui/react';
 
-import { ChevronRightIcon } from "@chakra-ui/icons";
-import ScheduleTripModal from "../ScheduleTripModal";
-import { observer } from "mobx-react-lite"
-import { useColorMode } from "@chakra-ui/color-mode";
-import { useState } from "react";
-import { useStore } from "../../context/RootStore";
+import { ChevronRightIcon } from '@chakra-ui/icons';
+import ScheduleTripModal from '../ScheduleTripModal';
+import { observer } from 'mobx-react-lite';
+import { useColorMode } from '@chakra-ui/color-mode';
+import { useState } from 'react';
+import { useStore } from '../../context/RootStore';
 
 export const ScheduleTripHeader = observer(() => {
   const { trips: favoriteTrips } = useStore().favorites;
@@ -19,12 +19,12 @@ export const ScheduleTripHeader = observer(() => {
   return (
     <>
       {/* HEADER */}
-      <Stack
-        direction={{ base: 'column', md: 'row' }}
-        spacing={6}
-        p={6}
+      <Flex
+        spacing={4}
+        p={4}
         borderBottom={'1px'}
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        flexWrap={'wrap'}
       >
         {favoriteTrips.map(trip => (
           <FavoriteTripButton
@@ -43,28 +43,30 @@ export const ScheduleTripHeader = observer(() => {
           onClick={openModal}
           width={'180px'}
           height={'80px'}
+          m={2}
         >
           Schedule a Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
         </Button>
-      </Stack >
+      </Flex>
 
       {/* TRIP SCHEDULER */}
-      < ScheduleTripModal
+      <ScheduleTripModal
         favoriteTrip={tripPlan}
         isOpen={isModalOpen}
         onClose={() => {
           setTripPlan({});
           closeModal();
         }}
-      ></ScheduleTripModal >
+      ></ScheduleTripModal>
     </>
-  )
+  );
 });
 
 const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
   const { colorMode } = useColorMode();
   return (
     <Button
+      data-name="fav-trip-button"
       _hover={{
         opacity: 0.8,
       }}
@@ -78,6 +80,7 @@ const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
       backgroundColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}
       border="1px"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
+      m={2}
     >
       {trimText(favorite.alias)}
       <Icon as={ChevronRightIcon} ml={2} boxSize={6} />

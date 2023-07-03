@@ -84,7 +84,7 @@ export const EditTripPreferences = observer(() => {
 
   const group = getRootProps();
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} maxW={{ base: '100%', md: 'md' }}>
       <HStack alignItems={'center'} justifyContent="space-between">
         <Box fontWeight={'bold'}>Minimize Walking</Box>
         <Switch

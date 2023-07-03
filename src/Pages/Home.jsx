@@ -15,7 +15,8 @@ import Calendar from '../components/TripCalendar';
 import CustomModal from '../components/Modal';
 import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TripCardList from '../components/TripCardList';
-import VerticalTripPlan from '../components/ScheduleTripModal/VerticalTripPlan';
+import { TripPlanStandaloneModal } from '../components/VerticalTripPlan/TripPlanStandaloneModal';
+import VerticalTripPlan from '../components/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
 // import overviewMap from '../assets/overview-map.png';
 // import { useNavigate } from 'react-router-dom';
@@ -39,9 +40,13 @@ const Home = observer(() => {
     onClose: closeVTModal,
   } = useDisclosure();
   const { colorMode } = useColorMode();
+  const { cancel } = useStore().schedule;
   const [selectedTrip, setSelectedTrip] = useState({});
-  // const [tripPlan, setTripPlan] = useState({});
-  // const navigate = useNavigate();
+
+  const cancelTrip = async id => {
+    await cancel(id);
+    close();
+  };
 
   return (
     <Flex flexDir={'column'}>
@@ -94,70 +99,83 @@ const Home = observer(() => {
       ></ScheduleTripModal> */}
 
       {/* VERTICAL TRIP PLAN */}
-      <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal} size="full">
+      <TripPlanStandaloneModal
+        request={selectedTrip?.plan?.request}
+        plan={selectedTrip?.plan}
+        isOpen={isVTModalOpen}
+        onClose={closeVTModal}
+        backClickHandler={() => {
+          closeVTModal();
+        }}
+        cancelClickHandler={async () => {
+          await cancelTrip(selectedTrip?.id);
+          closeVTModal();
+        }}
+      />
+      {/* <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal} size="full">
         <VerticalTripPlanModal
           title={selectedTrip?.request?.alias}
           descritption={selectedTrip.description}
           selectedTrip={selectedTrip}
           close={closeVTModal}
         />
-      </CustomModal>
+      </CustomModal> */}
     </Flex>
   );
 });
 
 export default Home;
 
-export const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
-  const { cancel } = useStore().schedule;
-  const { colorMode } = useColorMode();
-  // console.log(toJS(selectedTrip));
+// export const VerticalTripPlanModal = observer(({ selectedTrip, close }) => {
+//   const { cancel } = useStore().schedule;
+//   const { colorMode } = useColorMode();
+//   // console.log(toJS(selectedTrip));
 
-  const cancelTrip = async id => {
-    await cancel(id);
-    close();
-  };
+//   const cancelTrip = async id => {
+//     await cancel(id);
+//     close();
+//   };
 
-  return (
-    <Card
-      size={{ base: 'lg', lg: 'lg' }}
-      borderRadius={'none'}
-      background={colorMode === 'light' ? 'white' : 'gray.800'}
-      boxShadow={'none'}
-      maxW="800px"
-      margin="20px auto"
-    >
-      <CardHeader pb={2}>{''}</CardHeader>
-      <CardBody fontWeight={'bold'} py={2}>
-        <VerticalTripPlan
-          request={selectedTrip.plan.request}
-          plan={selectedTrip.plan}
-        />
-      </CardBody>
-      <CardFooter>
-        <Stack
-          display="flex"
-          flexDir={'column'}
-          gap={4}
-          w="100%"
-          maxW={'400px'}
-          margin="0 auto"
-        >
-          <Button w="100%" onClick={close} alignSelf="center">
-            Close
-          </Button>
-          <Button
-            w="100%"
-            onClick={() => {
-              cancelTrip(selectedTrip.id);
-            }}
-            colorScheme="red"
-            alignSelf={'center'}
-          >
-            Cancel Scheduled Trip
-          </Button>
-        </Stack>
-      </CardFooter>
-    </Card>
-  );
-});
+//   return (
+//     <Card
+//       size={{ base: 'lg', lg: 'lg' }}
+//       borderRadius={'none'}
+//       background={colorMode === 'light' ? 'white' : 'gray.800'}
+//       boxShadow={'none'}
+//       maxW="800px"
+//       margin="20px auto"
+//     >
+//       <CardHeader pb={2}>{''}</CardHeader>
+//       <CardBody fontWeight={'bold'} py={2}>
+//         <VerticalTripPlan
+//           tripRquest={selectedTrip.plan.request}
+//           tripPlan={selectedTrip.plan}
+//         />
+//       </CardBody>
+//       <CardFooter>
+//         <Stack
+//           display="flex"
+//           flexDir={'column'}
+//           gap={4}
+//           w="100%"
+//           maxW={'400px'}
+//           margin="0 auto"
+//         >
+//           <Button w="100%" onClick={close} alignSelf="center">
+//             Close
+//           </Button>
+//           <Button
+//             w="100%"
+//             onClick={() => {
+//               cancelTrip(selectedTrip.id);
+//             }}
+//             colorScheme="red"
+//             alignSelf={'center'}
+//           >
+//             Cancel Scheduled Trip
+//           </Button>
+//         </Stack>
+//       </CardFooter>
+//     </Card>
+//   );
+// });

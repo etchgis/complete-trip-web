@@ -21,13 +21,19 @@ const CargiverLink = observer(() => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { reset, inviteCode, setInviteCode, stagedDependent, update } =
-    useStore().caregivers;
-  const { loggedIn, inTransaction } = useStore().authentication;
+  const {
+    reset,
+    inviteCode,
+    setInviteCode,
+    stagedDependent,
+    update,
+    validInvitedCaregiver,
+  } = useStore().caregivers;
+  const { user, loggedIn, inTransaction } = useStore().authentication;
   const { isLoading, setToastMessage, setToastStatus } = useStore().uiStore;
 
   useEffect(() => {
-    console.log('render', searchParams.get('code'), inviteCode);
+    // console.log('render', searchParams.get('code'), inviteCode);
 
     // REDIRECT IF THERE IS NO CODE OR STAGED CODE
     if (!searchParams.get('code') && !inviteCode) navigate('/');
@@ -57,9 +63,13 @@ const CargiverLink = observer(() => {
   const updateHandler = async status => {
     console.log(`[caregiver] ${status}`);
     console.log(inviteCode);
+
     try {
-      const result = await update(inviteCode, status);
-      console.log({ result });
+      const validCaregiver = await validInvitedCaregiver(user?.email);
+      if (!validCaregiver) throw new Error('invalid');
+
+      const updatedCaregiver = await update(inviteCode, status);
+      console.log({ updatedCaregiver });
       if (status === 'approved' || status === 'denied') {
         if (status === 'approved') setToastStatus('Success');
         if (status === 'denied') setToastStatus('Info');
@@ -70,7 +80,14 @@ const CargiverLink = observer(() => {
       }
     } catch (error) {
       console.log({ error });
-      setToastMessage('An error occurred with the request.'); //TODO what to do here?
+      setToastStatus('Error');
+      if (error?.message === 'invalid') {
+        setInviteCode(null);
+        setToastMessage('Invalid caregiver.');
+        navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
+      } else {
+        setToastMessage('An error occurred with the request.');
+      }
     }
   };
 

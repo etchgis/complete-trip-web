@@ -6,7 +6,6 @@ import { makeAutoObservable, runInAction, toJS } from 'mobx';
 import { authentication } from '../services/transport';
 import config from '../config';
 import jwtDecode from 'jwt-decode';
-import moment from 'moment';
 
 const validateJWT = token => {
   try {
@@ -42,10 +41,10 @@ class Authentication {
     if (
       !Array.from(PersistStoreMap.values())
         .map(item => item.storageName)
-        .includes('Authentication')
+        .includes(`Authentication`)
     ) {
       makePersistable(this, {
-        name: 'Authentication',
+        name: `Authentication`,
         properties: ['user'],
         storage: localStorage,
       });
@@ -201,10 +200,7 @@ class Authentication {
         this.rootStore.preferences.hydrate(profile);
         this.rootStore.favorites.hydrate(profile);
         this.rootStore.caregivers.hydrate();
-        this.rootStore.schedule.getRange(
-          moment().hour(0).valueOf(),
-          moment().add(1, 'month').valueOf()
-        );
+        this.rootStore.schedule.hydrate();
         resolve();
       });
     });

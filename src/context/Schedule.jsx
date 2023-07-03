@@ -3,6 +3,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
 import config from '../config';
+import { isEqual } from 'lodash';
 import moment from 'moment';
 import trips from '../services/transport/trips';
 
@@ -10,6 +11,7 @@ import trips from '../services/transport/trips';
 
 class Schedule {
   trips = [];
+  dependentTrips = [];
   selectedTrip = null;
   error = null;
 
@@ -29,6 +31,63 @@ class Schedule {
     //   });
     // }
   }
+
+  hydrate = async () => {
+    return await this.getRange(
+      moment().hour(0).valueOf(),
+      moment().add(1, 'month').valueOf()
+    );
+  };
+
+  hydrateDependentTrips = async () => {
+    const dependents = this.rootStore.caregivers.dependents.filter(
+      d => d.status === 'approved'
+    );
+    console.log('{schedule-store}', dependents);
+    if (!dependents.length) {
+      runInAction(() => {
+        this.dependentTrips = [];
+      });
+      return Promise.resolve();
+    }
+    try {
+      runInAction(() => {
+        this.rootStore.uiStore.setIsLoading(true);
+      });
+      const _trips = [];
+      await Promise.all(
+        dependents.map(async d => {
+          const trips = await this.getDependentSchedule(
+            d.dependent,
+            // moment().subtract(2, 'months').valueOf(),
+            // moment().add(1, 'month').valueOf()
+            moment().hour(0).valueOf(),
+            moment().add(10, 'days').valueOf()
+          );
+          runInAction(() => {
+            _trips.push(
+              ...trips.map(trip => ({
+                ...trip,
+                dependent: d,
+                origin: trip?.plan?.request?.origin?.title,
+                destination: trip?.plan?.request?.destination?.title,
+              }))
+            );
+          });
+        })
+      );
+      const equals = isEqual(_trips, this.dependentTrips);
+      console.log('{schedule-store} dependent trips have changed', !equals);
+      runInAction(() => {
+        if (!equals) this.dependentTrips = _trips;
+        this.rootStore.uiStore.setIsLoading(false);
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.rootStore.uiStore.setIsLoading(false);
+      });
+    }
+  };
 
   selectTrip = trip => {
     runInAction(() => {
@@ -187,6 +246,30 @@ class Schedule {
         });
     });
   };
+
+  getDependentSchedule(dependentId, from, to) {
+    return new Promise(async (resolve, reject) => {
+      const token = await this.rootStore.authentication.fetchToken();
+      trips
+        .getDependentsRange(dependentId, from, to, token)
+        .then(result => {
+          this.error = null;
+          const dependentTrips = result?.member || [];
+          if (dependentTrips.length > 0) {
+            dependentTrips.sort(
+              (a, b) => a.plan?.startTime - b.plan?.startTime
+            );
+          }
+          resolve(dependentTrips);
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.error = e;
+          });
+          reject(e);
+        });
+    });
+  }
 
   updateTripRequest = (id, request) => {
     return new Promise(async (resolve, reject) => {

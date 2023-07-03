@@ -81,6 +81,7 @@ export const EditPassword = () => {
 
   return (
     <Box
+      maxW={{ base: '100%', md: 'md' }}
       as="form"
       onSubmit={async e => {
         e.preventDefault();

@@ -20,7 +20,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AddCaregiver } from '../components/Settings/AddCaregiver';
 import { CaregiversList } from '../components/Settings/CaregiversList';
-import { DependentsList } from '../components/Settings/DependentsList';
+import { Dependents } from '../components/Dependents/Dependents';
 import { EditAccessibility } from '../components/Settings/EditAccessibility';
 import { EditNotifications } from '../components/Settings/EditNotifications';
 import { EditPassword } from '../components/Settings/EditPassword';
@@ -45,7 +45,7 @@ const Settings = observer(({ view }) => {
     if (!isOpen) setActivePanel(null);
   }, [isOpen]);
 
-  const views = [
+  const links = [
     {
       title: 'Profile Information',
       path: 'profile',
@@ -58,6 +58,13 @@ const Settings = observer(({ view }) => {
       type: 'account',
       action: () => navigate('/settings/caregivers'),
     },
+    // {
+    //   title: 'Dependents',
+    //   path: 'dependents',
+    //   type: 'account',
+    //   hide: !dependents.length,
+    //   action: () => navigate('/settings/dependents'),
+    // },
     {
       title: 'Dependents',
       path: 'dependents',
@@ -150,7 +157,7 @@ const Settings = observer(({ view }) => {
             <Heading as="h2" size="sm" pt={8} px={8} ml={1}>
               ACCOUNT
             </Heading>
-            {views.map((l, i) => {
+            {links.map((l, i) => {
               l['id'] = i;
               if (l.type === 'account' && !l?.hide) {
                 return <LinkButton item={l} key={i.toString()} />;
@@ -161,7 +168,7 @@ const Settings = observer(({ view }) => {
             <Heading as="h2" size="sm" px={8} ml={2}>
               SETTINGS
             </Heading>
-            {views.map((l, i) => {
+            {links.map((l, i) => {
               l['id'] = i;
               if (l.type === 'setting') {
                 return <LinkButton item={l} key={i.toString()} />;
@@ -177,7 +184,7 @@ const Settings = observer(({ view }) => {
         <Box
           id="rightSettingsPanel"
           p={{ base: 10, md: 10 }}
-          maxW={{ base: '100%', md: '600px' }}
+          maxW={{ base: '100%', md: '600px', lg: '1000px' }}
         >
           {switchViews({ view, caregivers, setActivePanel, setCaretakerId })}
         </Box>
@@ -199,7 +206,7 @@ const Settings = observer(({ view }) => {
 export default Settings;
 
 function switchViews({ view, setActivePanel }) {
-  if (view) console.log('[settings]', view);
+  // if (view) console.log('[settings]', view, 'view');
   switch (view) {
     case 'caregivers':
       return (
@@ -230,7 +237,7 @@ function switchViews({ view, setActivePanel }) {
     case 'favorites':
       return <FavoritesList />;
     case 'dependents':
-      return <DependentsList />;
+      return <Dependents />;
     default:
       return (
         <ProfileInformation

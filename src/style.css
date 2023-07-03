@@ -7,20 +7,18 @@
 } */
 
 .etch-calendar button[data-selected] {
-  background-color: #2465B1;
+  background-color: #2465b1;
 }
 
-
 .etch-calendar table {
-  width: 100%
+  width: 100%;
 }
 
 sub {
-  bottom: 0 !important
+  bottom: 0 !important;
 }
 
 @media screen and (min-width: 1200px) {
-
   .etch-calendar h5 {
     font-size: 2rem;
   }
@@ -45,15 +43,19 @@ sub {
 }
 
 .chakra-ui-dark .mapboxgl-popup-content {
-  background-color: #1A202C;
+  background-color: #1a202c;
 }
 
 .chakra-ui-dark .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
-  border-top-color: #1A202C;
+  border-top-color: #1a202c;
 }
 
 .mapboxgl-user-location-dot.current-stop,
 .mapboxgl-user-location-dot.current-stop,
 .mapboxgl-user-location-dot.current-stop:before {
   background-color: #212121;
+}
+
+.chakra-table.dependent-trip-list-table td {
+  padding: 0.5rem 1rem;
 }
