@@ -4,6 +4,7 @@
 .gitmodules
 mobility-transport-layer
 cypress-dev
+videos
 
 # dependencies
 /node_modules
