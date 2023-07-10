@@ -128,6 +128,7 @@ class TripMapStore {
 
     stop: () => {
       runInAction(() => {
+        if (!this.socket) return;
         this.socket.close();
         this.socket = null;
       });

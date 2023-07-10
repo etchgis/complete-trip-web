@@ -144,6 +144,7 @@ export const DependentsTripsTable = observer(
         <TripPlanStandaloneModal
           plan={selectedTrip?.plan}
           request={selectedTrip?.plan?.request}
+          rider={selectedTrip?.rider}
           isOpen={isOpen}
           onClose={backClickHandler}
           backClickHandler={backClickHandler}

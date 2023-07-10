@@ -1,12 +1,14 @@
+import { useColorMode, useToast } from '@chakra-ui/react';
+
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
-import { useToast } from '@chakra-ui/react';
 
 export const ErrorToastMessage = observer(({ message }) => {
   const { errorToastMessage, setErrorToastMessage } = useStore().authentication;
   const { toastMessage, toastStatus, setToastMessage, setToastStatus } =
     useStore().uiStore;
+  const { colorMode } = useColorMode();
 
   const toast = useToast();
 
@@ -21,7 +23,7 @@ export const ErrorToastMessage = observer(({ message }) => {
       duration: 3000,
       isClosable: true,
       position: 'top-right',
-      variant: 'top-accent',
+      variant: colorMode === 'light' ? 'top-accent' : 'solid',
     });
     setTimeout(() => {
       setErrorToastMessage(null);

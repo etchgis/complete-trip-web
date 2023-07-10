@@ -11,7 +11,6 @@ import {
   Stack,
   Text,
   VStack,
-  useToast,
 } from '@chakra-ui/react';
 import {
   CheckCircleIcon,
@@ -33,29 +32,22 @@ const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 export const EditPassword = () => {
   // const { colorMode } = useColorMode();
   const { updateUserPassword } = useStore().authentication;
+  const { setToastMessage, setToastStatus } = useStore().uiStore;
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const passwordRef = useRef();
   const newPasswordTestRef = useRef();
   const [success, showSuccess] = useState(false);
-  const toast = useToast();
 
   useEffect(() => {
     if (!success) return;
-    toast({
-      title: 'Success',
-      description: success,
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-      position: 'top-right',
-      variant: 'top-accent',
-    });
+    setToastMessage(success);
+    setToastStatus('Success');
     setTimeout(() => {
       showSuccess(null);
     }, 4000);
-  }, [success, toast]);
+  }, [success]);
 
   useEffect(() => {
     newPasswordTestRef.current.setCustomValidity('');

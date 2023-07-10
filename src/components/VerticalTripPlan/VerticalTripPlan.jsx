@@ -9,6 +9,7 @@ export const VerticalTripPlan = observer(
   ({
     tripPlan,
     tripRequest,
+    rider,
     scheduleTripHandler,
     backClickHandler,
     cancelClickHandler,
@@ -40,7 +41,11 @@ export const VerticalTripPlan = observer(
             py={2}
             id="vertical-trip-plan-schedule-container"
           >
-            <TripPlanSchedule tripPlan={tripPlan} tripRequest={tripRequest} />
+            <TripPlanSchedule
+              tripPlan={tripPlan}
+              tripRequest={tripRequest}
+              rider={rider}
+            />
           </Box>
           <TripPlanScheduleButtons
             scheduleTripHandler={scheduleTripHandler}

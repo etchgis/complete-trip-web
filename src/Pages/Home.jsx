@@ -1,22 +1,11 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Flex,
-  Grid,
-  Stack,
-  useColorMode,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
 
 import Calendar from '../components/TripCalendar';
-import CustomModal from '../components/Modal';
+// import CustomModal from '../components/Modal';
 import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TripCardList from '../components/TripCardList';
 import { TripPlanStandaloneModal } from '../components/VerticalTripPlan/TripPlanStandaloneModal';
-import VerticalTripPlan from '../components/VerticalTripPlan';
+// import VerticalTripPlan from '../components/VerticalTripPlan';
 import { observer } from 'mobx-react-lite';
 // import overviewMap from '../assets/overview-map.png';
 // import { useNavigate } from 'react-router-dom';

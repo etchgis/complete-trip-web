@@ -14,6 +14,7 @@ import { VerticalTripPlan } from './VerticalTripPlan';
 export const TripPlanStandaloneModal = ({
   plan,
   request,
+  rider,
   title,
   backClickHandler,
   cancelClickHandler,
@@ -47,6 +48,7 @@ export const TripPlanStandaloneModal = ({
           <VerticalTripPlan
             tripPlan={plan}
             tripRequest={request}
+            rider={rider}
             backClickHandler={backClickHandler}
             cancelClickHandler={cancelClickHandler}
           />

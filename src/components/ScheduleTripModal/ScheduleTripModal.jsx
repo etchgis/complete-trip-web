@@ -37,7 +37,6 @@ import {
   Text,
   VStack,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCaretRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
@@ -727,9 +726,8 @@ const Fourth = ({
   closeModal,
   setSelectedTrip,
 }) => {
-  const { loggedIn } = useStore().authentication;
+  const { setToastMessage, setToastStatus } = useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
-  const toast = useToast();
 
   async function scheduleTrip() {
     const _request = toJS(trip.request);
@@ -743,15 +741,8 @@ const Fourth = ({
     // console.log({ updated });
     if (updated) {
       closeModal();
-      toast({
-        title: 'Success',
-        description: 'Trip Saved',
-        status: 'success',
-        duration: 1500,
-        isClosable: true,
-        position: 'top-right',
-        variant: 'top-accent',
-      });
+      setToastStatus('success');
+      setToastMessage('Trip Saved');
       setSelectedTrip({});
       setStep(0);
       trip.create();

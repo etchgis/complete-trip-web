@@ -25,8 +25,10 @@ import {
 } from '@chakra-ui/react';
 import { FaCalendarAlt, FaTrashAlt } from 'react-icons/fa';
 
+import { CheckCircleIcon } from '@chakra-ui/icons';
 import { DependentsTripsTable } from './DependentsTripsTable';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const DependentsList = observer(() => {
@@ -65,6 +67,10 @@ export const DependentsList = observer(() => {
     }
   };
 
+  const sortedDependents = toJS(dependents).sort((a, b) =>
+    a.firstName.localeCompare(b.firstName)
+  );
+
   return (
     <Box>
       <Heading as="h2" size="md">
@@ -75,7 +81,7 @@ export const DependentsList = observer(() => {
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
       >
         <Accordion allowToggle>
-          {dependents.map((d, i) => (
+          {sortedDependents.map((d, i) => (
             <AccordionItem
               key={i.toString()}
               isDisabled={d.status === 'received' ? true : false}
@@ -89,9 +95,18 @@ export const DependentsList = observer(() => {
                       ) : (
                         <Icon as={FaCalendarAlt} />
                       )}
-                      <Box as="span" flex="1" textAlign="left" ml={4}>
+                      <Flex
+                        alignItems={'center'}
+                        as="span"
+                        flex={1}
+                        textAlign="left"
+                        ml={4}
+                      >
                         {d.firstName} {d.lastName}
-                      </Box>
+                        {d.status === 'approved' && (
+                          <Icon as={CheckCircleIcon} color={'green'} ml={2} />
+                        )}
+                      </Flex>
                     </AccordionButton>
                     {d.status === 'received' && (
                       <Stack
