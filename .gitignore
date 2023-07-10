@@ -3,6 +3,7 @@
 .env
 .gitmodules
 mobility-transport-layer
+cypress-dev
 
 # dependencies
 /node_modules

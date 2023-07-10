@@ -207,7 +207,12 @@ export const TripPlanSchedule = observer(
     }, [activeLegIndex]);
 
     return (
-      <Box px={4} flex={1} id="trip-plan-schedule">
+      <Box
+        px={4}
+        flex={1}
+        id="trip-plan-schedule"
+        data-testid="trip-plan-schedule"
+      >
         <Grid
           gridTemplateColumns={'1fr 1fr 1fr'}
           width="80%"
