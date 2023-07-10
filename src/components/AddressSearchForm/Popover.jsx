@@ -32,6 +32,7 @@ export function Popover(props) {
         maxW={props.maxWidth}
         // maxW="calc(100vw - 94px)"
         boxShadow="lg"
+        data-testid="address-search-overlay"
       >
         {!isNonModal && <DismissButton onDismiss={state.close} />}
         {children}

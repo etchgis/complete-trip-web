@@ -15,7 +15,7 @@
     "@react-native-async-storage/async-storage": "^1.18.0",
     "@saas-ui/react": "^1.7.4",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/user-event": "^14.1.0",
+    "@testing-library/user-event": "^14.4.3",
     "@turf/bbox": "^6.5.0",
     "@turf/bearing": "^6.5.0",
     "@turf/boolean-within": "^6.5.0",
