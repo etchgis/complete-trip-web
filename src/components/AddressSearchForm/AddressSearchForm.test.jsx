@@ -1,17 +1,10 @@
 import * as React from 'react';
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
 
 import { SearchForm } from './AddressSearchForm';
 import { TestWrapper } from '../../setupTests';
-import userEvent from '@testing-library/user-event';
 
 /**
  * Basic test to ensure the component renders
@@ -75,7 +68,6 @@ test('Address Search Form Accepts Default Value', async () => {
 });
 
 test('Address Search Form Gets a Result', async () => {
-  let result = null;
   const spy = vi.spyOn(global.console, 'log');
 
   await act(async () =>

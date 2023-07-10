@@ -87,6 +87,7 @@
   },
   "devDependencies": {
     "@cypress/react18": "^2.0.0",
+    "@testing-library/cypress": "^9.0.0",
     "@testing-library/react": "^13.4.0",
     "@vitejs/plugin-react": "^4.0.0",
     "@vitest/coverage-c8": "^0.30.1",
