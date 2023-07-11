@@ -1,4 +1,4 @@
-import '@testing-library/cypress/add-commands';
+// import '@testing-library/cypress/add-commands';
 
 import { ColorModeSwitcher } from '../components/ColorModeSwitcher/ColorModeSwitcher';
 import { TestWrapper } from '../setupTests';

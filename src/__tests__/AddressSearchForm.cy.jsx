@@ -1,4 +1,4 @@
-import '@testing-library/cypress/add-commands';
+// import '@testing-library/cypress/add-commands';
 
 import { SearchForm } from '../components/AddressSearchForm/AddressSearchForm';
 import { TestWrapper } from '../setupTests';

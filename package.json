@@ -65,7 +65,7 @@
     "dev-old": "react-scripts start",
     "start-old": "react-scripts start",
     "build-old": "react-scripts build",
-    "test": "vitest",
+    "test": "npx cypress run && npx cypress run --component",
     "coverage": "vitest run --coverage",
     "deploy:local": "npm run build && robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF",
     "copy": "robocopy build \\\\server\\Projects\\synology-web-apps\\mobility-app /PURGE /E /S /COPY:DAT /MT:16 /XF"

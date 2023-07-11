@@ -9,8 +9,8 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
-import { TestWrapper } from '../../setupTests';
-import { TransitRoutes } from './TransitRoutes';
+import { TestWrapper } from '../setupTests';
+import { TransitRoutes } from '../components/TransitRoutes/TransitRoutes';
 
 test('UI Shows Up', async () => {
   render(

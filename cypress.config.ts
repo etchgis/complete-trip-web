@@ -18,5 +18,7 @@ export default defineConfig({
       framework: "react",
       bundler: "vite",
     },
+    viewportHeight: 600,
+    viewportWidth: 960,
   },
 });
