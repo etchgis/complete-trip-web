@@ -49,6 +49,8 @@ class MapStore {
     center: [],
     zoom: 12,
     geolocation: [],
+    routesLoading: true,
+    stopsLoading: false
   };
   mapCache = {
     routes: [], //cache of routes
@@ -80,6 +82,8 @@ class MapStore {
     runInAction(() => {
       this.map = map;
     });
+    const { lng, lat } = map.getCenter()
+    this.getRoutes(lng, lat);
   };
 
   setMapState = (key, value) => {
@@ -100,8 +104,8 @@ class MapStore {
         const bgColor = routes[i]?.color || '000';
         routes[i].stops = await fetch(
           'https://ctp-otp.etch.app/otp/routers/default/index/routes/' +
-            routes[i].id +
-            '/stops'
+          routes[i].id +
+          '/stops'
         ).then(res => res.json());
         //this.mapCache.stops.length ? this.mapCache.stops.filter(s => s.routeId === routes[i].id) :
         //TODO convert this to a separate function - getColor
@@ -189,35 +193,129 @@ class MapStore {
   //   }
   // };
 
-  getRoutes = stops => {
-    const routes = [];
-    for (let i = 0; i < stops.features.length; i++) {
-      const stop = stops.features[i];
-      const stopRoutes = this.mapCache.routes.filter(r =>
-        r.stops.find(s => s.id === stop.properties.id)
-      );
-      stopRoutes.forEach(r => {
-        if (!routes.find(route => route.id === r.id)) routes.push(r);
-      });
-    }
-    return sortBy(routes, 'longName');
-  };
+  // getRoutes = stops => {
+  //   const routes = [];
+  //   for (let i = 0; i < stops.features.length; i++) {
+  //     const stop = stops.features[i];
+  //     const stopRoutes = this.mapCache.routes.filter(r =>
+  //       r.stops.find(s => s.id === stop.properties.id)
+  //     );
+  //     stopRoutes.forEach(r => {
+  //       if (!routes.find(route => route.id === r.id)) routes.push(r);
+  //     });
+  //   }
+  //   return sortBy(routes, 'longName');
+  // };
 
-  getRoutePatterns = async id => {
-    try {
-      const app = 'COMPLETE_TRIP';
-      const routePatterns = await otp.routes.one(id, app);
-      if (!routePatterns?.patterns?.length)
-        throw new Error('No patterns found!');
-      const geojson = await this.getRouteGeometry(
-        routePatterns.patterns,
-        routePatterns?.color
-      );
-      return Promise.resolve(geojson);
-    } catch (error) {
-      console.log(error);
-      return Promise.reject('An error occurred while fetching routes.');
-    }
+  getRoutes = (lng, lat) => {
+    runInAction(() => {
+      this.mapState.routesLoading = true;
+    });
+    mobility.skids.services.byDistance(lng, lat, 0.5, 'COMPLETE_TRIP')
+      .then(values => {
+        console.log('got service: count', values.length);
+        runInAction(() => {
+          this.mapCache.routes = values;
+          this.mapState.routesLoading = false;
+        });
+      })
+      .catch(e => {
+        runInAction(() => {
+          this.mapState.routesLoading = false;
+        });
+        console.log('skids service error', e);
+      });
+  }
+
+  // getRoutePatterns = async id => {
+  //   try {
+  //     const app = 'COMPLETE_TRIP';
+  //     const routePatterns = await otp.routes.one(id, app);
+  //     if (!routePatterns?.patterns?.length)
+  //       throw new Error('No patterns found!');
+  //     const geojson = await this.getRouteGeometry(
+  //       routePatterns.patterns,
+  //       routePatterns?.color
+  //     );
+  //     return Promise.resolve(geojson);
+  //   } catch (error) {
+  //     console.log(error);
+  //     return Promise.reject('An error occurred while fetching routes.');
+  //   }
+  // };
+
+  getStops = async (service) => {
+    runInAction(() => {
+      this.mapState.stopsLoading = true;
+    });
+    return new Promise((resolve, reject) => {
+      mobility.skids.feeds.get(service.service, service.route.patternId, 'COMPLETE_TRIP')
+        .then(result => {
+          let route = {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              properties: {
+                routeColor: `#${result.color || '004490'}`,
+                outlineColor: `#${result.textColor || 'ffffff'}`
+              },
+              geometry: {
+                type: 'LineString',
+                coordinates: result.coordinates
+              }
+            }]
+          };
+          route.bbox = bbox(route);
+          let stops = {
+            type: 'FeatureCollection',
+            features: []
+          };
+          let gotFirst = false;
+          for (var i = 0; i < result.stops.length; i++) {
+            let stop = result.stops[i];
+            if (gotFirst || stop.stopId === service?.location?.id) {
+              gotFirst = true;
+              if (result?.stopTimes?.currentTimes[i]) {
+                stop.arrive = result.stopTimes.currentTimes[i].arrive;
+              }
+              if (result?.stopTimes?.nextTimes[i]) {
+                stop.arriveNext = result.stopTimes.nextTimes[i].arrive;
+              }
+              stop.filter = true;
+            }
+            else {
+              stop.filter = false;
+            }
+            stops.features.push({
+              type: 'Feature',
+              properties: {
+                color: `#${result.color || '004490'}`,
+                textColor: `#${result.textColor || 'ffffff'}`,
+                id: stop.stopId,
+                name: stop.name,
+                publicCode: stop.publicCode,
+                arrive: stop.arrive,
+                arriveNext: stop.arriveNext,
+                routes: stop.routes,
+                filter: stop.filter
+              },
+              geometry: stop.geometry,
+            });
+          }
+          this.mapState.stoptimes = stops;
+          runInAction(() => {
+            this.mapState.stopsLoading = false;
+          });
+          resolve({ route, stops });
+        })
+        .catch(e => {
+          runInAction(() => {
+            this.mapState.stopsLoading = false;
+          });
+          console.log('skids feed error', e);
+          reject('An error occurred while fetching routes.');
+        });
+    });
   };
 
   getRouteGeometry = async (patterns, color) => {
