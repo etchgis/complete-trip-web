@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Stack, Text, useColorMode } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Loader from '../Loader';
 import SearchForm from '../AddressSearchForm';
@@ -20,13 +20,8 @@ export const TransitRoutes = observer(({ }) => {
     mapState,
     setMapState,
     mapCache,
-    getRouteStops,
-    getRoutePatterns,
     getRoutes,
     getStops,
-    getNearestStops,
-    initRoutes,
-    initStops,
   } = useStore().mapStore;
   const { debug } = useStore().uiStore;
   // const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
@@ -34,6 +29,8 @@ export const TransitRoutes = observer(({ }) => {
   const [defaultAddress, setDefaultAddress] = useState('');
   const [searchResult, setSearchResult] = useState(false);
   const { pathname } = useLocation();
+
+  const intervalRef = useRef();
 
   useEffect(() => {
     console.log('mapState.geolocation', mapState.geolocation.length);
@@ -54,36 +51,12 @@ export const TransitRoutes = observer(({ }) => {
     // eslint-disable-next-line
   }, [mapState.geolocation]);
 
-  // const getRouteList = (x, y) => {
-  //   const exists = mapState.stoptimes?.features.length; //NOTE this disables the map from updating when the user pans if the stops are already loaded)
-  //   if (exists) return;
-  //   const { lng, lat } = map ? map.getCenter() : { lng: x, lat: y };
-  //   //latlng of buffalo
-  //   const buffalo = [-78.8784, 42.8864];
-  //   const stops = getNearestStops(
-  //     y || lat || buffalo[1],
-  //     x || lng || buffalo[0]
-  //   );
-  //   if (debug) console.log({ stops });
-  //   if (!stops?.features.length) return reset();
-  //   setMapState('routes', getRoutes(stops));
-  //   getRoutes(x || lng || buffalo[0], y || lat || buffalo[1]);
-  //   setMapState('center', [lng, lat]);
-  //   if (map) setMapState('zoom', map.getZoom());
-  // };
-
   const getRouteList = (x, y) => {
     const exists = mapState?.stoptimes?.features.length; //NOTE this disables the map from updating when the user pans if the stops are already loaded)
     if (exists) return;
     const { lng, lat } = map ? map.getCenter() : { lng: x, lat: y };
     //latlng of buffalo
     const buffalo = [-78.8784, 42.8864];
-    // const stops = getNearestStops(
-    //   y || lat || buffalo[1],
-    //   x || lng || buffalo[0]
-    // );
-    // if (debug) console.log({ stops });
-    // if (!stops?.features.length) return reset();
     getRoutes(x || lng || buffalo[0], y || lat || buffalo[1]);
     setMapState('center', [lng, lat]);
     if (map) setMapState('zoom', map.getZoom());
@@ -98,50 +71,16 @@ export const TransitRoutes = observer(({ }) => {
     setMapState('activeRoute', '');
   };
 
-  // const routeClickHandler = async route => {
-  //   console.log('[map-view] route click handler');
-  //   try {
-  //     setDefaultAddress('');
-  //     const id = route?.id || route?.routeId || null;
-  //     setMapState('activeRoute', id);
-  //     const patterns = await getRoutePatterns(id);
-  //     if (!patterns?.features.length) throw new Error('no patterns found');
-  //     const stoptimes = await getRouteStops(id);
-  //     if (!stoptimes?.features.length) throw new Error('no stoptimes found');
-  //     if (!map) return;
-  //     if (map.getSource('routes-highlight'))
-  //       map.getSource('routes-highlight').setData(patterns);
-  //     if (map.getSource('stops')) {
-  //       map.getSource('stops').setData(stoptimes);
-  //       map.setPaintProperty(
-  //         'stops',
-  //         'circle-stroke-color',
-  //         route?.routeColor || '#000'
-  //       );
-  //       map.setPaintProperty(
-  //         'stops',
-  //         'circle-color',
-  //         route?.outlineColor || '#fff'
-  //       );
-  //       map.fitBounds(stoptimes.bbox, { padding: 50 });
-  //     }
-  //   } catch (error) {
-  //     // if (!retry) routeClickHandler(route, true);
-  //     setMapState('activeRoute', '');
-  //     console.log(error);
-  //   }
-  // };
-
   const routeClickHandler = async service => {
     console.log('[map-view] route click handler');
     try {
       setDefaultAddress('');
       setMapState('activeRoute', service);
       if (service.service && service.route) {
-        getStops(service)
+        getStops(service, true)
           .then((result) => {
-            const { route, stops } = result;
-            // if (!route?.features.length) throw new Error('no patterns found');
+            const { route, stops, vehicles } = result;
+            if (!route?.features.length) throw new Error('no patterns found');
             if (map.getSource('routes-highlight'))
               map.getSource('routes-highlight').setData(route);
             if (map.getSource('stops')) {
@@ -157,7 +96,12 @@ export const TransitRoutes = observer(({ }) => {
                 `#${service?.textColor || '#fff'}`
               );
             }
+            if (map.getSource('buses-live')) {
+              map.getSource('buses-live').setData(vehicles);
+            }
             map.fitBounds(route.bbox, { padding: 50 });
+
+            refreshRoute(service);
           })
           .catch(e => {
             console.error('getRoutesAndStops', e);
@@ -168,6 +112,62 @@ export const TransitRoutes = observer(({ }) => {
       console.log(error);
     }
   };
+
+  const refreshRoute = (service) => {
+    console.log('intervalRef.current', intervalRef.current);
+    if (!intervalRef.current) {
+      intervalRef.current = setInterval(() => {
+        getStops(service)
+          .then((result) => {
+            const { stops, vehicles } = result;
+            if (map.getSource('stops')) {
+              map.getSource('stops').setData(stops);
+              map.setPaintProperty(
+                'stops',
+                'circle-stroke-color',
+                `#${service?.color || '#000'}`
+              );
+              map.setPaintProperty(
+                'stops',
+                'circle-color',
+                `#${service?.textColor || '#fff'}`
+              );
+            }
+            if (map.getSource('buses-live')) {
+              map.getSource('buses-live').setData(vehicles);
+            }
+          })
+          .catch(e => {
+            console.error('INTERVAL ERROR: getRoutesAndStops', e);
+          })
+      }, 5000);
+    }
+  }
+
+  // useEffect(() => {
+  //   if (map) {
+  //     console.log('GOT UPDATES');
+  //     if (map.getSource('routes-highlight'))
+  //       map.getSource('routes-highlight').setData(mapState.routes);
+  //     if (map.getSource('stops')) {
+  //       map.getSource('stops').setData(mapState.stoptimes);
+  //       map.setPaintProperty(
+  //         'stops',
+  //         'circle-stroke-color',
+  //         `#${mapState?.activeRoute?.service?.color || '000'}`
+  //       );
+  //       map.setPaintProperty(
+  //         'stops',
+  //         'circle-color',
+  //         `#${mapState?.activeRoute?.service?.textColor || 'fff'}`
+  //       );
+  //     }
+  //     if (map.getSource('buses-live')) {
+  //       map.getSource('buses-live').setData(mapState.vehicles);
+  //     }
+  //   }
+  //   // eslint-disable-next-line
+  // }, [mapState.routes, mapState.stoptimes, mapState.vehicles]);
 
   const stopClickHandler = async stop => {
     if (stop && stop.geometry && map) {
@@ -184,27 +184,18 @@ export const TransitRoutes = observer(({ }) => {
   const backClickHandler = () => {
     if (!map) return;
     //CLEAR THE STATES
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
     setMapState('stoptimes', featureCollection([])); //NOTE this clears the stoptimes list and allows the route list to be displayed
     setMapState('activeRoute', ''); //Clear the active route
     if (mapState.marker) mapState.marker.remove();
     map.getSource('routes-highlight').setData(featureCollection([]));
     map.getSource('stops').setData(featureCollection([]));
+    map.getSource('buses-live').setData(featureCollection([]));
 
     //RESET TO THE PREVIOUS LOCATION AND CALL THE ROUTE LIST FUNCTION
     map.flyTo({ center: mapState.center, zoom: map.getZoom() }); //This will now trigger the getRouteList function
   };
-
-  // useEffect(() => {
-  //   if (mapCache.routes.length && mapCache.stopsIndex) {
-  //     setRoutesAreLoaded(true);
-  //     if (!mapState.routes.length) getRouteList();
-  //   } else {
-  //     setRoutesAreLoaded(true);
-  //     initRoutes();
-  //     initStops();
-  //   }
-  //   // eslint-disable-next-line
-  // }, [mapCache.routes]);
 
   useEffect(() => {
     if (mapCache.routes.length) {
@@ -306,8 +297,8 @@ const BackButton = observer(({ backClickHandler }) => {
 const StopTimesList = observer(({ stopClickHandler }) => {
   const { colorMode } = useColorMode();
   const { stoptimes, activeRoute } = useStore().mapStore.mapState;
-  if (stoptimes.features.length) console.log('[map-view] active stops', toJS(stoptimes.features));
-  if (activeRoute) console.log('[map-view] active route', toJS(activeRoute));
+  // if (stoptimes.features.length) console.log('[map-view] active stops', toJS(stoptimes.features));
+  // if (activeRoute) console.log('[map-view] active route', toJS(activeRoute));
 
   return (
     <>

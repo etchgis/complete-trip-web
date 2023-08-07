@@ -3,40 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import bbox from '@turf/bbox';
 import { featureCollection } from '@turf/helpers';
-import knn from 'sphere-knn';
 import { mobility } from '@etchgis/mobility-transport-layer';
-import { sortBy } from 'lodash';
-import tinycolor from 'tinycolor2';
-
-const { otp } = mobility;
-
-const flattenStoptimes = arr => {
-  const array = [];
-
-  arr.forEach(item => {
-    const itemProps = Object.assign({}, item);
-    delete itemProps.stoptimes;
-    itemProps['stopId'] = item.id;
-    if (item.stoptimes.length) {
-      item.stoptimes.forEach(st => {
-        const patternProps = Object.assign({}, st?.pattern);
-        patternProps['patternId'] = st?.pattern?.id;
-        if (st.times.length) {
-          st.times.forEach(t => {
-            array.push({
-              ...itemProps,
-              ...patternProps,
-              ...t,
-            });
-          });
-        }
-      });
-    } else {
-      array.push(itemProps);
-    }
-  });
-  return array;
-};
 
 class MapStore {
   map = null;
@@ -46,6 +13,7 @@ class MapStore {
     patterns: [],
     stoptimes: featureCollection([]),
     routes: [],
+    vehicles: [],
     center: [],
     zoom: 12,
     geolocation: [],
@@ -55,12 +23,9 @@ class MapStore {
   mapCache = {
     routes: [], //cache of routes
     stops: [], //all stops
-    stopsIndex: null, //knn index of stops using sphere-knn
   };
 
   constructor(rootStore) {
-    // this.initStops();
-    // this.initRoutes();
 
     makeAutoObservable(this);
     this.rootStore = rootStore;
@@ -92,64 +57,8 @@ class MapStore {
     });
   };
 
-  initRoutes = async () => {
-    console.log('[map-store] init routes');
-    let now = Date.now();
-    try {
-      const routes = await fetch(
-        'https://ctp-otp.etch.app/otp/routers/default/index/routes'
-      ).then(res => res.json());
-      if (!routes.length) return console.error('routes not found');
-      for (let i = 0; i < routes.length; i++) {
-        const bgColor = routes[i]?.color || '000';
-        routes[i].stops = await fetch(
-          'https://ctp-otp.etch.app/otp/routers/default/index/routes/' +
-          routes[i].id +
-          '/stops'
-        ).then(res => res.json());
-        //this.mapCache.stops.length ? this.mapCache.stops.filter(s => s.routeId === routes[i].id) :
-        //TODO convert this to a separate function - getColor
-        routes[i]['routeId'] = routes[i].id;
-
-        const isBlackReadable = tinycolor.isReadable(
-          '#000',
-          '#' + bgColor.replace('#', ''),
-          {
-            level: 'AAA',
-            size: 'small',
-          }
-        );
-        routes[i]['routeColor'] = '#' + bgColor.replace('#', '');
-        routes[i]['outlineColor'] = isBlackReadable ? '#121212' : '#fff';
-      }
-
-      runInAction(() => {
-        this.mapCache.routes = routes;
-      });
-      console.log('[map-store] init routes done', Date.now() - now);
-    } catch (error) {
-      //TODO add an alert error here that there is an issue with initializing the routes cache
-      console.error(error);
-    }
-  };
-
   getRouteColor = r => {
     return r;
-  };
-
-  initStops = async () => {
-    console.log('[map-store] init stops');
-    try {
-      const stops = await otp.stops.all('COMPLETE_TRIP');
-      if (!stops.length) return console.error('stops not found');
-      runInAction(() => {
-        this.mapCache.stops = stops;
-        this.mapCache.stopsIndex = knn(stops);
-      });
-      console.log('[map-store] init stops done');
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   toPoints = data => {
@@ -175,38 +84,6 @@ class MapStore {
   };
   //TODO convert map state to mapcache
 
-  getNearestStops = (lat, lng, limit = 20) => {
-    if (!this.mapCache.stops.length || !this.mapCache.stopsIndex) return [];
-    const _stops = this.mapCache.stopsIndex(lat, lng, limit);
-    return this.toPoints(_stops);
-  };
-
-  // getPatternStops = async id => {
-  //   try {
-  //     const app = 'COMPLETE_TRIP';
-  //     const stops = await otp.patterns.stops(id, app);
-  //     if (!stops.length) throw new Error('No stops found.');
-  //     return Promise.resolve(this.toPoints(stops));
-  //   } catch (error) {
-  //     console.log(error);
-  //     return Promise.reject('An error occurred while fetching routes.');
-  //   }
-  // };
-
-  // getRoutes = stops => {
-  //   const routes = [];
-  //   for (let i = 0; i < stops.features.length; i++) {
-  //     const stop = stops.features[i];
-  //     const stopRoutes = this.mapCache.routes.filter(r =>
-  //       r.stops.find(s => s.id === stop.properties.id)
-  //     );
-  //     stopRoutes.forEach(r => {
-  //       if (!routes.find(route => route.id === r.id)) routes.push(r);
-  //     });
-  //   }
-  //   return sortBy(routes, 'longName');
-  // };
-
   getRoutes = (lng, lat) => {
     runInAction(() => {
       this.mapState.routesLoading = true;
@@ -227,26 +104,9 @@ class MapStore {
       });
   }
 
-  // getRoutePatterns = async id => {
-  //   try {
-  //     const app = 'COMPLETE_TRIP';
-  //     const routePatterns = await otp.routes.one(id, app);
-  //     if (!routePatterns?.patterns?.length)
-  //       throw new Error('No patterns found!');
-  //     const geojson = await this.getRouteGeometry(
-  //       routePatterns.patterns,
-  //       routePatterns?.color
-  //     );
-  //     return Promise.resolve(geojson);
-  //   } catch (error) {
-  //     console.log(error);
-  //     return Promise.reject('An error occurred while fetching routes.');
-  //   }
-  // };
-
-  getStops = async (service) => {
+  getStops = async (service, showLoading = false) => {
     runInAction(() => {
-      this.mapState.stopsLoading = true;
+      this.mapState.stopsLoading = showLoading;
     });
     return new Promise((resolve, reject) => {
       mobility.skids.feeds.get(service.service, service.route.patternId, 'COMPLETE_TRIP')
@@ -266,6 +126,7 @@ class MapStore {
             }]
           };
           route.bbox = bbox(route);
+
           let stops = {
             type: 'FeatureCollection',
             features: []
@@ -302,11 +163,34 @@ class MapStore {
               geometry: stop.geometry,
             });
           }
-          this.mapState.stoptimes = stops;
+
+          let vehicles = {
+            type: 'FeatureCollection',
+            features: []
+          };
+          if (result.vehicles && result.vehicles.length) {
+            for (var i = 0; i < result.vehicles.length; i++) {
+              let vehicle = result.vehicles[i];
+              vehicles.features.push({
+                type: 'Feature',
+                properties: {
+                  icon: 'bus-live'
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: vehicle.coordinates,
+                },
+              });
+            }
+          }
+
           runInAction(() => {
+            this.mapState.routes = route;
+            this.mapState.stoptimes = stops;
+            this.mapState.vehicles = vehicles;
             this.mapState.stopsLoading = false;
           });
-          resolve({ route, stops });
+          resolve({ route, stops, vehicles });
         })
         .catch(e => {
           runInAction(() => {
@@ -316,197 +200,6 @@ class MapStore {
           reject('An error occurred while fetching routes.');
         });
     });
-  };
-
-  getRouteGeometry = async (patterns, color) => {
-    try {
-      const geojson = {
-        type: 'FeatureCollection',
-        features: patterns.map(p => {
-          p['routeColor'] = color ? '#' + color.replace('#', '') : '#121212';
-          const bgColor = color || 'fff';
-          const isBlackReadable = tinycolor.isReadable(
-            '#000',
-            '#' + bgColor.replace('#', ''),
-            {
-              level: 'AAA',
-              size: 'small',
-            }
-          );
-          p['outlineColor'] = isBlackReadable ? '#121212' : '#fff';
-          const { geometry, ...properties } = p;
-          const feature = {
-            type: 'Feature',
-            geometry,
-            properties,
-          };
-          return feature;
-        }),
-      };
-      if (!geojson.features.length) throw new Error('No routes found.');
-      geojson['bbox'] = bbox(geojson);
-      return Promise.resolve(geojson);
-    } catch (error) {
-      console.log(error);
-      return Promise.reject('An error occurred while fetching routes.');
-    }
-  };
-
-  chunk = (array, size) => {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += size) {
-      chunks.push(array.slice(i, i + size));
-    }
-    return chunks;
-  };
-
-  getRouteStops = async id => {
-    try {
-      runInAction(() => {
-        this.rootStore.uiStore.setLoading(true);
-      });
-      const stops = this.mapCache.routes.find(r => r.id === id)?.stops || [];
-      if (!stops.length) throw new Error('No stops found.');
-
-      //break stops into chunks of stops.length / 5, then call otp.stops.one in a for loop
-      const chunks = this.chunk(stops, 5);
-      const stoptimes = [];
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        // console.log(chunk.length);
-        const results = await Promise.all(
-          chunk.map(async s => {
-            const pattern = await otp.stops.one(s.id, 'COMPLETE_TRIP');
-            if (!pattern.stoptimes || !pattern.stoptimes.length) {
-              pattern['stoptimes'] = [];
-            } else {
-              const _stoptimes = [...pattern.stoptimes];
-              pattern.stoptimes = [];
-              _stoptimes.forEach(st => {
-                if (st?.pattern?.routeId === id) {
-                  st.times.forEach(t => {
-                    t['arrival'] =
-                      (t.serviceDay +
-                        (t.realtime ? t.realtimeArrival : t.scheduledArrival)) *
-                      1000;
-                    if (
-                      t?.realtimeArrival &&
-                      t?.scheduledArrival &&
-                      t?.realtimeArrival !== t?.scheduledArrival &&
-                      t?.realtimeArrival > t?.scheduledArrival
-                    ) {
-                      t['delayed'] = true;
-                    } else {
-                      t['delayed'] = false;
-                    }
-                  });
-                  pattern.stoptimes.push(st);
-                }
-              });
-            }
-            pattern.stoptimes.forEach(st => {
-              st.times = st.times.sort((a, b) => a.arrival - b.arrival);
-            });
-            if (!pattern.stoptimes.length)
-              pattern.stoptimes.push({ times: [{ arrival: 0 }] });
-            pattern.stoptimes = pattern.stoptimes.sort(
-              (a, b) => a.times[0].arrival - b.times[0].arrival
-            );
-            return pattern;
-          })
-        );
-        stoptimes.push(...results);
-      }
-
-      // const flattened = flattenStoptimes(stoptimes);
-
-      const existing = stoptimes.filter(s => s.stoptimes[0].times[0].arrival);
-      // if (!existing.length) {
-      //   runInAction(() => {
-      //     this.rootStore.uiStore.setToastStatus('Error')
-      //     this.rootStore.uiStore.setToastMessage('No active stops found.');
-      //   })
-      //   throw new Error('No stoptimes found.')
-      // }
-      const missing = stoptimes.filter(s => !s.stoptimes[0].times[0].arrival);
-      const sorted = existing.sort(
-        (a, b) =>
-          a.stoptimes[0].times[0].arrival - b.stoptimes[0].times[0].arrival
-      );
-
-      const gtfsStopDelays = await this.getGTFSStopDelays(id);
-      console.log({ gtfsStopDelays });
-
-      sorted.forEach(s => {
-        if (!s.stoptimes.length) {
-          console.log(s);
-        } else {
-          const delay = gtfsStopDelays.find(d => d.stop_id === s.code);
-          if (delay) {
-            s.stoptimes.forEach(st => {
-              st.times.forEach(t => {
-                const delayTime = Number(delay.arrival.delay / 60).toFixed(0);
-                t['delayed'] = true;
-                t['delay'] =
-                  delayTime <= 1
-                    ? delayTime + ' minute'
-                    : delayTime + ' minutes';
-              });
-            });
-          }
-        }
-      });
-
-      const parsed = [...sorted, ...missing];
-      console.log({ parsed });
-      const flattened = flattenStoptimes(parsed);
-      flattened.sort((a, b) => {
-        if (a.arrival === 0 && b.arrival !== 0) {
-          return 1;
-        } else if (a.arrival !== 0 && b.arrival === 0) {
-          return -1;
-        }
-        return a.arrival - b.arrival;
-      });
-      console.log({ flattened });
-      // console.log(parsed)
-      const geojson = this.toPoints(flattened);
-      runInAction(() => {
-        this.mapState.stoptimes = geojson;
-        this.rootStore.uiStore.setLoading(false);
-      });
-      return Promise.resolve(geojson);
-    } catch (error) {
-      console.log(error);
-      runInAction(() => {
-        this.rootStore.uiStore.setLoading(false);
-      });
-      return Promise.reject('An error occurred while fetching routes.');
-    }
-  };
-
-  getGTFSStopDelays = async id => {
-    try {
-      const delays = [];
-      const routeId = id.split(':')[1];
-      const { entity: gtfs } = await fetch(
-        'https://gtfsr.nfta.com/api/tripupdates?format=json'
-      ).then(res => res.json());
-      const route = gtfs.filter(r => r.trip_update.trip.route_id === routeId);
-      const tripUpdates = route.length
-        ? route.reduce((a, r) => [...a, r.trip_update], [])
-        : [];
-      tripUpdates.forEach(tu => {
-        const { stop_time_update } = tu;
-        stop_time_update.forEach(stu => {
-          if (stu?.arrival?.delay && stu.arrival.delay > 0) delays.push(stu);
-        });
-      });
-      return delays;
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
   };
 
   setData = (data, type) => {
