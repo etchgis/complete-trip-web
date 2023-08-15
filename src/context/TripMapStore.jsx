@@ -242,7 +242,10 @@ const generateModeIconSymbols = (tripPlan, hasWheelchair) => {
         break;
       default:
         const _mode =
-          mode.toLowerCase() === 'bicycle' ? 'bike' : mode.toLowerCase();
+          mode.toLowerCase() === 'bicycle' ? 'bike' :
+            mode.toLowerCase() === 'hail' ? 'shuttle' :
+              mode.toLowerCase();
+        console.log('MODE', _mode);
         modeIconData.features.push({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [ftr.lon, ftr.lat] },

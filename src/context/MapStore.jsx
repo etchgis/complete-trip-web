@@ -92,7 +92,7 @@ class MapStore {
       .then(values => {
         console.log('got service: count', values.length);
         runInAction(() => {
-          this.mapCache.routes = values;
+          this.mapCache.routes = values.filter(v => v.mode !== 'shuttle');
           this.mapState.routesLoading = false;
         });
       })
