@@ -183,12 +183,17 @@ const CreateCircleIcon = ({ svg, backgroundColor }) => {
 };
 
 export const TripPlanSchedule = observer(
-  ({ tripRequest: request, tripPlan: plan }) => {
+  ({ tripRequest: request, tripPlan: plan, rider }) => {
     const { colorMode } = useColorMode();
     const { user } = useStore().authentication;
     const { activeLegIndex } = useStore().tripMapStore;
     const [legIndex, setL] = useState(-1);
-    const { wheelchair } = user?.profile?.preferences || false;
+    const riderProfile = rider?.profile ? JSON.parse(rider.profile) : false;
+    const wheelchair =
+      riderProfile?.preferences?.wheelchair ||
+      user?.profile?.preferences?.wheelchair ||
+      false;
+
     const planLegs = fillGaps(plan.legs);
 
     // console.log(toJS(request));
@@ -202,7 +207,12 @@ export const TripPlanSchedule = observer(
     }, [activeLegIndex]);
 
     return (
-      <Box px={4} flex={1} id="trip-plan-schedule">
+      <Box
+        px={4}
+        flex={1}
+        id="trip-plan-schedule"
+        data-testid="trip-plan-schedule"
+      >
         <Grid
           gridTemplateColumns={'1fr 1fr 1fr'}
           width="80%"

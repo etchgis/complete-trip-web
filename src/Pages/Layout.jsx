@@ -19,6 +19,7 @@ import { useStore } from '../context/RootStore';
 const Layout = observer(({ showMap, children }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
+
   const { inviteCode } = useStore().caregivers;
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
@@ -89,6 +90,9 @@ const Layout = observer(({ showMap, children }) => {
       flexDir="column"
       display={{ base: 'none', sm: 'flex' }}
     >
+      {/* ERROR TOAST MESSAGE */}
+      <ErrorToastMessage></ErrorToastMessage>
+
       {/* NAV */}
       <Navbar
         isOpen={isOpen}
@@ -153,9 +157,6 @@ const Layout = observer(({ showMap, children }) => {
           }
         }}
       ></MFAVerify>
-
-      {/* ERROR TOAST MESSAGE */}
-      <ErrorToastMessage></ErrorToastMessage>
 
       {/* LOADER */}
       <Loader isOpen={inTransaction || isLoading}></Loader>

@@ -9,6 +9,12 @@ import { theme } from '../../theme';
 export const mapLayers = e => {
   const map = e.target ? e.target : e;
   // console.log('[map] checking sources');
+  if (!map.getSource('buses-live')) {
+    map.addSource('buses-live', {
+      type: 'geojson',
+      data: featureCollection([]),
+    });
+  }
   if (!map.getSource('stops')) {
     map.addSource('stops', {
       type: 'geojson',
@@ -134,15 +140,26 @@ export const mapLayers = e => {
         ],
         'circle-opacity': 1,
       },
-      minzoom: 10,
+      minzoom: 8,
     },
+    {
+      id: 'buses-live',
+      type: 'symbol',
+      source: 'buses-live',
+      layout: {
+        'icon-image': ['get', 'icon'],
+        'icon-size': 0.8,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+      },
+    }
   ];
 
   // console.log('[map] checking layers');
   layers.forEach(l => {
     if (!map.getLayer(l.id)) {
       console.log('[map] adding layer', l.id);
-      const beforeLayer = l.id === 'stops' ? '' : 'road-label-navigation';
+      const beforeLayer = (l.id === 'stops' || l.id === 'buses-live') ? '' : 'road-label-navigation';
       map.addLayer(l, beforeLayer);
     }
   });

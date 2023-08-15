@@ -3,8 +3,8 @@ import * as React from 'react';
 import { expect, test } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { AddCaregiver } from './AddCaregiver';
-import { TestWrapper } from '../../setupTests';
+import { AddCaregiver } from '../components/Settings/AddCaregiver';
+import { TestWrapper } from '../setupTests';
 
 // import { useEffect } from 'react';
 // import { useStore } from '../../context/RootStore';

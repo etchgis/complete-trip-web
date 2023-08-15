@@ -29,9 +29,16 @@ export function ListBox(props) {
       display="flex"
       flexDirection="column"
       onScroll={onScroll}
+      data-testid="address-search-results"
     >
       {[...state.collection].map(item => (
-        <Option key={item.key} item={item} state={state} />
+        <Option
+          key={item.key}
+          item={item}
+          state={state}
+          data-testid="address-search-result"
+          aria-label={item?.name}
+        />
       ))}
       {props.loadingState === 'loadingMore' && (
         // Display a spinner at the bottom of the list if we're loading more.
@@ -69,6 +76,7 @@ function Option({ item, state }) {
       display="flex"
       alignItems="center"
       justifyContent="space-between"
+      aria-label={item?.name}
     >
       {item.rendered}
       {isSelected && <CheckIcon />}

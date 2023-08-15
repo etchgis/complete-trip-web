@@ -3,17 +3,20 @@ import { Box, Button, Flex, Stack, useColorMode } from '@chakra-ui/react';
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const VerticalTripPlan = observer(
   ({
     tripPlan,
     tripRequest,
+    rider,
     scheduleTripHandler,
     backClickHandler,
     cancelClickHandler,
   }) => {
     const { colorMode } = useColorMode();
+    console.log(toJS(tripPlan));
     return (
       <Flex
         id="vertical-trip-plan"
@@ -40,7 +43,11 @@ export const VerticalTripPlan = observer(
             py={2}
             id="vertical-trip-plan-schedule-container"
           >
-            <TripPlanSchedule tripPlan={tripPlan} tripRequest={tripRequest} />
+            <TripPlanSchedule
+              tripPlan={tripPlan}
+              tripRequest={tripRequest}
+              rider={rider}
+            />
           </Box>
           <TripPlanScheduleButtons
             scheduleTripHandler={scheduleTripHandler}

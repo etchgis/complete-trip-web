@@ -47,21 +47,28 @@ export const Autocomplete = props => {
       width="100%"
       isRequired={props.required}
     >
-      {props.label ? <FormLabel {...labelProps}>{props.label} </FormLabel> : null}
+      {props.label ? (
+        <FormLabel {...labelProps}>{props.label} </FormLabel>
+      ) : null}
       <InputGroup>
         <InputLeftElement>
-          <Search2Icon color="gray.500" />
+          <Search2Icon color="gray.500" aria-label="search icon" />
         </InputLeftElement>
-        <Input {...inputProps} ref={inputRef} size="md" />
-        <InputRightElement>
+        <Input
+          {...inputProps}
+          ref={inputRef}
+          size="md"
+          data-testid="address-search-input"
+          aria-label={'address search input'}
+        />
+        <InputRightElement aria-label="search loader">
           {props.loadingState === 'loading' ||
-            props.loadingState === 'filtering' ? (
+          props.loadingState === 'filtering' ? (
             <Spinner color="blue.400" size="sm" />
           ) : null}
         </InputRightElement>
       </InputGroup>
       {state.isOpen && (
-        // <></>
         <Popover
           popoverRef={popoverRef}
           triggerRef={inputRef}

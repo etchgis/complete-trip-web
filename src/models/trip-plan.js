@@ -127,7 +127,7 @@ const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
       const validRouteTypes = [];
 
       Promise.all(
-        otpResults.map((p, i) => furtherDetails(p, validRouteTypes[i]))
+        otpResults.map((p, i) => furtherDetails(p, routeTypes[i]))
       ).then(responses => {
         resolve({
           plans: removeDuplicates(
@@ -275,13 +275,13 @@ const furtherDetails = (otpPlan, routeType) => {
  */
 const convertToHail = leg => {
   leg.mode = 'HAIL';
-  leg.providerId = 'yc';
-  const miles = leg.distance * 0.000621371;
-  let minutes = leg.duration / 60;
-  if (minutes > 15) {
-    minutes -= 15;
-  } // TEMP: Stop including wait time in leg's duration
-  leg.price = 300 + (miles * 241 + minutes * 16) || 0;
+  // leg.providerId = 'yc';
+  // const miles = leg.distance * 0.000621371;
+  // let minutes = leg.duration / 60;
+  // if (minutes > 15) {
+  //   minutes -= 15;
+  // } // TEMP: Stop including wait time in leg's duration
+  // leg.price = 300 + (miles * 241 + minutes * 16) || 0;
   return Promise.resolve(leg);
 };
 

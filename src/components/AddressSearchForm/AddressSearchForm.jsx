@@ -52,7 +52,7 @@ export const SearchForm = observer(
         let items = await fetch(cursor || uri, { signal }).then(res =>
           res.json()
         );
-
+        // console.log({ items });
         const keys = [];
 
         if (locations.length)
@@ -80,7 +80,11 @@ export const SearchForm = observer(
           unique.push(item);
         });
 
-        // console.log({ items });
+        if (unique.length > 0) {
+          console.log(unique[0]);
+          console.log('geocoder result');
+          console.log(unique[0]?.title);
+        }
 
         return {
           items: unique,
@@ -97,8 +101,9 @@ export const SearchForm = observer(
         placeholder="Start typing an address..."
         items={list.items}
         inputValue={address}
+        data-testid="address-search"
         onInputChange={e => {
-          // console.log('onchange');
+          console.log('onchange');
           list.setFilterText(e);
           if (!list.selectedKeys.size) {
             //NOTE needed so that when we come back we clear out the result if the user changes the input value
@@ -129,7 +134,7 @@ export const SearchForm = observer(
           <Item
             key={item.childKey}
             favorite={item.alias ? true : false}
-            // aria-label={item?.name}
+            aria-label={item?.name}
           >
             {item?.name}
           </Item>

@@ -1,0 +1,340 @@
+{
+  "duration": 7570,
+  "startTime": 1690199460000,
+  "endTime": 1690207030000,
+  "walkTime": 7570,
+  "transitTime": 0,
+  "waitingTime": 0,
+  "walkDistance": 12434.93,
+  "walkLimitExceeded": false,
+  "generalizedCost": 100950,
+  "elevationLost": 0,
+  "elevationGained": 0,
+  "transfers": 0,
+  "fare": {
+    "fare": {},
+    "details": {}
+  },
+  "legs": [
+    {
+      "startTime": 1690199460000,
+      "endTime": 1690200112000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 4109.24,
+      "generalizedCost": 894,
+      "pathway": false,
+      "mode": "CAR",
+      "transitLeg": false,
+      "route": "",
+      "agencyTimeZoneOffset": -14400000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "Origin",
+        "lon": -78.794256,
+        "lat": 42.869412,
+        "departure": 1690199460000,
+        "vertexType": "NORMAL"
+      },
+      "to": {
+        "name": "West Seneca Municipal Parking (#1)",
+        "lon": -78.7899722,
+        "lat": 42.8428338,
+        "arrival": 1690200112000,
+        "departure": 1690200112000,
+        "vertexType": "BIKEPARK",
+        "vehicleParking": {
+          "id": "OSM:OSMWay/944411522",
+          "name": "West Seneca Municipal Parking",
+          "entranceId": "OSM:OSMWay/944411522/osm:node:8743675842",
+          "entranceName": "West Seneca Municipal Parking (#1)",
+          "detailsUrl": "http://metro.nfta.com/",
+          "tags": ["osm:amenity=parking"],
+          "hasBicyclePlaces": false,
+          "hasAnyCarPlaces": true,
+          "hasCarPlaces": true,
+          "hasWheelchairAccessibleCarPlaces": false,
+          "capacity": {
+            "carSpaces": 60
+          },
+          "realtime": false
+        }
+      },
+      "legGeometry": {
+        "points": "y|sdGzp|_NaAAcCEBkFqBC_CEBwD@eABaE@}@D{F@sBBqC@s@@w@@y@fBNb@Bj@?tBArBMrB[`AI^CPAdACXBX@bABT@L?V@H?H?T@vABh@@fA@P@F?`B@`A?v@@`CJpBHtEPP@|@FdAB^?`BBhGHP?pBBlGHtABhCDX?V@nBBbDHrABnDHt@@lCBxC@nA@rCBB?bB@xCF`A@p@@jBFx@BzAD^LrAh@jAr@nAx@|A|@|A`A|D~Bj@^|@j@`Al@VaAf@qBRL",
+        "length": 89
+      },
+      "steps": [
+        {
+          "distance": 109.7,
+          "relativeDirection": "DEPART",
+          "streetName": "Crawford Drive",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.7945387,
+          "lat": 42.869417,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 96.03,
+          "relativeDirection": "RIGHT",
+          "streetName": "Marann Terrace",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.794497,
+          "lat": 42.870403,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 134.63,
+          "relativeDirection": "LEFT",
+          "streetName": "Casimir Street",
+          "absoluteDirection": "NORTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.793319,
+          "lat": 42.870382,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 484.86,
+          "relativeDirection": "RIGHT",
+          "streetName": "Clinton Street",
+          "absoluteDirection": "EAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.793261,
+          "lat": 42.871592,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 3189.91,
+          "relativeDirection": "RIGHT",
+          "streetName": "Harlem Road",
+          "absoluteDirection": "SOUTH",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.7873148,
+          "lat": 42.8714453,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 81.94,
+          "relativeDirection": "LEFT",
+          "streetName": "Seneca Street",
+          "absoluteDirection": "SOUTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.790808,
+          "lat": 42.843257,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 12.18,
+          "relativeDirection": "RIGHT",
+          "streetName": "service road",
+          "absoluteDirection": "SOUTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -78.789906,
+          "lat": 42.842932,
+          "elevation": "",
+          "walkingBike": false
+        }
+      ],
+      "rentedBike": false,
+      "walkingBike": false,
+      "duration": 652,
+      "legIndex": 0,
+      "routeColor": "#3da9da"
+    },
+    {
+      "startTime": 1690200112000,
+      "endTime": 1690207030000,
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "realTime": false,
+      "distance": 8325.69,
+      "generalizedCost": 99936,
+      "pathway": false,
+      "mode": "WALK",
+      "transitLeg": false,
+      "route": "",
+      "agencyTimeZoneOffset": -14400000,
+      "interlineWithPreviousLeg": false,
+      "from": {
+        "name": "West Seneca Municipal Parking (#1)",
+        "lon": -78.7899722,
+        "lat": 42.8428338,
+        "arrival": 1690200112000,
+        "departure": 1690200112000,
+        "vertexType": "BIKEPARK",
+        "vehicleParking": {
+          "id": "OSM:OSMWay/944411522",
+          "name": "West Seneca Municipal Parking",
+          "entranceId": "OSM:OSMWay/944411522/osm:node:8743675842",
+          "entranceName": "West Seneca Municipal Parking (#1)",
+          "detailsUrl": "http://metro.nfta.com/",
+          "tags": ["osm:amenity=parking"],
+          "hasBicyclePlaces": false,
+          "hasAnyCarPlaces": true,
+          "hasCarPlaces": true,
+          "hasWheelchairAccessibleCarPlaces": false,
+          "capacity": {
+            "carSpaces": 60
+          },
+          "realtime": false
+        }
+      },
+      "to": {
+        "name": "Destination",
+        "lon": -78.873732,
+        "lat": 42.880651,
+        "arrival": 1690207030000,
+        "vertexType": "NORMAL"
+      },
+      "legGeometry": {
+        "points": "uvndGjt{_NSMg@pBW`ASr@m@|BGTo@`CIVMh@[dA_AjD{@`D_@tAENI\\cArDEPa@xAi@rBCFmAvEc@~AIZy@dAg@n@a@d@o@x@STa@d@GH[^ILUX[^UZQRm@v@QP_@f@s@x@KNu@|@i@p@KL]d@WZ]`@W\\MJaBrBoCfDUXUVg@n@s@z@u@~@GFm@r@ILMNIHWZc@h@]`@ILm@r@eAnAQTIJo@t@_AjAq@x@Y^MNGFKN_BlBILA@aBnBILqBbCMNaBpBIJQTmBzB_@d@o@t@_@f@[b@MTg@z@OVg@|@}@~Au@rAcAfBw@tA_A`BGJS\\a@t@_A~AQZUb@[h@GJk@dAy@tAGLU`@MRy@|AOTkArBKTEDUXc@b@YRa@XQL_@NKDkDzASHG@y@`@MDULQJYP[j@m@vBGRk@pBQt@]lA?@EL{@xCSt@Mf@Od@c@`Bo@xBMd@{@|C]lAW`AAFSr@mAjEeArDGTC@GVcArDKZcAnDoAlEOf@o@`CSn@YdAi@hBGVUt@W`AK^GRIXs@`CsBpHcAlDkElOK^s@hCK`@Sv@]nAADoB|G]lAGVmAdEMb@IX]tAYbAADADOf@GVKZMb@ELeA`EWz@Wv@IXwA`DEJYzAk@`C]dBQdAKfA??E\\QrBGn@OzAGj@CZe@pEKdACZCTy@dICROzACPq@|GC^EVCZYvCk@vFIv@WjCMfAC\\E`@WjCa@|Du@pHGn@Ip@KbASxBGb@?BE^CXE^UtBE`@Ed@Cb@CTLLFDAHVR^VFDSj@k@~A",
+        "length": 261
+      },
+      "steps": [
+        {
+          "distance": 12.18,
+          "relativeDirection": "HARD_RIGHT",
+          "streetName": "service road",
+          "absoluteDirection": "NORTHEAST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -78.7899722,
+          "lat": 42.8428338,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 6255.52,
+          "relativeDirection": "LEFT",
+          "streetName": "Seneca Street",
+          "absoluteDirection": "NORTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.789906,
+          "lat": 42.842932,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 1932.13,
+          "relativeDirection": "CONTINUE",
+          "streetName": "Swan Street",
+          "absoluteDirection": "NORTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": false,
+          "lon": -78.8495885,
+          "lat": 42.8764018,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 18.02,
+          "relativeDirection": "LEFT",
+          "streetName": "path",
+          "absoluteDirection": "SOUTHWEST",
+          "stayOn": false,
+          "area": false,
+          "bogusName": true,
+          "lon": -78.8722084,
+          "lat": 42.8812604,
+          "elevation": "",
+          "walkingBike": false
+        },
+        {
+          "distance": 107.87,
+          "relativeDirection": "LEFT",
+          "streetName": "James D. Griffin Plaza",
+          "absoluteDirection": "SOUTHWEST",
+          "stayOn": false,
+          "area": true,
+          "bogusName": false,
+          "lon": -78.8723551,
+          "lat": 42.8811657,
+          "elevation": "",
+          "walkingBike": false
+        }
+      ],
+      "rentedBike": false,
+      "walkingBike": false,
+      "duration": 6918,
+      "legIndex": 1,
+      "routeColor": "#616161"
+    }
+  ],
+  "tooSloped": false,
+  "arrivedAtDestinationWithRentedBicycle": false,
+  "delay": 0,
+  "timeScore": 7570,
+  "score": null,
+  "ecoHarm": 108.66666666666667,
+  "id": 1688990094077,
+  "request": {
+    "origin": {
+      "point": {
+        "lng": -78.794256,
+        "lat": 42.869412
+      },
+      "childKey": "openaddresses:address:us/ny/statewide:52bfe9f17c576ca7",
+      "title": "29 Crawford Drive",
+      "description": "Buffalo",
+      "source": "openaddresses",
+      "layer": "address",
+      "sourceId": "us/ny/statewide:52bfe9f17c576ca7",
+      "category": "",
+      "postalcode": "14206",
+      "name": "29 Crawford Drive, Buffalo",
+      "text": "29 Crawford Drive Buffalo",
+      "alias": "Home",
+      "id": 1688990061732
+    },
+    "destination": {
+      "point": {
+        "lng": -78.873732,
+        "lat": 42.880651
+      },
+      "childKey": "openstreetmap:venue:way/266056538",
+      "title": "Sahlen Field",
+      "description": "1 James D. Griffin Plaza, Buffalo",
+      "source": "openstreetmap",
+      "layer": "venue",
+      "sourceId": "way/266056538",
+      "category": "",
+      "postalcode": "14203",
+      "name": "Sahlen Field, 1 James D. Griffin Plaza, Buffalo",
+      "text": "Sahlen Field 1 James D. Griffin Plaza, Buffalo"
+    },
+    "whenAction": "asap",
+    "whenTime": "2023-07-24T11:51:00.000Z",
+    "requirements": [],
+    "modes": ["bicycle", "bus", "car", "tram", "walk"],
+    "bannedAgencies": [],
+    "bannedProviders": [],
+    "sortBy": "fastest"
+  }
+}
