@@ -152,14 +152,15 @@ export const mapLayers = e => {
         'icon-allow-overlap': true,
         'icon-ignore-placement': true,
       },
-    }
+    },
   ];
 
   // console.log('[map] checking layers');
   layers.forEach(l => {
     if (!map.getLayer(l.id)) {
       console.log('[map] adding layer', l.id);
-      const beforeLayer = (l.id === 'stops' || l.id === 'buses-live') ? '' : 'road-label-navigation';
+      const beforeLayer =
+        l.id === 'stops' || l.id === 'buses-live' ? '' : 'road-label-simple';
       map.addLayer(l, beforeLayer);
     }
   });

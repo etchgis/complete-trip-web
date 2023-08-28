@@ -1,20 +1,20 @@
 import {
-  Accessibility,
-  FavoritesList,
-  PrivacyPolicy,
-  ProfileInformation,
-  TermsOfUse,
-} from '../components/Settings/SettingsViews';
-import {
   Box,
   Button,
   Divider,
+  Flex,
   Grid,
   Heading,
   Stack,
   useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
+import {
+  FavoritesList,
+  PrivacyPolicy,
+  ProfileInformation,
+  TermsOfUse,
+} from '../components/Settings/SettingsViews';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -22,7 +22,6 @@ import { AddCaregiver } from '../components/Settings/AddCaregiver';
 import { CaregiversList } from '../components/Settings/CaregiversList';
 import { Dependents } from '../components/Dependents/Dependents';
 import { EditAccessibility } from '../components/Settings/EditAccessibility';
-import { EditNotifications } from '../components/Settings/EditNotifications';
 import { EditPassword } from '../components/Settings/EditPassword';
 import { EditProfile } from '../components/Settings/EditProfile';
 import { EditTripPreferences } from '../components/Settings/EditTripPreferences';
@@ -91,7 +90,7 @@ const Settings = observer(({ view }) => {
       action: () => navigate('/settings/password'),
     },
     {
-      title: 'App Accessibility',
+      title: 'Accessibility',
       type: 'setting',
       action: () => navigate('/settings/accessibility'),
     },
@@ -136,7 +135,7 @@ const Settings = observer(({ view }) => {
       el: <EditPassword />,
     },
     {
-      title: 'App Accessibility',
+      title: 'Accessibility',
       el: <EditAccessibility />,
     },
   ];
@@ -225,11 +224,28 @@ function switchViews({ view, setActivePanel }) {
     case 'password':
       return <EditPassword />;
     case 'accessibility':
-      return (
-        <Accessibility action={() => setActivePanel('App Accessibility')} />
-      );
+      return <EditAccessibility />;
     case 'notifications':
-      return <EditNotifications />;
+      return (
+        <Box width={{ base: '100%', md: '380px' }}>
+          <Flex justifyContent={'space-between'}>
+            <p>Notification Preference Type</p>
+            <p>Settings</p>
+          </Flex>
+          <Box py={6}>
+            <Divider />
+          </Box>
+          <p>
+            <strong>Rider Notification Alerts</strong>
+          </p>
+          <Box py={6}>
+            <Divider />
+          </Box>
+          <p>
+            <strong>Caregiver Notification Alerts</strong>
+          </p>
+        </Box>
+      );
     case 'terms':
       return <TermsOfUse />;
     case 'privacy':

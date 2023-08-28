@@ -1,7 +1,3 @@
-import { FaBiking, FaBusAlt, FaCar, FaClock, FaWalking } from 'react-icons/fa';
-
-import { GrWheelchairActive } from 'react-icons/gr';
-
 const API_ENV = 'stage';
 const ENV = 'stage';
 
@@ -9,6 +5,48 @@ const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
 
 const API = {
+  dev: {
+    admin: {
+      url: 'https://staging.lambda.etch.app/admin',
+      xApiKey: 'iZKVhiZSct7th3GxOVlph6mzV0x3zh0X2UPWa7YB',
+    },
+    auth: {
+      url: 'https://staging.lambda.etch.app/accounts',
+      xApiKey: 'EJuLUUwBtd1AMxsEXELgJ9uceOj530yC2OVJnDYS',
+    },
+    rides: {
+      url: 'https://staging.lambda.etch.app/rides',
+      xApiKey: 'tyVuJdnuFv9y1pMc8Ir7Q8D1pygvpAFGl4C9jzgc',
+    },
+    trips: {
+      url: 'https://staging.lambda.etch.app/trips',
+      xApiKey: 'tqoXE84kKo26JPXoTVVIY8eti9JQmAg13BvpGa5K',
+    },
+    plantrip: {
+      url: 'http://192.168.86.249:8082/plantrip',
+      xApiKey: '',
+    },
+    routes: {
+      url: 'https://staging.lambda.etch.app/routes',
+      xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
+    },
+    verifications: {
+      url: 'https://staging.lambda.etch.app/verifications',
+      xApiKey: '4pJ5BNCYYj4fz3eyJWhZVadrPgeyl39D8ykWgCS8',
+    },
+    caregivers: {
+      url: 'https://staging.lambda.etch.app/caregivers',
+      xApiKey: 'SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE',
+    },
+    notifications: {
+      url: 'https://staging.lambda.etch.app/notifications',
+      xApiKey: 'qzefkF03af3epdSSiN0Jz8IwSTQBamVD8R4xcfAv',
+    },
+    websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
+    streamsocket: 'wss://{org}.etch.app/services',
+    otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
+    geocode: 'https://511ny.etch.app/geocode',
+  },
   stage: {
     admin: {
       url: 'https://staging.lambda.etch.app/admin',
@@ -87,7 +125,7 @@ const WAIT = {
   label: 'Wait',
   name: 'wait',
   icon: 'clock',
-  _webIcon: FaClock,
+
   color: '#CCCCCC',
   svg: {
     path: 'M240 112C240 103.2 247.2 96 256 96C264.8 96 272 103.2 272 112V247.4L360.9 306.7C368.2 311.6 370.2 321.5 365.3 328.9C360.4 336.2 350.5 338.2 343.1 333.3L247.1 269.3C242.7 266.3 239.1 261.3 239.1 256L240 112zM256 0C397.4 0 512 114.6 512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0zM32 256C32 379.7 132.3 480 256 480C379.7 480 480 379.7 480 256C480 132.3 379.7 32 256 32C132.3 32 32 132.3 32 256z',
@@ -99,7 +137,7 @@ const WHEELCHAIR = {
   label: 'Roll',
   name: 'roll',
   icon: 'rolling',
-  _webIcon: GrWheelchairActive,
+
   color: '#616161',
   svg: {
     path: 'M312 56C312 25.07 337.1 0 368 0C398.9 0 424 25.07 424 56C424 86.93 398.9 112 368 112C337.1 112 312 86.93 312 56zM368 80C381.3 80 392 69.25 392 56C392 42.75 381.3 32 368 32C354.7 32 344 42.75 344 56C344 69.25 354.7 80 368 80zM199.5 106.9C187.6 102 173.9 104.8 164.7 113.9L123.3 155.3C117.1 161.6 106.9 161.6 100.7 155.3C94.44 149.1 94.44 138.9 100.7 132.7L142.1 91.26C160.3 73.03 187.7 67.51 211.6 77.28L313.5 118.1C345.3 131.1 353.5 173.1 329.3 197.3L280.2 246.4C287.1 254.3 293.3 262.9 298.6 271.1H432C436.9 271.1 441.4 274.2 444.5 277.1C447.5 281.8 448.7 286.7 447.6 291.5L415.6 435.5C413.7 444.1 405.2 449.5 396.5 447.6C387.9 445.7 382.5 437.2 384.4 428.5L412.1 304H312.7C317.4 319.2 320 335.3 320 352C320 440.4 248.4 512 160 512C71.63 512 0 440.4 0 352C0 263.6 71.63 192 160 192C165.6 192 171.1 192.3 176.5 192.8L244.2 125.2L199.5 106.9zM301.4 148.6L276.3 138.3L213.5 201.2C229.2 206.7 243.8 214.7 256.8 224.6L306.7 174.7C314.7 166.6 311.1 152.9 301.4 148.6V148.6zM160 480C230.7 480 288 422.7 288 352C288 281.3 230.7 224 160 224C89.31 224 32 281.3 32 352C32 422.7 89.31 480 160 480z',
@@ -127,7 +165,6 @@ const MODES = [
     sort: 0,
     label: 'Walk',
     icon: 'walking',
-    _webIcon: FaWalking,
     type: 'walk',
     accessible: true,
     color: '#616161',
@@ -144,7 +181,6 @@ const MODES = [
     label: 'Car',
     icon: 'car',
     type: 'car',
-    _webIcon: FaCar,
     accessible: true,
     color: '#3da9da',
     api: '',
@@ -159,7 +195,6 @@ const MODES = [
     sort: 2,
     label: 'Bike',
     icon: 'bicycle',
-    _webIcon: FaBiking,
     type: 'bicyle',
     accessible: false,
     color: '#AF272F',
@@ -175,7 +210,6 @@ const MODES = [
     sort: 1,
     label: 'Bus',
     icon: 'bus-alt',
-    _webIcon: FaBusAlt,
     type: 'transit',
     accessible: true,
     color: '#00205B',
@@ -210,16 +244,90 @@ const MODES = [
     accessible: true,
     color: '#5bcb40',
     api: '',
-    'svg': {
-      'path': 'M80 32C53.5 32 32 53.5 32 80V248.4c10.8-9.7 23.9-17 38.3-21l31.3-88.8c9-25.6 33.2-42.7 60.4-42.7H350c27.1 0 51.3 17.1 60.4 42.7l31.3 88.8c14.4 4 27.4 11.3 38.3 21V80c0-26.5-21.5-48-48-48H80zM32 320v48c0 26.5 21.5 48 48 48H432c26.5 0 48-21.5 48-48V320c0-35.3-28.7-64-64-64H96c-35.3 0-64 28.7-64 64zM0 320V80C0 35.8 35.8 0 80 0H432c44.2 0 80 35.8 80 80V320v48c0 26.2-12.6 49.4-32 64v64c0 8.8-7.2 16-16 16s-16-7.2-16-16V446.4c-5.2 1-10.5 1.6-16 1.6H80c-5.5 0-10.8-.6-16-1.6V496c0 8.8-7.2 16-16 16s-16-7.2-16-16V432C12.6 417.4 0 394.2 0 368V320zm105.4-96H406.6l-26.3-74.7C375.7 136.6 363.6 128 350 128H162c-13.6 0-25.7 8.6-30.2 21.3L105.4 224zM80 328a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zm328-24a24 24 0 1 1 0 48 24 24 0 1 1 0-48z',
-      'viewBox': '0 0 512 512',
+    svg: {
+      path: 'M80 32C53.5 32 32 53.5 32 80V248.4c10.8-9.7 23.9-17 38.3-21l31.3-88.8c9-25.6 33.2-42.7 60.4-42.7H350c27.1 0 51.3 17.1 60.4 42.7l31.3 88.8c14.4 4 27.4 11.3 38.3 21V80c0-26.5-21.5-48-48-48H80zM32 320v48c0 26.5 21.5 48 48 48H432c26.5 0 48-21.5 48-48V320c0-35.3-28.7-64-64-64H96c-35.3 0-64 28.7-64 64zM0 320V80C0 35.8 35.8 0 80 0H432c44.2 0 80 35.8 80 80V320v48c0 26.2-12.6 49.4-32 64v64c0 8.8-7.2 16-16 16s-16-7.2-16-16V446.4c-5.2 1-10.5 1.6-16 1.6H80c-5.5 0-10.8-.6-16-1.6V496c0 8.8-7.2 16-16 16s-16-7.2-16-16V432C12.6 417.4 0 394.2 0 368V320zm105.4-96H406.6l-26.3-74.7C375.7 136.6 363.6 128 350 128H162c-13.6 0-25.7 8.6-30.2 21.3L105.4 224zM80 328a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zm328-24a24 24 0 1 1 0 48 24 24 0 1 1 0-48z',
+      viewBox: '0 0 512 512',
     },
   },
 ];
 
 const BASEMAPS = {
-  DAY: 'mapbox://styles/jesseglascock/cl3yvm7s3004p14o0wboi3rkw',
-  NIGHT: 'mapbox://styles/jesseglascock/cl3yvpaof004q14o0fvuffphw',
+  // DAY: 'mapbox://styles/jesseglascock/cl3yvm7s3004p14o0wboi3rkw',
+  // NIGHT: 'mapbox://styles/jesseglascock/cl3yvm7s3004p14o0wboi3rkw',
+  DAY: 'mapbox://styles/jesseglascock/ckzharkag000815s8rewphri4',
+  NIGHT: 'mapbox://styles/jesseglascock/ckzharkag000815s8rewphri4',
+};
+
+const NOTIFY_METHODS = [
+  {
+    value: 'push',
+    label: 'Push',
+  },
+  {
+    value: 'sms',
+    label: 'SMS',
+  },
+  {
+    value: 'phone',
+    label: 'Phone Call',
+  },
+];
+
+const NOTIFICATION_TYPES = {
+  traveler: [
+    {
+      value: 'tripStart',
+      label: 'Trip Start',
+      types: ['tripStart'],
+    },
+    {
+      value: 'transitArrive',
+      label: 'Transit Arrival',
+      types: ['transitArrive'],
+    },
+    {
+      value: 'transitDelay',
+      label: 'Mass Transit Delay',
+      types: ['transitDelay'],
+    },
+    {
+      value: 'shuttleArrive',
+      label: 'On Deman Shuttle Arrival',
+      types: ['shuttleArrive'],
+    },
+    {
+      value: 'intersection',
+      label: 'Enhanced Intersection Information',
+      types: ['intersection'],
+    },
+  ],
+  caregiver: [
+    {
+      value: 'dependentTripStart',
+      label: 'Trip Start',
+      types: ['dependentTripStart'],
+    },
+    {
+      value: 'dependentArriveDepart',
+      label: 'Rider Arrival/Departure',
+      types: ['dependentArrive', 'dependentDepart'],
+    },
+    {
+      value: 'dependentShuttleArriveDepart',
+      label: 'Rider Shuttle Arrival/Drop Off',
+      types: ['dependentShuttleArrive', 'dependentShuttleDepart'],
+    },
+    {
+      value: 'dependentModeChange',
+      label: 'Rider Transportation Mode Change',
+      types: ['dependentModeChange'],
+    },
+  ],
+};
+
+const LANAGUAGES = {
+  en: 'English',
+  es: 'Spanish',
 };
 
 const defaults = {
@@ -250,6 +358,10 @@ const defaults = {
   DESTINATION,
   ICONS,
   CAREGIVER_SECRET,
+
+  NOTIFICATION_TYPES,
+  LANAGUAGES,
+  NOTIFY_METHODS,
 };
 const config = { ...defaults };
 

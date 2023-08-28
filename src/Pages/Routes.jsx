@@ -48,6 +48,19 @@ export const Routes = observer(() => {
     })();
     // eslint-disable-next-line
   }, [loggedIn]);
+  
+  //put the notifications setInterval here? only if the user is a caregiver
+  // useEffect(() => {
+  //   if (user?.profile?.role === 'caregiver') {
+  //     const interval = setInterval(() => {
+  //       console.log('This will run every second!');
+  //     }, 1000);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [user]);
+
+  //react useInterval hook
+  
 
   return (
     <ReactRoutes>
