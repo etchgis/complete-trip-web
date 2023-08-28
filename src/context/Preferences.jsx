@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 
 import config from '../config';
 
@@ -92,7 +92,13 @@ class Preferences {
   };
 
   updateProfile = () => {
-    this.rootStore.profile.updateProfile();
+    const profile = this.rootStore.authentication?.user?.profile;
+    const update = {
+      ...profile,
+      preferences: this.getAll(),
+    };
+    console.log('{preferences.updateProfile}', update);
+    this.rootStore.authentication.updateUserProfile(update);
   };
 
   getAll = () => {
@@ -104,7 +110,7 @@ class Preferences {
       minimizeWalking: this.minimizeWalking,
       modes: this.setAndCleanModes(),
       notifications: this.notifications,
-      notificationTypes: setAndCleanNotificationTypes(),
+      notificationTypes: this.setAndCleanNotificationTypes(),
       shareWithConcierge: this.shareWithConcierge,
       navigationDirections: this.navigationDirections,
     };

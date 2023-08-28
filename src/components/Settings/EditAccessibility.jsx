@@ -15,7 +15,7 @@ import { useStore } from '../../context/RootStore';
 
 export const EditAccessibility = observer(() => {
   return (
-    <Box width="380px" id="edit-accessibility">
+    <Box width="100%" maxW="500px" id="edit-accessibility">
       <EditNavDirections />
       <Box py={6}>
         <Divider />

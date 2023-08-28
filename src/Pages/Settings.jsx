@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Divider,
-  Flex,
   Grid,
   Heading,
   Stack,
@@ -22,6 +21,7 @@ import { AddCaregiver } from '../components/Settings/AddCaregiver';
 import { CaregiversList } from '../components/Settings/CaregiversList';
 import { Dependents } from '../components/Dependents/Dependents';
 import { EditAccessibility } from '../components/Settings/EditAccessibility';
+import { EditAppNotifications } from '../components/Settings/EditAppNotifications';
 import { EditPassword } from '../components/Settings/EditPassword';
 import { EditProfile } from '../components/Settings/EditProfile';
 import { EditTripPreferences } from '../components/Settings/EditTripPreferences';
@@ -226,26 +226,7 @@ function switchViews({ view, setActivePanel }) {
     case 'accessibility':
       return <EditAccessibility />;
     case 'notifications':
-      return (
-        <Box width={{ base: '100%', md: '380px' }}>
-          <Flex justifyContent={'space-between'}>
-            <p>Notification Preference Type</p>
-            <p>Settings</p>
-          </Flex>
-          <Box py={6}>
-            <Divider />
-          </Box>
-          <p>
-            <strong>Rider Notification Alerts</strong>
-          </p>
-          <Box py={6}>
-            <Divider />
-          </Box>
-          <p>
-            <strong>Caregiver Notification Alerts</strong>
-          </p>
-        </Box>
-      );
+      return <EditAppNotifications />;
     case 'terms':
       return <TermsOfUse />;
     case 'privacy':
