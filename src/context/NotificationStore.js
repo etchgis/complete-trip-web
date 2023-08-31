@@ -80,7 +80,6 @@ class NotificationStore {
         const data = JSON.parse(JSON.parse(JSON.parse(event.data)));
         if (this?.rootStore?.uiStore?.debug) {
           console.log(data);
-          console.log('{notification-store}-leg index', data.legIndex);
         }
         tripId = data.tripId;
 
@@ -93,7 +92,7 @@ class NotificationStore {
               message: this.messages[0].message(dependent?.firstName),
               type: this.messages[0].type,
               active: true,
-              legIndex: data.legIndex,
+              legIndex: data?.legIndex || 0,
             };
             this.trips = [...this.trips, newTrip];
             // this.trips.push(newTrip[0]); //this does not work as it references the same object

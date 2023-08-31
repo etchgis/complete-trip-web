@@ -28,7 +28,7 @@ const useInterval = (callback, delay) => {
 
 const useDependentTripNotifier = () => {
   const { user, loggedIn } = useStore().authentication;
-  const { hydrate: hydrateDependents } = useStore().caregivers;
+  const { hydrate: hydrateDependents, dependents } = useStore().caregivers;
   const { dependentTrips, hydrateDependentTrips } = useStore().schedule;
   const { dependentTracker } = useStore().notifications;
   const { debug } = useStore().uiStore;
@@ -44,11 +44,6 @@ const useDependentTripNotifier = () => {
     user?.profile?.preferences?.notificationTypes?.includes(
       'dependentTripStart'
     );
-
-  if (debug) {
-    console.log('{showToast}', showToast);
-    console.log(user.profile.preferences.notificationTypes);
-  }
 
   const updateState = (allTrips, tripsWithin5, tripsWithin1) => {
     allTrips.forEach(t => {
@@ -78,13 +73,30 @@ const useDependentTripNotifier = () => {
 
   useEffect(() => {
     if (!loggedIn) return;
-    if (!dependentTrips.length) {
+    if (!dependents.length) {
+      console.log('{useDependentNotifier} checking for dependents');
       (async () => {
         await hydrateDependents();
-        await hydrateDependentTrips();
       })();
     }
-  }, [loggedIn, dependentTrips, user?.profile?.preferences?.notificationTypes]);
+    //eslint-disable-next-line
+  }, [loggedIn]);
+
+  useEffect(() => {
+    if (!loggedIn) return;
+    if (dependents.length && !dependentTrips.length) {
+      console.log('{useDependentNotifier} checking for dependent trips')(
+        async () => {
+          await hydrateDependentTrips();
+        }
+      )();
+    }
+  }, [
+    loggedIn,
+    dependentTrips,
+    dependents,
+    user?.profile?.preferences?.notificationTypes,
+  ]);
 
   const checkForDependentTripAlerts = () => {
     if (!dependentTrips.length) return;
@@ -98,9 +110,9 @@ const useDependentTripNotifier = () => {
 
     const tripsWithin1 = dependentTrips.filter(trip => {
       const remainingTime = trip.plan.startTime - now.getTime();
-      if (remainingTime > 0 && debug)
+      if (trip.plan.startTime > now.getTime() && remainingTime > 59000)
         console.log(
-          'remaining time until webhook',
+          'dependent trip begins in',
           remainingTime / 1000,
           'seconds'
         );
@@ -135,7 +147,9 @@ const useDependentTripNotifier = () => {
           //     variant: 'left-accent',
           //   });
           // }
-          console.log('{useDependentNotifier} opening websocket for trip');
+          console.log(
+            `${now.toLocaleTimeString()} {useDependentNotifier} opening websocket`
+          );
           dependentTracker.start(trip?.dependent);
         }
       });
@@ -178,7 +192,7 @@ const useDependentTripNotifier = () => {
   useInterval(
     () => {
       if (loggedIn && dependentTrips.length && debug) {
-        console.log('{useDependentTripNotifier} running checker');
+        console.log('{useDependentTripNotifier} checking');
       }
       checkForDependentTripAlerts();
     },

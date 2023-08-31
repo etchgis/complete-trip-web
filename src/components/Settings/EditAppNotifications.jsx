@@ -11,7 +11,6 @@ import {
 
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const EditAppNotifications = observer(() => {
