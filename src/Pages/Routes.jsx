@@ -12,6 +12,7 @@ import { observer } from 'mobx-react-lite';
 import useDependentTripNotifier from '../hooks/useDependentNotifier';
 import { useEffect } from 'react';
 import useNotifications from '../hooks/useNotifications';
+import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
 
 // import { toJS } from 'mobx';
@@ -53,6 +54,7 @@ export const Routes = observer(() => {
   }, [loggedIn]);
 
   //---------------------NOTIFICATIONS---------------------
+  useRiderNotifier();
   useDependentTripNotifier();
   useNotifications();
   //---------------------NOTIFICATIONS---------------------
