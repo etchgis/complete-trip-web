@@ -69,7 +69,7 @@ export const EditAppNotifications = observer(() => {
           );
         })}
       </Stack>
-      {dependents.length && (
+      {dependents.length ? (
         <>
           <Box py={6}>
             <Divider />
@@ -106,7 +106,7 @@ export const EditAppNotifications = observer(() => {
             })}
           </Stack>
         </>
-      )}
+      ) : null}
     </Box>
   );
 });
