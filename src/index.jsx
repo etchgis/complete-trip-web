@@ -16,7 +16,7 @@ import React from 'react';
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
-console.log('[env]', process.env.NODE_ENV);
+console.log('[node_env]', process.env.NODE_ENV);
 const store = new RootStore();
 
 root.render(

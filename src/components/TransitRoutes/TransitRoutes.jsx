@@ -7,25 +7,21 @@ import { WarningTwoIcon } from '@chakra-ui/icons';
 import debounce from '../../utils/debounce';
 import { featureCollection } from '@turf/helpers';
 import formatters from '../../utils/formatters';
+import moment from 'moment';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
-import moment from 'moment';
 
-export const TransitRoutes = observer(({ }) => {
+export const TransitRoutes = observer(({}) => {
   const colorMode = useColorMode();
-  const {
-    map,
-    mapState,
-    setMapState,
-    mapCache,
-    getRoutes,
-    getStops,
-  } = useStore().mapStore;
+  const { map, mapState, setMapState, mapCache, getRoutes, getStops } =
+    useStore().mapStore;
   const { debug } = useStore().uiStore;
   // const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
-  const [showLoader, setShowLoader] = useState(mapState.routesLoading || mapState.stopsLoading);
+  const [showLoader, setShowLoader] = useState(
+    mapState.routesLoading || mapState.stopsLoading
+  );
   const [defaultAddress, setDefaultAddress] = useState('');
   const [searchResult, setSearchResult] = useState(false);
   const { pathname } = useLocation();
@@ -33,7 +29,7 @@ export const TransitRoutes = observer(({ }) => {
   const intervalRef = useRef();
 
   useEffect(() => {
-    console.log('mapState.geolocation', mapState.geolocation.length);
+    if (debug) console.log('mapState.geolocation', mapState.geolocation.length);
     //NOTE this fires on map moveend and on map GPS button
     if (mapState.geolocation.length) {
       debounce(
@@ -78,7 +74,7 @@ export const TransitRoutes = observer(({ }) => {
       setMapState('activeRoute', service);
       if (service.service && service.route) {
         getStops(service, true)
-          .then((result) => {
+          .then(result => {
             const { route, stops, vehicles } = result;
             if (!route?.features.length) throw new Error('no patterns found');
             if (map.getSource('routes-highlight'))
@@ -105,7 +101,7 @@ export const TransitRoutes = observer(({ }) => {
           })
           .catch(e => {
             console.error('getRoutesAndStops', e);
-          })
+          });
       }
     } catch (error) {
       setMapState('activeRoute', '');
@@ -113,12 +109,12 @@ export const TransitRoutes = observer(({ }) => {
     }
   };
 
-  const refreshRoute = (service) => {
+  const refreshRoute = service => {
     console.log('intervalRef.current', intervalRef.current);
     if (!intervalRef.current) {
       intervalRef.current = setInterval(() => {
         getStops(service)
-          .then((result) => {
+          .then(result => {
             const { stops, vehicles } = result;
             if (map.getSource('stops')) {
               map.getSource('stops').setData(stops);
@@ -139,10 +135,10 @@ export const TransitRoutes = observer(({ }) => {
           })
           .catch(e => {
             console.error('INTERVAL ERROR: getRoutesAndStops', e);
-          })
+          });
       }, 5000);
     }
-  }
+  };
 
   // useEffect(() => {
   //   if (map) {
@@ -236,7 +232,7 @@ export const TransitRoutes = observer(({ }) => {
           {/* TODO find a way to clear to search result */}
           <Box p={2}>
             <SearchForm
-              saveAddress={() => { }}
+              saveAddress={() => {}}
               setGeocoderResult={e => {
                 if (map) {
                   //TODO change this to a function
@@ -311,67 +307,80 @@ const StopTimesList = observer(({ stopClickHandler }) => {
           overflowX={'hidden'}
           data-testid="map-stoptimes"
         >
-          {stoptimes.features.filter(s => s.properties.filter).map((s, i) => {
-            return (
-              <Button
-                key={i.toString()}
-                display="block"
-                flexWrap={'wrap'}
-                textAlign={'left'}
-                background={s.properties.color}
-                color={s.properties.textColor}
-                _hover={{
-                  filter: 'brightness(1.1) saturate(1.3)',
-                }}
-                justifyContent={'flex-start'}
-                fontSize="sm"
-                minH={'90px'}
-                height={'auto'}
-                margin={0}
-                paddingX={'15px'}
-                paddingY={'8px'}
-                borderRadius={0}
-                onClick={() => stopClickHandler(s)}
-                borderBottom={'solid 1px lightgray'}
-                borderLeft={'none'}
-                borderRight={'none'}
-                width="100%"
-              >
-                <Flex
-                  flexDirection={'row'}
-                  width={'100%'}
+          {stoptimes.features
+            .filter(s => s.properties.filter)
+            .map((s, i) => {
+              return (
+                <Button
+                  key={i.toString()}
+                  display="block"
+                  flexWrap={'wrap'}
+                  textAlign={'left'}
+                  background={s.properties.color}
+                  color={s.properties.textColor}
+                  _hover={{
+                    filter: 'brightness(1.1) saturate(1.3)',
+                  }}
+                  justifyContent={'flex-start'}
+                  fontSize="sm"
+                  minH={'90px'}
+                  height={'auto'}
+                  margin={0}
+                  paddingX={'15px'}
+                  paddingY={'8px'}
+                  borderRadius={0}
+                  onClick={() => stopClickHandler(s)}
+                  borderBottom={'solid 1px lightgray'}
+                  borderLeft={'none'}
+                  borderRight={'none'}
+                  width="100%"
                 >
-                  <Flex
-                    flexDirection={'column'}
-                    flex={1}
-                    width={'300px'}
-                  >
-                    <span style={{ fontSize: 18, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.properties.name}</span>
-                    <span style={{ fontSize: 14, fontWeight: 'bold' }}>{s.properties.publicCode}</span>
-                    {s.properties?.routes &&
-                      <span>{`Servicing Route${s.properties.routes.length !== 0 ? 's' : ''} ${s.properties.routes.join(',')}`}</span>
-                    }
+                  <Flex flexDirection={'row'} width={'100%'}>
+                    <Flex flexDirection={'column'} flex={1} width={'300px'}>
+                      <span
+                        style={{
+                          fontSize: 18,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {s.properties.name}
+                      </span>
+                      <span style={{ fontSize: 14, fontWeight: 'bold' }}>
+                        {s.properties.publicCode}
+                      </span>
+                      {s.properties?.routes && (
+                        <span>{`Servicing Route${
+                          s.properties.routes.length !== 0 ? 's' : ''
+                        } ${s.properties.routes.join(',')}`}</span>
+                      )}
+                    </Flex>
+                    <Flex
+                      flex={3}
+                      width={'100%'}
+                      flexDirection={'column'}
+                      alignItems={'flex-end'}
+                    >
+                      {s.properties.arrive && (
+                        <span style={{ fontSize: 16 }}>
+                          {moment(s.properties.arrive).format('h:mm A')}
+                        </span>
+                      )}
+                      {s.properties.arriveNext && (
+                        <span style={{ fontSize: 16 }}>
+                          {moment(s.properties.arriveNext).format('h:mm A')}
+                        </span>
+                      )}
+                    </Flex>
                   </Flex>
-                  <Flex
-                    flex={3}
-                    width={'100%'}
-                    flexDirection={'column'}
-                    alignItems={'flex-end'}
-                  >
-                    {s.properties.arrive &&
-                      <span style={{ fontSize: 16 }}>{moment(s.properties.arrive).format('h:mm A')}</span>
-                    }
-                    {s.properties.arriveNext &&
-                      <span style={{ fontSize: 16 }}>{moment(s.properties.arriveNext).format('h:mm A')}</span>
-                    }
-                  </Flex>
-                </Flex>
-              </Button>
-            )
-          })
-          }
+                </Button>
+              );
+            })}
         </Flex>
-      ) : ''}
+      ) : (
+        ''
+      )}
     </>
   );
 
@@ -501,12 +510,12 @@ const RouteList = observer(({ routeClickHandler }) => {
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
 
-  const timeToDuration = (timestamp) => {
+  const timeToDuration = timestamp => {
     let diff = timestamp - Date.now();
     return diff / 1000;
   };
 
-  const durationToString = (timestamp) => {
+  const durationToString = timestamp => {
     const diff = timeToDuration(timestamp);
     var hours = Math.floor(diff / 3600);
     var minutes = Math.floor(diff / 60) % 60;
@@ -526,7 +535,7 @@ const RouteList = observer(({ routeClickHandler }) => {
     }
   };
 
-  const distanceToString = (kilometers) => {
+  const distanceToString = kilometers => {
     // show in miles if less than 1 mile, otherwise show in feet
     var miles = kilometers * 0.621371;
     if (miles < 1) {
@@ -538,96 +547,125 @@ const RouteList = observer(({ routeClickHandler }) => {
 
   return (
     <>
-      {!stoptimes?.features.length && routes.length > 0 ?
-        (
-          <Flex
-            position={'relative'}
-            mt={2}
-            flexDir={'column'}
-            flex={1}
-            overflowY={'auto'}
-            id="map-route-list"
-            data-testid="map-route-list"
-          >
-            {routes.map((r, i) => {
-              return (
-                <Button
-                  data-testid="map-route-list-button"
-                  display="flex"
-                  justifyContent={'center'}
-                  key={i}
-                  background={`#${r.color || '004490'}`}
-                  color={`#${r.textColor || 'ffffff'}`}
-                  _hover={{
-                    filter: 'brightness(1.1) saturate(1.3)',
-                  }}
-                  paddingX={'15px'}
-                  paddingY={'8px'}
-                  fontSize="sm"
-                  fontWeight="bold"
-                  minH={'90px'}
-                  margin={0}
-                  borderRadius={0}
-                  outline={'solid 1px white'}
-                  onClick={() => routeClickHandler(r)}
-                >
-                  {r.mode === 'bus' &&
+      {!stoptimes?.features.length && routes.length > 0 ? (
+        <Flex
+          position={'relative'}
+          mt={2}
+          flexDir={'column'}
+          flex={1}
+          overflowY={'auto'}
+          id="map-route-list"
+          data-testid="map-route-list"
+        >
+          {routes.map((r, i) => {
+            return (
+              <Button
+                data-testid="map-route-list-button"
+                display="flex"
+                justifyContent={'center'}
+                key={i}
+                background={`#${r.color || '004490'}`}
+                color={`#${r.textColor || 'ffffff'}`}
+                _hover={{
+                  filter: 'brightness(1.1) saturate(1.3)',
+                }}
+                paddingX={'15px'}
+                paddingY={'8px'}
+                fontSize="sm"
+                fontWeight="bold"
+                minH={'90px'}
+                margin={0}
+                borderRadius={0}
+                outline={'solid 1px white'}
+                onClick={() => routeClickHandler(r)}
+              >
+                {r.mode === 'bus' && (
+                  <Flex flexDirection={'column'} flex={1}>
                     <Flex
-                      flexDirection={'column'}
-                      flex={1}
+                      flexDir={'row'}
+                      justifyContent={'space-between'}
+                      width={'100%'}
                     >
-                      <Flex
-                        flexDir={'row'}
-                        justifyContent={'space-between'}
-                        width={'100%'}
+                      <span
+                        style={{
+                          fontSize: 32,
+                          fontWeight: 'bold',
+                          marginBottom: 0,
+                        }}
                       >
-                        <span style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 0 }}>{r?.route?.subRoute}</span>
-                        <Flex
-                          flexDir={'column'}
-                        >
-                          <span style={{ textAlign: 'right' }}>{r?.route?.arrive ? durationToString(r.route.arrive) : ''}</span>
-                          <span style={{ textAlign: 'right' }}>{r?.route?.arriveNext ? `Next ${moment(r.route.arriveNext).format('h:mm A')}` : ''}</span>
-                        </Flex>
+                        {r?.route?.subRoute}
+                      </span>
+                      <Flex flexDir={'column'}>
+                        <span style={{ textAlign: 'right' }}>
+                          {r?.route?.arrive
+                            ? durationToString(r.route.arrive)
+                            : ''}
+                        </span>
+                        <span style={{ textAlign: 'right' }}>
+                          {r?.route?.arriveNext
+                            ? `Next ${moment(r.route.arriveNext).format(
+                                'h:mm A'
+                              )}`
+                            : ''}
+                        </span>
                       </Flex>
-                      {(r?.route || r?.location) &&
-                        <Flex
-                          flexDir={'column'}
-                          flex={1}
-                        >
-                          {r?.route &&
-                            <span style={{ fontSize: 14, textAlign: 'left', marginBottom: 4 }}>{r.route?.destination}</span>
-                          }
-                          {r?.location &&
-                            <span style={{ textAlign: 'left' }}>
-                              Stop{' '}
-                              <span style={{ color: `#${r.color || '004490'}`, backgroundColor: `#${r.textColor || 'ffffff'}`, borderRadius: 4, padding: '0px 4px' }}>{r.location?.publicCode}</span>
-                              {' '}
-                              {r.location?.name}
-                              {r?.kilometers &&
-                                <span>{' ('}{distanceToString(r?.kilometers)}{') '}</span>
-                              }
-                            </span>
-                          }
-                        </Flex>
-                      }
                     </Flex>
-                  }
-                  {r.mode === 'shuttle' &&
-                    <Flex
-                      flexDirection={'column'}
-                      flex={1}
-                    >
-                      <span style={{ fontSize: 18, textAlign: 'left' }}>{r.name}</span>
-                    </Flex>
-                  }
-                </Button>
-              );
-            })}
-          </Flex>
-        ) : ''
-      }
+                    {(r?.route || r?.location) && (
+                      <Flex flexDir={'column'} flex={1}>
+                        {r?.route && (
+                          <span
+                            style={{
+                              fontSize: 14,
+                              textAlign: 'left',
+                              marginBottom: 4,
+                            }}
+                          >
+                            {r.route?.destination}
+                          </span>
+                        )}
+                        {r?.location && (
+                          <span style={{ textAlign: 'left' }}>
+                            Stop{' '}
+                            <span
+                              style={{
+                                color: `#${r.color || '004490'}`,
+                                backgroundColor: `#${r.textColor || 'ffffff'}`,
+                                borderRadius: 4,
+                                padding: '0px 4px',
+                              }}
+                            >
+                              {r.location?.publicCode}
+                            </span>{' '}
+                            {r.location?.name}
+                            {r?.kilometers && (
+                              <span>
+                                {' ('}
+                                {distanceToString(r?.kilometers)}
+                                {') '}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </Flex>
+                    )}
+                  </Flex>
+                )}
+                {r.mode === 'shuttle' && (
+                  <Flex flexDirection={'column'} flex={1}>
+                    <span style={{ fontSize: 18, textAlign: 'left' }}>
+                      {r.name}
+                    </span>
+                  </Flex>
+                )}
+              </Button>
+            );
+          })}
+        </Flex>
+      ) : (
+        ''
+      )}
     </>
-  )
+  );
   // return (
   //   <>
   //     {stoptimes?.features.length ? (

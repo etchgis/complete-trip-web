@@ -7,6 +7,7 @@ import Authentication from './Authentication';
 import Caregivers from './CaregiversStore';
 import Favorites from './Favorites';
 import MapStore from './MapStore';
+import NotificationStore from './NotificationStore';
 import Preferences from './Preferences';
 import Schedule from './Schedule';
 import Trip from './Trip';
@@ -24,6 +25,7 @@ export default class RootStore {
     this.trip = new Trip(this);
     this.caregivers = new Caregivers(this);
     this.tripMapStore = new TripMapStore(this);
+    this.notifications = new NotificationStore(this);
   }
 }
 

@@ -87,8 +87,9 @@ class TripMapStore {
 
       socket.onmessage = event => {
         console.log(`{trip-map-store} data received`);
-        const data = JSON.parse(JSON.parse(event.data));
-        console.log('{trip-map-store} navigating', data?.navigating);
+        const data = JSON.parse(JSON.parse(JSON.parse(event.data)));
+        if (this?.rootStore?.uiStore?.debug)
+          console.log('{trip-map-store} navigating', data?.navigating);
         if (!this.map) return;
         if (data?.longitude) {
           if (this.map.getSource('user')) {
@@ -242,9 +243,11 @@ const generateModeIconSymbols = (tripPlan, hasWheelchair) => {
         break;
       default:
         const _mode =
-          mode.toLowerCase() === 'bicycle' ? 'bike' :
-            mode.toLowerCase() === 'hail' ? 'shuttle' :
-              mode.toLowerCase();
+          mode.toLowerCase() === 'bicycle'
+            ? 'bike'
+            : mode.toLowerCase() === 'hail'
+            ? 'shuttle'
+            : mode.toLowerCase();
         console.log('MODE', _mode);
         modeIconData.features.push({
           type: 'Feature',

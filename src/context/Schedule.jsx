@@ -43,7 +43,8 @@ class Schedule {
     const dependents = this.rootStore.caregivers.dependents.filter(
       d => d.status === 'approved'
     );
-    console.log('{schedule-store}', dependents);
+    if (this?.rootStore?.uiStore?.debug)
+      console.log('{schedule-store}', dependents);
     if (!dependents.length) {
       runInAction(() => {
         this.dependentTrips = [];
@@ -77,7 +78,8 @@ class Schedule {
         })
       );
       const equals = isEqual(_trips, this.dependentTrips);
-      console.log('{schedule-store} dependent trips have changed', !equals);
+      if (this?.rootStore?.uiStore?.debug)
+        console.log('{schedule-store} dependent trips have changed', !equals);
       runInAction(() => {
         if (!equals) this.dependentTrips = _trips;
         this.rootStore.uiStore.setIsLoading(false);

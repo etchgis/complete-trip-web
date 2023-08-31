@@ -6,6 +6,7 @@ class UIStore {
   isLoading = false;
   toastMessage = '';
   toastStatus = '';
+  toastTitle = '';
   debug = false;
 
   constructor(rootStore) {
@@ -32,6 +33,12 @@ class UIStore {
     }
   }
 
+  setToastTitle = value => {
+    runInAction(() => {
+      this.toastTitle = value;
+    });
+  };
+
   setToastMessage = value => {
     runInAction(() => {
       this.toastMessage = value;
@@ -49,6 +56,7 @@ class UIStore {
       this.isLoading = value;
     });
   };
+
   setIsLoading = value => {
     runInAction(() => {
       this.isLoading = value;

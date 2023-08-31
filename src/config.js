@@ -268,7 +268,7 @@ const NOTIFY_METHODS = [
     label: 'SMS',
   },
   {
-    value: 'phone',
+    value: 'voice',
     label: 'Phone Call',
   },
 ];

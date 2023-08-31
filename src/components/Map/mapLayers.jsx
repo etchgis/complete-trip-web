@@ -158,7 +158,7 @@ export const mapLayers = e => {
   // console.log('[map] checking layers');
   layers.forEach(l => {
     if (!map.getLayer(l.id)) {
-      console.log('[map] adding layer', l.id);
+      // console.log('[map] adding layer', l.id);
       const beforeLayer =
         l.id === 'stops' || l.id === 'buses-live' ? '' : 'road-label-simple';
       map.addLayer(l, beforeLayer);
