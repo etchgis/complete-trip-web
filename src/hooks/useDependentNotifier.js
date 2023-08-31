@@ -85,18 +85,13 @@ const useDependentTripNotifier = () => {
   useEffect(() => {
     if (!loggedIn) return;
     if (dependents.length && !dependentTrips.length) {
-      console.log('{useDependentNotifier} checking for dependent trips')(
-        async () => {
-          await hydrateDependentTrips();
-        }
-      )();
+      console.log('{useDependentNotifier} checking for dependent trips');
+      (async () => {
+        await hydrateDependentTrips();
+      })();
     }
-  }, [
-    loggedIn,
-    dependentTrips,
-    dependents,
-    user?.profile?.preferences?.notificationTypes,
-  ]);
+    //eslint-disable-next-line
+  }, [loggedIn, dependentTrips, user?.profile?.preferences?.notificationTypes]);
 
   const checkForDependentTripAlerts = () => {
     if (!dependentTrips.length) return;
