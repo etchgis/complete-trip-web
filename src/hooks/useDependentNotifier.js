@@ -1,30 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { toJS } from 'mobx';
+import useIntervalHook from './useIntervalHook';
 import { useStore } from '../context/RootStore';
 import { useToast } from '@chakra-ui/react';
-
-//NOTE see this post on how to use this hook
-//https://overreacted.io/making-setinterval-declarative-with-react-hooks/
-const useInterval = (callback, delay) => {
-  const savedCallback = useRef();
-
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  // Set up the interval.
-  useEffect(() => {
-    function tick() {
-      savedCallback.current();
-    }
-    if (delay !== null) {
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-};
 
 const useDependentTripNotifier = () => {
   const { user, loggedIn } = useStore().authentication;
@@ -184,14 +163,14 @@ const useDependentTripNotifier = () => {
   //   checkForDependentTripAlerts();
   // }, [dependentTrips]);
 
-  useInterval(
+  useIntervalHook(
     () => {
       if (loggedIn && dependentTrips.length && debug) {
         console.log('{useDependentTripNotifier} checking');
       }
       checkForDependentTripAlerts();
     },
-    !loggedIn || !dependentTrips.length ? null : 5000
+    !loggedIn || !dependentTrips.length ? null : 10000
   );
 };
 

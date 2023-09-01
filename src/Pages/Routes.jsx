@@ -26,7 +26,13 @@ export const Routes = observer(() => {
     trace(false);
   }
   const { user, loggedIn, auth } = useStore().authentication;
-  const { debug } = useStore().uiStore;
+  const { debug, setDebugMode } = useStore().uiStore;
+
+  if (window && window.location) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const debugMode = urlParams.get('debug');
+    if (debugMode) setDebugMode(debugMode === 'true' ? true : false);
+  }
 
   if (debug) console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);

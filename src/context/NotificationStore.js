@@ -92,25 +92,38 @@ class NotificationStore {
               message: this.messages[0].message(dependent?.firstName),
               type: this.messages[0].type,
               active: true,
-              legIndex: data?.legIndex || 0,
+              status: null,
+              legIndex: 0,
             };
             this.trips = [...this.trips, newTrip];
             // this.trips.push(newTrip[0]); //this does not work as it references the same object
           } else if (this.trips.find(t => t.tripId === data.tripId)) {
             const activeTrip = this.trips.find(t => t.tripId === data.tripId);
-
-            if (activeTrip.legIndex !== data.legIndex) {
+            if (activeTrip?.status === 'ended') return;
+            if (
+              activeTrip.legIndex !== data.legIndex &&
+              data?.status !== 'ended'
+            ) {
               activeTrip.legIndex = data.legIndex;
               activeTrip.active = true;
               activeTrip.message = this.messages[1].message(
                 dependent?.firstName
               );
               activeTrip.type = this.messages[1].type;
+              activeTrip.status = data?.status;
+              const newTrips = this.trips.filter(t => t.tripId !== data.tripId);
+              this.trips = [...newTrips, activeTrip];
+            } else if (data?.status === 'ended') {
+              activeTrip.legIndex = data.legIndex;
+              activeTrip.active = true;
+              activeTrip.message = this.messages[2].message(
+                dependent?.firstName
+              );
+              activeTrip.type = this.messages[2].type;
+              activeTrip.status = 'ended';
               const newTrips = this.trips.filter(t => t.tripId !== data.tripId);
               this.trips = [...newTrips, activeTrip];
             }
-          } else if (data?.status === 'arrived') {
-            //need the message where the trip has ended
           }
         });
       };

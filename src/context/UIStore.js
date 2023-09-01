@@ -10,28 +10,26 @@ class UIStore {
   debug = false;
 
   constructor(rootStore) {
-    if (window && window.location) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const debug = urlParams.get('debug');
-      runInAction(() => {
-        this.debug = debug === 'true';
-      });
-    }
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
     if (
       !Array.from(PersistStoreMap.values())
         .map(item => item.storageName)
-        .includes('mode')
-    ) {
+        .includes('debug')
+    )
       makePersistable(this, {
         name: 'UIStore',
-        properties: ['mode'],
+        properties: ['mode', 'debug'],
         storage: localStorage,
       });
-    }
   }
+
+  setDebugMode = value => {
+    runInAction(() => {
+      this.debug = value;
+    });
+  };
 
   setToastTitle = value => {
     runInAction(() => {
