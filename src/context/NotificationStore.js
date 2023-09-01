@@ -10,7 +10,8 @@ class NotificationStore {
   messages = [
     {
       type: 'dependentDepart',
-      message: name => `${name} has begun their trip.`,
+      message: (name, dest) =>
+        `${name} has begun their trip${dest ? ' to ' + dest : ''}.`,
     },
     {
       type: 'dependentModeChange',
@@ -18,7 +19,8 @@ class NotificationStore {
     },
     {
       type: 'dependentArrive',
-      message: name => `${name} has reached their destination.`,
+      message: (name, dest) =>
+        `${name} has reached ${dest || 'their destination'}.`,
     },
     // {
     //   type: 'dependentArrive',
@@ -27,6 +29,7 @@ class NotificationStore {
   ];
   sockets = [];
   trips = [];
+  todaysTrips = [];
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -36,6 +39,12 @@ class NotificationStore {
   removeTrip = trip => {
     runInAction(() => {
       this.trips = this.trips.filter(t => t.tripId !== trip.tripId);
+    });
+  };
+
+  setTodaysTrips = trips => {
+    runInAction(() => {
+      this.todaysTrips = trips;
     });
   };
 
@@ -59,7 +68,7 @@ class NotificationStore {
   notificationTracker = {
     start: dependent => {
       let tripId = null;
-      console.log(toJS(this.sockets));
+      // console.log(toJS(this.sockets));
       if (this.sockets.find(s => s.url.includes(dependent?.dependent))) return;
       const socket = new WebSocket(
         `${config.SERVICES.websocket}?groups=dependent-${dependent?.dependent}&name=${dependent?.firstName}`
@@ -83,14 +92,19 @@ class NotificationStore {
         runInAction(() => {
           if (!data.legIndex && data?.legIndex !== 0) return;
           if (!this.trips.find(t => t.tripId === tripId)) {
-            // console.log(dependent?.firstName, data.tripId);
+            const thisTrip = this.todaysTrips.find(t => t?.id === tripId);
+            const destination = thisTrip?.destination;
             const newTrip = {
               ...data,
-              message: this.messages[0].message(dependent?.firstName),
+              message: this.messages[0].message(
+                dependent?.firstName,
+                destination
+              ),
               type: this.messages[0].type,
               active: true,
               status: null,
               legIndex: 0,
+              destination,
             };
             this.trips = [...this.trips, newTrip];
             // this.trips.push(newTrip[0]); //this does not work as it references the same object
@@ -114,7 +128,8 @@ class NotificationStore {
               activeTrip.legIndex = data.legIndex;
               activeTrip.active = true;
               activeTrip.message = this.messages[2].message(
-                dependent?.firstName
+                dependent?.firstName,
+                activeTrip?.destination
               );
               activeTrip.type = this.messages[2].type;
               activeTrip.status = 'ended';

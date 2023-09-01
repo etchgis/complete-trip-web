@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import useIntervalHook from './useIntervalHook';
@@ -9,7 +8,7 @@ const useDependentTripSockets = () => {
   const { hydrate: hydrateDependents, dependents } = useStore().caregivers;
   const { dependentTrips, hydrateDependentTrips } = useStore().schedule;
   const { notificationTracker } = useStore().notifications;
-  const { sockets } = useStore().notifications;
+  const { sockets, setTodaysTrips } = useStore().notifications;
   const { debug } = useStore().uiStore;
 
   useEffect(() => {
@@ -35,7 +34,12 @@ const useDependentTripSockets = () => {
         tripDate.getFullYear() === today.getFullYear()
       );
     });
-    console.log(toJS(todaysTrips));
+    if (!todaysTrips.length) return;
+    setTodaysTrips(todaysTrips);
+    if (debug) {
+      const _todaysTrips = todaysTrips.map(t => toJS(t));
+      console.log({ _todaysTrips });
+    }
 
     //OR
     // const todaysTrips = dependentTrips.filter(trip => {
