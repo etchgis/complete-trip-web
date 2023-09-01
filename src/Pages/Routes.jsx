@@ -10,6 +10,7 @@ import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import useDependentTripNotifier from '../hooks/useDependentNotifier';
+import useDependentTripSockets from '../hooks/useDependentTripSockets';
 import { useEffect } from 'react';
 import useNotifications from '../hooks/useNotifications';
 import useRiderNotifier from '../hooks/useRiderNotifier';
@@ -62,6 +63,7 @@ export const Routes = observer(() => {
   //---------------------NOTIFICATIONS---------------------
   useRiderNotifier();
   useDependentTripNotifier();
+  useDependentTripSockets();
   useNotifications();
   //---------------------NOTIFICATIONS---------------------
 

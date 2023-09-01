@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { toJS } from 'mobx';
 import useIntervalHook from './useIntervalHook';
@@ -9,7 +9,7 @@ const useDependentTripNotifier = () => {
   const { user, loggedIn } = useStore().authentication;
   const { hydrate: hydrateDependents, dependents } = useStore().caregivers;
   const { dependentTrips, hydrateDependentTrips } = useStore().schedule;
-  const { dependentTracker } = useStore().notifications;
+  // const { dependentTracker } = useStore().notifications;
   const { debug } = useStore().uiStore;
   const toast = useToast();
   const duration = null;
@@ -98,36 +98,36 @@ const useDependentTripNotifier = () => {
     if (!tripsWithin5.length && !tripsWithin1.length) return;
 
     // NOTE this is for starting the socket
-    if (
-      tripsWithin1.length &&
-      tripsWithin1.some(t => !alerts.oneMinWarning.includes(t.id))
-    ) {
-      tripsWithin1.forEach(trip => {
-        if (!alerts.oneMinWarning.includes(trip.id)) {
-          if (debug) console.log('trips within 1 minute', toJS(trip));
+    // if (
+    //   tripsWithin1.length &&
+    //   tripsWithin1.some(t => !alerts.oneMinWarning.includes(t.id))
+    // ) {
+    //   tripsWithin1.forEach(trip => {
+    //     if (!alerts.oneMinWarning.includes(trip.id)) {
+    //       if (debug) console.log('trips within 1 minute', toJS(trip));
 
-          // if (showToast) {
-          //   toast({
-          //     title: 'Trip Notification',
-          //     description: `${
-          //       trip?.dependent?.firstName || 'A dependent'
-          //     }'s trip to ${
-          //       trip?.destination || trip?.request?.destination?.text
-          //     } is starting in 1 minute.`,
-          //     status: 'info',
-          //     isClosable: true,
-          //     duration: duration,
-          //     position: 'top-right',
-          //     variant: 'left-accent',
-          //   });
-          // }
-          console.log(
-            `${now.toLocaleTimeString()} {useDependentNotifier} opening websocket`
-          );
-          dependentTracker.start(trip?.dependent);
-        }
-      });
-    }
+    //       // if (showToast) {
+    //       //   toast({
+    //       //     title: 'Trip Notification',
+    //       //     description: `${
+    //       //       trip?.dependent?.firstName || 'A dependent'
+    //       //     }'s trip to ${
+    //       //       trip?.destination || trip?.request?.destination?.text
+    //       //     } is starting in 1 minute.`,
+    //       //     status: 'info',
+    //       //     isClosable: true,
+    //       //     duration: duration,
+    //       //     position: 'top-right',
+    //       //     variant: 'left-accent',
+    //       //   });
+    //       // }
+    //       console.log(
+    //         `${now.toLocaleTimeString()} {useDependentNotifier} opening websocket`
+    //       );
+    //       dependentTracker.start(trip?.dependent);
+    //     }
+    //   });
+    // }
 
     if (
       tripsWithin5.length &&

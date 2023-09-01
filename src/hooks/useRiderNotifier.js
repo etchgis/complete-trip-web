@@ -45,7 +45,7 @@ const useRiderNotifier = () => {
 
   const checkForTripAlerts = () => {
     if (!riderTrips.length) return;
-    if (debug) console.log(riderTrips.length, 'upcoming rider trips');
+    if (debug) console.log(riderTrips.length, 'total rider trips');
     const now = new Date();
 
     const filterTime = 300000; //5 minutes
@@ -53,6 +53,8 @@ const useRiderNotifier = () => {
       const remainingTime = trip.plan.startTime - now.getTime();
       return remainingTime < filterTime && remainingTime > -60000;
     });
+
+    if (debug) console.log(tripsWithin5.length, 'upcoming rider trips');
 
     if (!tripsWithin5.length) return;
 

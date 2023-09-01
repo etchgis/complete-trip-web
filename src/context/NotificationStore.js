@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 
 import config from '../config';
 
@@ -56,7 +56,7 @@ class NotificationStore {
     });
   };
 
-  dependentTracker = {
+  notificationTracker = {
     // spawn: dependent => {
     //   const notifier = new Notifier();
     //   notifier.start(dependent);
@@ -64,12 +64,14 @@ class NotificationStore {
 
     start: dependent => {
       let tripId = null;
+      console.log(toJS(this.sockets));
+      if (this.sockets.find(s => s.url.includes(dependent?.dependent))) return;
       const socket = new WebSocket(
-        `${config.SERVICES.websocket}?groups=dependent-${dependent?.dependent}`
+        `${config.SERVICES.websocket}?groups=dependent-${dependent?.dependent}&name=${dependent?.firstName}`
       );
       console.log('{notifications-store} socket', socket);
       runInAction(() => {
-        this.sockets.push(socket);
+        this.sockets = [...this.sockets, socket];
       });
 
       socket.onopen = e => {
@@ -136,7 +138,7 @@ class NotificationStore {
         } else {
           console.log('{notifications-store} socket died');
         }
-        this.stop(dependent?.dependent);
+        this.notificationTracker.stop(dependent?.dependent);
         this.removeTrip(tripId);
       };
 
@@ -149,10 +151,11 @@ class NotificationStore {
       runInAction(() => {
         if (!this.sockets.length) return;
         //find the socket with the dependent id in the string
-        const socket = this.sockets.find(s => s.includes(dependent?.dependent));
+        const socket = this.sockets.find(s => s.url.includes(dependent));
         if (!socket) return;
         socket.close();
-        this.sockets = this.sockets.filter(s => s !== socket);
+        const newSockets = this.sockets.filter(s => s.url !== socket.url);
+        this.sockets = [...newSockets];
       });
     },
   };
