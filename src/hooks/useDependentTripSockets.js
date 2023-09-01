@@ -87,7 +87,7 @@ const useDependentTripSockets = () => {
       }
       checkForClosedSockets();
     },
-    !loggedIn || !sockets.length ? null : 5000
+    !loggedIn || !sockets.length ? null : 1000 * 60 * 1
   );
 };
 
