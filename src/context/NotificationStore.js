@@ -15,7 +15,8 @@ class NotificationStore {
     },
     {
       type: 'dependentModeChange',
-      message: name => `${name} has changed modes.`,
+      message: (name, text) =>
+        `${name} has changed modes${text ? ' from ' + text : ''}.`,
     },
     {
       type: 'dependentArrive',
@@ -38,7 +39,7 @@ class NotificationStore {
 
   removeTrip = trip => {
     runInAction(() => {
-      const updatedTrips = this.trips.filter(t => t.tripId !== trip.tripId);
+      const updatedTrips = this.trips.filter(t => t?.tripId !== trip?.tripId);
       this.trips = [...updatedTrips];
     });
   };
@@ -121,10 +122,22 @@ class NotificationStore {
               activeTrip.legIndex !== data.legIndex &&
               data?.status !== 'ended'
             ) {
+              const parentTrip = this.todaysTrips.find(t => t?.id === tripId);
+              // const parentTrip = null;
+              console.log('parentTrip', parentTrip);
+              const legs = parentTrip?.plan?.legs || [];
+              // const legs = [];
+              const mode = legs[data.legIndex]?.mode?.toLowerCase();
+              const priorMode = legs[data.legIndex - 1]?.mode?.toLowerCase();
+              const modeSwitchText =
+                mode && priorMode ? `${priorMode} to ${mode}` : null;
+
+              // console.log('mode', mode, priorMode);
               activeTrip.legIndex = data.legIndex;
               activeTrip.active = true;
               activeTrip.message = this.messages[1].message(
-                dependent?.firstName
+                dependent?.firstName,
+                modeSwitchText
               );
               activeTrip.type = this.messages[1].type;
               activeTrip.status = data?.status;
