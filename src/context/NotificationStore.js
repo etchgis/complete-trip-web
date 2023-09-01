@@ -38,7 +38,8 @@ class NotificationStore {
 
   removeTrip = trip => {
     runInAction(() => {
-      this.trips = this.trips.filter(t => t.tripId !== trip.tripId);
+      const updatedTrips = this.trips.filter(t => t.tripId !== trip.tripId);
+      this.trips = [...updatedTrips];
     });
   };
 
@@ -90,6 +91,11 @@ class NotificationStore {
         tripId = data?.tripId;
 
         runInAction(() => {
+          if (data?.navigating === false) {
+            console.log('removing trip');
+            this.removeTrip(data);
+            return;
+          }
           if (!data.legIndex && data?.legIndex !== 0) return;
           if (!this.trips.find(t => t.tripId === tripId)) {
             const thisTrip = this.todaysTrips.find(t => t?.id === tripId);
