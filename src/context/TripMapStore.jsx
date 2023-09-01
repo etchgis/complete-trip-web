@@ -18,6 +18,7 @@ class TripMapStore {
   layers = { ...{}, ...layers };
   activeLegIndex = -1;
   socket = null;
+  tripId = null;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -27,6 +28,12 @@ class TripMapStore {
   setMap = map => {
     runInAction(() => {
       this.map = map;
+    });
+  };
+
+  setActiveTripId = tripId => {
+    runInAction(() => {
+      this.tripId = tripId;
     });
   };
 
@@ -91,6 +98,7 @@ class TripMapStore {
         if (this?.rootStore?.uiStore?.debug)
           console.log('{trip-map-store} navigating', data?.navigating);
         if (!this.map) return;
+        if (!data?.tripId || this.tripId !== data?.tripId) return;
         if (data?.longitude) {
           if (this.map.getSource('user')) {
             this.map.getSource('user').setData(

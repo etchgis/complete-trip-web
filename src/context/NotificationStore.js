@@ -57,11 +57,6 @@ class NotificationStore {
   };
 
   notificationTracker = {
-    // spawn: dependent => {
-    //   const notifier = new Notifier();
-    //   notifier.start(dependent);
-    // },
-
     start: dependent => {
       let tripId = null;
       console.log(toJS(this.sockets));
@@ -83,11 +78,11 @@ class NotificationStore {
         if (this?.rootStore?.uiStore?.debug) {
           console.log(data);
         }
-        tripId = data.tripId;
+        tripId = data?.tripId;
 
         runInAction(() => {
-          if (!data.legIndex && data.legIndex !== 0) return;
-          if (!this.trips.find(t => t.tripId === data.tripId)) {
+          if (!data.legIndex && data?.legIndex !== 0) return;
+          if (!this.trips.find(t => t.tripId === tripId)) {
             // console.log(dependent?.firstName, data.tripId);
             const newTrip = {
               ...data,
