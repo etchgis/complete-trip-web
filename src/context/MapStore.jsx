@@ -18,7 +18,7 @@ class MapStore {
     zoom: 12,
     geolocation: [],
     routesLoading: true,
-    stopsLoading: false
+    stopsLoading: false,
   };
   mapCache = {
     routes: [], //cache of routes
@@ -26,7 +26,6 @@ class MapStore {
   };
 
   constructor(rootStore) {
-
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
@@ -47,7 +46,7 @@ class MapStore {
     runInAction(() => {
       this.map = map;
     });
-    const { lng, lat } = map.getCenter()
+    const { lng, lat } = map.getCenter();
     this.getRoutes(lng, lat);
   };
 
@@ -88,7 +87,8 @@ class MapStore {
     runInAction(() => {
       this.mapState.routesLoading = true;
     });
-    mobility.skids.services.byDistance(lng, lat, 0.5, 'COMPLETE_TRIP')
+    mobility.skids.services
+      .byDistance(lng, lat, 0.5, 'COMPLETE_TRIP')
       .then(values => {
         console.log('got service: count', values.length);
         runInAction(() => {
@@ -102,34 +102,37 @@ class MapStore {
         });
         console.log('skids service error', e);
       });
-  }
+  };
 
   getStops = async (service, showLoading = false) => {
     runInAction(() => {
       this.mapState.stopsLoading = showLoading;
     });
     return new Promise((resolve, reject) => {
-      mobility.skids.feeds.get(service.service, service.route.patternId, 'COMPLETE_TRIP')
+      mobility.skids.feeds
+        .get(service.service, service.route.patternId, 'COMPLETE_TRIP')
         .then(result => {
           let route = {
             type: 'FeatureCollection',
-            features: [{
-              type: 'Feature',
-              properties: {
-                routeColor: `#${result.color || '004490'}`,
-                outlineColor: `#${result.textColor || 'ffffff'}`
+            features: [
+              {
+                type: 'Feature',
+                properties: {
+                  routeColor: `#${result.color || '004490'}`,
+                  outlineColor: `#${result.textColor || 'ffffff'}`,
+                },
+                geometry: {
+                  type: 'LineString',
+                  coordinates: result.coordinates,
+                },
               },
-              geometry: {
-                type: 'LineString',
-                coordinates: result.coordinates
-              }
-            }]
+            ],
           };
           route.bbox = bbox(route);
 
           let stops = {
             type: 'FeatureCollection',
-            features: []
+            features: [],
           };
           let gotFirst = false;
           for (var i = 0; i < result.stops.length; i++) {
@@ -143,8 +146,7 @@ class MapStore {
                 stop.arriveNext = result.stopTimes.nextTimes[i].arrive;
               }
               stop.filter = true;
-            }
-            else {
+            } else {
               stop.filter = false;
             }
             stops.features.push({
@@ -158,7 +160,7 @@ class MapStore {
                 arrive: stop.arrive,
                 arriveNext: stop.arriveNext,
                 routes: stop.routes,
-                filter: stop.filter
+                filter: stop.filter,
               },
               geometry: stop.geometry,
             });
@@ -166,7 +168,7 @@ class MapStore {
 
           let vehicles = {
             type: 'FeatureCollection',
-            features: []
+            features: [],
           };
           if (result.vehicles && result.vehicles.length) {
             for (var i = 0; i < result.vehicles.length; i++) {
@@ -174,7 +176,7 @@ class MapStore {
               vehicles.features.push({
                 type: 'Feature',
                 properties: {
-                  icon: 'bus-live'
+                  icon: 'bus-live',
                 },
                 geometry: {
                   type: 'Point',

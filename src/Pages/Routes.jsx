@@ -9,7 +9,11 @@ import Login from './Login';
 import Settings from './Settings';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
+import useDependentTripNotifier from '../hooks/useDependentNotifier';
+import useDependentTripSockets from '../hooks/useDependentTripSockets';
 import { useEffect } from 'react';
+import useNotifications from '../hooks/useNotifications';
+import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
 
 // import { toJS } from 'mobx';
@@ -23,8 +27,15 @@ export const Routes = observer(() => {
     trace(false);
   }
   const { user, loggedIn, auth } = useStore().authentication;
+  const { debug, setDebugMode } = useStore().uiStore;
 
-  console.log('[routes] logged in:', loggedIn);
+  if (window && window.location) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const debugMode = urlParams.get('debug');
+    if (debugMode) setDebugMode(debugMode === 'true' ? true : false);
+  }
+
+  if (debug) console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);
   useEffect(() => {
     Gleap.initialize(import.meta.env.VITE_GLEAP);
@@ -34,12 +45,12 @@ export const Routes = observer(() => {
   useEffect(() => {
     (async () => {
       if (user?.refreshToken && !loggedIn) {
-        console.log('[routes] checking for auth');
+        if (debug) console.log('[routes] checking for auth');
         try {
           await auth(); //any errors will be handled by auth()
           if (user?.profile) {
             const _user = toJS(user);
-            console.log({ _user });
+            if (debug) console.log({ _user });
           }
         } catch (error) {
           console.log(error); //TODO what happens here? Does the errorToastMessage show?
@@ -48,6 +59,13 @@ export const Routes = observer(() => {
     })();
     // eslint-disable-next-line
   }, [loggedIn]);
+
+  //---------------------NOTIFICATIONS---------------------
+  useRiderNotifier();
+  useDependentTripNotifier();
+  useDependentTripSockets();
+  useNotifications();
+  //---------------------NOTIFICATIONS---------------------
 
   return (
     <ReactRoutes>

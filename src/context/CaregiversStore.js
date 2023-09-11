@@ -89,7 +89,8 @@ class Caregivers {
   };
 
   hydrate = () => {
-    console.log('{caregivers store} hydrate');
+    if (this?.rootStore?.uiStore?.debug)
+      console.log('{caregivers store} hydrate');
     return new Promise(async (resolve, reject) => {
       const token = await this.rootStore.authentication.fetchToken();
       const caregivers = await travelerAPI.caregivers.get.all(token);

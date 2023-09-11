@@ -6,21 +6,26 @@ import { useStore } from '../../context/RootStore';
 
 export const ErrorToastMessage = observer(({ message }) => {
   const { errorToastMessage, setErrorToastMessage } = useStore().authentication;
-  const { toastMessage, toastStatus, setToastMessage, setToastStatus } =
-    useStore().uiStore;
+  const {
+    toastMessage,
+    toastStatus,
+    toastTitle,
+    setToastMessage,
+    setToastStatus,
+  } = useStore().uiStore;
   const { colorMode } = useColorMode();
 
   const toast = useToast();
-
+  const duration = 5000;
   useEffect(() => {
     if (!errorToastMessage && !toastMessage && !message) return;
     const msg = errorToastMessage || toastMessage;
     if (!msg) setToastMessage(message);
     toast({
-      title: toastStatus || 'Error',
+      title: toastTitle || toastStatus || 'Error',
       description: msg,
       status: toastStatus?.toLowerCase() || 'error',
-      duration: 3000,
+      duration: duration,
       isClosable: true,
       position: 'top-right',
       variant: colorMode === 'light' ? 'top-accent' : 'solid',
@@ -29,7 +34,7 @@ export const ErrorToastMessage = observer(({ message }) => {
       setErrorToastMessage(null);
       setToastMessage(null);
       setToastStatus(null);
-    }, 30000);
+    }, duration + 1000);
     // eslint-disable-next-line
   }, [errorToastMessage, toastMessage]);
   return <></>;

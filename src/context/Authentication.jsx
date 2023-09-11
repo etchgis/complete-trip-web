@@ -1,7 +1,7 @@
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
-import { makeAutoObservable, runInAction, toJS } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 
 import { authentication } from '../services/transport';
 import config from '../config';
@@ -382,7 +382,7 @@ class Authentication {
           runInAction(() => {
             this.accessToken = result.accessToken;
           });
-          console.log(result.accessToken);
+          // console.log(result.accessToken);
           return result.accessToken;
         }
         throw new Error('Error refreshing session, please login again.');

@@ -18,6 +18,7 @@ class TripMapStore {
   layers = { ...{}, ...layers };
   activeLegIndex = -1;
   socket = null;
+  tripId = null;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -27,6 +28,12 @@ class TripMapStore {
   setMap = map => {
     runInAction(() => {
       this.map = map;
+    });
+  };
+
+  setActiveTripId = tripId => {
+    runInAction(() => {
+      this.tripId = tripId;
     });
   };
 
@@ -87,9 +94,11 @@ class TripMapStore {
 
       socket.onmessage = event => {
         console.log(`{trip-map-store} data received`);
-        const data = JSON.parse(JSON.parse(event.data));
-        console.log('{trip-map-store} navigating', data?.navigating);
+        const data = JSON.parse(JSON.parse(JSON.parse(event.data)));
+        if (this?.rootStore?.uiStore?.debug)
+          console.log('{trip-map-store} navigating', data?.navigating);
         if (!this.map) return;
+        if (!data?.tripId || this.tripId !== data?.tripId) return;
         if (data?.longitude) {
           if (this.map.getSource('user')) {
             this.map.getSource('user').setData(
@@ -242,9 +251,11 @@ const generateModeIconSymbols = (tripPlan, hasWheelchair) => {
         break;
       default:
         const _mode =
-          mode.toLowerCase() === 'bicycle' ? 'bike' :
-            mode.toLowerCase() === 'hail' ? 'shuttle' :
-              mode.toLowerCase();
+          mode.toLowerCase() === 'bicycle'
+            ? 'bike'
+            : mode.toLowerCase() === 'hail'
+            ? 'shuttle'
+            : mode.toLowerCase();
         console.log('MODE', _mode);
         modeIconData.features.push({
           type: 'Feature',

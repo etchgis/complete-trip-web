@@ -26,7 +26,8 @@ export const DependentsTripsTable = observer(
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { dependentTrips } = useStore().schedule;
     const { isLoading } = useStore().uiStore;
-    const { dependentTracker, resetMap } = useStore().tripMapStore;
+    const { dependentTracker, resetMap, setActiveTripId } =
+      useStore().tripMapStore;
     const [selectedTrip, setSelectedTrip] = useState({});
     const allTrips = toJS(dependentTrips);
 
@@ -57,6 +58,7 @@ export const DependentsTripsTable = observer(
       dependentTracker.start(trip.dependent?.dependent);
       setSelectedTrip(trip);
       console.log({ trip });
+      setActiveTripId(trip?.id);
       onOpen();
     };
 
@@ -65,6 +67,7 @@ export const DependentsTripsTable = observer(
       resetMap();
       onClose();
       setSelectedTrip({});
+      setActiveTripId(null);
     };
 
     //ACCORDION

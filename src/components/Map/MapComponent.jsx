@@ -103,6 +103,7 @@ export const MapComponent = observer(({ showMap }) => {
             .on('contextmenu', e => {
               console.log(e.target.getZoom());
               console.log(e.lngLat);
+              console.log(mapRef.current.getStyle().layers);
             });
         } catch (error) {
           setMapIsLoaded(true);

@@ -179,33 +179,33 @@ const FavoriteCard = ({ id, title, description, type }) => {
   );
 };
 
-export const Accessibility = observer(({ action }) => {
-  const { user } = useStore().authentication;
+// export const Accessibility = observer(({ action }) => {
+//   const { user } = useStore().authentication;
 
-  return (
-    <Stack p={4} maxW={{ base: '100%', md: 'md' }}>
-      <Box fontWeight="bold" fontSize="sm">
-        Display Language
-      </Box>
-      <Box pb={4}>
-        {user?.profile?.preferences?.language === 'en' ||
-        !user?.profile?.preferences?.language
-          ? 'English'
-          : 'Spanish'}
-      </Box>
-      <Button
-        bg="brand"
-        _hover={{
-          opacity: '0.8',
-        }}
-        color="white"
-        onClick={action}
-      >
-        Edit
-      </Button>
-    </Stack>
-  );
-});
+//   return (
+//     <Stack p={4} maxW={{ base: '100%', md: 'md' }}>
+//       <Box fontWeight="bold" fontSize="sm">
+//         Display Language
+//       </Box>
+//       <Box pb={4}>
+//         {user?.profile?.preferences?.language === 'en' ||
+//         !user?.profile?.preferences?.language
+//           ? 'English'
+//           : 'Spanish'}
+//       </Box>
+//       <Button
+//         bg="brand"
+//         _hover={{
+//           opacity: '0.8',
+//         }}
+//         color="white"
+//         onClick={action}
+//       >
+//         Edit
+//       </Button>
+//     </Stack>
+//   );
+// });
 
 export const TermsOfUse = () => {
   return (
