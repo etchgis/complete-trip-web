@@ -45,6 +45,7 @@ const CargiverLink = observer(() => {
     }
 
     if (searchParams.get('invited') && inviteCode) {
+      console.log('[caregiver-link] - invited');
       if (loggedIn) updateHandler('received');
       onOpen();
     }
@@ -61,7 +62,8 @@ const CargiverLink = observer(() => {
   }, [inviteCode]);
 
   const updateHandler = async status => {
-    console.log(`[caregiver] ${status}`);
+    console.log('[caregiver-link] - udpateHandler');
+    console.log(`[caregiver-link] ${status}`);
     console.log(inviteCode);
 
     try {
@@ -92,13 +94,12 @@ const CargiverLink = observer(() => {
   };
 
   const loginHandler = () => {
-    // onClose();
-    // navigate('/home?login=true');
+    console.log('[caregiver-link] - loginHandler');
     setSearchParams({ login: true, invited: true });
   };
 
   return (
-    <Modal isOpen={isOpen} size={'full'}>
+    <Modal isOpen={isOpen} size={'full'} blockScrollOnMount={false} style={{zIndex: 0}}>
       <ModalOverlay />
       <ModalContent>
         <ModalBody display={'flex'} p={0}>
