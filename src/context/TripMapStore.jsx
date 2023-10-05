@@ -94,7 +94,8 @@ class TripMapStore {
 
       socket.onmessage = event => {
         console.log(`{trip-map-store} data received`);
-        const data = JSON.parse(JSON.parse(JSON.parse(event.data)));
+        const data = JSON.parse(JSON.parse(event.data));
+        // console.log({ data });
         if (this?.rootStore?.uiStore?.debug)
           console.log('{trip-map-store} navigating', data?.navigating);
         if (!this.map) return;

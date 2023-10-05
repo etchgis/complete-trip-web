@@ -85,9 +85,9 @@ class NotificationStore {
       };
 
       socket.onmessage = event => {
-        const data = JSON.parse(JSON.parse(JSON.parse(event.data)));
+        const data = JSON.parse(JSON.parse(event.data));
         if (this?.rootStore?.uiStore?.debug) {
-          console.log(data);
+          console.log({ data });
         }
         tripId = data?.tripId;
 
