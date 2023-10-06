@@ -292,7 +292,7 @@ const NOTIFICATION_TYPES = {
     },
     {
       value: 'shuttleArrive',
-      label: 'On Deman Shuttle Arrival',
+      label: 'On Demand Shuttle Arrival',
       types: ['shuttleArrive'],
     },
     {
