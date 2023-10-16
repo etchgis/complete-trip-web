@@ -185,12 +185,22 @@ export const TransitRoutes = observer(({}) => {
     setMapState('stoptimes', featureCollection([])); //NOTE this clears the stoptimes list and allows the route list to be displayed
     setMapState('activeRoute', ''); //Clear the active route
     if (mapState.marker) mapState.marker.remove();
-    map.getSource('routes-highlight').setData(featureCollection([]));
-    map.getSource('stops').setData(featureCollection([]));
-    map.getSource('buses-live').setData(featureCollection([]));
+    
+    //BUG sometimes these are not defined so it causes an error - cannot reproduce
+    if (map.getSource('routes-highlight')) map.getSource('routes-highlight').setData(featureCollection([]));
+    if (map.getSource('stops')) map.getSource('stops').setData(featureCollection([]));
+    if (map.getSource('buses-live')) map.getSource('buses-live').setData(featureCollection([]));
+
+    if (!map.getSource('routes-highlight')) console.log({error: 'TransitRoutes: missing map sources to reset'});
 
     //RESET TO THE PREVIOUS LOCATION AND CALL THE ROUTE LIST FUNCTION
-    map.flyTo({ center: mapState.center, zoom: map.getZoom() }); //This will now trigger the getRouteList function
+    //BUG on the first load, sometimes the mapState.center is not defined but yet there are routes in the mapState.routes
+    if (mapState?.center?.length) {
+      map.flyTo({ center: mapState.center, zoom: map.getZoom() });
+    } else {
+      console.log({error: 'TransitRoutes: no center found in mapState'})
+      map.flyTo({center: [-78.8964921,42.8915053], zoom: map.getZoom()})
+    }
   };
 
   useEffect(() => {
