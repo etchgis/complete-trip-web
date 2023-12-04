@@ -99,9 +99,18 @@ const StyleGuide = () => {
         <Button variant="error" w="160px" isDisabled={true}>
           Error
         </Button>
+        <Button w="160px" colorScheme="gray">
+          Gray
+        </Button>
+        <Button w="160px" variant={'ghost'}>
+          Ghost Button
+        </Button>
+        <Button variant="ghost" w="160px" color="brand">
+          Blue Ghost
+        </Button>
+
         <Checkbox>Checkbox</Checkbox>
         <Checkbox defaultChecked={true}>Checkbox</Checkbox>
-        <Checkbox isDisabled={true}>Checkbox</Checkbox>
         <FormControl display="flex" alignItems="center">
           <FormLabel htmlFor="switch1" mb="0" mr={7}>
             Switch Toggle
@@ -114,12 +123,7 @@ const StyleGuide = () => {
           </FormLabel>
           <Switch id="switch2" defaultChecked={true} />
         </FormControl>
-        <FormControl display="flex" alignItems="center">
-          <FormLabel htmlFor="switch3" mb="0">
-            Switch Disabled
-          </FormLabel>
-          <Switch id="switch3" isDisabled={true} />
-        </FormControl>
+
         <Text color="red.500" fontSize="sm">
           Error Text
         </Text>

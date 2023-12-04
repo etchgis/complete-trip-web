@@ -32,6 +32,12 @@ const customTheme = {
           _hover: {
             boxShadow: '0 0 0 3px rgba(0, 91, 204, 0.5)',
           },
+          _disabled: {
+            // backgroundColor: 'blue.400',
+            backgroundColor: 'blue.50',
+            color: 'gray.700',
+            opacity: 1,
+          },
         },
         'brand-outline': {
           color: 'brand',
@@ -47,6 +53,11 @@ const customTheme = {
           backgroundColor: 'ariaRed',
           _hover: {
             boxShadow: '0 0 0 3px rgba(220, 53, 69, 0.5)',
+          },
+          _disabled: {
+            backgroundColor: 'red.50',
+            color: 'gray.700',
+            opacity: 1,
           },
         },
       },

@@ -57,11 +57,7 @@ export const TripPlanStandaloneModal = ({
           justifyContent={'flex-start'}
           id="TripPlanStandaloneModalFooter"
         >
-          <Button
-            colorScheme="blue"
-            variant={'ghost'}
-            onClick={backClickHandler}
-          >
+          <Button color="brand" variant={'ghost'} onClick={backClickHandler}>
             Close
           </Button>
         </ModalFooter>

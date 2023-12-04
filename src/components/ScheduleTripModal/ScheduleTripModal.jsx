@@ -153,7 +153,7 @@ export const ScheduleTripModal = observer(
           </ModalBody>
           <ModalFooter justifyContent={'center'}>
             <Button
-              colorScheme="blue"
+              color="brand"
               variant={'ghost'}
               onClick={() => {
                 setStep(0);
