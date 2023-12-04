@@ -99,7 +99,12 @@ const CargiverLink = observer(() => {
   };
 
   return (
-    <Modal isOpen={isOpen} size={'full'} blockScrollOnMount={false} style={{zIndex: 0}}>
+    <Modal
+      isOpen={isOpen}
+      size={'full'}
+      blockScrollOnMount={false}
+      style={{ zIndex: 0 }}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalBody display={'flex'} p={0}>
@@ -153,15 +158,14 @@ const CargiverLink = observer(() => {
                   </Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button
-                      colorScheme="facebook"
+                      variant={'brand'}
                       onClick={loginHandler}
                       width="100%"
                     >
                       Login
                     </Button>
                     <Button
-                      colorScheme="facebook"
-                      variant={'outline'}
+                      variant={'brand-outline'}
                       onClick={loginHandler}
                       width="100%"
                     >

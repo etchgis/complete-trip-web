@@ -53,7 +53,12 @@ export const Wizard = observer(({ hideModal }) => {
         // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
-          <Image src={'/buffalo_logo_full.png'} h={'200px'} />
+          <Image
+            id="wizard-logo"
+            src={'/buffalo_logo_full.png'}
+            h={'200px'}
+            alt="Buffalo Access"
+          />
         </Center>
         <Stack spacing={4} p={8}>
           <WizardStepThrough hideModal={hideModal}></WizardStepThrough>
@@ -587,7 +592,7 @@ const MobilityOptions = observer(() => {
 //         happening so you won’t miss a step. To use this application, you must
 //         have at least one activated.
 //       </Text>
-//       {/* {error ? <Box color="red.400">{error}</Box> : ''} */}
+//       {/* {error ? <Box color="red.500">{error}</Box> : ''} */}
 //       <Box as="form" onChange={() => setChanged(true)}>
 //         <FormControl display="flex" alignItems="center" pl={10} mb={2}>
 //           <FormLabel htmlFor="smsAlerts" mb="0" minW={'12'}>

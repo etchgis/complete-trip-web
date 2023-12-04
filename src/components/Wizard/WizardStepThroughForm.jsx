@@ -80,7 +80,7 @@ export const WizardStepThroughForm = ({ content }) => {
               <Stack mt={6} spacing={4}>
                 {!s.hideButton ? (
                   <Button
-                    bg={i === steps.length - 1 ? 'green.400' : 'brand'}
+                    bg={i === steps.length - 1 ? 'ariaGreen' : 'brand'}
                     color="white"
                     _hover={{
                       opacity: 0.9,

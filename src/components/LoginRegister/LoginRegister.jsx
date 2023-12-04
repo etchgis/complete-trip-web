@@ -152,7 +152,11 @@ export const LoginRegister = observer(({ hideModal }) => {
         // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
-          <Image src={'/buffalo_logo_full.png'} h={'200px'} />
+          <Image
+            src={'/buffalo_logo_full.png'}
+            h={'200px'}
+            alt="Buffalo Access"
+          />
         </Center>
         <Stack spacing={4} p={8}>
           {views.find(v => v.id === activeView).view}
@@ -169,12 +173,7 @@ const Init = ({ setActiveView, hideModal }) => {
     <Stack spacing={4}>
       <Box p={10}></Box>
       <Button
-        bg={'brand'}
-        color="white"
-        fontWeight={500}
-        _hover={{
-          opacity: 0.9,
-        }}
+        variant={'brand'}
         onClick={() => {
           setActiveView('login');
         }}
@@ -182,11 +181,7 @@ const Init = ({ setActiveView, hideModal }) => {
         Login
       </Button>
       <Button
-        variant={'outline'}
-        color="brandDark"
-        _hover={{ opacity: 0.9 }}
-        borderColor={colorMode === 'light' ? 'brand' : 'white'}
-        bg={colorMode === 'light' ? 'transparent' : 'white'}
+        variant={'brand-outline'}
         onClick={() => {
           setActiveView('create');
         }}
@@ -305,16 +300,6 @@ const CreateAccountOrLogin = ({
             </Box>
           ) : (
             <>
-              {/* <Heading
-                as="h1"
-                size="2xl"
-                fontWeight={400}
-                color="brandText"
-                textAlign={'center'}
-                mb={8}
-              >
-                Welcome Back
-              </Heading> */}
               <Text>{loginMessage}</Text>
             </>
           )}
@@ -348,7 +333,11 @@ const CreateAccountOrLogin = ({
                   variant={'ghost'}
                   onClick={() => setShowPassword(showPassword => !showPassword)}
                 >
-                  {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                  {showPassword ? (
+                    <ViewIcon aria-label="Hide password" />
+                  ) : (
+                    <ViewOffIcon aria-label="show password" />
+                  )}
                 </Button>
               </InputRightElement>
             </InputGroup>
@@ -357,12 +346,14 @@ const CreateAccountOrLogin = ({
             <Flex justifyContent={'space-around'}>
               <VStack
                 spacing={0}
-                color={password.length > 7 ? 'green.400' : 'red.400'}
+                color={password.length > 7 ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   8+
                 </Text>
-                <Text>Characters</Text>
+                <Text fontSize="lg" fontWeight={'bold'}>
+                  Characters
+                </Text>
                 {password.length > 7 ? (
                   <CheckCircleIcon size="xs" />
                 ) : (
@@ -371,7 +362,7 @@ const CreateAccountOrLogin = ({
               </VStack>
               <VStack
                 spacing={0}
-                color={hasUpperCase(password) ? 'green.400' : 'red.400'}
+                color={hasUpperCase(password) ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   A-Z
@@ -385,12 +376,12 @@ const CreateAccountOrLogin = ({
               </VStack>
               <VStack
                 spacing={0}
-                color={hasLowerCase(password) ? 'green.400' : 'red.400'}
+                color={hasLowerCase(password) ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   a-z
                 </Text>
-                <Text>Lowercase</Text>
+                <Text color="ariaRedText">Lowercase</Text>
                 {hasLowerCase(password) ? (
                   <CheckCircleIcon size="xs" />
                 ) : (
@@ -399,7 +390,7 @@ const CreateAccountOrLogin = ({
               </VStack>
               <VStack
                 spacing={0}
-                color={hasNumber(password) ? 'green.400' : 'red.400'}
+                color={hasNumber(password) ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   0-9
@@ -420,7 +411,7 @@ const CreateAccountOrLogin = ({
                 <Button
                   variant={'link'}
                   onClick={() => setHideTerms(false)}
-                  color="blue.400"
+                  color="brand"
                   textDecoration={'underline'}
                 >
                   terms and conditions
@@ -446,11 +437,7 @@ const CreateAccountOrLogin = ({
             ''
           )}
           <Button
-            bg={'brand'}
-            color={'white'}
-            _hover={{
-              bg: 'blue.500',
-            }}
+            variant={'brand'}
             type="submit"
             mt={6}
             isDisabled={
@@ -460,7 +447,7 @@ const CreateAccountOrLogin = ({
             {showLogin ? 'Login' : 'Create Account'}
           </Button>
           <Center p={6}>
-            <Text color={'gray.500'}>
+            <Text color={'gray.600'}>
               {showLogin
                 ? "Don't have an account?"
                 : 'Already have an account?'}
@@ -547,13 +534,7 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
           </Stack>
         </RadioGroup>
       </FormControl>
-      <Button
-        variant={'solid'}
-        bg="brand"
-        color="white"
-        _hover={{ opacity: 0.9 }}
-        type="submit"
-      >
+      <Button variant={'brand'} type="submit">
         Submit
       </Button>
       <Button
@@ -650,6 +631,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       </FormControl>
       <Button
         variant={'link'}
+        color="gray.600"
         onClick={async () => {
           setInTransaction(true);
           const recovered = await recover(options.email, options.method);
@@ -680,7 +662,11 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
               variant={'ghost'}
               onClick={() => setShowPassword(showPassword => !showPassword)}
             >
-              {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+              {showPassword ? (
+                <ViewIcon aria-label="hide password" />
+              ) : (
+                <ViewOffIcon aria-label="show password" />
+              )}
             </Button>
           </InputRightElement>
         </InputGroup>
@@ -704,12 +690,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       <Flex justifyContent={'space-around'} w="100%" fontSize="sm" my={2}>
         <VStack
           spacing={0}
-          color={password.length > 7 ? 'green.400' : 'red.400'}
+          color={password.length > 7 ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             8+
           </Text>
-          <Text>Characters</Text>
+          <Text color="ariaRedText">Characters</Text>
           {password.length > 7 ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -718,12 +704,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         </VStack>
         <VStack
           spacing={0}
-          color={hasUpperCase(password) ? 'green.400' : 'red.400'}
+          color={hasUpperCase(password) ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             A-Z
           </Text>
-          <Text>Uppercase</Text>
+          <Text color={'ariaRedText'}>Uppercase</Text>
           {hasUpperCase(password) ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -732,12 +718,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         </VStack>
         <VStack
           spacing={0}
-          color={hasLowerCase(password) ? 'green.400' : 'red.400'}
+          color={hasLowerCase(password) ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             a-z
           </Text>
-          <Text>Lowercase</Text>
+          <Text color="ariaRedText">Lowercase</Text>
           {hasLowerCase(password) ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -746,12 +732,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         </VStack>
         <VStack
           spacing={0}
-          color={hasNumber(password) ? 'green.400' : 'red.400'}
+          color={hasNumber(password) ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             0-9
           </Text>
-          <Text>Number</Text>
+          <Text color="ariaRedText">Number</Text>
           {hasNumber(password) ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -759,13 +745,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           )}
         </VStack>
       </Flex>
-      <Button
-        variant={'solid'}
-        bg="brand"
-        color="white"
-        _hover={{ opacity: 0.9 }}
-        type="submit"
-      >
+      <Button variant={'brand'} type="submit">
         Submit
       </Button>
       <Button
@@ -850,12 +830,7 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
       </Box>
       <Flex justifyContent={'space-between'}>
         <Button
-          variant={'solid'}
-          color="white"
-          bg={'brand'}
-          _hover={{
-            opacity: 0.8,
-          }}
+          variant={'brand'}
           onClick={() => {
             agreedToTerms(true);
             hideTerms(true);
@@ -864,6 +839,7 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
           Accept
         </Button>
         <Button
+          variant={'error'}
           onClick={() => {
             agreedToTerms(false);
             hideTerms(true);

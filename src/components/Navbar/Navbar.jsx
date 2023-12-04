@@ -48,7 +48,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
           p={1}
           borderRadius={'sm'}
         >
-          <Image src={'/buffalo_logo_full.png'} h={8} />
+          <Image src={'/buffalo_logo_full.png'} h={8} alt="Buffalo Access" />
         </Box>
       </Flex>
 
@@ -60,11 +60,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
           spacing={6}
         >
           <Button
-            color={'white'}
-            bg={'brand'}
-            _hover={{
-              opacity: '0.8',
-            }}
+            variant={'brand'}
             minWidth={'135px'}
             // isLoading={loggingIn}
             // loadingText={'Logging In'}

@@ -7,10 +7,11 @@ export const ColorModeSwitcher = props => {
   const { toggleColorMode } = useColorMode();
   const text = useColorModeValue('dark', 'light');
   const SwitchIcon = useColorModeValue(FaMoon, FaSun);
-  const { setMapStyle, mapStyle } = useStore().mapStore
+  const { setMapStyle, mapStyle } = useStore().mapStore;
 
   return (
     <IconButton
+      display={'none'}
       size="md"
       fontSize="lg"
       aria-label={`Switch to ${text} mode`}

@@ -35,11 +35,7 @@ export const ScheduleTripHeader = observer(() => {
           />
         ))}
         <Button
-          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-          color="white"
-          _hover={{
-            opacity: 0.8,
-          }}
+          variant={'brand'}
           onClick={openModal}
           width={'180px'}
           height={'80px'}

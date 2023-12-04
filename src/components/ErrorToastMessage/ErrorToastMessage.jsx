@@ -28,7 +28,7 @@ export const ErrorToastMessage = observer(({ message }) => {
       duration: duration,
       isClosable: true,
       position: 'top-right',
-      variant: colorMode === 'light' ? 'top-accent' : 'solid',
+      variant: 'solid',
     });
     setTimeout(() => {
       setErrorToastMessage(null);

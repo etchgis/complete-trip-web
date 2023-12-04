@@ -57,15 +57,7 @@ export const ProfileInformation = observer(({ action }) => {
       </Box>
 
       <Stack spacing={4} direction={{ base: 'column', md: 'row' }}>
-        <Button
-          bg="brand"
-          _hover={{
-            opacity: '0.8',
-          }}
-          color="white"
-          onClick={action}
-          maxWidth={'200px'}
-        >
+        <Button variant={'brand'} onClick={action} maxWidth={'200px'}>
           Edit Profile
         </Button>
 
@@ -174,6 +166,7 @@ const FavoriteCard = ({ id, title, description, type }) => {
           else removeLocation(id);
         }}
         icon={<DeleteIcon />}
+        aria-label="Remove Favorite"
       />
     </Stack>
   );

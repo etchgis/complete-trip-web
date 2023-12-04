@@ -83,9 +83,7 @@ const TimelineStep = ({ start, label, steps }) => {
                   fontSize="sm"
                   onClick={() => setShowDetails(!showDetails)}
                   textDecoration={'underline'}
-                  color={
-                    colorMode === 'light' ? 'theme.primary' : 'theme.light'
-                  }
+                  color={colorMode === 'light' ? 'brand' : 'theme.light'}
                   cursor={'pointer'}
                   data-name="step-name"
                 >
@@ -144,7 +142,7 @@ const TimelineStep = ({ start, label, steps }) => {
               fontSize="sm"
               onClick={() => setShowDetails(!showDetails)}
               textDecoration={'underline'}
-              color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+              color={colorMode === 'light' ? 'brand' : 'theme.light'}
               cursor={'pointer'}
               pl={'24px'}
             >
@@ -158,6 +156,7 @@ const TimelineStep = ({ start, label, steps }) => {
 };
 
 const CreateCircleIcon = ({ svg, backgroundColor }) => {
+  console.log(backgroundColor);
   return (
     <Flex
       w={7}
@@ -171,7 +170,7 @@ const CreateCircleIcon = ({ svg, backgroundColor }) => {
     >
       <Icon viewBox={svg?.viewBox || '0 0 512 512'} boxSize={'5'}>
         <path
-          fill={'white'}
+          fill={backgroundColor === 'gray.400' ? 'black' : 'white'}
           d={
             svg?.path ||
             'M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0'
@@ -241,7 +240,7 @@ export const TripPlanSchedule = observer(
             <Center h={10} w={10} borderRadius="lg">
               <Icon
                 as={FaArrowRight}
-                color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+                color={colorMode === 'light' ? 'brand' : 'theme.light'}
               />
             </Center>
           </Flex>
@@ -289,9 +288,7 @@ export const TripPlanSchedule = observer(
 
         <Box pt={4} pb={0} mb={-2}>
           <Divider
-            borderColor={
-              colorMode === 'light' ? 'theme.primary' : 'theme.light'
-            }
+            borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
             borderWidth={2}
           />
         </Box>
@@ -325,7 +322,7 @@ export const TripPlanSchedule = observer(
 
             let fillColor = getLegColor(leg);
             if (fillColor === '#FFFFFF') {
-              fillColor = theme.colors.primary1;
+              fillColor = theme.colors.brand;
             }
 
             let intermediateStopsLabel;
@@ -402,9 +399,7 @@ export const TripPlanSchedule = observer(
                           fontSize={'sm'}
                           textTransform={'uppercase'}
                           color={
-                            colorMode === 'light'
-                              ? 'theme.primary'
-                              : 'theme.light'
+                            colorMode === 'light' ? 'brand' : 'theme.light'
                           }
                           data-name="leg-to-name"
                           textAlign={'left'}

@@ -128,6 +128,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                       onClick={() => removeTripFav(trip.plan.request.id)}
                       colorScheme="red"
                       fontSize={'2xl'}
+                      aria-label="Add to favorites"
                     />
                   ) : (
                     <IconButton
@@ -139,12 +140,14 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                       }}
                       colorScheme="red"
                       fontSize={'2xl'}
+                      aria-label="Remove from favorites"
                     />
                   )}
                   <IconButton
                     icon={<FaChevronRight />}
                     variant="ghost"
                     fontSize={'xl'}
+                    aria-label="View trip details"
                     onClick={() => {
                       setSelectedTrip(trip);
                       openModal();

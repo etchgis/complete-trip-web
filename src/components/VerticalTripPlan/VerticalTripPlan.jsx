@@ -76,7 +76,7 @@ const TripPlanScheduleButtons = observer(
         {scheduleTripHandler && (
           <Button
             onClick={scheduleTripHandler ? scheduleTripHandler : null}
-            colorScheme="blue"
+            variant={'brand'}
             isDisabled={!loggedIn}
             width={'100%'}
           >

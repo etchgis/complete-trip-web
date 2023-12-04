@@ -53,7 +53,10 @@ export const TripPlanStandaloneModal = ({
             cancelClickHandler={cancelClickHandler}
           />
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter
+          justifyContent={'flex-start'}
+          id="TripPlanStandaloneModalFooter"
+        >
           <Button
             colorScheme="blue"
             variant={'ghost'}

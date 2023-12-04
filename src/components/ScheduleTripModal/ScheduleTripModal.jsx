@@ -151,7 +151,7 @@ export const ScheduleTripModal = observer(
           >
             {Wizard.find((w, i) => i === step).component}
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter justifyContent={'center'}>
             <Button
               colorScheme="blue"
               variant={'ghost'}
@@ -549,7 +549,7 @@ const First = observer(({ setStep, trip }) => {
         ></Input>
       </FormControl>
 
-      <Button width="100%" colorScheme={'blue'} type="submit">
+      <Button width="100%" variant="brand" type="submit">
         Next
       </Button>
     </Stack>
@@ -660,7 +660,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         </Select>
       </FormControl> */}
 
-      <Button type="submit" colorScheme="blue">
+      <Button type="submit" variant={'brand'}>
         Next
       </Button>
       <Button onClick={() => setStep(current => current - 1)}>Back</Button>

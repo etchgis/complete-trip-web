@@ -59,7 +59,7 @@
     "zustand": "^4.3.1"
   },
   "scripts": {
-    "start": "vite",
+    "start": "vite --port 5175",
     "build": "vite build",
     "serve": "vite preview",
     "dev-old": "react-scripts start",

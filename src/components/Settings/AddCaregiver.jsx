@@ -26,7 +26,11 @@ export const AddCaregiver = ({ onClose }) => {
         const firstName = data.get('caregiverFirstName');
         const lastName = data.get('caregiverLastName');
         try {
-          const reponse = await invite(data.get('caregiverEmail'), firstName, lastName);
+          const reponse = await invite(
+            data.get('caregiverEmail'),
+            firstName,
+            lastName
+          );
           console.log(reponse);
           //TODO show success message
         } catch (error) {
@@ -36,15 +40,12 @@ export const AddCaregiver = ({ onClose }) => {
               'This email is already registered as a Caregiver.'
             );
           } else {
-            setErrorToastMessage(
-              'There was an error sending the invite.'
-            );
+            setErrorToastMessage('There was an error sending the invite.');
           }
         }
 
         hydrate();
         onClose();
-
       }}
     >
       <Stack spacing={4}>
@@ -62,16 +63,7 @@ export const AddCaregiver = ({ onClose }) => {
           <FormLabel>Email</FormLabel>
           <Input type="email" name="caregiverEmail" isRequired />
         </FormControl>
-        <Button
-          bg={'brand'}
-          color={'white'}
-          _hover={{
-            opacity: 0.8,
-          }}
-          isDisabled={!changed}
-          type="submit"
-          mt={6}
-        >
+        <Button variant={'brand'} isDisabled={!changed} type="submit" mt={6}>
           Send Invite
         </Button>
       </Stack>

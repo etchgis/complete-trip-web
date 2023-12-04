@@ -7,6 +7,7 @@ import Home from './Home';
 import Layout from './Layout';
 import Login from './Login';
 import Settings from './Settings';
+import StyleGuide from './StyleGuide.jsx';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import useDependentTripNotifier from '../hooks/useDependentNotifier';
@@ -72,6 +73,12 @@ export const Routes = observer(() => {
       {/* Redirect all trailing slashes */}
       <Route path={'/:url(/+)'} element={<Navigate to={'/map'} />} />
       <Route path={'/'} element={<Navigate to={'/map'} />} />
+
+      {/* STYLE GUIDE */}
+      <Route
+        path={'/styleguide'}
+        element={<Layout children={<StyleGuide />} />}
+      />
 
       {/* Map */}
       <Route

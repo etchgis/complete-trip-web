@@ -79,7 +79,12 @@ export const CaregiverCard = ({ caregiver }) => {
       <CardBody>
         <Stack spacing="3">
           <Heading size="md" display={'flex'} alignItems={'center'}>
-            {caregiver?.firstName} {caregiver?.lastName} {caregiver?.status === 'approved' ? <CheckCircleIcon color='green.400' ml={2}/> : ''}
+            {caregiver?.firstName} {caregiver?.lastName}{' '}
+            {caregiver?.status === 'approved' ? (
+              <CheckCircleIcon color="ariaGreen" ml={2} />
+            ) : (
+              ''
+            )}
           </Heading>
           {/* <Text>{formatters.phone.asDomestic(caregiver?.phone.slice(2))}</Text> */}
           <Text>{caregiver?.email}</Text>

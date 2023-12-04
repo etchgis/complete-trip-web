@@ -105,7 +105,11 @@ export const EditPassword = () => {
                 variant={'ghost'}
                 onClick={() => setShowPassword(showPassword => !showPassword)}
               >
-                {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                {showPassword ? (
+                  <ViewIcon aria-label="Hide Password" />
+                ) : (
+                  <ViewOffIcon aria-label="Show Password" />
+                )}
               </Button>
             </InputRightElement>
           </InputGroup>
@@ -149,7 +153,11 @@ export const EditPassword = () => {
                   setShowNewPassword(showNewPassword => !showNewPassword)
                 }
               >
-                {showNewPassword ? <ViewIcon /> : <ViewOffIcon />}
+                {showNewPassword ? (
+                  <ViewIcon aria-label="Hide Password" />
+                ) : (
+                  <ViewOffIcon aria-label="Show Password" />
+                )}
               </Button>
             </InputRightElement>
           </InputGroup>
@@ -157,12 +165,12 @@ export const EditPassword = () => {
         <Flex justifyContent={'space-around'} fontSize="md">
           <VStack
             spacing={0}
-            color={newPassword.length > 7 ? 'green.400' : 'red.400'}
+            color={newPassword.length > 7 ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               8+
             </Text>
-            <Text>Characters</Text>
+            <Text color="ariaRedText">Characters</Text>
             {newPassword.length > 7 ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -171,12 +179,12 @@ export const EditPassword = () => {
           </VStack>
           <VStack
             spacing={0}
-            color={hasUpperCase(newPassword) ? 'green.400' : 'red.400'}
+            color={hasUpperCase(newPassword) ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               A-Z
             </Text>
-            <Text>Uppercase</Text>
+            <Text color="ariaRedText">Uppercase</Text>
             {hasUpperCase(newPassword) ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -185,12 +193,12 @@ export const EditPassword = () => {
           </VStack>
           <VStack
             spacing={0}
-            color={hasLowerCase(newPassword) ? 'green.400' : 'red.400'}
+            color={hasLowerCase(newPassword) ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               a-z
             </Text>
-            <Text>Lowercase</Text>
+            <Text color="ariaRedText">Lowercase</Text>
             {hasLowerCase(newPassword) ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -199,12 +207,12 @@ export const EditPassword = () => {
           </VStack>
           <VStack
             spacing={0}
-            color={hasNumber(newPassword) ? 'green.400' : 'red.400'}
+            color={hasNumber(newPassword) ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               0-9
             </Text>
-            <Text>Number</Text>
+            <Text color="ariaRedText">Number</Text>
             {hasNumber(newPassword) ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -236,15 +244,7 @@ export const EditPassword = () => {
             />
           </InputGroup>
         </FormControl>
-        <Button
-          bg={'brand'}
-          color={'white'}
-          _hover={{
-            opacity: 0.8,
-          }}
-          type="submit"
-          mt={6}
-        >
+        <Button variant="brand" type="submit" mt={6}>
           Change Password
         </Button>
       </Stack>

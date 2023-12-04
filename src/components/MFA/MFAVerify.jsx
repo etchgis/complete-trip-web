@@ -24,7 +24,12 @@ import { useStore } from '../../context/RootStore';
 
 export const MFAVerify = observer(
   ({ isOpen, onClose, buttonText, title, callbackFn }) => {
-    const { contact: user, verifyUser, confirmUser, reset } = useStore().authentication;
+    const {
+      contact: user,
+      verifyUser,
+      confirmUser,
+      reset,
+    } = useStore().authentication;
     const [verifyError, setVerifyError] = useState(false);
     const [stage, setStage] = useState(0);
     const [method, setMethod] = useState('');
@@ -47,7 +52,9 @@ export const MFAVerify = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          console.log('[mfa-verify] resetting auth store via closing MFA modal manually');
+          console.log(
+            '[mfa-verify] resetting auth store via closing MFA modal manually'
+          );
           reset();
           setStage(0);
           setMethod('');
@@ -87,7 +94,7 @@ export const MFAVerify = observer(
                       <Radio value="email">Email Me</Radio>
                     </Stack>
                   </RadioGroup>
-                  <Button type="submit" colorScheme="blue" mt={4}>
+                  <Button type="submit" variant="brand" mt={4}>
                     Send Authentication Code
                   </Button>
                 </Box>
@@ -149,6 +156,7 @@ export const MFAVerify = observer(
                         await verifyUser(method, to);
                       }}
                       variant={'link'}
+                      color="gray.600"
                     >
                       Send Another Code?
                     </Button>
