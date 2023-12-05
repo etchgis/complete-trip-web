@@ -59,3 +59,23 @@ sub {
 .chakra-table.dependent-trip-list-table td {
   padding: 0.5rem 1rem;
 }
+
+/*prefers colors force check */
+@media (forced-colors: active) {
+  /*put an outline on chakra-switch */
+  .chakra-switch__track {
+    outline: 1px solid #fff;
+  }
+  .chakra-switch__thumb {
+    outline: 1px solid #fff;
+    filter: invert(1);
+  }
+  input[type='radio'][value='Yes']:checked + div {
+    background: white;
+    filter: invert(1);
+  }
+  input[type='radio'][value='No']:checked + div {
+    background: white;
+    filter: invert(1);
+  }
+}
