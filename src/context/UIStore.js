@@ -8,6 +8,13 @@ class UIStore {
   toastStatus = '';
   toastTitle = '';
   debug = false;
+  ui = {
+    contrast: false,
+    letterSpacing: 'normal',
+    fontSize: 'normal',
+    hideImages: false,
+    cursor: 'default',
+  };
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -20,10 +27,16 @@ class UIStore {
     )
       makePersistable(this, {
         name: 'UIStore',
-        properties: ['mode', 'debug'],
+        properties: ['mode', 'debug', 'ui'],
         storage: localStorage,
       });
   }
+
+  setUI = value => {
+    runInAction(() => {
+      this.ui = { ...this.ui, ...value };
+    });
+  };
 
   setDebugMode = value => {
     runInAction(() => {

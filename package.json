@@ -43,6 +43,7 @@
     "react": "^18.2.0",
     "react-aria": "^3.22.0",
     "react-dom": "^18.2.0",
+    "react-focus-lock": "^2.9.6",
     "react-icons": "^4.7.1",
     "react-lorem-ipsum": "^1.4.10",
     "react-router-dom": "^6.6.2",

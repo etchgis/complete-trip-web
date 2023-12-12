@@ -2,11 +2,14 @@ import {
   Box,
   Button,
   Checkbox,
+  Flex,
   FormControl,
   FormLabel,
   Heading,
   IconButton,
   Input,
+  Spacer,
+  Stack,
   Switch,
   Text,
   VStack,
@@ -15,10 +18,16 @@ import {
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons';
 
 import { BiHomeAlt } from 'react-icons/bi';
+import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useEffect } from 'react';
+import { useStore } from '../context/RootStore';
 
-const StyleGuide = () => {
+const StyleGuide = observer(() => {
   const toast = useToast();
+  const { ui, setUI } = useStore().uiStore;
+  const _aaa = toJS(ui);
+  console.log({ _aaa });
 
   useEffect(() => {
     toast({
@@ -56,14 +65,88 @@ const StyleGuide = () => {
       isClosable: true,
     });
   }, []);
+
+  //force all ui settings from ui store
+  useEffect(() => {
+    if (ui.contrast) {
+      document.body.classList.add('contrast');
+    } else {
+      document.body.classList.remove('contrast');
+    }
+    if (ui.letterSpacing === 'md') {
+      document.body.classList.add('letter-spacing-md');
+    } else {
+      document.body.classList.remove('letter-spacing-md');
+    }
+    if (ui.letterSpacing === 'lg') {
+      document.body.classList.add('letter-spacing-lg');
+    } else {
+      document.body.classList.remove('letter-spacing-lg');
+    }
+  }, [ui]);
+
   return (
-    <Box p={10} id="styleguide" position="absolute" left={20}>
-      <VStack alignItems={'flex-start'}>
+    <Flex
+      w="calc(100% - 80px)"
+      flexDir={'column'}
+      id="styleguide"
+      position="absolute"
+      left={20}
+    >
+      <Flex
+        gap={3}
+        p={4}
+        flexDir={{ base: 'column', sm: 'row' }}
+        borderBottom={'solid thin lightgray'}
+        w="100%"
+      >
+        <Button
+          variant={ui.contrast ? 'brand' : 'outline'}
+          onClick={() => {
+            if (document.body.classList.contains('contrast')) {
+              setUI({
+                contrast: false,
+              });
+            } else {
+              setUI({
+                contrast: true,
+              });
+            }
+          }}
+        >
+          Contrast
+        </Button>
+
+        {/* lg letter spacing */}
+        <Button
+          variant={ui.letterSpacing === 'lg' ? 'brand' : 'outline'}
+          onClick={() => {
+            if (document.body.classList.contains('letter-spacing-lg')) {
+              setUI({
+                letterSpacing: 'normal',
+              });
+            } else {
+              setUI({
+                letterSpacing: 'lg',
+              });
+            }
+          }}
+        >
+          Lg Letter Spacing
+        </Button>
+      </Flex>
+      <Flex flexDir="column" alignItems={'flex-start'} gap={4} p={4}>
         <Heading as="h1">h1 Style Guide</Heading>
         <Heading as="h2">h2 Heading</Heading>
 
         <Text>This is a paragraph.</Text>
-        <Input id="input" type="text" placeholder="Input" value="Input" />
+        <Input
+          w="320px"
+          maxW="calc(100vw - 40px)"
+          id="input"
+          type="text"
+          placeholder="Placeholder Text"
+        />
         <IconButton
           icon={<BiHomeAlt />}
           aria-label="Icon"
@@ -73,39 +156,39 @@ const StyleGuide = () => {
           bg="gray.50"
           id="icon"
         />
-        <Button variant="brand" w="160px">
+        <Button variant="brand" minW="160px">
           Button Primary
         </Button>
         <Button
           variant="brand"
           boxShadow="0 0 0 3px rgba(0, 91, 204, 0.5)"
-          w="160px"
+          minW="160px"
         >
           Button Hover
         </Button>
-        <Button variant="brand" isDisabled={true} w="160px">
+        <Button variant="brand" isDisabled={true} minW="160px">
           Primary Disabled
         </Button>
-        <Button variant="error" w="160px">
+        <Button variant="error" minW="160px">
           Error
         </Button>
         <Button
           variant="error"
-          w="160px"
+          minW="160px"
           boxShadow={'0 0 0 3px rgba(220, 53, 69, 0.5)'}
         >
           Error Hover
         </Button>
-        <Button variant="error" w="160px" isDisabled={true}>
+        <Button variant="error" minW="160px" isDisabled={true}>
           Error
         </Button>
-        <Button w="160px" colorScheme="gray">
+        <Button minW="160px" colorScheme="gray">
           Gray
         </Button>
-        <Button w="160px" variant={'ghost'}>
+        <Button minW="160px" variant={'ghost'}>
           Ghost Button
         </Button>
-        <Button variant="ghost" w="160px" color="brand">
+        <Button variant="ghost" minW="160px" color="brand">
           Blue Ghost
         </Button>
 
@@ -132,9 +215,9 @@ const StyleGuide = () => {
         </Text>
         <CheckCircleIcon size="xs" color={'ariaGreenText'} />
         <WarningTwoIcon size="xs" color="red.500" />
-      </VStack>
-    </Box>
+      </Flex>
+    </Flex>
   );
-};
+});
 
 export default StyleGuide;

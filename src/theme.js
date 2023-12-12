@@ -4,6 +4,13 @@ import { extendTheme } from '@chakra-ui/react';
 const customTheme = {
   components: {
     Steps,
+    Popover: {
+      baseStyle: {
+        popper: {
+          zIndex: 'popover',
+        },
+      },
+    },
     FormLabel: {
       baseStyle: {
         fontWeight: 'bold',
@@ -35,7 +42,7 @@ const customTheme = {
           _disabled: {
             // backgroundColor: 'blue.400',
             backgroundColor: 'blue.50',
-            color: 'gray.700',
+            color: 'ariaGrayLight',
             opacity: 1,
           },
         },
@@ -56,7 +63,7 @@ const customTheme = {
           },
           _disabled: {
             backgroundColor: 'red.50',
-            color: 'gray.700',
+            color: 'ariaGrayLight',
             opacity: 1,
           },
         },
@@ -70,6 +77,7 @@ const customTheme = {
     ariaGray: 'hsl(218, 17%, 35%)',
     ariaGreen: 'hsl(125, 50%, 35%)',
     ariaGreenText: 'hsl(125, 55%, 25%)',
+    ariaGrayLight: 'hsl(218, 23%, 30%)',
     blue: {
       50: '#e6f4ff',
       100: '#b8e3ff',

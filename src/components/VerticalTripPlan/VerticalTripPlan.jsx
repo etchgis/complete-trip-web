@@ -90,7 +90,7 @@ const TripPlanScheduleButtons = observer(
             colorScheme="red"
             onClick={cancelClickHandler}
           >
-            Cancel Trip
+            Cancel
           </Button>
         )}
         <Button width={'100%'} onClick={backClickHandler}>
