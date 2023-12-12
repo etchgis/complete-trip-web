@@ -191,3 +191,14 @@ body.cursor-lg button.cursor-lg-btn {
   background-color: var(--color-brand);
   color: white;
 }
+
+/** ------------------------ **/
+/** ---- CLASS OVERRIDE ---- **/
+/** ------------------------ **/
+h3.route-list-heading,
+body.fontsize-md h3.route-list-heading,
+body.fontsize-lg h3.route-list-heading {
+  font-size: 26px !important;
+  font-weight: bold;
+  margin-bottom: 0;
+}

@@ -1,4 +1,12 @@
-import { Box, Button, Flex, Stack, Text, useColorMode } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Stack,
+  Text,
+  useColorMode,
+} from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
 import Loader from '../Loader';
@@ -337,7 +345,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                   }}
                   justifyContent={'flex-start'}
                   fontSize="sm"
-                  minH={'90px'}
+                  // minH={'90px'}
                   height={'auto'}
                   margin={0}
                   paddingX={'15px'}
@@ -348,6 +356,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                   borderLeft={'none'}
                   borderRight={'none'}
                   width="100%"
+                  whiteSpace={'normal'}
                 >
                   <Flex flexDirection={'row'} width={'100%'}>
                     <Flex flexDirection={'column'} flex={1} width={'300px'}>
@@ -566,68 +575,65 @@ const RouteList = observer(({ routeClickHandler }) => {
           position={'relative'}
           mt={2}
           flexDir={'column'}
-          flex={1}
-          overflowY={'auto'}
+          overflowX={'auto'}
+          // flexWrap={'wrap'}
           id="map-route-list"
           data-testid="map-route-list"
         >
           {routes.map((r, i) => {
             return (
               <Button
-                data-testid="map-route-list-button"
-                display="flex"
-                justifyContent={'center'}
                 key={i}
-                background={`#${r.color || '004490'}`}
+                data-testid="map-route-list-button"
+                onClick={() => routeClickHandler(r)}
+                background={`#${r.color || 'brand'}`}
                 color={`#${r.textColor || 'ffffff'}`}
                 _hover={{
                   filter: 'brightness(1.1) saturate(1.3)',
                 }}
-                paddingX={'15px'}
-                paddingY={'8px'}
+                outline={'solid 1px white'}
+                display={'block'}
+                paddingY={'16px'}
+                paddingX={'8px'}
                 fontSize="sm"
                 fontWeight="bold"
-                minH={'90px'}
+                height={'unset'}
                 margin={0}
                 borderRadius={0}
-                outline={'solid 1px white'}
-                onClick={() => routeClickHandler(r)}
+                width={'100%'}
+                whiteSpace={'normal'}
               >
                 {r.mode === 'bus' && (
-                  <Flex flexDirection={'column'} flex={1}>
+                  <>
                     <Flex
                       flexDir={'row'}
                       justifyContent={'space-between'}
                       width={'100%'}
+                      // whiteSpace={'normal'}
                     >
-                      <span
-                        style={{
-                          fontSize: 32,
-                          fontWeight: 'bold',
-                          marginBottom: 0,
-                        }}
-                      >
+                      <Heading as="h3" className="route-list-heading">
                         {r?.route?.subRoute}
-                      </span>
+                      </Heading>
                       <Flex flexDir={'column'}>
-                        <span style={{ textAlign: 'right' }}>
+                        <Box style={{ textAlign: 'right' }}>
                           {r?.route?.arrive
                             ? durationToString(r.route.arrive)
                             : ''}
-                        </span>
-                        <span style={{ textAlign: 'right' }}>
+                        </Box>
+                        <Box style={{ textAlign: 'right' }}>
                           {r?.route?.arriveNext
                             ? `Next ${moment(r.route.arriveNext).format(
                                 'h:mm A'
                               )}`
                             : ''}
-                        </span>
+                        </Box>
                       </Flex>
                     </Flex>
                     {(r?.route || r?.location) && (
                       <Flex flexDir={'column'} flex={1}>
                         {r?.route && (
-                          <span
+                          <Box
+                            as="span"
                             style={{
                               fontSize: 14,
                               textAlign: 'left',
@@ -635,7 +641,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                             }}
                           >
                             {r.route?.destination}
-                          </span>
+                          </Box>
                         )}
                         {r?.location && (
                           <span style={{ textAlign: 'left' }}>
@@ -662,8 +668,9 @@ const RouteList = observer(({ routeClickHandler }) => {
                         )}
                       </Flex>
                     )}
-                  </Flex>
+                  </>
                 )}
+
                 {r.mode === 'shuttle' && (
                   <Flex flexDirection={'column'} flex={1}>
                     <span style={{ fontSize: 18, textAlign: 'left' }}>
