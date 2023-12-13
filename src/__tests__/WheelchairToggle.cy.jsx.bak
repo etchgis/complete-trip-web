@@ -1,0 +1,14 @@
+import { TestWrapper } from '../setupTests';
+import WheelchairToggle from '../components/Settings/Accessibility/WheelchairToggle';
+import { mount } from '@cypress/react18';
+
+describe('Wheelchair Toggle', () => {
+  it('Renders the wheelchair toggle', () => {
+    mount(
+      <TestWrapper>
+        <WheelchairToggle />
+      </TestWrapper>
+    );
+    cy.findByText(/Yes\/No/i).should('exist');
+  });
+});

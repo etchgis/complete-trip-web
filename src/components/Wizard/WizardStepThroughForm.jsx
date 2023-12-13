@@ -80,11 +80,9 @@ export const WizardStepThroughForm = ({ content }) => {
               <Stack mt={6} spacing={4}>
                 {!s.hideButton ? (
                   <Button
+                    variant="brand"
                     bg={i === steps.length - 1 ? 'ariaGreen' : 'brand'}
                     color="white"
-                    _hover={{
-                      opacity: 0.9,
-                    }}
                     w="100%"
                     type="submit"
                   >
@@ -97,15 +95,7 @@ export const WizardStepThroughForm = ({ content }) => {
                 ) : null}
                 {i > 0 && !s.hideButton ? (
                   <Button
-                    borderColor={
-                      colorMode === 'light' ? 'brandDark' : 'gray.400'
-                    }
-                    color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
-                    _hover={{
-                      // backgroundColor: 'gray.100',
-                      opacity: 0.9,
-                    }}
-                    variant="outline"
+                    variant={'brand-outline'}
                     w="100%"
                     type="button"
                     onClick={() => setTabIndex(i - 1)}

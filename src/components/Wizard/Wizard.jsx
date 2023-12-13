@@ -11,6 +11,7 @@ import {
   IconButton,
   Image,
   Input,
+  Spacer,
   Stack,
   Text,
   VisuallyHiddenInput,
@@ -20,12 +21,13 @@ import {
 import { useEffect, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
+import ServiceAnimalToggle from '../Settings/Accessibility/ServiceAnimalToggle';
 import { VerifyPin } from '../Shared/VerifyPin';
+import WheelchairToggle from '../Settings/Accessibility/WheelchairToggle';
 import { WizardStepThroughForm } from './WizardStepThroughForm';
 import formatters from '../../utils/formatters';
 import geocoder from '../../services/transport/geocoder';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 export const Wizard = observer(({ hideModal }) => {
@@ -138,11 +140,27 @@ const WizardStepThrough = observer(() => {
           },
           skip: true,
         },
+        // {
+        //   title: 'mobility',
+        //   content: () => <MobilityOptions></MobilityOptions>,
+        //   skip: true,
+        //   buttonText: 'Check Email Address',
+        // },
         {
           title: 'mobility',
-          content: () => <MobilityOptions></MobilityOptions>,
+          content: () => (
+            <>
+              <Heading as="h2" size="lg" fontWeight={400} color="brandDark">
+                Accessibility Options
+              </Heading>
+              <Stack spacing={4}>
+                <WheelchairToggle />
+                <ServiceAnimalToggle />
+              </Stack>
+              <Spacer my={10} />
+            </>
+          ),
           skip: true,
-          buttonText: 'Check Email Address',
         },
         {
           title: 'verify',
