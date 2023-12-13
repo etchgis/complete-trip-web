@@ -22,14 +22,16 @@ import { FaExchangeAlt } from 'react-icons/fa';
 import { HiCurrencyDollar } from 'react-icons/hi';
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
+import { update } from 'lodash';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
 export const EditTripPreferences = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
-  // const [preferences, setPreferences] = useState(user?.profile?.preferences);
-  // const preferences = Object.assign({}, user?.profile?.preferences);
   const preferences = user?.profile?.preferences || {};
+
+  console.log('preferences', toJS(preferences));
 
   const [minimizeWalking, setMinimizeWalking] = useState(
     preferences?.minimizeWalking || false
@@ -46,18 +48,44 @@ export const EditTripPreferences = observer(() => {
     preferences?.wheelchair || false
   );
 
+  const [serviceAnimal, setServiceAnimal] = useState(
+    preferences?.serviceAnimal || false
+  );
+
   const wheelchairOptions = ['Yes', 'No'];
-  const { getRootProps, getRadioProps } = useRadioGroup({
-    name: 'Wheelchair',
-    defaultValue: wheelchair ? 'Yes' : 'No',
+  const serviceAnimalOptions = ['Yes', 'No'];
+
+  const { getRootProps: getWheelchairRoot, getRadioProps: getWheelchairProps } =
+    useRadioGroup({
+      name: 'Wheelchair',
+      defaultValue: wheelchair ? 'Yes' : 'No',
+      onChange: e => {
+        setWheelchair(e === 'Yes' ? true : false);
+        updateUserProfile({
+          ...user?.profile,
+          preferences: {
+            ...preferences,
+            wheelchair: e === 'Yes' ? true : false,
+          },
+        });
+      },
+    });
+
+  const {
+    getRootProps: getServiceAnimalRoot,
+    getRadioProps: getServiceAnimalProps,
+  } = useRadioGroup({
+    name: 'ServiceAnimal',
+    defaultValue: serviceAnimal ? 'Yes' : 'No',
     onChange: e => {
-      setWheelchair(e === 'Yes' ? true : false);
-      preferences['wheelchair'] = e === 'Yes' ? true : false;
-      updateUserProfile(
-        Object.assign({}, user?.profile, {
-          preferences: preferences,
-        })
-      );
+      setServiceAnimal(e === 'Yes' ? true : false);
+      updateUserProfile({
+        ...user?.profile,
+        preferences: {
+          ...preferences,
+          serviceAnimal: e === 'Yes' ? true : false,
+        },
+      });
     },
   });
 
@@ -65,48 +93,42 @@ export const EditTripPreferences = observer(() => {
     const _modes = preferences?.modes || [];
     if (e.target.checked) {
       setModes([..._modes, e.target.value]);
-      preferences['modes'] = [..._modes, e.target.value];
-      updateUserProfile(
-        Object.assign({}, user?.profile, {
-          preferences: preferences,
-        })
-      );
+      updateUserProfile({
+        ...user?.profile,
+        preferences: { ...preferences, modes: [..._modes, e.target.value] },
+      });
     } else {
       setModes(_modes.filter(mode => mode !== e.target.value));
-      preferences['modes'] = _modes.filter(mode => mode !== e.target.value);
-      updateUserProfile(
-        Object.assign({}, user?.profile, {
-          preferences: preferences,
-        })
-      );
+      updateUserProfile({
+        ...user?.profile,
+        preferences: {
+          ...preferences,
+          modes: _modes.filter(mode => mode !== e.target.value),
+        },
+      });
     }
   };
 
-  const group = getRootProps();
+  const wheelchairGroup = getWheelchairRoot();
+  const serviceAnimalGroup = getServiceAnimalRoot();
+
   return (
     <Stack spacing={4} maxW={{ base: '100%', md: 'md' }}>
       <HStack alignItems={'center'} justifyContent="space-between">
-        <Box fontWeight={'bold'}>Minimize Walking</Box>
+        <Box fontWeight={'bold'} as="p">
+          Minimize Walking
+        </Box>
         <Switch
           name="minimizeWalking"
           onChange={e => {
-            if (e.target.checked) {
-              setMinimizeWalking(true);
-              preferences['minimizeWalking'] = true;
-              updateUserProfile(
-                Object.assign({}, user?.profile, {
-                  preferences: preferences,
-                })
-              );
-            } else {
-              setMinimizeWalking(false);
-              preferences['minimizeWalking'] = false;
-              updateUserProfile(
-                Object.assign({}, user?.profile, {
-                  preferences: preferences,
-                })
-              );
-            }
+            setMinimizeWalking(e.target.checked);
+            updateUserProfile({
+              ...user?.profile,
+              preferences: {
+                ...preferences,
+                minimizeWalking: e.target.checked,
+              },
+            });
           }}
           // value={minimizeWalking}
           isChecked={minimizeWalking}
@@ -119,9 +141,14 @@ export const EditTripPreferences = observer(() => {
         <SliderThumbWithTooltipCost
           action={e => {
             setMaxCost(e);
-            preferences['maxCost'] = e;
             updateUserProfile(
-              Object.assign({}, user?.profile, { preferences: preferences })
+              Object.assign({
+                ...user?.profile,
+                preferences: {
+                  ...preferences,
+                  maxCost: e,
+                },
+              })
             );
           }}
           initialValue={maxCost}
@@ -134,22 +161,50 @@ export const EditTripPreferences = observer(() => {
         <SliderThumbWithTooltipLength
           action={e => {
             setMaxTransfers(e);
-            preferences['maxTransfers'] = e;
-            updateUserProfile(
-              Object.assign({}, user?.profile, {
-                preferences: preferences,
-              })
-            );
+            updateUserProfile({
+              ...user?.profile,
+              preferences: {
+                ...preferences,
+                maxTransfers: e,
+              },
+            });
           }}
           initialValue={maxTransfers}
         ></SliderThumbWithTooltipLength>
       </FormControl>
       <FormControl>
-        <HStack {...group} display={'flex'} justifyContent="space-between">
-          <Box>Wheelchair Accessibility</Box>
+        <HStack
+          {...wheelchairGroup}
+          display={'flex'}
+          justifyContent="space-between"
+        >
+          <Box fontWeight={'bold'} as="p">
+            Wheelchair Accessibility
+          </Box>
           <Flex borderRadius={'md'} borderWidth="1px" overflow={'hidden'}>
             {wheelchairOptions.map(value => {
-              const radio = getRadioProps({ value });
+              const radio = getWheelchairProps({ value });
+              return (
+                <RadioCard key={value} {...radio}>
+                  {value}
+                </RadioCard>
+              );
+            })}
+          </Flex>
+        </HStack>
+      </FormControl>
+      <FormControl>
+        <HStack
+          {...serviceAnimalGroup}
+          display={'flex'}
+          justifyContent="space-between"
+        >
+          <Box fontWeight={'bold'} as="p">
+            Service Animal{' '}
+          </Box>
+          <Flex borderRadius={'md'} borderWidth="1px" overflow={'hidden'}>
+            {serviceAnimalOptions.map(value => {
+              const radio = getServiceAnimalProps({ value });
               return (
                 <RadioCard key={value} {...radio}>
                   {value}
