@@ -42,16 +42,19 @@ export const ProfileInformation = observer(({ action }) => {
   return (
     <Stack p={4}>
       <Avatar size="xl" mb={4}></Avatar>
-      <Box fontWeight="bold" fontSize="sm">
+      <Box fontWeight="bold" fontSize="sm" as="p">
         NAME
       </Box>
-      <Box>
+      <Box as="p">
         {user?.profile?.firstName} {user?.profile?.lastName}
       </Box>
-      <Box>{user?.email}</Box>
-      <Box> {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}</Box>
+      <Box as="p">{user?.email}</Box>
+      <Box as="p">
+        {' '}
+        {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}
+      </Box>
       <Box p={4}></Box>
-      <Box>
+      <Box as="p">
         <Box pb={4}>{user?.profile?.address?.text}</Box>
         {/* <Box pb={4}>Columbus OH, 00000</Box> */}
       </Box>
