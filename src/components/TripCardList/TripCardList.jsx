@@ -102,7 +102,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                         {startAlias ||
                           trip.plan?.request?.origin?.title ||
                           trip.origin.address.split(',')[0]}
-                        <ArrowForwardIcon />{' '}
+                        <ArrowForwardIcon aria-hidden={true} />{' '}
                         {endAlias ||
                           trip.plan?.request?.destination?.title ||
                           trip.destination.address.split(',')[0]}
@@ -113,7 +113,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                       {startAlias ||
                         trip.plan?.request?.origin?.title ||
                         trip.origin.address.split(',')[0]}{' '}
-                      <ArrowForwardIcon />{' '}
+                      <ArrowForwardIcon aria-hidden={true} />{' '}
                       {endAlias ||
                         trip.plan?.request?.destination?.title ||
                         trip.destination.address.split(',')[0]}
