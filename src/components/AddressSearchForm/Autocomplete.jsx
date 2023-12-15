@@ -52,7 +52,7 @@ export const Autocomplete = props => {
       ) : null}
       <InputGroup>
         <InputLeftElement>
-          <Search2Icon color="gray.600" aria-label="search icon" />
+          <Search2Icon color="gray.600" aria-hidden={true} />
         </InputLeftElement>
         <Input
           {...inputProps}

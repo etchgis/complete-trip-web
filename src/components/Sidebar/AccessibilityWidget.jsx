@@ -20,31 +20,35 @@ import FocusLock from 'react-focus-lock';
 import { useRef } from 'react';
 import { useStore } from '../../context/RootStore';
 
-const AccessibilityWidget = () => {
+const AccessibilityWidget = ({ showTitle }) => {
   const ref = useRef();
   const { setUI } = useStore().uiStore;
 
   return (
     <Box>
-      <Popover placement="right-end">
+      <Popover placement={showTitle ? 'bottom' : 'right-end'}>
         <PopoverTrigger>
-          {/* <Tooltip label="Accessibility"> */}
-          <IconButton
+          <Button
             className="icon-button"
             aria-label="Accessibility Settings"
             variant={'ghost'}
-            fontSize={'32px'}
             width="100%"
             color="brand"
+            fontSize="22px"
             _hover={{
               background: 'gray.50',
               boxShadow: '0 0 0 3px rgba(0, 91, 204, 0.5)',
             }}
-            icon={<FaUniversalAccess />}
+            justifyContent={showTitle ? 'flex-start' : 'center'}
+            leftIcon={
+              <FaUniversalAccess
+                fontSize="32px"
+                style={{ marginRight: showTitle ? 0 : '-0.5rem' }}
+              />
+            }
           >
-            Trigger
-          </IconButton>
-          {/* </Tooltip> */}
+            {showTitle && 'Accessibility'}
+          </Button>
         </PopoverTrigger>
         <PopoverContent boxShadow="xl">
           {/* <FocusLock returnFocus persistentFocus={false}> */}
@@ -140,7 +144,7 @@ const AccessibilityWidget = () => {
                 <Box letterSpacing={'inherit'}>/Normal</Box>
               </Button>
 
-              <Heading as="h4" size="sm" margin="0.5">
+              {/* <Heading as="h4" size="sm" margin="0.5">
                 Helper Icons
               </Heading>
               <Button
@@ -160,7 +164,7 @@ const AccessibilityWidget = () => {
                 }}
               >
                 Show/Hide Icons
-              </Button>
+              </Button> */}
 
               <Heading as="h4" size="sm" margin="0.5">
                 Cursor Size

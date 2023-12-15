@@ -18,7 +18,6 @@ import AccessibilityWidget from './AccessibilityWidget';
 import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
 
 export const ResponsiveSidebar = ({
@@ -62,7 +61,9 @@ export const ResponsiveSidebar = ({
             data-testid="mobile-sidebar"
             testUser={testUser}
           />
-          <AccessibilityWidget />
+          <Box px={5}>
+            <AccessibilityWidget showTitle={true} />
+          </Box>
           {testContent ? testContent : null}
         </DrawerContent>
       </Drawer>
@@ -156,6 +157,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
         ) : (
           ''
         )}
+
         <AccessibilityWidget />
       </Stack>
     </Flex>
@@ -187,7 +189,9 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               ? 'brandDark'
               : 'brand'
           }
+          bg={location === '/home' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/home' ? '600' : 400}
+          fontSize={'22px'}
           onClick={() => {
             if (onClose) onClose();
             return navigate('/home');
@@ -206,7 +210,9 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               ? 'brandDark'
               : 'brand'
           }
+          bg={location === '/trips' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/trips' ? '600' : 400}
+          fontSize={'22px'}
           onClick={() => {
             if (onClose) onClose();
             return navigate('/trips');
@@ -226,7 +232,9 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               ? 'brandDark'
               : 'brand'
           }
+          bg={location === '/map' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/map' ? '600' : 400}
+          fontSize={'22px'}
           onClick={() => {
             if (onClose) onClose();
             return navigate('/map');
@@ -246,7 +254,9 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
                 ? 'brandDark'
                 : 'brand'
             }
+            bg={location.includes('/settings') ? 'gray.50' : 'transparent'}
             fontWeight={location.includes('/settings') ? '600' : 400}
+            fontSize={'22px'}
             onClick={() => {
               if (onClose) onClose();
               return navigate('/settings/profile');

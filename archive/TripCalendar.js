@@ -34,7 +34,7 @@ export const TripCalendar = ({ testDate }) => {
         e.innerHTML = 'SAT';
       }
     });
-    const dates = document.querySelectorAll('tr td');
+    // const dates = document.querySelectorAll('tr td');
     // dates.forEach((e, i) => {
     //   if (e.innerText) console.log(e.innerText);
     // });

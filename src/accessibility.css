@@ -107,7 +107,8 @@ body.fontsize-md label,
 body.fontsize-md input,
 body.fontsize-md textarea,
 body.fontsize-md select,
-body.fontsize-md span {
+body.fontsize-md span,
+body.fontsize-md th {
   font-size: 18px !important;
 }
 /*H1, H2, H3, H4, H5, H6*/
@@ -139,7 +140,8 @@ body.fontsize-lg label,
 body.fontsize-lg input,
 body.fontsize-lg textarea,
 body.fontsize-lg select,
-body.fontsize-lg span {
+body.fontsize-lg span,
+body.fontsize-lg th {
   font-size: 22px !important;
 }
 /*H1, H2, H3, H4, H5, H6*/

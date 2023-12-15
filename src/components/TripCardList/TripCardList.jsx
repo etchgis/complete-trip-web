@@ -123,15 +123,17 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                 <Box alignSelf={'center'}>
                   {favoriteTrips.find(f => f.id === trip.plan.request.id) ? (
                     <IconButton
+                      className="icon-button"
                       icon={<FaStar />}
                       variant="ghost"
                       onClick={() => removeTripFav(trip.plan.request.id)}
                       colorScheme="red"
-                      fontSize={'2xl'}
+                      fontSize={'24px'}
                       aria-label="Add to favorites"
                     />
                   ) : (
                     <IconButton
+                      className="icon-button"
                       icon={<FaRegStar />}
                       variant="ghost"
                       onClick={() => {
@@ -139,11 +141,12 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                         onOpen();
                       }}
                       colorScheme="red"
-                      fontSize={'2xl'}
+                      fontSize={'24px'}
                       aria-label="Remove from favorites"
                     />
                   )}
                   <IconButton
+                    className="icon-button"
                     icon={<FaChevronRight />}
                     variant="ghost"
                     fontSize={'xl'}
