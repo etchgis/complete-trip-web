@@ -128,7 +128,7 @@ export const ScheduleTripModal = observer(
       >
         <ModalOverlay />
         <ModalContent textAlign={'center'} pt={0}>
-          <ModalHeader>
+          <ModalHeader as="h3">
             {step === 0
               ? 'Schedule a Trip'
               : step === 1
@@ -151,9 +151,9 @@ export const ScheduleTripModal = observer(
           >
             {Wizard.find((w, i) => i === step).component}
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter justifyContent={'center'}>
             <Button
-              colorScheme="blue"
+              color="brand"
               variant={'ghost'}
               onClick={() => {
                 setStep(0);
@@ -161,7 +161,7 @@ export const ScheduleTripModal = observer(
                 onClose();
               }}
             >
-              Cancel Trip
+              Cancel
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -549,7 +549,7 @@ const First = observer(({ setStep, trip }) => {
         ></Input>
       </FormControl>
 
-      <Button width="100%" colorScheme={'blue'} type="submit">
+      <Button width="100%" variant="brand" type="submit">
         Next
       </Button>
     </Stack>
@@ -582,10 +582,12 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     const data = new FormData(e.target);
     // console.log([...data]);
 
-    trip.updateProperty('riders', +data.get('riders'));
-    if (data.get('caretaker'))
+    if (data.get('riders')) {
+      trip.updateProperty('riders', +data.get('riders'));
+    }
+    if (data.get('caretaker')) {
       trip.updateProperty('caretaker', data.get('caretaker'));
-
+    }
     setStep(current => current + 1);
   };
 
@@ -631,7 +633,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         </VStack>
       </FormControl>
 
-      <FormControl>
+      {/* <FormControl>
         <FormLabel>How Many People are Riding?</FormLabel>
         <Select name="riders" defaultValue={trip?.request?.riders}>
           <option>1</option>
@@ -639,7 +641,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
           <option>3</option>
           <option>4</option>
         </Select>
-      </FormControl>
+      </FormControl> */}
 
       {/* <FormControl>
         <FormLabel>Select a Caretaker</FormLabel>
@@ -660,7 +662,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         </Select>
       </FormControl> */}
 
-      <Button type="submit" colorScheme="blue">
+      <Button type="submit" variant={'brand'}>
         Next
       </Button>
       <Button onClick={() => setStep(current => current - 1)}>Back</Button>

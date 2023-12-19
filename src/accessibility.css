@@ -1,0 +1,210 @@
+/** ------------------------ **/
+/** ---- FORCED COLORS ---- **/
+/** ------------------------ **/
+
+@media (forced-colors: active) {
+  /*put an outline on chakra-switch */
+  .chakra-switch__track {
+    outline: 1px solid #fff;
+  }
+  .chakra-switch__thumb {
+    outline: 1px solid #fff;
+    filter: invert(1);
+  }
+  input[type='radio'][value='Yes']:checked + div {
+    background: white;
+    filter: invert(1);
+  }
+  input[type='radio'][value='No']:checked + div {
+    background: white;
+    filter: invert(1);
+  }
+}
+
+/** ------------------------ **/
+/** ---- PREFERS CONTRAST ---- **/
+/** ------------------------ **/
+
+@media (prefers-contrast: more) {
+  input[type='text'] {
+    border: solid thin var(--color-aaa-gray);
+  }
+  input[type='text']::placeholder {
+    color: var(--color-aaa-gray);
+  }
+  /*put an outline on chakra-switch */
+  /* .chakra-switch__track {
+    outline: 1px solid #fff;
+  }
+  .chakra-switch__thumb {
+    outline: 1px solid #fff;
+    filter: invert(1);
+  }
+  input[type='radio'][value='Yes']:checked + div {
+    background: white;
+    filter: invert(1);
+  }
+  input[type='radio'][value='No']:checked + div {
+    background: white;
+    filter: invert(1);
+  } */
+}
+
+/** ------------------------ **/
+/** ---- LETTER SPACING ---- **/
+/** ------------------------ **/
+
+body.letter-spacing-md,
+body.letter-spacing-md button.chakra-button {
+  letter-spacing: 0.05rem;
+}
+
+body.letter-spacing-lg,
+body.letter-spacing-lg button.chakra-button {
+  letter-spacing: 0.1rem;
+}
+body.letter-spacing-lg button.letter-spacing-lg-btn {
+  background-color: var(--color-brand);
+  color: white;
+}
+
+/** ------------------------ **/
+/** ---- CONTRAST ---- **/
+/** ------------------------ **/
+
+body.contrast input[type='text'] {
+  border: solid thin var(--color-aaa-gray);
+}
+body.contrast input[type='text']::placeholder {
+  color: var(--color-aaa-gray);
+}
+body.contrast button.chakra-button:hover,
+body.contrast button.chakra-button:focus {
+  box-shadow: 0 0 0 3px rgba(0, 91, 204, 0.5);
+}
+body.contrast .chakra-switch__track,
+/* body.contrast .chakra-button, */
+body.contrast .chakra-switch__thumb,
+body.contrast .chakra-checkbox__control {
+  border: solid thin var(--color-aaa-gray);
+}
+body.contrast button.chakra-button.contrast-btn {
+  color: white;
+  background-color: var(--color-brand);
+}
+/* body.contrast button.chakra-button {
+  border: 1px solid var(--color-brand);
+} */
+
+/** ------------------------ **/
+/** ---- FONT SIZE MD ---- **/
+/** ------------------------ **/
+body.fontsize-md,
+body.fontsize-md p,
+body.fontsize-md button:not(.icon-button),
+body.fontsize-md a,
+body.fontsize-md label,
+body.fontsize-md input,
+body.fontsize-md textarea,
+body.fontsize-md select,
+body.fontsize-md span,
+body.fontsize-md th,
+body.fontsize-md dt,
+body.fontsize-md dd {
+  font-size: 18px !important;
+}
+/*H1, H2, H3, H4, H5, H6*/
+body.fontsize-md h1 {
+  font-size: 1.7rem !important;
+}
+body.fontsize-md h2 {
+  font-size: 1.5rem !important;
+}
+body.fontsize-md h3 {
+  font-size: 1.3rem !important;
+}
+body.fontsize-md h4 {
+  font-size: 1.1rem !important;
+}
+body.fontsize-md button.fontsize-md-btn {
+  color: white;
+  background-color: var(--color-brand);
+}
+
+/** ------------------------ **/
+/** ---- FONT SIZE LG ---- **/
+/** ------------------------ **/
+body.fontsize-lg,
+body.fontsize-lg p,
+body.fontsize-lg button:not(.icon-button),
+body.fontsize-lg a,
+body.fontsize-lg label,
+body.fontsize-lg input,
+body.fontsize-lg textarea,
+body.fontsize-lg select,
+body.fontsize-lg span,
+body.fontsize-lg th,
+body.fontsize-lg dt,
+body.fontsize-lg dd {
+  font-size: 22px !important;
+}
+/*H1, H2, H3, H4, H5, H6*/
+body.fontsize-lg h1 {
+  font-size: 1.8rem !important;
+}
+body.fontsize-lg h2 {
+  font-size: 1.6rem !important;
+}
+body.fontsize-lg h3 {
+  font-size: 1.4rem !important;
+}
+body.fontsize-lg h4 {
+  font-size: 1.2rem !important;
+}
+body.fontsize-lg button.fontsize-lg-btn {
+  font-size: 22px !important;
+  color: white;
+  background-color: var(--color-brand);
+}
+/** FORCE WHEN MD **/
+body button.chakra-button.fontsize-md-btn {
+  font-size: 18px !important;
+}
+
+/** ------------------------ **/
+/** ---- ICONS ---- **/
+/** ------------------------ **/
+body.hide-images .chakra-icon {
+  visibility: hidden;
+}
+body.hide-images .hide-images-btn {
+  background-color: var(--color-brand);
+  color: white;
+}
+/** **/
+
+/** ------------------------ **/
+/** ---- CURSOR ---- **/
+/** ------------------------ **/
+body.cursor-lg,
+body.cursor-lg button,
+body.cursor-lg a,
+body.cursor-lg label,
+body.cursor-lg input {
+  cursor: url(/cursor-lg.png) 0 0, auto;
+}
+body.cursor-lg button.cursor-lg-btn {
+  background-color: var(--color-brand);
+  color: white;
+}
+
+/** ------------------------ **/
+/** ---- CLASS OVERRIDE ---- **/
+/** ------------------------ **/
+h3.route-list-heading,
+body.fontsize-md h3.route-list-heading,
+body.fontsize-lg h3.route-list-heading {
+  font-size: 26px !important;
+  font-weight: bold;
+  margin-bottom: 0;
+}

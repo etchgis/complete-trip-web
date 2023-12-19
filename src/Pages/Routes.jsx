@@ -7,6 +7,7 @@ import Home from './Home';
 import Layout from './Layout';
 import Login from './Login';
 import Settings from './Settings';
+import StyleGuide from './StyleGuide.jsx';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import useDependentTripNotifier from '../hooks/useDependentNotifier';
@@ -67,11 +68,58 @@ export const Routes = observer(() => {
   useNotifications();
   //---------------------NOTIFICATIONS---------------------
 
+  //---------------------ACCESSIBILITY---------------------
+  const { ui } = useStore().uiStore;
+  useEffect(() => {
+    console.log('{sidebar--aaa-widget} ui update');
+    if (ui.contrast) {
+      document.body.classList.add('contrast');
+    } else {
+      document.body.classList.remove('contrast');
+    }
+
+    if (ui.letterSpacing === 'lg') {
+      document.body.classList.add('letter-spacing-lg');
+    } else {
+      document.body.classList.remove('letter-spacing-lg');
+    }
+
+    if (ui.fontSize === 'med') {
+      document.body.classList.add('fontsize-md');
+      document.body.classList.remove('fontsize-lg');
+    } else if (ui.fontSize === 'lg') {
+      document.body.classList.add('fontsize-lg');
+      document.body.classList.remove('fontsize-md');
+    } else {
+      document.body.classList.remove('fontsize-md');
+      document.body.classList.remove('fontsize-lg');
+    }
+
+    if (ui.hideImages) {
+      document.body.classList.add('hide-images');
+    } else {
+      document.body.classList.remove('hide-images');
+    }
+
+    if (ui.cursor === 'lg') {
+      document.body.classList.add('cursor-lg');
+    } else {
+      document.body.classList.remove('cursor-lg');
+    }
+  }, [ui]);
+  //---------------------ACCESSIBILITY---------------------
+
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
       <Route path={'/:url(/+)'} element={<Navigate to={'/map'} />} />
       <Route path={'/'} element={<Navigate to={'/map'} />} />
+
+      {/* STYLE GUIDE */}
+      <Route
+        path={'/styleguide'}
+        element={<Layout children={<StyleGuide />} />}
+      />
 
       {/* Map */}
       <Route

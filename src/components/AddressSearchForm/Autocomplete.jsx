@@ -52,7 +52,7 @@ export const Autocomplete = props => {
       ) : null}
       <InputGroup>
         <InputLeftElement>
-          <Search2Icon color="gray.500" aria-label="search icon" />
+          <Search2Icon color="gray.600" aria-hidden={true} />
         </InputLeftElement>
         <Input
           {...inputProps}
@@ -60,8 +60,9 @@ export const Autocomplete = props => {
           size="md"
           data-testid="address-search-input"
           aria-label={'address search input'}
+          type="text"
         />
-        <InputRightElement aria-label="search loader">
+        <InputRightElement aria-hidden={true}>
           {props.loadingState === 'loading' ||
           props.loadingState === 'filtering' ? (
             <Spinner color="blue.400" size="sm" />

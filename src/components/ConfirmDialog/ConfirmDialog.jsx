@@ -40,7 +40,7 @@ export const ConfirmDialog = ({
   return (
     <>
       <Button
-        colorScheme="red"
+        variant={'error'}
         onClick={() => {
           setText('');
           onOpen();
@@ -78,7 +78,7 @@ export const ConfirmDialog = ({
                 Cancel
               </Button>
               <Button
-                colorScheme="red"
+                variant={'error'}
                 onClick={confirmFunction}
                 ml={3}
                 isDisabled={

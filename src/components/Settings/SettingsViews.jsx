@@ -42,30 +42,25 @@ export const ProfileInformation = observer(({ action }) => {
   return (
     <Stack p={4}>
       <Avatar size="xl" mb={4}></Avatar>
-      <Box fontWeight="bold" fontSize="sm">
+      <Box fontWeight="bold" fontSize="sm" as="p">
         NAME
       </Box>
-      <Box>
+      <Box as="p">
         {user?.profile?.firstName} {user?.profile?.lastName}
       </Box>
-      <Box>{user?.email}</Box>
-      <Box> {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}</Box>
+      <Box as="p">{user?.email}</Box>
+      <Box as="p">
+        {' '}
+        {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}
+      </Box>
       <Box p={4}></Box>
-      <Box>
+      <Box as="p">
         <Box pb={4}>{user?.profile?.address?.text}</Box>
         {/* <Box pb={4}>Columbus OH, 00000</Box> */}
       </Box>
 
       <Stack spacing={4} direction={{ base: 'column', md: 'row' }}>
-        <Button
-          bg="brand"
-          _hover={{
-            opacity: '0.8',
-          }}
-          color="white"
-          onClick={action}
-          maxWidth={'200px'}
-        >
+        <Button variant={'brand'} onClick={action} maxWidth={'200px'}>
           Edit Profile
         </Button>
 
@@ -174,6 +169,7 @@ const FavoriteCard = ({ id, title, description, type }) => {
           else removeLocation(id);
         }}
         icon={<DeleteIcon />}
+        aria-label="Remove Favorite"
       />
     </Stack>
   );

@@ -8,9 +8,10 @@ import {
   Icon,
   Text,
   VStack,
+  createIcon,
   useColorMode,
 } from '@chakra-ui/react';
-import { FaArrowRight, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
 import { RxDotFilled } from 'react-icons/rx';
@@ -22,6 +23,26 @@ import { theme } from '../../theme';
 import { useStore } from '../../context/RootStore';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
+
+const Circle = createIcon({
+  displayName: 'Circle',
+  viewBox: '0 0 512 512',
+  path: [
+    <path
+      d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm80 248c0 44.112-35.888 80-80 80s-80-35.888-80-80 35.888-80 80-80 80 35.888 80 80z"
+      transform="matrix(1, 0, 0, 1, -7.105427357601002e-15, 0)"
+      fill="currentColor"
+    />,
+    <ellipse
+      fill="white"
+      cx="254.018"
+      cy="256.512"
+      rx="81.83"
+      ry="81.83"
+      transform="matrix(1, 0, 0, 1, -7.105427357601002e-15, 0)"
+    />,
+  ],
+});
 
 const TimelineStep = ({ start, label, steps }) => {
   const { colorMode } = useColorMode();
@@ -83,9 +104,7 @@ const TimelineStep = ({ start, label, steps }) => {
                   fontSize="sm"
                   onClick={() => setShowDetails(!showDetails)}
                   textDecoration={'underline'}
-                  color={
-                    colorMode === 'light' ? 'theme.primary' : 'theme.light'
-                  }
+                  color={colorMode === 'light' ? 'brand' : 'theme.light'}
                   cursor={'pointer'}
                   data-name="step-name"
                 >
@@ -94,7 +113,17 @@ const TimelineStep = ({ start, label, steps }) => {
               </Box>
             ) : (
               <>
-                <Box
+                <Icon
+                  as={i === details.length - 1 ? FaCircle : Circle}
+                  color={accentColor}
+                  style={{
+                    marginLeft: i === details.length - 1 ? '-4px' : '-5px',
+                    marginRight: '10px',
+                    zIndex: 2,
+                  }}
+                  fontSize={i === details.length - 1 ? '18px' : '20px'}
+                />
+                {/* <Box
                   borderRadius="full"
                   bg={
                     i === details.length - 1
@@ -112,7 +141,7 @@ const TimelineStep = ({ start, label, steps }) => {
                   justifyContent="center"
                   mr={'10px'}
                   zIndex={1}
-                ></Box>
+                ></Box> */}
                 <Box>
                   <Text
                     fontWeight="bold"
@@ -144,7 +173,7 @@ const TimelineStep = ({ start, label, steps }) => {
               fontSize="sm"
               onClick={() => setShowDetails(!showDetails)}
               textDecoration={'underline'}
-              color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+              color={colorMode === 'light' ? 'brand' : 'theme.light'}
               cursor={'pointer'}
               pl={'24px'}
             >
@@ -158,6 +187,7 @@ const TimelineStep = ({ start, label, steps }) => {
 };
 
 const CreateCircleIcon = ({ svg, backgroundColor }) => {
+  console.log(backgroundColor);
   return (
     <Flex
       w={7}
@@ -171,7 +201,7 @@ const CreateCircleIcon = ({ svg, backgroundColor }) => {
     >
       <Icon viewBox={svg?.viewBox || '0 0 512 512'} boxSize={'5'}>
         <path
-          fill={'white'}
+          fill={backgroundColor === 'gray.400' ? 'black' : 'white'}
           d={
             svg?.path ||
             'M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0'
@@ -241,7 +271,7 @@ export const TripPlanSchedule = observer(
             <Center h={10} w={10} borderRadius="lg">
               <Icon
                 as={FaArrowRight}
-                color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+                color={colorMode === 'light' ? 'brand' : 'theme.light'}
               />
             </Center>
           </Flex>
@@ -289,9 +319,7 @@ export const TripPlanSchedule = observer(
 
         <Box pt={4} pb={0} mb={-2}>
           <Divider
-            borderColor={
-              colorMode === 'light' ? 'theme.primary' : 'theme.light'
-            }
+            borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
             borderWidth={2}
           />
         </Box>
@@ -325,7 +353,7 @@ export const TripPlanSchedule = observer(
 
             let fillColor = getLegColor(leg);
             if (fillColor === '#FFFFFF') {
-              fillColor = theme.colors.primary1;
+              fillColor = theme.colors.brand;
             }
 
             let intermediateStopsLabel;
@@ -383,7 +411,7 @@ export const TripPlanSchedule = observer(
                         pos={'absolute'}
                         left={'13px'}
                         top={'36px'}
-                        height={'80px'}
+                        height={'100%'}
                         borderLeft="solid 4px #00205b"
                         borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
                         borderColor={accentColor}
@@ -402,9 +430,7 @@ export const TripPlanSchedule = observer(
                           fontSize={'sm'}
                           textTransform={'uppercase'}
                           color={
-                            colorMode === 'light'
-                              ? 'theme.primary'
-                              : 'theme.light'
+                            colorMode === 'light' ? 'brand' : 'theme.light'
                           }
                           data-name="leg-to-name"
                           textAlign={'left'}

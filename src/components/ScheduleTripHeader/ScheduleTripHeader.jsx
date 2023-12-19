@@ -35,13 +35,10 @@ export const ScheduleTripHeader = observer(() => {
           />
         ))}
         <Button
-          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-          color="white"
-          _hover={{
-            opacity: 0.8,
-          }}
+          variant={'brand'}
           onClick={openModal}
-          width={'180px'}
+          minWidth={'180px'}
+          width="auto"
           height={'80px'}
           m={2}
         >
@@ -74,7 +71,8 @@ const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
         setTripPlan(favorite);
         openScheduleModal();
       }}
-      width={'180px'}
+      minWidth={'180px'}
+      width="auto"
       height={'80px'}
       whiteSpace={'break-spaces'}
       backgroundColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}

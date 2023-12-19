@@ -18,7 +18,7 @@ const Login = observer(() => {
           onClick={() => {
             setSearchParams({ login: 'true' });
           }}
-          colorScheme="facebook"
+          variant={'brand'}
           size="md"
           minWidth={'140px'}
         >

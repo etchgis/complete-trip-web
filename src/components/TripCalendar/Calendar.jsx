@@ -109,7 +109,7 @@ export const Calendar = observer(() => {
     // Generate table header with day abbreviations
     const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     const header = weekdays.map(weekday => (
-      <Th key={weekday} textAlign={'center'}>
+      <Th key={weekday} textAlign={'center'} fontSize={'sm'}>
         {weekday}
       </Th>
     ));
@@ -128,15 +128,9 @@ export const Calendar = observer(() => {
             <Td key={`${i}-${j}`} textAlign="center" px={1} py={2}>
               <Button
                 fontSize={{ base: 'sm', lg: 'lg' }}
-                colorScheme={selectedDates.includes(day) ? 'blue' : 'gray'}
+                variant={selectedDates.includes(day) ? 'brand' : 'outline'}
+                border="none"
                 maxW="43px"
-                backgroundColor={
-                  selectedDates.includes(day)
-                    ? 'facebook'
-                    : colorMode === 'light'
-                    ? 'white'
-                    : 'transparent'
-                }
               >
                 {day}
               </Button>
