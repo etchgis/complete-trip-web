@@ -1,0 +1,290 @@
+import { Box, Flex, Input, Spinner, Text } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+
+import config from '../../config';
+import { getLocation } from '../../utils/getLocation';
+import { observer } from 'mobx-react-lite';
+import sampleStagedTrip from './sample-staged-trip.json';
+import sampleTrip from './sample-trip2.json';
+import { set } from 'lodash';
+import { toJS } from 'mobx';
+import { useStore } from '../../context/RootStore';
+
+const url = 'https://staging.lambda.etch.app/assistant/chat';
+const key = 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi';
+
+/*
+//TODO use trip.updateProperty for each of these once I get the plan back from the chat bot -
+//TODO use staged plan to set these after use sample trip
+    trip.updateOrigin(locations.start);
+    trip.updateDestination(locations.end);
+    trip.updateWhenAction('asap'); //TODO add leave, arrive
+    trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+    trip.updateWhenAction(data.get('when'));
+        if (data.get('riders')) {
+      trip.updateProperty('riders', +data.get('riders'));
+    }
+    if (data.get('caretaker')) {
+      trip.updateProperty('caretaker', data.get('caretaker'));
+    }
+    //THESE NEED TO BNE UPDATED TO USE THE NEW TRIP MODEL
+        const _request = toJS(trip.request);
+    _request.origin['text'] =
+      trip.request.origin.title + ' ' + trip.request.origin.description;
+    _request.destination['text'] =
+      trip.request.destination.title +
+      ' ' +
+      trip.request.destination.description;
+    const updated = await saveTrip(selectedTrip, _request);
+    */
+
+const resetTripbot = async token => {
+  console.log('resetting tripbot');
+  try {
+    const reset = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'x-api-key': key,
+      },
+      body: JSON.stringify({
+        // message: 'Can we start over with a new query?',
+        message: '',
+        shouldReset: true,
+        origin: {
+          lat: config.MAP.CENTER[1],
+          lng: config.MAP.CENTER[0],
+        },
+        center: {
+          lat: config.MAP.CENTER[1],
+          lng: config.MAP.CENTER[0],
+        },
+      }),
+    }).then(res => res.json());
+    console.log(reset);
+    if (reset.error) {
+      throw new Error(reset.error);
+    }
+    return reset;
+  } catch (error) {
+    //TODO need to handle error here
+    console.log(error);
+    return false;
+  }
+};
+//token is the user's access token
+const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
+  const [location, setLocation] = useState([
+    config.MAP.CENTER[1],
+    config.MAP.CENTER[0],
+  ]);
+  const [errors, setErrors] = useState(0);
+  const [isThinking, setIsThinking] = useState(false);
+  const { chatbot, setChatbot } = useStore().uiStore;
+  console.log(toJS(chatbot));
+  const [chat, setChat] = useState(
+    chatbot.length
+      ? chatbot
+      : [
+          {
+            bot: "Hello! I'm here to help you schedule your ride. Let's get started.",
+            user: '',
+          },
+        ]
+  );
+  const { accessToken } = useStore().authentication;
+
+  useEffect(() => {
+    (async () => {
+      const userLocation = await getLocation();
+      const center = userLocation?.center || null;
+      if (center) setLocation(center);
+    })();
+  }, []);
+
+  const fetchChat = async (message, token) => {
+    try {
+      setIsThinking(true);
+      const body = {
+        message: message,
+        origin: {
+          lat: location[1],
+          lng: location[0],
+          // lat: config.MAP.CENTER[0],
+          // lng: config.MAP.CENTER[1],
+        },
+        center: {
+          lat: config.MAP.CENTER[0],
+          lng: config.MAP.CENTER[1],
+        },
+      };
+      if (chat.length === 1) {
+        body.shouldReset = true;
+      }
+      //8 John Paul Ct, Buffalo, NY 14206
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'x-api-key': key,
+        },
+        body: JSON.stringify(body),
+      });
+      setIsThinking(false);
+      return await response.json();
+    } catch (error) {
+      setIsThinking(false);
+      setErrors(e => e + 1);
+      console.log({ errors });
+      return {
+        response: 'Sorry, I am having trouble. Can you please try again?',
+      };
+    }
+  };
+
+  const selectTrip = async (stagedTrip, tripRequest, selectedTrip) => {
+    const locations = {
+      start: tripRequest?.request?.origin,
+      end: tripRequest?.request?.destination,
+    };
+    stagedTrip.updateOrigin(locations.start);
+    stagedTrip.updateDestination(locations.end);
+    stagedTrip.updateWhenAction(tripRequest?.request?.whenAction); //TODO add leave, arrive
+    stagedTrip.updateWhen(tripRequest?.request?.whenTime);
+    // if (data.get('riders')) {
+    //   trip.updateProperty('riders', +data.get('riders'));
+    // }
+    // if (data.get('caretaker')) {
+    //   trip.updateProperty('caretaker', data.get('caretaker'));
+    // }
+    setSelectedTrip(selectedTrip);
+  };
+
+  const handleChat = async input => {
+    if (!input) return;
+    //NOTE temp testing patch for non-working chat API
+    if (input.toLowerCase().trim() === 'use sample trip') {
+      setChatbot(chat);
+      selectTrip(stagedTrip, sampleStagedTrip, sampleTrip);
+      setStep(3);
+      //save current chat in state
+      return;
+    }
+
+    const response = await fetchChat(input, accessToken);
+    console.log(response);
+
+    if (!response || !response.response) {
+      setErrors(e => e + 1);
+      console.log({ errors });
+      setChat(state => [
+        ...state,
+        {
+          bot: 'Sorry, I am having trouble. Can you try again?',
+          user: '',
+        },
+      ]);
+      return;
+    }
+    // const test = {
+    //   request: {
+    //     when: 2659,
+    //     rider: 'fc8a2b29-f03f-42ba-b97c-9dafacb4e4b4',
+    //     organization: '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
+    //     origin: {
+    //       address: '8 John Paul Ct, Buffalo, NY 14206',
+    //       coordinates: [-78.8644423, 42.8962389],
+    //     },
+    //     destination: {
+    //       address: 'Swan Street Diner',
+    //       coordinates: [42.876762, -78.85011],
+    //     },
+    //   },
+    //   plan: {
+    //     option:
+    //       "Option 1: Leave now and walk for about 53 minutes, covering a distance of around 1.98 miles. You'll arrive at your destination without making any transfers.",
+    //   },
+    // };
+    if (response.isFinalResponse) {
+      console.log('{tripbot} -- final response');
+      console.log(response);
+      setChat(state => [
+        ...state,
+        {
+          bot: 'It looks like we finally have a trip request from the bot...but we do not have a method to turn this into a trip yet. Type "use sample trip" to see the next step.',
+          user: '',
+        },
+      ]);
+      // setChat(state => [...state, { bot: response.plan.option, user: '' }]);
+      return;
+    } else {
+      setChat(state => [...state, { bot: response.response, user: '' }]);
+    }
+  };
+  console.log(chat);
+  return (
+    <Flex
+      flex={1}
+      flexDir={'column'}
+      alignItems={'flex-start'}
+      p={6}
+      border="solid thin"
+      borderColor="gray.200"
+      m={10}
+      borderRadius={10}
+      w="600px"
+      maxW={'calc(100% - 6rem)'}
+    >
+      {chat.map((message, i) => (
+        <Flex flexDir="column" key={i.toString()} w="100%">
+          {message.bot && (
+            <Text alignSelf={'flex-start'} textAlign={'left'}>
+              {message.bot}
+            </Text>
+          )}
+          {message.user && (
+            <Text as="em" alignSelf={'flex-end'} textAlign={'right'} py={2}>
+              {message.user}
+            </Text>
+          )}
+        </Flex>
+      ))}
+      {isThinking && (
+        <Spinner alignSelf={'flex-start'} size="sm" color="gray.500" />
+      )}
+      <Box flex={1}></Box>
+      <Box
+        mt={10}
+        as="form"
+        width="100%"
+        onSubmit={e => {
+          e.preventDefault();
+          const data = new FormData(e.target);
+          const tripbot = data.get('tripbot');
+          console.log(tripbot);
+          if (!tripbot) return;
+          e.target.reset();
+          setChat([
+            ...chat,
+            {
+              bot: '',
+              user: tripbot,
+            },
+          ]);
+          handleChat(tripbot);
+        }}
+      >
+        <Input
+          w="100%"
+          type="text"
+          placeholder="Where would you like to go?"
+          name="tripbot"
+        ></Input>
+      </Box>
+    </Flex>
+  );
+});
+
+export { Tripbot, resetTripbot };

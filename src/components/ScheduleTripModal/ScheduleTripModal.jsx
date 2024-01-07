@@ -13,6 +13,7 @@ import {
   HStack,
   Heading,
   Icon,
+  IconButton,
   Input,
   Modal,
   ModalBody,
@@ -42,9 +43,10 @@ import { FaArrowRight, FaCaretRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
+import { BsFillChatDotsFill } from 'react-icons/bs';
 import CreateIcon from '../CreateIcon';
+import { Tripbot } from './Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
-import _ from 'lodash';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -54,8 +56,12 @@ import { useStore } from '../../context/RootStore';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
-    const [step, setStep] = useState(0);
     const { trip: stagedTrip } = useStore();
+    const { setChatbot } = useStore().uiStore;
+    const { accessToken } = useStore().authentication;
+
+    const [chatIsActive, setChatIsActive] = useState(false);
+    const [step, setStep] = useState(0);
     const [selectedTrip, setSelectedTrip] = useState({});
     // console.log(toJS(stagedTrip));
     if (
@@ -91,7 +97,7 @@ export const ScheduleTripModal = observer(
       //   component: <Test setStep={setStep} trip={stagedTrip} />,
       // },
       {
-        name: 'Third',
+        name: 'Third', //Trip Cards List
         component: (
           <Third
             setStep={setStep}
@@ -102,7 +108,7 @@ export const ScheduleTripModal = observer(
         ),
       },
       {
-        name: 'Fourth',
+        name: 'Fourth', //VerticalTripPlan
         component: (
           <Fourth
             setStep={setStep}
@@ -110,6 +116,17 @@ export const ScheduleTripModal = observer(
             selectedTrip={selectedTrip}
             closeModal={onClose}
             setSelectedTrip={setSelectedTrip}
+            chatIsActive={chatIsActive}
+          />
+        ),
+      },
+      {
+        name: 'Tripbot',
+        component: (
+          <Tripbot
+            setStep={setStep}
+            setSelectedTrip={setSelectedTrip}
+            stagedTrip={stagedTrip}
           />
         ),
       },
@@ -119,6 +136,7 @@ export const ScheduleTripModal = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
+          setChatbot([]);
           setStep(0);
           onClose();
           stagedTrip.create();
@@ -137,7 +155,30 @@ export const ScheduleTripModal = observer(
               ? 'Select a Trip'
               : step === 3
               ? 'Trip Plan Overview'
-              : ''}
+              : step === 4 //chatbot
+              ? 'Where would you like to go?'
+              : null}
+            {accessToken && (step === 0 || step === 4) ? (
+              <IconButton
+                variant={step === 4 ? 'brand' : 'brand-outline'}
+                ml={5}
+                fontSize={'xl'}
+                icon={<BsFillChatDotsFill />}
+                aria-label="Select a Trip Chatbot"
+                onClick={async () => {
+                  if (step === 4) {
+                    setStep(0);
+                    setChatIsActive(false);
+                    setChatbot([]);
+                  } else {
+                    setStep(4);
+                    setChatIsActive(true);
+                  }
+                }}
+              ></IconButton>
+            ) : (
+              ''
+            )}
             <ModalCloseButton p={6} />
           </ModalHeader>
           <ModalBody
@@ -158,6 +199,7 @@ export const ScheduleTripModal = observer(
               onClick={() => {
                 setStep(0);
                 stagedTrip.create();
+                setChatbot([]);
                 onClose();
               }}
             >
@@ -244,6 +286,8 @@ const First = observer(({ setStep, trip }) => {
       setEndError(true);
       return;
     }
+
+    console.log({ locations });
 
     trip.updateOrigin(locations.start);
     trip.updateDestination(locations.end);
@@ -727,9 +771,17 @@ const Fourth = ({
   trip,
   closeModal,
   setSelectedTrip,
+  chatIsActive,
 }) => {
-  const { setToastMessage, setToastStatus } = useStore().uiStore;
+  const { setToastMessage, setToastStatus, setChatbot } = useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
+
+  //------------------DEBUG------------------//
+  const _selectedTrip = toJS(selectedTrip);
+  const _stagedTrip = toJS(trip);
+  console.log({ _stagedTrip });
+  console.log({ _selectedTrip });
+  //------------------DEBUG------------------//
 
   async function scheduleTrip() {
     const _request = toJS(trip.request);
@@ -747,6 +799,7 @@ const Fourth = ({
       setToastMessage('Trip Saved');
       setSelectedTrip({});
       setStep(0);
+      setChatbot([]);
       trip.create();
     }
   }
@@ -766,7 +819,13 @@ const Fourth = ({
         tripRequest={trip.request}
         tripPlan={selectedTrip}
         scheduleTripHandler={scheduleTrip}
-        backClickHandler={() => setStep(current => current - 1)}
+        backClickHandler={() => {
+          if (chatIsActive) {
+            setStep(4); //NOTE hard-coded value for chat window
+          } else {
+            setStep(current => current - 1);
+          }
+        }}
       ></VerticalTripPlan>
     </Stack>
   );
