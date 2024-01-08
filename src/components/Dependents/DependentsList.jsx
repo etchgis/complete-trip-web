@@ -146,7 +146,11 @@ export const DependentsList = observer(() => {
                     maxH="300px"
                     overflow={'auto'}
                   >
-                    <DependentsTripsTable dependent={d.id} hideTitle={true} />
+                    <DependentsTripsTable
+                      dependent={d.id}
+                      hideTitle={true}
+                      limit={10}
+                    />
                   </AccordionPanel>
                 </>
               )}

@@ -6,37 +6,13 @@ import { getLocation } from '../../utils/getLocation';
 import { observer } from 'mobx-react-lite';
 import sampleStagedTrip from './sample-staged-trip.json';
 import sampleTrip from './sample-trip2.json';
-import { set } from 'lodash';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
+//18 Goethe St, Buffalo, NY 14206
+
 const url = 'https://staging.lambda.etch.app/assistant/chat';
 const key = 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi';
-
-/*
-//TODO use trip.updateProperty for each of these once I get the plan back from the chat bot -
-//TODO use staged plan to set these after use sample trip
-    trip.updateOrigin(locations.start);
-    trip.updateDestination(locations.end);
-    trip.updateWhenAction('asap'); //TODO add leave, arrive
-    trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
-    trip.updateWhenAction(data.get('when'));
-        if (data.get('riders')) {
-      trip.updateProperty('riders', +data.get('riders'));
-    }
-    if (data.get('caretaker')) {
-      trip.updateProperty('caretaker', data.get('caretaker'));
-    }
-    //THESE NEED TO BNE UPDATED TO USE THE NEW TRIP MODEL
-        const _request = toJS(trip.request);
-    _request.origin['text'] =
-      trip.request.origin.title + ' ' + trip.request.origin.description;
-    _request.destination['text'] =
-      trip.request.destination.title +
-      ' ' +
-      trip.request.destination.description;
-    const updated = await saveTrip(selectedTrip, _request);
-    */
 
 const resetTripbot = async token => {
   console.log('resetting tripbot');
@@ -135,31 +111,61 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       setIsThinking(false);
       return await response.json();
     } catch (error) {
-      setIsThinking(false);
-      setErrors(e => e + 1);
-      console.log({ errors });
-      return {
-        response: 'Sorry, I am having trouble. Can you please try again?',
-      };
+      console.log('{tripbot} - fetch error', error);
+      return {};
     }
   };
 
-  const selectTrip = async (stagedTrip, tripRequest, selectedTrip) => {
-    const locations = {
-      start: tripRequest?.request?.origin,
-      end: tripRequest?.request?.destination,
-    };
-    stagedTrip.updateOrigin(locations.start);
-    stagedTrip.updateDestination(locations.end);
-    stagedTrip.updateWhenAction(tripRequest?.request?.whenAction); //TODO add leave, arrive
-    stagedTrip.updateWhen(tripRequest?.request?.whenTime);
+  const selectTrip = async (stagedTrip, tripResponse) => {
+    if (
+      !tripResponse ||
+      !tripResponse?.request ||
+      !tripResponse?.request?.origin ||
+      !tripResponse?.request?.destination ||
+      !tripResponse?.request?.plan ||
+      !tripResponse?.request?.when ||
+      !tripResponse?.request?.plan?.legs ||
+      !tripResponse?.request?.plan?.legs?.length
+    )
+      throw new Error('Invalid trip response');
+    if (!tripResponse?.origin?.point) {
+      tripResponse.request.origin.point = {
+        lat: tripResponse.origin.coordinates[1],
+        lng: tripResponse.origin.coordinates[0],
+      };
+    }
+    if (!tripResponse?.destination?.point) {
+      tripResponse.request.destination.point = {
+        lat: tripResponse.destination.coordinates[1],
+        lng: tripResponse.destination.coordinates[0],
+      };
+    }
+
+    if (!tripResponse?.request?.origin?.title) {
+      tripResponse.request.origin.title = tripResponse.origin.address;
+    }
+    if (!tripResponse?.request?.destination?.title) {
+      tripResponse.request.destination.title = tripResponse.destination.address;
+    }
+    if (!tripResponse?.request?.origin?.description) {
+      tripResponse.request.origin.description = '';
+    }
+    if (!tripResponse?.request?.destination?.description) {
+      tripResponse.request.destination.description = '';
+    }
+
+    stagedTrip.updateOrigin(tripResponse?.request?.origin);
+    stagedTrip.updateDestination(tripResponse?.request?.destination);
+    // stagedTrip.updateWhenAction(null); //TODO add leave, arrive
+    stagedTrip.updateWhen(tripRequest?.request?.when);
     // if (data.get('riders')) {
     //   trip.updateProperty('riders', +data.get('riders'));
     // }
     // if (data.get('caretaker')) {
     //   trip.updateProperty('caretaker', data.get('caretaker'));
     // }
-    setSelectedTrip(selectedTrip);
+
+    setSelectedTrip(tripResponse);
   };
 
   const handleChat = async input => {
@@ -167,7 +173,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     //NOTE temp testing patch for non-working chat API
     if (input.toLowerCase().trim() === 'use sample trip') {
       setChatbot(chat);
-      selectTrip(stagedTrip, sampleStagedTrip, sampleTrip);
+      selectTrip(stagedTrip, { ...sampleStagedTrip, ...sampleTrip });
       setStep(3);
       //save current chat in state
       return;
@@ -176,7 +182,21 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     const response = await fetchChat(input, accessToken);
     console.log(response);
 
-    if (!response || !response.response) {
+    if (!response || !response?.response) {
+      setIsThinking(false);
+      if (errors > 2) {
+        setChat(state => [
+          ...state,
+          {
+            bot: 'Sorry, the bot is experiencing issues. Please try again later.',
+            user: '',
+          },
+        ]);
+        setTimeout(() => {
+          setStep(0);
+        }, 1000);
+        return;
+      }
       setErrors(e => e + 1);
       console.log({ errors });
       setChat(state => [
@@ -188,36 +208,21 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       ]);
       return;
     }
-    // const test = {
-    //   request: {
-    //     when: 2659,
-    //     rider: 'fc8a2b29-f03f-42ba-b97c-9dafacb4e4b4',
-    //     organization: '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
-    //     origin: {
-    //       address: '8 John Paul Ct, Buffalo, NY 14206',
-    //       coordinates: [-78.8644423, 42.8962389],
-    //     },
-    //     destination: {
-    //       address: 'Swan Street Diner',
-    //       coordinates: [42.876762, -78.85011],
-    //     },
-    //   },
-    //   plan: {
-    //     option:
-    //       "Option 1: Leave now and walk for about 53 minutes, covering a distance of around 1.98 miles. You'll arrive at your destination without making any transfers.",
-    //   },
-    // };
     if (response.isFinalResponse) {
       console.log('{tripbot} -- final response');
       console.log(response);
-      setChat(state => [
-        ...state,
-        {
-          bot: 'It looks like we finally have a trip request from the bot...but we do not have a method to turn this into a trip yet. Type "use sample trip" to see the next step.',
-          user: '',
-        },
-      ]);
-      // setChat(state => [...state, { bot: response.plan.option, user: '' }]);
+      try {
+        setSelectedTrip(response?.response);
+      } catch (error) {
+        console.log('{tripbot} - ', error);
+        setChat(state => [
+          ...state,
+          {
+            bot: 'Sorry, I am having trouble. Can you try again?',
+            user: '',
+          },
+        ]);
+      }
       return;
     } else {
       setChat(state => [...state, { bot: response.response, user: '' }]);

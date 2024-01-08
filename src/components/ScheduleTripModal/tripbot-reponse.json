@@ -1,0 +1,24 @@
+{
+  "isFinalResponse": true,
+  "response": {
+    "request": {
+      "when": 1704735900000,
+      "rider": "debfd8dd-86ec-448d-895d-be91be572dd0",
+      "organization": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486",
+      "origin": {
+        "address": "18 Goethe St, Buffalo, NY 14206",
+        "coordinates": [-78.8688, 42.885159]
+      },
+      "destination": {
+        "address": "Swan Street Diner",
+        "coordinates": [-78.85011, 42.876762]
+      }
+    },
+    "plan": {
+      "startTime": 1704737520000,
+      "endTime": 1704739254000,
+      "walkTime": 1734,
+      "walkDistance": 2092.1
+    }
+  }
+}

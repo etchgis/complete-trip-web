@@ -31,10 +31,24 @@ export const DependentsTripsTable = observer(
     const [selectedTrip, setSelectedTrip] = useState({});
     const allTrips = toJS(dependentTrips);
 
+    const now = Date.now();
+    console.log({ now });
+    //filter out trips that have end times that are 5 minutes in the past - end times are in plan.endTime
+    const filteredTrips = allTrips.filter(
+      trip => new Date(trip.plan.endTime) > now
+    );
+    filteredTrips.map(
+      t =>
+        (t.plan.endTimeText = formatters.datetime.asHHMMA(
+          new Date(t.plan.endTime)
+        ))
+    );
+    console.log({ filteredTrips });
+
     const stagedTrips = [];
     const tripCount = {};
 
-    allTrips.forEach(trip => {
+    filteredTrips.forEach(trip => {
       // console.log({ trip });
       if (!tripCount[trip.dependent.dependent])
         tripCount[trip.dependent.dependent] = 0;
@@ -53,6 +67,8 @@ export const DependentsTripsTable = observer(
     trips.sort((a, b) => {
       return new Date(a.plan.startTime) - new Date(b.plan.startTime);
     });
+
+    //limit trips to a total of 10
 
     const openVerticalTripPlan = trip => {
       dependentTracker.start(trip.dependent?.dependent);
