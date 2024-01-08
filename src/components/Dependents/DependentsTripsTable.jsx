@@ -32,8 +32,6 @@ export const DependentsTripsTable = observer(
     const allTrips = toJS(dependentTrips);
 
     const now = Date.now();
-    console.log({ now });
-    //filter out trips that have end times that are 5 minutes in the past - end times are in plan.endTime
     const filteredTrips = allTrips.filter(
       trip => new Date(trip.plan.endTime) > now
     );
@@ -67,8 +65,6 @@ export const DependentsTripsTable = observer(
     trips.sort((a, b) => {
       return new Date(a.plan.startTime) - new Date(b.plan.startTime);
     });
-
-    //limit trips to a total of 10
 
     const openVerticalTripPlan = trip => {
       dependentTracker.start(trip.dependent?.dependent);

@@ -160,6 +160,7 @@ export const ScheduleTripModal = observer(
               : null}
             {accessToken && (step === 0 || step === 4) ? (
               <IconButton
+                display={'none'}
                 variant={step === 4 ? 'brand' : 'brand-outline'}
                 ml={5}
                 fontSize={'xl'}
