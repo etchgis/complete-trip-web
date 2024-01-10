@@ -16,6 +16,7 @@ class UIStore {
     cursor: 'default',
   };
   chatbot = [];
+  hasSelectedPlan = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -78,6 +79,12 @@ class UIStore {
   setChatbot = value => {
     runInAction(() => {
       this.chatbot = value;
+    });
+  };
+
+  setHasSelectedPlan = value => {
+    runInAction(() => {
+      this.hasSelectedPlan = value;
     });
   };
 }

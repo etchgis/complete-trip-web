@@ -20,6 +20,7 @@ import { fillGaps } from '../../utils/tripplan';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { theme } from '../../theme';
+import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
@@ -223,11 +224,8 @@ export const TripPlanSchedule = observer(
       riderProfile?.preferences?.wheelchair ||
       user?.profile?.preferences?.wheelchair ||
       false;
-
-    const planLegs = fillGaps(plan.legs);
-
-    // console.log(toJS(request));
-    // console.log(toJS(plan));
+    console.log(toJS(plan));
+    const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
 
     useEffect(() => {
       // console.log('activeLegIndex', activeLegIndex);
@@ -237,262 +235,276 @@ export const TripPlanSchedule = observer(
     }, [activeLegIndex]);
 
     return (
-      <Box
-        px={4}
-        flex={1}
-        id="trip-plan-schedule"
-        data-testid="trip-plan-schedule"
-      >
-        <Grid
-          gridTemplateColumns={'1fr 1fr 1fr'}
-          width="80%"
-          margin="10px auto 20px auto"
-          py={2}
-          fontWeight={'bold'}
-          border="solid thin lightgray"
-          borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-          borderRadius="md"
-        >
-          <Box textAlign="center">
-            <Text fontSize={'sm'}>Leave</Text>
-            <Box>
-              {formatters.datetime
-                .asHMA(new Date(plan?.startTime))
-                .replace('am', '')
-                .replace('pm', '')}
-              <sub style={{ textTransform: 'uppercase' }}>
-                {' '}
-                {formatters.datetime.asHMA(new Date(plan?.startTime)).slice(-2)}
-              </sub>
-            </Box>
-          </Box>
-
-          <Flex alignItems={'center'} justifyContent={'center'}>
-            <Center h={10} w={10} borderRadius="lg">
-              <Icon
-                as={FaArrowRight}
-                color={colorMode === 'light' ? 'brand' : 'theme.light'}
-              />
-            </Center>
-          </Flex>
-
-          <Box textAlign="center" mx={2}>
-            <Text fontSize={'sm'}>Arrive</Text>
-            <Box>
-              {formatters.datetime
-                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                .replace('am', '')
-                .replace('pm', '')}
-              <sub style={{ textTransform: 'uppercase' }}>
-                {' '}
-                {formatters.datetime
-                  .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                  .slice(-2)}
-              </sub>
-            </Box>
-          </Box>
-        </Grid>
-
-        <Text textAlign={'left'} data-name="to">
-          To{' '}
-          <strong>
-            {request?.destination?.title} {request?.destination?.description}
-          </strong>
-        </Text>
-
-        <Flex alignItems={'center'} mx={0} data-name="transfers">
-          <Text mr={1} fontSize={'sm'}>
-            {formatters.datetime.asDuration(plan.duration)} (
-            {formatters.distance.asMiles(
-              plan.legs.reduce((acc, leg) => {
-                return acc + leg.distance;
-              }, 0)
-            )}
-            )
-          </Text>
-          <Icon as={RxDotFilled} fontSize={'lg'} />
-          <Text fontSize={'sm'}>
-            {plan.transfers +
-              (plan.transfers === 1 ? ' transfer' : ' transfers')}
-          </Text>
-        </Flex>
-
-        <Box pt={4} pb={0} mb={-2}>
-          <Divider
-            borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
-            borderWidth={2}
-          />
-        </Box>
-
-        <Box py={2}>
-          <Divider />
-        </Box>
-
-        <Box>
-          {plan.legs.map((leg, i) => {
-            let title = formatLegTitle(leg, wheelchair);
-            let name = getLegModeName(leg, wheelchair);
-            const mode =
-              title === 'WAIT'
-                ? config.WAIT
-                : name.toLowerCase() === 'roll'
-                ? config.WHEELCHAIR
-                : config.MODES.find(m => m.id === name);
-            // console.log(name, title, mode);
-            if (name === 'scooter') {
-              // later
-            } else if (name === 'bus') {
-              title += ' (' + leg.mode.toLowerCase() + ')';
-            }
-
-            let route, headsign;
-            if (leg.agencyName && leg.route) {
-              route = leg.route;
-              headsign = leg.headsign;
-            }
-
-            let fillColor = getLegColor(leg);
-            if (fillColor === '#FFFFFF') {
-              fillColor = theme.colors.brand;
-            }
-
-            let intermediateStopsLabel;
-
-            if (leg.intermediateStops && leg.intermediateStops.length > 0) {
-              const lbl =
-                leg.intermediateStops.length +
-                ' stop' +
-                (leg.intermediateStops.length === 1 ? '' : 's');
-              const dur = formatters.datetime.asDuration(leg.duration);
-              intermediateStopsLabel = `${lbl}, ${dur}`;
-            }
-            const accentColor = mode.mode === 'walk' ? 'gray.400' : mode.color;
-            return (
-              <VStack
-                pos={'relative'}
-                key={i.toString()}
-                alignItems={'flex-start'}
-                spacing={1}
-                borderBottom={
-                  i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
-                }
-                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-                filter={
-                  legIndex !== -1 && legIndex === i
-                    ? 'opacity(1)'
-                    : legIndex === -1
-                    ? 'unset'
-                    : 'opacity(0.5)'
-                }
-              >
-                <Flex alignItems={'center'} mt={2}>
-                  {mode?.svg
-                    ? CreateCircleIcon({
-                        svg: mode.svg,
-                        backgroundColor: accentColor,
-                      })
-                    : null}
-                  <Heading
-                    as="h3"
-                    size="md"
-                    m={0}
-                    fontWeight={'extrabold'}
-                    data-name="route-or-title"
-                  >
-                    {route || title}
-                  </Heading>
-                </Flex>
+      <>
+        {plan && plan?.legs?.length ? (
+          <Box
+            px={4}
+            flex={1}
+            id="trip-plan-schedule"
+            data-testid="trip-plan-schedule"
+          >
+            <Grid
+              gridTemplateColumns={'1fr 1fr 1fr'}
+              width="80%"
+              margin="10px auto 20px auto"
+              py={2}
+              fontWeight={'bold'}
+              border="solid thin lightgray"
+              borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+              borderRadius="md"
+            >
+              <Box textAlign="center">
+                <Text fontSize={'sm'}>Leave</Text>
                 <Box>
-                  {route ? (
-                    <>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        pos={'absolute'}
-                        left={'13px'}
-                        top={'36px'}
-                        height={'100%'}
-                        borderLeft="solid 4px #00205b"
-                        borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
-                        borderColor={accentColor}
-                      ></Box>
-                      <Box ml={'36px'}>
-                        <Text
-                          fontWeight={'semibold'}
-                          fontSize={'xs'}
-                          data-name="headsign"
-                          textAlign={'left'}
-                        >
-                          To {headsign}
-                        </Text>
-                        <Text
-                          fontWeight={'black'}
-                          fontSize={'sm'}
-                          textTransform={'uppercase'}
-                          color={
-                            colorMode === 'light' ? 'brand' : 'theme.light'
-                          }
-                          data-name="leg-to-name"
-                          textAlign={'left'}
-                        >
-                          {leg?.to?.name}
-                        </Text>
-                      </Box>
-                    </>
-                  ) : (
-                    <>
-                      {i < plan.legs.length - 1 && (
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          pos={'absolute'}
-                          left={'13px'}
-                          top={'36px'}
-                          height={'20px'}
-                          borderLeft="solid 4px #00205b"
-                          borderStyle={
-                            mode.mode === 'walk' ? 'dashed' : 'solid'
-                          }
-                          borderColor={accentColor}
-                        ></Box>
-                      )}
-                    </>
-                  )}
+                  {formatters.datetime
+                    .asHMA(new Date(plan?.startTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(plan?.startTime))
+                      .slice(-2)}
+                  </sub>
                 </Box>
-                {leg.intermediateStops ? (
-                  <>
-                    <TimelineStep
-                      start={leg.from.name}
-                      label={intermediateStopsLabel}
-                      steps={leg.intermediateStops}
-                    />
-                  </>
-                ) : null}
-                <Box>
-                  <Divider />
-                </Box>
-              </VStack>
-            );
-          })}
+              </Box>
 
-          <Flex alignItems={'center'} my={4}>
-            <Icon as={FaStar} mr={2} />
-            <Text fontWeight={'bold'}>
-              Arrive at {request?.destination?.title}{' '}
-              {formatters.datetime
-                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                .replace('am', '')
-                .replace('pm', '')}
-              <sub style={{ textTransform: 'uppercase' }}>
-                {' '}
-                {formatters.datetime
-                  .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                  .slice(-2)}
-              </sub>
+              <Flex alignItems={'center'} justifyContent={'center'}>
+                <Center h={10} w={10} borderRadius="lg">
+                  <Icon
+                    as={FaArrowRight}
+                    color={colorMode === 'light' ? 'brand' : 'theme.light'}
+                  />
+                </Center>
+              </Flex>
+
+              <Box textAlign="center" mx={2}>
+                <Text fontSize={'sm'}>Arrive</Text>
+                <Box>
+                  {formatters.datetime
+                    .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                      .slice(-2)}
+                  </sub>
+                </Box>
+              </Box>
+            </Grid>
+
+            <Text textAlign={'left'} data-name="to">
+              To{' '}
+              <strong>
+                {request?.destination?.title}{' '}
+                {request?.destination?.description}
+              </strong>
             </Text>
-          </Flex>
-        </Box>
-      </Box>
+
+            <Flex alignItems={'center'} mx={0} data-name="transfers">
+              <Text mr={1} fontSize={'sm'}>
+                {formatters.datetime.asDuration(plan.duration)} (
+                {formatters.distance.asMiles(
+                  plan.legs.reduce((acc, leg) => {
+                    return acc + leg.distance;
+                  }, 0)
+                )}
+                )
+              </Text>
+              <Icon as={RxDotFilled} fontSize={'lg'} />
+              <Text fontSize={'sm'}>
+                {plan.transfers +
+                  (plan.transfers === 1 ? ' transfer' : ' transfers')}
+              </Text>
+            </Flex>
+
+            <Box pt={4} pb={0} mb={-2}>
+              <Divider
+                borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
+                borderWidth={2}
+              />
+            </Box>
+
+            <Box py={2}>
+              <Divider />
+            </Box>
+
+            <Box>
+              {plan.legs.map((leg, i) => {
+                let title = formatLegTitle(leg, wheelchair);
+                let name = getLegModeName(leg, wheelchair);
+                const mode =
+                  title === 'WAIT'
+                    ? config.WAIT
+                    : name.toLowerCase() === 'roll'
+                    ? config.WHEELCHAIR
+                    : config.MODES.find(m => m.id === name);
+                // console.log(name, title, mode);
+                if (name === 'scooter') {
+                  // later
+                } else if (name === 'bus') {
+                  title += ' (' + leg.mode.toLowerCase() + ')';
+                }
+
+                let route, headsign;
+                if (leg.agencyName && leg.route) {
+                  route = leg.route;
+                  headsign = leg.headsign;
+                }
+
+                let fillColor = getLegColor(leg);
+                if (fillColor === '#FFFFFF') {
+                  fillColor = theme.colors.brand;
+                }
+
+                let intermediateStopsLabel;
+
+                if (leg.intermediateStops && leg.intermediateStops.length > 0) {
+                  const lbl =
+                    leg.intermediateStops.length +
+                    ' stop' +
+                    (leg.intermediateStops.length === 1 ? '' : 's');
+                  const dur = formatters.datetime.asDuration(leg.duration);
+                  intermediateStopsLabel = `${lbl}, ${dur}`;
+                }
+                const accentColor =
+                  mode.mode === 'walk' ? 'gray.400' : mode.color;
+                return (
+                  <VStack
+                    pos={'relative'}
+                    key={i.toString()}
+                    alignItems={'flex-start'}
+                    spacing={1}
+                    borderBottom={
+                      i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
+                    }
+                    borderColor={
+                      colorMode === 'light' ? 'gray.200' : 'gray.600'
+                    }
+                    filter={
+                      legIndex !== -1 && legIndex === i
+                        ? 'opacity(1)'
+                        : legIndex === -1
+                        ? 'unset'
+                        : 'opacity(0.5)'
+                    }
+                  >
+                    <Flex alignItems={'center'} mt={2}>
+                      {mode?.svg
+                        ? CreateCircleIcon({
+                            svg: mode.svg,
+                            backgroundColor: accentColor,
+                          })
+                        : null}
+                      <Heading
+                        as="h3"
+                        size="md"
+                        m={0}
+                        fontWeight={'extrabold'}
+                        data-name="route-or-title"
+                      >
+                        {route || title}
+                      </Heading>
+                    </Flex>
+                    <Box>
+                      {route ? (
+                        <>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            pos={'absolute'}
+                            left={'13px'}
+                            top={'36px'}
+                            height={'100%'}
+                            borderLeft="solid 4px #00205b"
+                            borderStyle={
+                              mode.mode === 'walk' ? 'dashed' : 'solid'
+                            }
+                            borderColor={accentColor}
+                          ></Box>
+                          <Box ml={'36px'}>
+                            <Text
+                              fontWeight={'semibold'}
+                              fontSize={'xs'}
+                              data-name="headsign"
+                              textAlign={'left'}
+                            >
+                              To {headsign}
+                            </Text>
+                            <Text
+                              fontWeight={'black'}
+                              fontSize={'sm'}
+                              textTransform={'uppercase'}
+                              color={
+                                colorMode === 'light' ? 'brand' : 'theme.light'
+                              }
+                              data-name="leg-to-name"
+                              textAlign={'left'}
+                            >
+                              {leg?.to?.name}
+                            </Text>
+                          </Box>
+                        </>
+                      ) : (
+                        <>
+                          {i < plan.legs.length - 1 && (
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              pos={'absolute'}
+                              left={'13px'}
+                              top={'36px'}
+                              height={'20px'}
+                              borderLeft="solid 4px #00205b"
+                              borderStyle={
+                                mode.mode === 'walk' ? 'dashed' : 'solid'
+                              }
+                              borderColor={accentColor}
+                            ></Box>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                    {leg.intermediateStops ? (
+                      <>
+                        <TimelineStep
+                          start={leg.from.name}
+                          label={intermediateStopsLabel}
+                          steps={leg.intermediateStops}
+                        />
+                      </>
+                    ) : null}
+                    <Box>
+                      <Divider />
+                    </Box>
+                  </VStack>
+                );
+              })}
+
+              <Flex alignItems={'center'} my={4}>
+                <Icon as={FaStar} mr={2} />
+                <Text fontWeight={'bold'}>
+                  Arrive at {request?.destination?.title}{' '}
+                  {formatters.datetime
+                    .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                      .slice(-2)}
+                  </sub>
+                </Text>
+              </Flex>
+            </Box>
+          </Box>
+        ) : (
+          ''
+        )}
+      </>
     );
   }
 );

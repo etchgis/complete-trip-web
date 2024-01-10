@@ -50,6 +50,7 @@ import VerticalTripPlan from '../VerticalTripPlan';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import { set } from 'lodash';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
@@ -57,7 +58,7 @@ import { useStore } from '../../context/RootStore';
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
     const { trip: stagedTrip } = useStore();
-    const { setChatbot } = useStore().uiStore;
+    const { setChatbot, setHasSelectedPlan } = useStore().uiStore;
     const { accessToken } = useStore().authentication;
 
     const [chatIsActive, setChatIsActive] = useState(false);
@@ -139,6 +140,7 @@ export const ScheduleTripModal = observer(
           setChatbot([]);
           setStep(0);
           onClose();
+          setHasSelectedPlan(false);
           stagedTrip.create();
         }}
         size="full"
@@ -160,7 +162,7 @@ export const ScheduleTripModal = observer(
               : null}
             {accessToken && (step === 0 || step === 4) ? (
               <IconButton
-                display={'none'}
+                // display={'none'}
                 variant={step === 4 ? 'brand' : 'brand-outline'}
                 ml={5}
                 fontSize={'xl'}
@@ -168,9 +170,11 @@ export const ScheduleTripModal = observer(
                 aria-label="Select a Trip Chatbot"
                 onClick={async () => {
                   if (step === 4) {
-                    setStep(0);
+                    stagedTrip.create();
+                    setHasSelectedPlan(false);
                     setChatIsActive(false);
                     setChatbot([]);
+                    setStep(0);
                   } else {
                     setStep(4);
                     setChatIsActive(true);

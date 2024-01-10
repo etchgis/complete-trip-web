@@ -1,11 +1,12 @@
 import { Box, Flex, Input, Spinner, Text } from '@chakra-ui/react';
+import { sample, set } from 'lodash';
 import { useEffect, useState } from 'react';
 
 import config from '../../config';
+import geocode from '../../services/transport/geocoder';
 import { getLocation } from '../../utils/getLocation';
 import { observer } from 'mobx-react-lite';
-import sampleStagedTrip from './sample-staged-trip.json';
-import sampleTrip from './sample-trip2.json';
+import sampleChatResponse from './sample-chat-response.json';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
@@ -14,50 +15,17 @@ import { useStore } from '../../context/RootStore';
 const url = 'https://staging.lambda.etch.app/assistant/chat';
 const key = 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi';
 
-const resetTripbot = async token => {
-  console.log('resetting tripbot');
-  try {
-    const reset = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        'x-api-key': key,
-      },
-      body: JSON.stringify({
-        // message: 'Can we start over with a new query?',
-        message: '',
-        shouldReset: true,
-        origin: {
-          lat: config.MAP.CENTER[1],
-          lng: config.MAP.CENTER[0],
-        },
-        center: {
-          lat: config.MAP.CENTER[1],
-          lng: config.MAP.CENTER[0],
-        },
-      }),
-    }).then(res => res.json());
-    console.log(reset);
-    if (reset.error) {
-      throw new Error(reset.error);
-    }
-    return reset;
-  } catch (error) {
-    //TODO need to handle error here
-    console.log(error);
-    return false;
-  }
-};
 //token is the user's access token
 const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   const [location, setLocation] = useState([
     config.MAP.CENTER[1],
     config.MAP.CENTER[0],
   ]);
+  const [address, setAddress] = useState('');
   const [errors, setErrors] = useState(0);
   const [isThinking, setIsThinking] = useState(false);
-  const { chatbot, setChatbot } = useStore().uiStore;
+  const { chatbot, setChatbot, hasSelectedPlan, setHasSelectedPlan } =
+    useStore().uiStore;
   console.log(toJS(chatbot));
   const [chat, setChat] = useState(
     chatbot.length
@@ -73,9 +41,31 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
 
   useEffect(() => {
     (async () => {
-      const userLocation = await getLocation();
-      const center = userLocation?.center || null;
-      if (center) setLocation(center);
+      try {
+        const userLocation = await getLocation();
+        const center = userLocation?.center || null;
+        if (center) {
+          console.log('[tripbot] using user location', center);
+          setLocation(center);
+        }
+      } catch (error) {
+        console.log('[tripbot] error getting user location', error);
+      }
+      try {
+        const address = await geocode.reverse({
+          lng: location[0],
+          lat: location[1],
+        });
+        if (address && address.length) {
+          console.log(
+            "[tripbot] using user's geocoded address\n",
+            address[0]?.title
+          );
+          setAddress(address[0]?.title || '');
+        }
+      } catch (error) {
+        console.log('[tripbot] error getting user address', error);
+      }
     })();
   }, []);
 
@@ -87,6 +77,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         origin: {
           lat: location[1],
           lng: location[0],
+          address: address || '',
           // lat: config.MAP.CENTER[0],
           // lng: config.MAP.CENTER[1],
         },
@@ -117,35 +108,26 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   };
 
   const selectTrip = async (stagedTrip, tripResponse) => {
+    console.log(stagedTrip);
+    console.log(tripResponse);
     if (
       !tripResponse ||
       !tripResponse?.request ||
       !tripResponse?.request?.origin ||
       !tripResponse?.request?.destination ||
-      !tripResponse?.request?.plan ||
+      !tripResponse?.plan ||
       !tripResponse?.request?.when ||
-      !tripResponse?.request?.plan?.legs ||
-      !tripResponse?.request?.plan?.legs?.length
+      !tripResponse?.plan?.legs ||
+      !tripResponse?.plan?.legs?.length
     )
       throw new Error('Invalid trip response');
-    if (!tripResponse?.origin?.point) {
-      tripResponse.request.origin.point = {
-        lat: tripResponse.origin.coordinates[1],
-        lng: tripResponse.origin.coordinates[0],
-      };
-    }
-    if (!tripResponse?.destination?.point) {
-      tripResponse.request.destination.point = {
-        lat: tripResponse.destination.coordinates[1],
-        lng: tripResponse.destination.coordinates[0],
-      };
-    }
 
     if (!tripResponse?.request?.origin?.title) {
-      tripResponse.request.origin.title = tripResponse.origin.address;
+      tripResponse.request.origin.title = tripResponse?.origin?.address;
     }
     if (!tripResponse?.request?.destination?.title) {
-      tripResponse.request.destination.title = tripResponse.destination.address;
+      tripResponse.request.destination.title =
+        tripResponse?.destination?.address;
     }
     if (!tripResponse?.request?.origin?.description) {
       tripResponse.request.origin.description = '';
@@ -157,7 +139,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     stagedTrip.updateOrigin(tripResponse?.request?.origin);
     stagedTrip.updateDestination(tripResponse?.request?.destination);
     // stagedTrip.updateWhenAction(null); //TODO add leave, arrive
-    stagedTrip.updateWhen(tripRequest?.request?.when);
+    stagedTrip.updateWhen(tripResponse?.request?.when);
     // if (data.get('riders')) {
     //   trip.updateProperty('riders', +data.get('riders'));
     // }
@@ -165,7 +147,8 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     //   trip.updateProperty('caretaker', data.get('caretaker'));
     // }
 
-    setSelectedTrip(tripResponse);
+    setSelectedTrip(tripResponse?.plan);
+    setHasSelectedPlan(true);
   };
 
   const handleChat = async input => {
@@ -173,9 +156,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     //NOTE temp testing patch for non-working chat API
     if (input.toLowerCase().trim() === 'use sample trip') {
       setChatbot(chat);
-      selectTrip(stagedTrip, { ...sampleStagedTrip, ...sampleTrip });
-      setStep(3);
-      //save current chat in state
+      selectTrip(stagedTrip, sampleChatResponse);
       return;
     }
 
@@ -212,7 +193,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       console.log('{tripbot} -- final response');
       console.log(response);
       try {
-        setSelectedTrip(response?.response);
+        selectTrip(stagedTrip, response?.response);
       } catch (error) {
         console.log('{tripbot} - ', error);
         setChat(state => [
@@ -229,6 +210,19 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     }
   };
   console.log(chat);
+
+  useEffect(() => {
+    console.log({ hasSelectedPlan });
+    console.log({ stagedTrip });
+    if (!hasSelectedPlan) return;
+
+    if (!stagedTrip?.request?.destination) return;
+
+    setStep(3);
+
+    //eslint-disable-next-line
+  }, [hasSelectedPlan]);
+
   return (
     <Flex
       flex={1}
@@ -292,4 +286,4 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   );
 });
 
-export { Tripbot, resetTripbot };
+export { Tripbot };

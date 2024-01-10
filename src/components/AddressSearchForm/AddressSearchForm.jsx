@@ -1,5 +1,6 @@
 import { Autocomplete, Item } from './Autocomplete';
 
+import config from '../../config';
 import { observer } from 'mobx-react-lite';
 import { useAsyncList } from 'react-stately';
 import { useEffect } from 'react';
@@ -39,9 +40,9 @@ export const SearchForm = observer(
           cursor = cursor.replace(/^http:\/\//i, 'https://');
         }
 
-        let uri = `https://511ny.etch.app/geocode?query=${encodeURIComponent(
+        let uri = `${config.SERVICES.geocode}/?query=${encodeURIComponent(
           filterText
-        )}&limit=10`;
+        )}&limit=10&org=${config.ORGANIZATION}`;
 
         if (center?.lng) {
           uri += `&center=${(center.lng * 1000 || 0) / 1000},${
@@ -49,9 +50,14 @@ export const SearchForm = observer(
           }`;
         }
         // console.log(uri);
-        let items = await fetch(cursor || uri, { signal }).then(res =>
+        const Items = await fetch(cursor || uri, { signal }).then(res =>
           res.json()
         );
+        // console.log({ Items });
+        let items = [];
+        if (Items.length) {
+          items = Items.filter(item => !item.venueId);
+        }
         // console.log({ items });
         const keys = [];
 
@@ -67,6 +73,11 @@ export const SearchForm = observer(
           : [];
 
         items.forEach(item => {
+          if (item?.description && item?.locality) {
+            item.description += ', ' + item.locality;
+          }
+          if (!item.description && item?.locality)
+            item.description = item.locality;
           if (
             !item.childKey ||
             !item.title ||
