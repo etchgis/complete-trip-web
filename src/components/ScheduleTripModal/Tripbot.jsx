@@ -6,7 +6,6 @@ import geocode from '../../services/transport/geocoder';
 import { getLocation } from '../../utils/getLocation';
 import { observer } from 'mobx-react-lite';
 import sampleChatResponse from './sample-chat-response.json';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 //18 Goethe St, Buffalo, NY 14206
