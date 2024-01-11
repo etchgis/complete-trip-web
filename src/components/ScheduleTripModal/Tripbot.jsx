@@ -40,7 +40,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         const userLocation = await getLocation();
         const center = userLocation?.center || null;
         if (center) {
-          console.log('[tripbot] using user location', center);
+          console.log('[tripbot] using user location\n', center);
           setLocation(center);
         }
       } catch (error) {
@@ -52,14 +52,11 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
           lat: location[1],
         });
         if (address && address.length) {
-          console.log(
-            "[tripbot] using user's geocoded address\n",
-            address[0]?.title
-          );
+          console.log('[tripbot] geocoded address\n', address[0]?.title);
           setAddress(address[0]?.title || '');
         }
       } catch (error) {
-        console.log('[tripbot] error getting user address', error);
+        console.log('[tripbot] error getting user address\n', error);
       }
     })();
   }, []);
@@ -97,14 +94,13 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       setIsThinking(false);
       return await response.json();
     } catch (error) {
-      console.log('{tripbot} - fetch error', error);
+      console.log('[tripbot] - fetch error', error);
       return {};
     }
   };
 
   const selectTrip = async (stagedTrip, tripResponse) => {
-    console.log(stagedTrip);
-    console.log(tripResponse);
+    console.log('[tripbot] selecting trip \n', { tripResponse });
     if (
       !tripResponse ||
       !tripResponse?.request ||
@@ -115,7 +111,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       !tripResponse?.plan?.legs ||
       !tripResponse?.plan?.legs?.length
     )
-      throw new Error('Invalid trip response');
+      throw new Error('[tripbot] Invalid trip response');
 
     if (!tripResponse?.request?.origin?.title) {
       tripResponse.request.origin.title =
@@ -146,9 +142,8 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     // if (data.get('caretaker')) {
     //   trip.updateProperty('caretaker', data.get('caretaker'));
     // }
-
     setSelectedTrip(tripResponse?.plan);
-    setHasSelectedPlan(true);
+    setHasSelectedPlan(true); //NOTE this is used to triggger the next step
   };
 
   const handleChat = async input => {
@@ -162,7 +157,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     }
 
     const response = await fetchChat(input, accessToken);
-    console.log(response);
+    console.log('[tripbot]', { response });
 
     if (!response || !response?.response) {
       setIsThinking(false);
@@ -180,7 +175,6 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         return;
       }
       setErrors(e => e + 1);
-      console.log({ errors });
       setChat(state => [
         ...state,
         {
@@ -191,12 +185,12 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       return;
     }
     if (response.isFinalResponse) {
-      console.log('{tripbot} -- final response');
+      console.log('[tripbot] final response');
       console.log(response);
       try {
         selectTrip(stagedTrip, response?.response);
       } catch (error) {
-        console.log('{tripbot} - ', error);
+        console.log('[tripbot] error\n', error);
         setErrors(e => e + 1);
         setChat(state => [
           ...state,
@@ -211,13 +205,17 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       setChat(state => [...state, { bot: response.response, user: '' }]);
     }
   };
-  console.log(chat);
 
   useEffect(() => {
+    if (!hasSelectedPlan) return;
+    console.log('[tripbot] has selected plan');
     console.log({ hasSelectedPlan });
     console.log({ stagedTrip });
-    if (!hasSelectedPlan) return;
-    if (!stagedTrip?.request?.destination) return;
+    if (!stagedTrip?.request?.destination) {
+      console.log('[tripbot] Trip has no destination!');
+      setErrors(e => e + 1);
+      return;
+    }
     setStep(3);
     //eslint-disable-next-line
   }, [hasSelectedPlan]);
@@ -261,7 +259,6 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
           e.preventDefault();
           const data = new FormData(e.target);
           const tripbot = data.get('tripbot');
-          console.log(tripbot);
           if (!tripbot) return;
           e.target.reset();
           setChat([

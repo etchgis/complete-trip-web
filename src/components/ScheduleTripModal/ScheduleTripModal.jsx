@@ -50,7 +50,6 @@ import VerticalTripPlan from '../VerticalTripPlan';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
-import { set } from 'lodash';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
@@ -720,7 +719,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
 
 const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   const { trip } = useStore();
-  console.log({ trip });
+  console.log('[schedule trip modal] Third\n', { trip });
   useEffect(() => {
     if (!Object.keys(selectedTrip).length) {
       trip.generatePlans();
@@ -781,12 +780,12 @@ const Fourth = ({
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
 
-  //------------------DEBUG------------------//
-  const _selectedTrip = toJS(selectedTrip);
-  const _stagedTrip = toJS(trip);
-  console.log({ _stagedTrip });
-  console.log({ _selectedTrip });
-  //------------------DEBUG------------------//
+  // //------------------DEBUG------------------//
+  // const _selectedTrip = toJS(selectedTrip);
+  // const _stagedTrip = toJS(trip);
+  // console.log({ _stagedTrip });
+  // console.log({ _selectedTrip });
+  // //------------------DEBUG------------------//
 
   async function scheduleTrip() {
     const _request = toJS(trip.request);

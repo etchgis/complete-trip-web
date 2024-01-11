@@ -20,7 +20,7 @@ import { fillGaps } from '../../utils/tripplan';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { theme } from '../../theme';
-import { toJS } from 'mobx';
+// import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
@@ -188,7 +188,6 @@ const TimelineStep = ({ start, label, steps }) => {
 };
 
 const CreateCircleIcon = ({ svg, backgroundColor }) => {
-  console.log(backgroundColor);
   return (
     <Flex
       w={7}
@@ -224,8 +223,8 @@ export const TripPlanSchedule = observer(
       riderProfile?.preferences?.wheelchair ||
       user?.profile?.preferences?.wheelchair ||
       false;
-    console.log(toJS(plan));
-    console.log(toJS(request));
+    // console.log(toJS(plan));
+    // console.log(toJS(request));
     const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
 
     useEffect(() => {
