@@ -225,6 +225,7 @@ export const TripPlanSchedule = observer(
       user?.profile?.preferences?.wheelchair ||
       false;
     console.log(toJS(plan));
+    console.log(toJS(request));
     const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
 
     useEffect(() => {

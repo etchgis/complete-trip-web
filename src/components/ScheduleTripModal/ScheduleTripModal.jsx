@@ -58,7 +58,7 @@ import { useStore } from '../../context/RootStore';
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
     const { trip: stagedTrip } = useStore();
-    const { setChatbot, setHasSelectedPlan } = useStore().uiStore;
+    const { setHasSelectedPlan } = useStore().uiStore;
     const { accessToken } = useStore().authentication;
 
     const [chatIsActive, setChatIsActive] = useState(false);
@@ -137,7 +137,6 @@ export const ScheduleTripModal = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          setChatbot([]);
           setStep(0);
           onClose();
           setHasSelectedPlan(false);
@@ -173,7 +172,6 @@ export const ScheduleTripModal = observer(
                     stagedTrip.create();
                     setHasSelectedPlan(false);
                     setChatIsActive(false);
-                    setChatbot([]);
                     setStep(0);
                   } else {
                     setStep(4);
@@ -203,8 +201,9 @@ export const ScheduleTripModal = observer(
               variant={'ghost'}
               onClick={() => {
                 setStep(0);
+                setHasSelectedPlan(false);
                 stagedTrip.create();
-                setChatbot([]);
+
                 onClose();
               }}
             >
@@ -778,7 +777,8 @@ const Fourth = ({
   setSelectedTrip,
   chatIsActive,
 }) => {
-  const { setToastMessage, setToastStatus, setChatbot } = useStore().uiStore;
+  const { setToastMessage, setToastStatus, setHasSelectedPlan } =
+    useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
 
   //------------------DEBUG------------------//
@@ -803,8 +803,8 @@ const Fourth = ({
       setToastStatus('success');
       setToastMessage('Trip Saved');
       setSelectedTrip({});
+      setHasSelectedPlan(false);
       setStep(0);
-      setChatbot([]);
       trip.create();
     }
   }
@@ -826,7 +826,9 @@ const Fourth = ({
         scheduleTripHandler={scheduleTrip}
         backClickHandler={() => {
           if (chatIsActive) {
-            setStep(4); //NOTE hard-coded value for chat window
+            trip.create();
+            setHasSelectedPlan(false);
+            setStep(4);
           } else {
             setStep(current => current - 1);
           }
