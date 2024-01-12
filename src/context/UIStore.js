@@ -15,6 +15,7 @@ class UIStore {
     hideImages: false,
     cursor: 'default',
   };
+  hasSelectedPlan = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -71,6 +72,12 @@ class UIStore {
   setIsLoading = value => {
     runInAction(() => {
       this.isLoading = value;
+    });
+  };
+
+  setHasSelectedPlan = value => {
+    runInAction(() => {
+      this.hasSelectedPlan = value;
     });
   };
 }

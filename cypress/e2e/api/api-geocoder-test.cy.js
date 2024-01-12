@@ -1,8 +1,10 @@
 // About API testing: https://docs.cypress.io/api/commands/request#Method-and-URL
 
-const url = `https://511ny.etch.app/geocode?query=${encodeURIComponent(
+import config from '../../../src/config';
+
+const url = `${config.SERVICES.geocode}/?query=${encodeURIComponent(
   'Swan Street Diner'
-)}&limit=10`;
+)}&limit=10&org=${config.ORGANIZATION}`;
 console.log(url);
 describe('Check geocoder request', () => {
   it('Get 200 status', () => {

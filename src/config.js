@@ -45,7 +45,7 @@ const API = {
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
-    geocode: 'https://511ny.etch.app/geocode',
+    geocode: 'https://mmapi.etch.app/geocode',
   },
   stage: {
     admin: {
@@ -87,7 +87,7 @@ const API = {
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging', //'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging?groups=dependent-{dependentId}
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
-    geocode: 'https://511ny.etch.app/geocode',
+    geocode: 'https://mmapi.etch.app/geocode',
   },
 };
 

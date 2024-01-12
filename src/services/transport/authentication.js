@@ -96,6 +96,10 @@ const authentication = {
   },
 
   register(email, phone, organization, password, profile) {
+    console.log(`\n----------\n{services-transport-auth} registering user`);
+    console.log({ email, phone, organization, password, profile });
+    console.log(`\n----------\n{services-transport-auth} registering user`);
+
     return fetch(`${config.SERVICES.auth.url}/register`, {
       method: 'POST',
       body: JSON.stringify({

@@ -31,10 +31,22 @@ export const DependentsTripsTable = observer(
     const [selectedTrip, setSelectedTrip] = useState({});
     const allTrips = toJS(dependentTrips);
 
+    const now = Date.now();
+    const filteredTrips = allTrips.filter(
+      trip => new Date(trip.plan.endTime) > now
+    );
+    filteredTrips.map(
+      t =>
+        (t.plan.endTimeText = formatters.datetime.asHHMMA(
+          new Date(t.plan.endTime)
+        ))
+    );
+    console.log({ filteredTrips });
+
     const stagedTrips = [];
     const tripCount = {};
 
-    allTrips.forEach(trip => {
+    filteredTrips.forEach(trip => {
       // console.log({ trip });
       if (!tripCount[trip.dependent.dependent])
         tripCount[trip.dependent.dependent] = 0;

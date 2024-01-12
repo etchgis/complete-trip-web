@@ -1,0 +1,158 @@
+{
+  "request": {
+    "when": "1388534400000",
+    "rider": "fc8a2b29-f03f-42ba-b97c-9dafacb4e4b4",
+    "organization": "3738f2ea-ddc0-4d86-9a8a-4f2ed531a486",
+    "origin": {
+      "text": "8 John Paul Court",
+      "point": [-78.84105459385842, 42.88475470404412]
+    },
+    "destination": {
+      "text": "Swan Street Diner",
+      "point": [42.876762, -78.85011]
+    }
+  },
+  "plan": {
+    "duration": 1389,
+    "startTime": 1704938880000,
+    "endTime": 1704940269000,
+    "walkTime": 1389,
+    "transitTime": 0,
+    "waitingTime": 0,
+    "walkDistance": 1660.93,
+    "walkLimitExceeded": false,
+    "generalizedCost": 99680,
+    "elevationLost": 0,
+    "elevationGained": 0,
+    "transfers": 0,
+    "fare": {
+      "fare": {},
+      "details": {}
+    },
+    "legs": [
+      {
+        "startTime": 1704938880000,
+        "endTime": 1704940269000,
+        "departureDelay": 0,
+        "arrivalDelay": 0,
+        "realTime": false,
+        "distance": 1660.93,
+        "generalizedCost": 99680,
+        "pathway": false,
+        "mode": "WALK",
+        "transitLeg": false,
+        "route": "",
+        "agencyTimeZoneOffset": -18000000,
+        "interlineWithPreviousLeg": false,
+        "from": {
+          "name": "Origin",
+          "lon": -78.8410546,
+          "lat": 42.8847547,
+          "departure": 1704938880000,
+          "vertexType": "NORMAL"
+        },
+        "to": {
+          "name": "Destination",
+          "lon": -78.85011,
+          "lat": 42.876762,
+          "arrival": 1704940269000,
+          "vertexType": "NORMAL"
+        },
+        "legGeometry": {
+          "points": "y|vdG`ue`N?RAL?TG?M?C?A?C@C@?RA^?X@P?B?b@?BAP?P?R?N?\\?L?R?@?Jr@?@?p@?pE@?N?N?L?L?hC?hB?xA?l@?fB?j@?V?v@?pB?tA?lB?d@?tB?V?@?NJ?nB?xA@vA?|A?dA@P?pF?j@@lB@X?nA@pAAlA@|@?r@VB@t@d@@@nAv@k@zB",
+          "length": 71
+        },
+        "steps": [
+          {
+            "distance": 22.39,
+            "relativeDirection": "DEPART",
+            "streetName": "service road",
+            "absoluteDirection": "WEST",
+            "stayOn": false,
+            "area": false,
+            "bogusName": true,
+            "lon": -78.8412871,
+            "lat": 42.884774,
+            "elevation": "",
+            "walkingBike": false
+          },
+          {
+            "distance": 138.56,
+            "relativeDirection": "RIGHT",
+            "streetName": "path",
+            "absoluteDirection": "NORTH",
+            "stayOn": true,
+            "area": false,
+            "bogusName": true,
+            "lon": -78.8415616,
+            "lat": 42.8847837,
+            "elevation": "",
+            "walkingBike": false
+          },
+          {
+            "distance": 175.25,
+            "relativeDirection": "LEFT",
+            "streetName": "Coit Street",
+            "absoluteDirection": "SOUTH",
+            "stayOn": false,
+            "area": false,
+            "bogusName": false,
+            "lon": -78.8430355,
+            "lat": 42.8849785,
+            "elevation": "",
+            "walkingBike": false
+          },
+          {
+            "distance": 479.27,
+            "relativeDirection": "RIGHT",
+            "streetName": "path",
+            "absoluteDirection": "WEST",
+            "stayOn": false,
+            "area": false,
+            "bogusName": true,
+            "lon": -78.8430437,
+            "lat": 42.8834024,
+            "elevation": "",
+            "walkingBike": false
+          },
+          {
+            "distance": 789.52,
+            "relativeDirection": "LEFT",
+            "streetName": "Emslie Street",
+            "absoluteDirection": "SOUTH",
+            "stayOn": false,
+            "area": false,
+            "bogusName": false,
+            "lon": -78.8489244,
+            "lat": 42.8834003,
+            "elevation": "",
+            "walkingBike": false
+          },
+          {
+            "distance": 55.94,
+            "relativeDirection": "RIGHT",
+            "streetName": "Swan Street",
+            "absoluteDirection": "NORTHWEST",
+            "stayOn": false,
+            "area": false,
+            "bogusName": false,
+            "lon": -78.8495885,
+            "lat": 42.8764018,
+            "elevation": "",
+            "walkingBike": false
+          }
+        ],
+        "rentedBike": false,
+        "walkingBike": false,
+        "duration": 1389
+      }
+    ],
+    "tooSloped": false,
+    "arrivedAtDestinationWithRentedBicycle": false,
+    "delay": 17981,
+    "timeScore": 7382.666666666667,
+    "score": null,
+    "ecoHarm": 0,
+    "id": 1704920899426
+  }
+}
