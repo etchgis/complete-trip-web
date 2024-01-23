@@ -17,7 +17,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 
-const CargiverLink = observer(() => {
+const CaregiverLink = observer(() => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -183,4 +183,4 @@ const CargiverLink = observer(() => {
   );
 });
 
-export default CargiverLink;
+export default CaregiverLink;

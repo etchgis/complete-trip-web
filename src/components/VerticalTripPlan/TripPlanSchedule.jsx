@@ -417,7 +417,7 @@ export const TripPlanSchedule = observer(
                             pos={'absolute'}
                             left={'13px'}
                             top={'36px'}
-                            height={'100%'}
+                            height={'calc(100% - 26px)'}
                             borderLeft="solid 4px #00205b"
                             borderStyle={
                               mode.mode === 'walk' ? 'dashed' : 'solid'
