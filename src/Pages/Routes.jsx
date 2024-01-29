@@ -1,7 +1,7 @@
 import { Navigate, Routes as ReactRoutes, Route } from 'react-router-dom';
 import { toJS, trace } from 'mobx';
 
-import CargiverLink from './CargiverLink';
+import CaregiverLink from './CaregiverLink';
 import Gleap from 'gleap';
 import Home from './Home';
 import Layout from './Layout';
@@ -130,7 +130,7 @@ export const Routes = observer(() => {
       {/* CAREGIVER LINK */}
       <Route
         path={'/caregiver'}
-        element={<Layout children={<CargiverLink />}></Layout>}
+        element={<Layout children={<CaregiverLink />}></Layout>}
       />
       {/* 
         <Route to={{ pathname: '/caregiver', search: `?id=${caregiverId}` }}>

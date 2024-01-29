@@ -75,7 +75,7 @@ export const EditAppNotifications = observer(() => {
             <Divider />
           </Box>
           <Heading as="h3" size="md">
-            Cargiver Notification Alerts
+            Caregiver Notification Alerts
           </Heading>
           <Stack spacing={2}>
             {config.NOTIFICATION_TYPES.caregiver.map((n, i) => {
