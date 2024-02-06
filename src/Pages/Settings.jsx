@@ -133,15 +133,18 @@ const Settings = observer(({ view }) => {
       el: <AddCaregiver onClose={onClose} />,
     },
     {
-      title: 'Trip Preferences',
+      id: 'Trip Preferences',
+      title: t('settingsPreferences.tripPreferences'),
       el: <EditTripPreferences />,
     },
     {
-      title: 'Password',
+      id: 'Password',
+      title: t('settingsPassword.editPassword'),
       el: <EditPassword />,
     },
     {
-      title: 'Accessibility',
+      id: 'Accessibility',
+      title: t('settingsAccessibility.editAccessibility'),
       el: <EditAccessibility />,
     },
   ];
@@ -197,7 +200,13 @@ const Settings = observer(({ view }) => {
       <SettingsModal
         isOpen={isOpen}
         onClose={onClose}
-        title={activePanel}
+        title={
+          activePanel
+            ? settingsPanels.find(
+                l => l.title === activePanel || l?.id === activePanel
+              )?.title
+            : ''
+        }
         children={
           activePanel
             ? settingsPanels.find(

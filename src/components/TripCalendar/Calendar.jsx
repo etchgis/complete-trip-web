@@ -133,6 +133,9 @@ export const Calendar = observer(() => {
                 variant={selectedDates.includes(day) ? 'brand' : 'outline'}
                 border="none"
                 maxW="43px"
+                aria-label={
+                  t(`time.${months[currentMonth.getMonth()]}`) + ' ' + day
+                }
               >
                 {day}
               </Button>
@@ -181,7 +184,7 @@ export const Calendar = observer(() => {
         </Text>
         <Flex>
           <IconButton
-            aria-label="Previous month"
+            aria-label={t('global.prevMonth')}
             icon={<ChevronLeftIcon boxSize={8} />}
             onClick={() => {
               if (tabIndex === 0) {
@@ -196,7 +199,7 @@ export const Calendar = observer(() => {
             variant="ghost"
           />
           <IconButton
-            aria-label="Next month"
+            aria-label={t('global.nextMonth')}
             icon={<ChevronRightIcon boxSize={8} />}
             onClick={() => {
               if (tabIndex === 11) {

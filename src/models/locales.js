@@ -99,6 +99,9 @@ export default function genLocales() {
         next: 'Next',
         yes: 'Yes',
         no: 'No',
+        loading: 'Loading',
+        prevMonth: 'Previous Month',
+        nextMonth: 'Next Month',
       },
       es: {
         name: 'nombre',
@@ -116,6 +119,9 @@ export default function genLocales() {
         next: 'Próximo',
         yes: 'Sí',
         no: 'No',
+        loading: 'Cargando',
+        prevMonth: 'Mes anterior',
+        nextMonth: 'Próximo mes',
       },
     },
     navbar: {
@@ -211,9 +217,13 @@ export default function genLocales() {
     home: {
       en: {
         tripButton: 'Start Trip',
+        tripName: 'Trip Name',
+        saveFavorite: 'Save as Favorite',
       },
       es: {
         tripButton: 'Comenzar Viaje',
+        tripName: 'Nombre del Viaje',
+        saveFavorite: 'Guardar como Favorito',
       },
     },
     map: {
@@ -565,10 +575,16 @@ export default function genLocales() {
       en: {
         title: 'Trip Activity',
         upcoming: 'Upcoming',
+        addFavorite: 'Add to Favorites',
+        removeFavorite: 'Remove from Favorites',
+        viewDetails: 'View Trip Details',
       },
       es: {
         title: 'Actividad del Viaje',
         upcoming: 'Próximos',
+        addFavorite: 'Agregar a favoritos',
+        removeFavorite: 'Eliminar de favoritos',
+        viewDetails: 'Ver detalles del viaje',
       },
     },
   };
