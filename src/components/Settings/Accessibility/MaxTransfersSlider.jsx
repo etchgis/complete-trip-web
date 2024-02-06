@@ -14,6 +14,7 @@ import { FaExchangeAlt } from 'react-icons/fa';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../../context/RootStore.jsx';
+import useTranslation from '../../../models/useTranslation';
 
 const MaxTransfersSlider = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -22,11 +23,16 @@ const MaxTransfersSlider = observer(() => {
   const [maxTransfers, setMaxTransfers] = useState(
     preferences?.maxTransfers === 0 ? 0 : preferences?.maxTransfers || 4
   );
-
+  const { t } = useTranslation();
   return (
     <FormControl>
-      <FormLabel display={'flex'} justifyContent="space-between">
-        Maximum Transfers <span>{maxTransfers}</span>
+      <FormLabel
+        display={'flex'}
+        justifyContent="space-between"
+        id="maxTransfers"
+        label={t('settingsPreferences.maximumTransfers')}
+      >
+        {t('settingsPreferences.maximumTransfers')} <span>{maxTransfers}</span>
       </FormLabel>
       <SliderThumbWithTooltipLength
         action={e => {
@@ -48,9 +54,9 @@ const MaxTransfersSlider = observer(() => {
 function SliderThumbWithTooltipLength({ action, initialValue }) {
   const [sliderValue, setSliderValue] = useState(initialValue);
   const [showTooltip, setShowTooltip] = useState(false);
+  const { t } = useTranslation();
   return (
     <Slider
-      id="slider"
       defaultValue={initialValue}
       min={0}
       max={8}
@@ -80,9 +86,9 @@ function SliderThumbWithTooltipLength({ action, initialValue }) {
         color="white"
         placement="top"
         isOpen={showTooltip}
-        label={`${sliderValue} transfers`}
+        label={`${sliderValue} ${t('settingsPreferences.transfers')}`}
       >
-        <SliderThumb boxSize={6}>
+        <SliderThumb boxSize={6} aria-aria-labelledby="maxTransfers">
           <Box color="brand" as={FaExchangeAlt} />
         </SliderThumb>
       </Tooltip>

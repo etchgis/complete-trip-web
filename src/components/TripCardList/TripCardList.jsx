@@ -16,11 +16,13 @@ import { ArrowForwardIcon } from '@chakra-ui/icons';
 import TripFavModal from '../TripFavModal';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
+import translator from '../../models/translator';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
 export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
+  const { t } = translator;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode } = useColorMode();
   const [tripId, setTripId] = useState(null);
@@ -63,6 +65,11 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
             const endAlias =
               locations.find(l => l.id === trip.plan.request.destination?.id)
                 ?.alias || null;
+            const tripMonth =
+              new Date(trip.plan.startTime)
+                .toLocaleString('en-US', { month: 'short' })
+                .match(/\b\w{3}\b/)[0]
+                .toLowerCase() + 'Abr';
             return (
               <StatGroup
                 key={trip.id}
@@ -74,12 +81,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                 flexDir={{ base: 'column', sm: 'row' }}
               >
                 <Stat flex={0} pr={10}>
-                  <StatLabel>
-                    {new Date(trip.plan.startTime)
-                      .toLocaleString('en-US', { month: 'short' })
-                      .match(/\b\w{3}\b/)[0]
-                      .toUpperCase()}
-                  </StatLabel>
+                  <StatLabel>{t(`time.${tripMonth}`).toUpperCase()}</StatLabel>
                   <StatNumber>
                     {new Date(trip.plan.startTime).getDate()}
                   </StatNumber>

@@ -16,10 +16,12 @@ import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const ProfileInformation = observer(({ action }) => {
   const { user, removeUser } = useStore().authentication;
   const { setInTransaction } = useStore().authentication;
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   /**
@@ -38,41 +40,34 @@ export const ProfileInformation = observer(({ action }) => {
       return false;
     }
   }
-
   return (
     <Stack p={4}>
       <Avatar size="xl" mb={4}></Avatar>
       <Box fontWeight="bold" fontSize="sm" as="p">
-        NAME
+        {t('global.name').toUpperCase()}
       </Box>
-      <Box as="p">
+      <Text>
         {user?.profile?.firstName} {user?.profile?.lastName}
-      </Box>
-      <Box as="p">{user?.email}</Box>
-      <Box as="p">
-        {' '}
-        {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}
-      </Box>
+      </Text>
+      <Text>{user?.email}</Text>
+      <Text> {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}</Text>
       <Box p={4}></Box>
-      <Box as="p">
-        <Box pb={4}>{user?.profile?.address?.text}</Box>
-        {/* <Box pb={4}>Columbus OH, 00000</Box> */}
-      </Box>
+
+      <Text pb={4}>{user?.profile?.address?.text}</Text>
+      {/* <Box pb={4}>Columbus OH, 00000</Box> */}
 
       <Stack spacing={4} direction={{ base: 'column', md: 'row' }}>
         <Button variant={'brand'} onClick={action} maxWidth={'200px'}>
-          Edit Profile
+          {t('settingsProfile.editProfile')}
         </Button>
 
         <ConfirmDialog
           maxWidth={'200px'}
           confirmFn={deleteFn}
-          buttonText={'Delete Account'}
-          verifyText={'Delete my account'}
+          buttonText={t('settingsProfile.deleteAccount')}
+          verifyText={t('settingsProfile.deleteMyAccount')}
           verifyMessage={"Type 'DELETE MY ACCOUNT'"}
-          message={
-            'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.'
-          }
+          message={t('settingsProfile.confirmDeleteMessage')}
         />
       </Stack>
       {/* <FavoritesList /> */}
@@ -87,6 +82,7 @@ export const FavoritesList = observer(() => {
     useStore().favorites;
   // console.log(favoriteTrips);
   // console.log(favoriteLocations);
+  const { t } = useTranslation();
   return (
     <Box maxW={{ base: '100%', md: 'md' }}>
       <Box py={6}>
@@ -95,10 +91,10 @@ export const FavoritesList = observer(() => {
       <Stack spacing={4}>
         {favoriteTrips.length ? (
           <Heading as="h3" size="md">
-            Favorite Trips
+            {t('settingsFavorites.favorites')}
           </Heading>
         ) : (
-          <Text opacity={0.8}>No favorite Trips found.</Text>
+          <Text opacity={0.8}>{t('settingsFavorites.noFavorites')}</Text>
         )}
         {favoriteTrips.map((f, i) => {
           return (
@@ -118,7 +114,7 @@ export const FavoritesList = observer(() => {
       <Stack spacing={4}>
         {favoriteLocations.length ? (
           <Heading as="h3" size="md">
-            Favorite Locations
+            {t('settingsFavorites.locations')}
           </Heading>
         ) : (
           <Text opacity={0.8}>No Saved Locations Found</Text>
@@ -140,6 +136,7 @@ export const FavoritesList = observer(() => {
 const FavoriteCard = ({ id, title, description, type }) => {
   const { colorMode } = useColorMode();
   const { removeTrip, removeLocation } = useStore().favorites;
+  const { t } = useTranslation();
   return (
     <Stack
       data-id={id}
@@ -169,7 +166,7 @@ const FavoriteCard = ({ id, title, description, type }) => {
           else removeLocation(id);
         }}
         icon={<DeleteIcon />}
-        aria-label="Remove Favorite"
+        aria-label={t('settingsFavorites.delete')}
       />
     </Stack>
   );

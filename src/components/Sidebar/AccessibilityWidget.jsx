@@ -19,18 +19,19 @@ import { FaUniversalAccess } from 'react-icons/fa';
 import FocusLock from 'react-focus-lock';
 import { useRef } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 const AccessibilityWidget = ({ showTitle }) => {
   const ref = useRef();
   const { setUI } = useStore().uiStore;
-
+  const { t } = useTranslation();
   return (
     <Box>
       <Popover placement={showTitle ? 'bottom' : 'right-end'}>
         <PopoverTrigger>
           <Button
             className="icon-button"
-            aria-label="Accessibility Settings"
+            aria-label={t('sidebar.accessibility')}
             variant={'ghost'}
             width="100%"
             color="brand"
@@ -47,7 +48,7 @@ const AccessibilityWidget = ({ showTitle }) => {
               />
             }
           >
-            {showTitle && 'Accessibility'}
+            {showTitle && t('sidebar.accessibility')}
           </Button>
         </PopoverTrigger>
         <PopoverContent boxShadow="xl">
@@ -56,13 +57,15 @@ const AccessibilityWidget = ({ showTitle }) => {
           <PopoverCloseButton fontSize={'16px'} m={1} />
           <PopoverHeader>
             <Heading as="h3" size="md" margin="0.5">
-              Settings
+              {t('ariaWidget.settings')}
             </Heading>
           </PopoverHeader>
           <PopoverBody>
             <SimpleGrid columns={1} spacing={2}>
               <Heading as="h4" margin="0.5">
-                <Box style={{ fontSize: '16px' }}>Font Size (16px)</Box>
+                <Box style={{ fontSize: '16px' }}>
+                  {t('ariaWidget.fontSize')} (16px)
+                </Box>
               </Heading>
               <Button
                 variant={'outline'}
@@ -79,7 +82,7 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                Medium (18px)
+                {t('ariaWidget.medium')} (18px)
               </Button>
               <Button
                 variant={'outline'}
@@ -99,10 +102,10 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                Large (22px)
+                {t('ariaWidget.large')} (22px)
               </Button>
               <Heading as="h4" size="sm" margin="0.5">
-                Contrast
+                {t('ariaWidget.contrast')}
               </Heading>
               <Button
                 variant={'outline'}
@@ -119,11 +122,11 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                Contrast
+                {t('ariaWidget.contrast')}
               </Button>
 
               <Heading as="h4" size="sm" margin="0.5">
-                Letter Spacing
+                {t('ariaWidget.letterSpacing')}
               </Heading>
               <Button
                 variant={'outline'}
@@ -140,8 +143,8 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                <Box letterSpacing={'0.1rem'}>Expanded</Box>
-                <Box letterSpacing={'inherit'}>/Normal</Box>
+                <Box letterSpacing={'0.1rem'}>{t('ariaWidget.expanded')}</Box>
+                <Box letterSpacing={'inherit'}>/{t('ariaWidget.normal')}</Box>
               </Button>
 
               {/* <Heading as="h4" size="sm" margin="0.5">
@@ -167,7 +170,7 @@ const AccessibilityWidget = ({ showTitle }) => {
               </Button> */}
 
               <Heading as="h4" size="sm" margin="0.5">
-                Cursor Size
+                {t('ariaWidget.cursorSize')}
               </Heading>
               <Button
                 variant={'outline'}
@@ -184,7 +187,7 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                Larger Cursor Size
+                {t('ariaWidget.largeCursor')}
               </Button>
             </SimpleGrid>
           </PopoverBody>

@@ -10,12 +10,14 @@ import Settings from './Settings';
 import StyleGuide from './StyleGuide.jsx';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
+import translator from '../models/translator';
 import useDependentTripNotifier from '../hooks/useDependentNotifier';
 import useDependentTripSockets from '../hooks/useDependentTripSockets';
 import { useEffect } from 'react';
 import useNotifications from '../hooks/useNotifications';
 import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation.js';
 
 // import { toJS } from 'mobx';
 
@@ -29,6 +31,7 @@ export const Routes = observer(() => {
   }
   const { user, loggedIn, auth } = useStore().authentication;
   const { debug, setDebugMode } = useStore().uiStore;
+  const { ui, setUI } = useStore().uiStore;
 
   if (window && window.location) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -49,6 +52,7 @@ export const Routes = observer(() => {
         if (debug) console.log('[routes] checking for auth');
         try {
           await auth(); //any errors will be handled by auth()
+          setUI({ language: user?.profile?.preferences?.language || 'en' });
           if (user?.profile) {
             const _user = toJS(user);
             if (debug) console.log({ _user });
@@ -69,9 +73,14 @@ export const Routes = observer(() => {
   //---------------------NOTIFICATIONS---------------------
 
   //---------------------ACCESSIBILITY---------------------
-  const { ui } = useStore().uiStore;
+  const { configure } = useTranslation();
+
   useEffect(() => {
     console.log('{sidebar--aaa-widget} ui update');
+
+    translator.configure(ui?.language || 'en');
+    // configure(ui?.language || 'en');
+
     if (ui.contrast) {
       document.body.classList.add('contrast');
     } else {

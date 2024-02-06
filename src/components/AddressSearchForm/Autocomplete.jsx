@@ -14,11 +14,13 @@ import { useComboBox, useFilter } from 'react-aria';
 import { ListBox } from './ListBox';
 import { Popover } from './Popover';
 import { Search2Icon } from '@chakra-ui/icons';
+import translator from '../../models/translator';
 import { useComboBoxState } from 'react-stately';
 
 export { Item, Section } from 'react-stately';
 
 export const Autocomplete = props => {
+  const { t } = translator;
   let { contains } = useFilter({ sensitivity: 'base' });
   let state = useComboBoxState({
     ...props,
@@ -48,7 +50,7 @@ export const Autocomplete = props => {
       isRequired={props.required}
     >
       {props.label ? (
-        <FormLabel {...labelProps}>{props.label} </FormLabel>
+        <FormLabel {...labelProps}>{t('map.searchTitle')} </FormLabel>
       ) : null}
       <InputGroup>
         <InputLeftElement>

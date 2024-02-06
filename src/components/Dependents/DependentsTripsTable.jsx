@@ -19,6 +19,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const DependentsTripsTable = observer(
   ({ dependent, hideTitle, limit }) => {
@@ -81,17 +82,19 @@ export const DependentsTripsTable = observer(
       setSelectedTrip({});
       setActiveTripId(null);
     };
-
+    const { t } = useTranslation();
     //ACCORDION
     return (
       <>
         <Box>
           {!hideTitle && (
             <Heading as="h2" size="md">
-              Upcoming Dependent Trips
+              {t('settingsDependents.upcoming')}
             </Heading>
           )}
-          {!isLoading && !trips.length && <p>No trips found.</p>}
+          {!isLoading && !trips.length && (
+            <p>{t('settingsDependents.noTrips')}</p>
+          )}
           {!trips.length ? (
             ''
           ) : (

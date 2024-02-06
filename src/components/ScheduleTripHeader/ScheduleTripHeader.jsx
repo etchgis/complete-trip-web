@@ -3,11 +3,13 @@ import { Button, Flex, Icon, Stack, useDisclosure } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import ScheduleTripModal from '../ScheduleTripModal';
 import { observer } from 'mobx-react-lite';
+import translator from '../../models/translator';
 import { useColorMode } from '@chakra-ui/color-mode';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
 export const ScheduleTripHeader = observer(() => {
+  const { t } = translator;
   const { trips: favoriteTrips } = useStore().favorites;
   const { colorMode } = useColorMode();
   const [tripPlan, setTripPlan] = useState({});
@@ -42,7 +44,8 @@ export const ScheduleTripHeader = observer(() => {
           height={'80px'}
           m={2}
         >
-          Schedule a Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
+          {t('home.tripButton')}{' '}
+          <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
         </Button>
       </Flex>
 

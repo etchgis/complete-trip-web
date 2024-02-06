@@ -15,6 +15,7 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { observer } from 'mobx-react-lite';
+import translator from '../../models/translator';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 
@@ -23,20 +24,21 @@ export const Calendar = observer(() => {
   const [tabIndex, setTabIndex] = useState(new Date().getMonth() + 1);
   const { colorMode } = useColorMode();
   const { trips } = useStore().schedule;
+  const { t } = translator;
 
-  const FullMonths = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+  const months = [
+    'jan',
+    'feb',
+    'mar',
+    'apr',
+    'may',
+    'jun',
+    'jul',
+    'aug',
+    'sep',
+    'oct',
+    'nov',
+    'dec',
   ];
 
   // const Months = [
@@ -107,10 +109,10 @@ export const Calendar = observer(() => {
     ).getDay();
 
     // Generate table header with day abbreviations
-    const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const header = weekdays.map(weekday => (
       <Th key={weekday} textAlign={'center'} fontSize={'sm'}>
-        {weekday}
+        {t(`time.${weekday}`)}
       </Th>
     ));
 
@@ -174,7 +176,8 @@ export const Calendar = observer(() => {
         pr={3}
       >
         <Text fontWeight={'bold'}>
-          {FullMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+          {t(`time.${months[currentMonth.getMonth()]}`)}{' '}
+          {currentMonth.getFullYear()}
         </Text>
         <Flex>
           <IconButton

@@ -2,6 +2,7 @@ import { Autocomplete, Item } from './Autocomplete';
 
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
+import translator from '../../models/translator';
 import { useAsyncList } from 'react-stately';
 import { useEffect } from 'react';
 import { useState } from 'react';
@@ -21,7 +22,7 @@ export const SearchForm = observer(
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
-
+    const { t } = translator;
     // console.log({ address });
     useEffect(() => {
       if (saveAddress) saveAddress(address);
@@ -107,9 +108,9 @@ export const SearchForm = observer(
     return (
       <Autocomplete
         required={required || false}
+        placeholder={t('map.searchPlaceholder')}
         label={label}
         aria-label={label}
-        placeholder="Start typing an address..."
         items={list.items}
         inputValue={address}
         data-testid="address-search"

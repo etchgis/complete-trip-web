@@ -53,6 +53,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -345,7 +346,7 @@ const First = observer(({ setStep, trip }) => {
   //   console.log(locations?.start);
   //   console.log(toJS(favLocations));
   // }
-
+  const { t } = useTranslation();
   return (
     <Stack
       as="form"
@@ -376,7 +377,9 @@ const First = observer(({ setStep, trip }) => {
           {favLocations.find(f => f.id === locations?.start?.id) ? (
             <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
               <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
-              <Text fontWeight={'bold'}>Favorite Location</Text>
+              <Text fontWeight={'bold'}>
+                {t('settingsFavorites.locations')}
+              </Text>
             </Flex>
           ) : null}
           <Popover

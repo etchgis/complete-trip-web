@@ -10,6 +10,7 @@ import RadioCard from '../RadioCard.jsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../../context/RootStore.jsx';
+import useTranslation from '../../../models/useTranslation.js';
 
 const WheelchairToggle = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -18,27 +19,26 @@ const WheelchairToggle = observer(() => {
   const [wheelchair, setWheelchair] = useState(
     preferences?.wheelchair || false
   );
-
-  const wheelchairOptions = ['Yes', 'No'];
+  const wheelchairOptions = ['yes', 'no'];
 
   const { getRootProps: getWheelchairRoot, getRadioProps: getWheelchairProps } =
     useRadioGroup({
       name: 'Wheelchair',
-      defaultValue: wheelchair ? 'Yes' : 'No',
+      defaultValue: wheelchair ? 'yes' : 'no',
       onChange: e => {
-        setWheelchair(e === 'Yes' ? true : false);
+        setWheelchair(e === 'yes' ? true : false);
         updateUserProfile({
           ...user?.profile,
           preferences: {
             ...preferences,
-            wheelchair: e === 'Yes' ? true : false,
+            wheelchair: e === 'yes' ? true : false,
           },
         });
       },
     });
 
   const wheelchairGroup = getWheelchairRoot();
-
+  const { t } = useTranslation();
   return (
     <FormControl>
       <HStack
@@ -47,7 +47,7 @@ const WheelchairToggle = observer(() => {
         justifyContent="space-between"
       >
         <Box fontWeight={'bold'} as="p" fontSize={'md'}>
-          Wheelchair Accessibility
+          {t('settingsPreferences.wheelchair')}
         </Box>
         <Flex borderRadius={'md'} borderWidth="1px" overflow={'hidden'}>
           {wheelchairOptions.map(value => {

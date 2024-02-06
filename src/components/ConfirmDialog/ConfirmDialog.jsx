@@ -12,6 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
+import useTranslation from '../../models/useTranslation';
+
 export const ConfirmDialog = ({
   confirmFn,
   title,
@@ -36,6 +38,8 @@ export const ConfirmDialog = ({
     console.log('confirmed', confirmed);
     onClose();
   };
+
+  const { t } = useTranslation();
 
   return (
     <>
@@ -75,7 +79,7 @@ export const ConfirmDialog = ({
 
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
-                Cancel
+                {t('global.cancel')}
               </Button>
               <Button
                 variant={'error'}

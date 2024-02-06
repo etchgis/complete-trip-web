@@ -42,6 +42,7 @@ export const VerticalTripPlan = observer(
             flex={1}
             py={2}
             id="vertical-trip-plan-schedule-container"
+            tabIndex={0}
           >
             <TripPlanSchedule
               tripPlan={tripPlan}

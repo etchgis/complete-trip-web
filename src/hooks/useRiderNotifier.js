@@ -35,7 +35,7 @@ const useRiderNotifier = () => {
   useEffect(() => {
     if (!loggedIn) return;
     if (!riderTrips.length) {
-      console.log('{useRiderNotifier} checking for rider trips');
+      if (debug) console.log('{useRiderNotifier} checking for rider trips');
       (async () => {
         await hydrateRiderTrips();
       })();

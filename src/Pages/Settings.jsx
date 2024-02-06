@@ -28,6 +28,7 @@ import { EditTripPreferences } from '../components/Settings/EditTripPreferences'
 import { SettingsModal } from '../components/Settings/SettingsModal';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 const Settings = observer(({ view }) => {
   const navigate = useNavigate();
@@ -44,15 +45,17 @@ const Settings = observer(({ view }) => {
     if (!isOpen) setActivePanel(null);
   }, [isOpen]);
 
+  const { t } = useTranslation();
+
   const links = [
     {
-      title: 'Profile Information',
+      title: t('settingsMenu.profile'),
       path: 'profile',
       type: 'account',
       action: () => navigate('/settings/profile'),
     },
     {
-      title: 'Caregivers',
+      title: t('settingsMenu.caregivers'),
       path: 'caregivers',
       type: 'account',
       action: () => navigate('/settings/caregivers'),
@@ -65,65 +68,68 @@ const Settings = observer(({ view }) => {
     //   action: () => navigate('/settings/dependents'),
     // },
     {
-      title: 'Dependents',
+      title: t('settingsMenu.dependents'),
       path: 'dependents',
       type: 'account',
       hide: !dependents.length,
       action: () => navigate('/settings/dependents'),
     },
     {
-      title: 'Favorites',
+      title: t('settingsMenu.favorites'),
       path: 'favorites',
       type: 'account',
       action: () => navigate('/settings/favorites'),
     },
     {
-      title: 'Trip Preferences',
+      title: t('settingsMenu.tripPreferences'),
       path: 'preferences',
       type: 'account',
       action: () => navigate('/settings/preferences'),
     },
     {
-      title: 'Password',
+      title: t('settingsMenu.password'),
       path: 'password',
       type: 'setting',
       action: () => navigate('/settings/password'),
     },
     {
-      title: 'Accessibility',
+      title: t('settingsMenu.accessibility'),
       type: 'setting',
       action: () => navigate('/settings/accessibility'),
     },
     {
-      title: 'Notifications',
+      title: t('settingsMenu.notifications'),
       type: 'setting',
       action: () => navigate('/settings/notifications'),
     },
     {
-      title: 'Terms of Use',
+      title: t('settingsMenu.terms'),
       path: 'terms',
       type: 'setting',
       action: () => navigate('/settings/terms'),
     },
     {
-      title: 'Privacy Policy',
+      title: t('settingsMenu.privacy'),
       path: 'privacy',
       type: 'setting',
       action: () => navigate('/settings/privacy'),
     },
   ];
 
-  const settingsForms = [
+  const settingsPanels = [
     {
-      title: 'Edit Profile Information',
+      id: 'Edit Profile',
+      title: t('settingsProfile.editProfile'),
       el: <EditProfile onClose={onClose} />,
     },
     {
-      title: 'Remove Caregiver',
+      id: 'Remove Caregiver',
+      title: t('settingsCaregivers.removeCaregiver'),
       el: <AddCaregiver id={caretakerId} onClose={onClose} />,
     },
     {
-      title: 'Add Caregiver',
+      id: 'Add Caregiver',
+      title: t('settingsCaregivers.addCaregiver'),
       el: <AddCaregiver onClose={onClose} />,
     },
     {
@@ -154,7 +160,7 @@ const Settings = observer(({ view }) => {
         >
           <Stack spacing={4}>
             <Heading as="h2" size="sm" pt={8} px={8} ml={1}>
-              ACCOUNT
+              {t('settingsMenu.account').toUpperCase()}
             </Heading>
             {links.map((l, i) => {
               l['id'] = i;
@@ -165,7 +171,7 @@ const Settings = observer(({ view }) => {
               }
             })}
             <Heading as="h2" size="sm" px={8} ml={2}>
-              SETTINGS
+              {t('settingsMenu.settings').toUpperCase()}
             </Heading>
             {links.map((l, i) => {
               l['id'] = i;
@@ -194,7 +200,9 @@ const Settings = observer(({ view }) => {
         title={activePanel}
         children={
           activePanel
-            ? settingsForms.find(l => l.title === activePanel)?.el
+            ? settingsPanels.find(
+                l => l.title === activePanel || l?.id === activePanel
+              )?.el
             : ''
         }
       />
@@ -238,7 +246,7 @@ function switchViews({ view, setActivePanel }) {
     default:
       return (
         <ProfileInformation
-          action={() => setActivePanel('Edit Profile Information')}
+          action={() => setActivePanel('Edit Profile')}
         ></ProfileInformation>
       );
   }

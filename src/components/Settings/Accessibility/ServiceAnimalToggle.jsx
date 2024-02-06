@@ -10,6 +10,7 @@ import RadioCard from '../RadioCard.jsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../../context/RootStore.jsx';
+import useTranslation from '../../../models/useTranslation.js';
 
 const ServiceAnimalToggle = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -40,7 +41,7 @@ const ServiceAnimalToggle = observer(() => {
   });
 
   const serviceAnimalGroup = getServiceAnimalRoot();
-
+  const { t } = useTranslation();
   return (
     <FormControl>
       <HStack
@@ -49,7 +50,7 @@ const ServiceAnimalToggle = observer(() => {
         justifyContent="space-between"
       >
         <Box fontWeight={'bold'} as="p" fontSize={'md'}>
-          Service Animal
+          {t('settingsPreferences.serviceAnimal')}
         </Box>
         <Flex borderRadius={'md'} borderWidth="1px" overflow={'hidden'}>
           {serviceAnimalOptions.map(value => {

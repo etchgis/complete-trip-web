@@ -19,6 +19,7 @@ import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const ResponsiveSidebar = ({
   isOpen,
@@ -74,8 +75,9 @@ export const ResponsiveSidebar = ({
 const NavIconButton = ({ icon, label, navItem, onClick, ...rest }) => {
   const { colorMode } = useColorMode();
   const { pathname: location } = useLocation();
+  const { t } = useTranslation();
   return (
-    <Tooltip label={label}>
+    <Tooltip label={t(`sidebar.${label.toLowerCase()}`)}>
       <IconButton
         className="icon-button"
         aria-label={label}
@@ -114,7 +116,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
         {loggedIn || testUser?.loggedIn ? (
           <>
             <NavIconButton
-              label={'Home'}
+              label={'home'}
               icon={<BiHomeAlt />}
               navItem={'/home'}
               onClick={() => {
@@ -123,7 +125,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
               }}
             />
             <NavIconButton
-              label={'Trips'}
+              label={'trips'}
               icon={<CgCalendarToday />}
               navItem={'/trips'}
               onClick={() => {
@@ -136,7 +138,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
           ''
         )}
         <NavIconButton
-          label={'Map'}
+          label={'map'}
           icon={<BiMapAlt />}
           navItem={'/map'}
           onClick={() => {
@@ -146,7 +148,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
         />
         {loggedIn || testUser?.loggedIn ? (
           <NavIconButton
-            label={'Profile and Settings'}
+            label={'profile'}
             icon={<BsPerson />}
             navItem={'/settings'}
             onClick={() => {
@@ -169,6 +171,7 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const { pathname: location } = useLocation();
+  const { t } = useTranslation();
   return (
     <Flex flexDir={'column'} {...rest} p={4}>
       <CloseButton
@@ -197,7 +200,7 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             return navigate('/home');
           }}
         >
-          Home
+          {t(`sidebar.home`)}
         </Button>
         <Button
           leftIcon={<CgCalendarToday />}
@@ -218,7 +221,7 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             return navigate('/trips');
           }}
         >
-          Trips
+          {t(`sidebar.trips`)}
         </Button>
 
         <Button
@@ -240,7 +243,7 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             return navigate('/map');
           }}
         >
-          Map
+          {t(`sidebar.map`)}
         </Button>
         {loggedIn || testUser?.loggedIn ? (
           <Button
@@ -262,7 +265,7 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               return navigate('/settings/profile');
             }}
           >
-            Profile and Settings
+            {t(`sidebar.profile`)}
           </Button>
         ) : (
           ''

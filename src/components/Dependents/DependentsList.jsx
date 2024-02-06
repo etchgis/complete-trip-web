@@ -30,6 +30,7 @@ import { DependentsTripsTable } from './DependentsTripsTable';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const DependentsList = observer(() => {
   const { colorMode } = useColorMode();
@@ -70,11 +71,11 @@ export const DependentsList = observer(() => {
   const sortedDependents = toJS(dependents).sort((a, b) =>
     a.firstName.localeCompare(b.firstName)
   );
-
+  const { t } = useTranslation();
   return (
     <Box>
       <Heading as="h2" size="md">
-        Dependents List
+        {t('settingsDependents.list')}
       </Heading>
       <Box
         border="solid thin lightgray"

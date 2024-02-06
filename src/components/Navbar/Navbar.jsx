@@ -11,12 +11,24 @@ import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
 
 import { ColorModeSwitcher } from '../ColorModeSwitcher/ColorModeSwitcher';
 import { observer } from 'mobx-react-lite';
+import translator from '../../models/translator';
+import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
 
 // import logo from '../../assets/images/logo.png';
 
 export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
-  const { loggedIn, logout, loggingIn } = useStore().authentication;
+  const { loggedIn, logout, loggingIn, user } = useStore().authentication;
+  const { t } = translator;
+
+  //NOTE this forces the language to be set on the navbar
+  useEffect(() => {
+    console.log(
+      '[navbar]: language:',
+      user?.profile?.preferences?.language.toString()
+    );
+  }, [user?.profile?.preferences]);
+
   return (
     <Flex
       //BUG too dark
@@ -66,7 +78,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
             // loadingText={'Logging In'}
             onClick={e => (loggedIn ? logout() : action1(e))}
           >
-            {loggedIn ? 'Logout' : 'Login/Sign Up'}
+            {loggedIn ? t('navbar.logout') : t('navbar.loginSignUp')}
           </Button>
 
           {/* <Button

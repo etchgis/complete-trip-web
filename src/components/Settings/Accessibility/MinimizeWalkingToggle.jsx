@@ -10,6 +10,7 @@ import RadioCard from '../RadioCard.jsx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../../context/RootStore.jsx';
+import useTranslation from '../../../models/useTranslation.js';
 
 const MinimizeWalkingToggle = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -37,12 +38,12 @@ const MinimizeWalkingToggle = observer(() => {
   });
 
   const radioGroup = getRootProps();
-
+  const { t } = useTranslation();
   return (
     <FormControl>
       <HStack {...radioGroup} display={'flex'} justifyContent="space-between">
         <Box fontWeight={'bold'} as="p" fontSize={'md'}>
-          Minimize Walking
+          {t('settingsPreferences.minimizeWalking')}
         </Box>
         <Flex borderRadius={'md'} borderWidth="1px" overflow={'hidden'}>
           {options.map(value => {

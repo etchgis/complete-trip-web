@@ -16,6 +16,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation.js';
 
 export const EditTripPreferences = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -44,7 +45,7 @@ export const EditTripPreferences = observer(() => {
       });
     }
   };
-
+  const { t } = useTranslation();
   return (
     <Stack spacing={4} maxW="xl">
       <WheelchairToggle />
@@ -55,7 +56,7 @@ export const EditTripPreferences = observer(() => {
       <Divider />
 
       <FormControl>
-        <FormLabel>Preferred Mode(s) of Transportation</FormLabel>
+        <FormLabel>{t('settingsPreferences.modes')}</FormLabel>
         <Stack>
           {/* <Checkbox name="mode_bus">Bus</Checkbox>
           <Checkbox name="mode_light_rail">Light Rail</Checkbox>
@@ -74,7 +75,7 @@ export const EditTripPreferences = observer(() => {
                 isChecked={modes.includes(mode.mode)}
                 onChange={handleModeChange}
               >
-                {mode.label}
+                {t(`settingsPreferences.${mode?.id}`)}
               </Checkbox>
             );
           })}

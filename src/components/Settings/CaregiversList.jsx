@@ -16,6 +16,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const CaregiversList = observer(({ action }) => {
   const { caregivers, hydrate } = useStore().caregivers;
@@ -26,6 +27,8 @@ export const CaregiversList = observer(({ action }) => {
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  const { t } = useTranslation();
 
   return (
     <>
@@ -52,7 +55,7 @@ export const CaregiversList = observer(({ action }) => {
         leftIcon={<AddIcon />}
         onClick={() => action(null)}
       >
-        Invite Caregiver
+        {t('settingsCaregivers.inviteCaregiver')}
       </Button>
     </>
   );

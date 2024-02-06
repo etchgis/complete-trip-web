@@ -12,6 +12,7 @@ import {
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const EditAppNotifications = observer(() => {
   //get caregivers
@@ -19,6 +20,7 @@ export const EditAppNotifications = observer(() => {
   //loop through notificationTypes for caregiver
   const { preferences } = useStore();
   const { dependents } = useStore().caregivers;
+  const { t } = useTranslation();
 
   const handleTypeChange = (e, types) => {
     if (e.target.checked) {
@@ -32,14 +34,14 @@ export const EditAppNotifications = observer(() => {
   return (
     <Box width={{ base: '100%' }} maxW="500px">
       <Flex justifyContent={'space-between'}>
-        <p>Notification Preference Type</p>
-        <p>Settings</p>
+        <p>{t('settingsNotifications.type')}</p>
+        <p>{t('settingsNotifications.settings')}</p>
       </Flex>
       <Box py={6}>
         <Divider />
       </Box>
       <Heading as="h3" size="md">
-        Rider Notification Alerts
+        {t('settingsNotifications.rider')}
       </Heading>
       <Stack spacing={2}>
         {config.NOTIFICATION_TYPES.traveler.map((n, i) => {
@@ -75,7 +77,7 @@ export const EditAppNotifications = observer(() => {
             <Divider />
           </Box>
           <Heading as="h3" size="md">
-            Caregiver Notification Alerts
+            {t('settingsNotifications.caregiverAlerts')}
           </Heading>
           <Stack spacing={2}>
             {config.NOTIFICATION_TYPES.caregiver.map((n, i) => {
@@ -93,7 +95,7 @@ export const EditAppNotifications = observer(() => {
                   justifyContent={'space-between'}
                 >
                   <FormLabel htmlFor={`${n.value}Alerts`} fontWeight={400}>
-                    {n.label}
+                    {t(`settingsNotifications.${n.value}`)}
                   </FormLabel>
                   <Switch
                     name={`${n.value}Alerts`}

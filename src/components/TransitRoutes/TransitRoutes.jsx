@@ -18,6 +18,7 @@ import formatters from '../../utils/formatters';
 import moment from 'moment';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
+import translator from '../../models/translator';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 
@@ -532,6 +533,7 @@ const RouteList = observer(({ routeClickHandler }) => {
   const { routes, stoptimes } = useStore().mapStore.mapState;
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
+  const { t } = translator;
 
   const timeToDuration = timestamp => {
     let diff = timestamp - Date.now();
@@ -622,9 +624,9 @@ const RouteList = observer(({ routeClickHandler }) => {
                         </Box>
                         <Box style={{ textAlign: 'right' }}>
                           {r?.route?.arriveNext
-                            ? `Next ${moment(r.route.arriveNext).format(
-                                'h:mm A'
-                              )}`
+                            ? `${t('global.next')} ${moment(
+                                r.route.arriveNext
+                              ).format('h:mm A')}`
                             : ''}
                         </Box>
                       </Flex>
@@ -645,7 +647,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                         )}
                         {r?.location && (
                           <span style={{ textAlign: 'left' }}>
-                            Stop{' '}
+                            {t('routeList.stop')}{' '}
                             <span
                               style={{
                                 color: `#${r.color || '004490'}`,

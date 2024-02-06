@@ -10,12 +10,13 @@ import {
 
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const AddCaregiver = ({ onClose }) => {
   const { invite, hydrate } = useStore().caregivers;
   const [changed, setChanged] = useState(false);
   const { setErrorToastMessage } = useStore().authentication;
-
+  const { t } = useTranslation();
   return (
     <Box
       as="form"
@@ -51,20 +52,20 @@ export const AddCaregiver = ({ onClose }) => {
       <Stack spacing={4}>
         <HStack>
           <FormControl isRequired>
-            <FormLabel>First Name</FormLabel>
+            <FormLabel>{t('global.firstName')}</FormLabel>
             <Input type="text" name="caregiverFirstName" isRequired />
           </FormControl>
           <FormControl isRequired>
-            <FormLabel>Last Name</FormLabel>
+            <FormLabel>{t('global.lastName')}</FormLabel>
             <Input type="text" name="caregiverLastName" isRequired />
           </FormControl>
         </HStack>
         <FormControl isRequired>
-          <FormLabel>Email</FormLabel>
+          <FormLabel>{t('global.email')}</FormLabel>
           <Input type="email" name="caregiverEmail" isRequired />
         </FormControl>
         <Button variant={'brand'} isDisabled={!changed} type="submit" mt={6}>
-          Send Invite
+          {t('settingsCaregivers.inviteCaregiver')}
         </Button>
       </Stack>
     </Box>

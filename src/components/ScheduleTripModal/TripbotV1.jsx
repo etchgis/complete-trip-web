@@ -13,7 +13,7 @@ import { useStore } from '../../context/RootStore';
 //208 Hayes Rd, Buffalo, NY 14260
 //swan st diner
 
-const url = 'https://staging.lambda.etch.app/assistant/v2/chat';
+const url = 'https://staging.lambda.etch.app/assistant/chat';
 const key = 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi';
 
 //token is the user's access token
@@ -32,7 +32,6 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       user: '',
     },
   ]);
-  const [chatState, setChatState] = useState({});
   const { accessToken } = useStore().authentication;
 
   useEffect(() => {
@@ -78,7 +77,6 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
           lat: config.MAP.CENTER[0],
           lng: config.MAP.CENTER[1],
         },
-        state: chatState,
       };
       if (chat.length === 1) {
         body.shouldReset = true;
@@ -101,7 +99,6 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     }
   };
 
-  //TODO the bot is not sending back a trip plan in the response
   const selectTrip = async (stagedTrip, tripResponse) => {
     console.log('[tripbot] selecting trip \n', { tripResponse });
     if (
@@ -162,11 +159,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     const response = await fetchChat(input, accessToken);
     console.log('[tripbot]', { response });
 
-    if (
-      !response ||
-      !response?.response ||
-      !response?.response?.state?.assistantAnswer
-    ) {
+    if (!response || !response?.response) {
       setIsThinking(false);
       if (errors > 2) {
         setChat(state => [
@@ -209,12 +202,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       }
       return;
     } else {
-      //TODO this could be optimized into one state but this will work for now
-      setChat(state => [
-        ...state,
-        { bot: response.response?.state?.assistantAnswer, user: '' },
-      ]);
-      setChatState(() => ({ ...response.response?.state }));
+      setChat(state => [...state, { bot: response.response, user: '' }]);
     }
   };
 
