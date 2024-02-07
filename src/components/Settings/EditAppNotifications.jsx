@@ -59,9 +59,10 @@ export const EditAppNotifications = observer(() => {
               justifyContent={'space-between'}
             >
               <FormLabel htmlFor={`${n.value}Alerts`} fontWeight={400}>
-                {n.label}
+                {t('settingsNotifications.' + n.value)}
               </FormLabel>
               <Switch
+                id={`${n.value}Alerts`}
                 name={`${n.value}Alerts`}
                 onChange={e => handleTypeChange(e, n.types)}
                 value={n.value}
@@ -98,6 +99,7 @@ export const EditAppNotifications = observer(() => {
                     {t(`settingsNotifications.${n.value}`)}
                   </FormLabel>
                   <Switch
+                    id={`${n.value}Alerts`}
                     name={`${n.value}Alerts`}
                     onChange={e => handleTypeChange(e, n.types)}
                     value={n.value}

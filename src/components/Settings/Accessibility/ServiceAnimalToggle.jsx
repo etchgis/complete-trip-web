@@ -56,7 +56,11 @@ const ServiceAnimalToggle = observer(() => {
           {serviceAnimalOptions.map(value => {
             const radio = getServiceAnimalProps({ value });
             return (
-              <RadioCard key={value} {...radio}>
+              <RadioCard
+                key={value}
+                {...radio}
+                label={t('settingsPreferences.serviceAnimal')}
+              >
                 {value}
               </RadioCard>
             );

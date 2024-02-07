@@ -25,7 +25,7 @@ const MaxTransfersSlider = observer(() => {
   );
   const { t } = useTranslation();
   return (
-    <FormControl>
+    <FormControl maxW="95%">
       <FormLabel
         display={'flex'}
         justifyContent="space-between"
@@ -65,8 +65,9 @@ function SliderThumbWithTooltipLength({ action, initialValue }) {
       onChangeEnd={action}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
-      mt={2}
+      mt={4}
       mb={4}
+      aria-label={t('settingsPreferences.maximumTransfers')}
     >
       <SliderMark value={2} mt={3} ml="-1" fontSize="sm">
         2
@@ -77,21 +78,32 @@ function SliderThumbWithTooltipLength({ action, initialValue }) {
       <SliderMark value={6} mt={3} ml="-1" fontSize="sm">
         6
       </SliderMark>
+      <SliderMark
+        value={sliderValue}
+        textAlign="center"
+        fontSize={'sm'}
+        bg="brand"
+        color="white"
+        mt="-2.6rem"
+        ml="-70px"
+        w="140px"
+        padding={'0.25rem 0.5rem'}
+        borderRadius={'sm'}
+        display={showTooltip ? 'block' : 'none'}
+      >
+        {sliderValue} {t('settingsPreferences.transfers')}
+      </SliderMark>
       <SliderTrack>
         <SliderFilledTrack />
       </SliderTrack>
-      <Tooltip
-        hasArrow
-        bg="brandDark"
-        color="white"
-        placement="top"
-        isOpen={showTooltip}
-        label={`${sliderValue} ${t('settingsPreferences.transfers')}`}
+
+      <SliderThumb
+        boxSize={6}
+        aria-aria-labelledby="maxTransfers"
+        position={'relative'}
       >
-        <SliderThumb boxSize={6} aria-aria-labelledby="maxTransfers">
-          <Box color="brand" as={FaExchangeAlt} />
-        </SliderThumb>
-      </Tooltip>
+        <Box color="brand" as={FaExchangeAlt} position={'relative'} />
+      </SliderThumb>
     </Slider>
   );
 }

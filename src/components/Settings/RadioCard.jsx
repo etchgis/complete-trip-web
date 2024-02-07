@@ -11,7 +11,7 @@ function RadioCard(props) {
 
   return (
     <Box as="label">
-      <input {...input} aria-label={input.value} />
+      <input {...input} aria-label={props?.label + ' ' + input.value} />
       <Box
         {...checkbox}
         cursor="pointer"

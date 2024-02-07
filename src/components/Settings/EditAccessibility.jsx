@@ -140,6 +140,7 @@ const EditNotifyMethods = observer(() => {
             {t(`settingsAccessibility.${method.value.toLowerCase()}`)}
           </FormLabel>
           <Switch
+            id={`${method.value}Alerts`}
             name={`${method.value}Alerts`}
             onChange={handleAlertChange}
             value={method.value}

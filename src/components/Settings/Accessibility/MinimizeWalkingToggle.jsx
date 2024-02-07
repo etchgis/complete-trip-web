@@ -49,7 +49,11 @@ const MinimizeWalkingToggle = observer(() => {
           {options.map(value => {
             const radioProps = getRadioProps({ value });
             return (
-              <RadioCard key={value} {...radioProps}>
+              <RadioCard
+                key={value}
+                {...radioProps}
+                label={t('settingsPreferences.minimizeWalking')}
+              >
                 {value}
               </RadioCard>
             );

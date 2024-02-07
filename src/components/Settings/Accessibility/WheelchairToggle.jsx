@@ -53,7 +53,11 @@ const WheelchairToggle = observer(() => {
           {wheelchairOptions.map(value => {
             const radio = getWheelchairProps({ value });
             return (
-              <RadioCard key={value} {...radio}>
+              <RadioCard
+                key={value}
+                {...radio}
+                label={t('settingsPreferences.wheelchair')}
+              >
                 {value}
               </RadioCard>
             );
