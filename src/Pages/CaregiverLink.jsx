@@ -16,6 +16,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 const CaregiverLink = observer(() => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const CaregiverLink = observer(() => {
   } = useStore().caregivers;
   const { user, loggedIn, inTransaction } = useStore().authentication;
   const { isLoading, setToastMessage, setToastStatus } = useStore().uiStore;
+  const { t } = useTranslation();
 
   useEffect(() => {
     // console.log('render', searchParams.get('code'), inviteCode);
@@ -85,7 +87,7 @@ const CaregiverLink = observer(() => {
       setToastStatus('Error');
       if (error?.message === 'invalid') {
         setInviteCode(null);
-        setToastMessage('Invalid caregiver.');
+        setToastMessage(t('settingsCaregiver.invalidCaregiver'));
         navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
         setToastMessage('An error occurred with the request.');
@@ -97,6 +99,10 @@ const CaregiverLink = observer(() => {
     console.log('[caregiver-link] - loginHandler');
     setSearchParams({ login: true, invited: true });
   };
+
+  const name = stagedDependent?.firstName
+    ? `for ${stagedDependent?.firstName} ${stagedDependent?.lastName}`
+    : '.';
 
   return (
     <Modal
@@ -121,40 +127,26 @@ const CaregiverLink = observer(() => {
                 <></>
               ) : loggedIn ? (
                 <Box>
-                  <Text>
-                    You have been requested to be a caregiver
-                    {stagedDependent?.firstName ? ' for' : '.'}
-                    {stagedDependent?.firstName && (
-                      <span style={{ fontWeight: 'bold' }}>
-                        {' '}
-                        {stagedDependent?.firstName} {stagedDependent?.lastName}
-                        .
-                      </span>
-                    )}{' '}
-                    Do you want to accept it?
-                  </Text>
+                  <Text>{t('settingsCaregiver.linkMessage', { name })}</Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button
                       colorScheme="facebook"
                       onClick={() => updateHandler('approved')}
                     >
-                      Accept Request
+                      {t('settingsCaregiver.acceptRequest')}
                     </Button>
                     <Button
                       colorScheme="red"
                       onClick={() => updateHandler('denied')}
                     >
-                      Deny Request
+                      {t('settingsCaregiver.denyRequest')}
                     </Button>
                   </Stack>
                 </Box>
               ) : (
                 <Box>
                   <Text textAlign={'justify'}>
-                    You have been requested to be a caregiver for All Access
-                    App. Please login to view the request. If you do not have an
-                    account, please register and you can review the request once
-                    you complete the registration.
+                    {t('settingsCaregiver.linkMessageNoAccount')}
                   </Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button
@@ -162,14 +154,14 @@ const CaregiverLink = observer(() => {
                       onClick={loginHandler}
                       width="100%"
                     >
-                      Login
+                      {t('loginWizard.login')}
                     </Button>
                     <Button
                       variant={'brand-outline'}
                       onClick={loginHandler}
                       width="100%"
                     >
-                      Register
+                      {t('loginWizard.register')}
                     </Button>
                   </Stack>
                 </Box>

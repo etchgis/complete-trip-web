@@ -22,6 +22,7 @@ import { observer } from 'mobx-react-lite';
 import { theme } from '../../theme';
 // import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
 
@@ -226,6 +227,7 @@ export const TripPlanSchedule = observer(
     // console.log(toJS(plan));
     // console.log(toJS(request));
     const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
+    const { t } = useTranslation();
 
     useEffect(() => {
       // console.log('activeLegIndex', activeLegIndex);
@@ -254,7 +256,7 @@ export const TripPlanSchedule = observer(
               borderRadius="md"
             >
               <Box textAlign="center">
-                <Text fontSize={'sm'}>Leave</Text>
+                <Text fontSize={'sm'}>{t('tripWizard.leave')}</Text>
                 <Box>
                   {formatters.datetime
                     .asHMA(new Date(plan?.startTime))
@@ -279,7 +281,7 @@ export const TripPlanSchedule = observer(
               </Flex>
 
               <Box textAlign="center" mx={2}>
-                <Text fontSize={'sm'}>Arrive</Text>
+                <Text fontSize={'sm'}>{t('tripWizard.arrive')}</Text>
                 <Box>
                   {formatters.datetime
                     .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
@@ -316,7 +318,10 @@ export const TripPlanSchedule = observer(
               <Icon as={RxDotFilled} fontSize={'lg'} />
               <Text fontSize={'sm'}>
                 {plan.transfers +
-                  (plan.transfers === 1 ? ' transfer' : ' transfers')}
+                  ' ' +
+                  (plan.transfers === 1
+                    ? t('tripWizard.transfer')
+                    : t('tripWizard.transfer') + 's')}
               </Text>
             </Flex>
 
@@ -333,7 +338,15 @@ export const TripPlanSchedule = observer(
 
             <Box>
               {plan.legs.map((leg, i) => {
-                let title = formatLegTitle(leg, wheelchair);
+                let title = '';
+                if (leg.agencyId || leg.providerId) {
+                  title = leg.agencyId || leg.providerId;
+                } else if (leg.mode === 'WALK' || leg.mode === 'CAR') {
+                  title = t(`tripWizard.${formatModeTitle(leg, wheelchair)}`);
+                }
+                if (leg?.duration) {
+                  title += ' ' + formatters.datetime.asDuration(leg.duration);
+                }
                 let name = getLegModeName(leg, wheelchair);
                 const mode =
                   title === 'WAIT'
@@ -364,7 +377,8 @@ export const TripPlanSchedule = observer(
                 if (leg.intermediateStops && leg.intermediateStops.length > 0) {
                   const lbl =
                     leg.intermediateStops.length +
-                    ' stop' +
+                    ' ' +
+                    t('routeList.stop').toLowerCase() +
                     (leg.intermediateStops.length === 1 ? '' : 's');
                   const dur = formatters.datetime.asDuration(leg.duration);
                   intermediateStopsLabel = `${lbl}, ${dur}`;
@@ -486,7 +500,7 @@ export const TripPlanSchedule = observer(
               <Flex alignItems={'center'} my={4}>
                 <Icon as={FaStar} mr={2} />
                 <Text fontWeight={'bold'}>
-                  Arrive at {request?.destination?.title}{' '}
+                  {t('tripWizard.arriveAt')} {request?.destination?.title}{' '}
                   {formatters.datetime
                     .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
                     .replace('am', '')
@@ -633,19 +647,16 @@ export const TripPlanSchedule = observer(
 //   return text.substr(0, threshold).concat('...');
 // }
 
-const formatLegTitle = (leg, wheelchair) => {
-  if (leg.agencyId || leg.providerId) {
-    return leg.agencyId || leg.providerId;
-  }
+const formatModeTitle = (leg, wheelchair) => {
   if (leg.mode === 'WALK' || leg.mode === 'CAR') {
-    const duration = formatters.datetime.asDuration(leg.duration);
-    let title = leg.mode === 'WALK' ? (wheelchair ? 'Roll' : 'Walk') : 'Drive';
-    if (duration) {
-      title += ' ' + duration;
-    }
+    // const duration = formatters.datetime.asDuration(leg.duration);
+    let title = leg.mode === 'WALK' ? (wheelchair ? 'roll' : 'walk') : 'drive';
+    // if (duration) {
+    //   title += ' ' + duration;
+    // }
     return title;
   }
-  return leg.mode;
+  return null;
 };
 
 const getLegModeName = (leg, wheelchair) => {

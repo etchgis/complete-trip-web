@@ -29,16 +29,16 @@ import formatters from '../../utils/formatters';
 import geocoder from '../../services/transport/geocoder';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const Wizard = observer(({ hideModal }) => {
   const { loggedIn, reset } = useStore().authentication;
-
+  const { t } = useTranslation();
   useEffect(() => {
     if (loggedIn) hideModal();
   }, [loggedIn, hideModal]);
 
   // FORMS STATE
-
   return (
     <Flex
       id="login-card"
@@ -59,7 +59,7 @@ export const Wizard = observer(({ hideModal }) => {
             id="wizard-logo"
             src={'/buffalo_logo_full.png'}
             h={'200px'}
-            alt="Buffalo Access"
+            alt={t('global.site')}
           />
         </Center>
         <Stack spacing={4} p={8}>
@@ -67,7 +67,7 @@ export const Wizard = observer(({ hideModal }) => {
         </Stack>
       </Stack>
       <Button variant={'outline'} colorScheme="red" onClick={() => reset()}>
-        Cancel
+        {t('global.cancel')}
       </Button>
     </Flex>
   );
@@ -77,7 +77,7 @@ const WizardStepThrough = observer(() => {
   const { user, updateUserProfile, updateUserPhone, verifyUser } =
     useStore().authentication;
   const { setStagedCaregiver } = useStore().caregivers;
-
+  const { t } = useTranslation();
   return (
     <WizardStepThroughForm
       content={[
@@ -151,7 +151,7 @@ const WizardStepThrough = observer(() => {
           content: () => (
             <>
               <Heading as="h2" size="lg" fontWeight={400} color="brandDark">
-                Accessibility Options
+                {t('loginWizard.accessibilityOptions')}
               </Heading>
               <Stack spacing={4}>
                 <WheelchairToggle />
@@ -166,7 +166,7 @@ const WizardStepThrough = observer(() => {
           title: 'verify',
           content: () => <Complete></Complete>,
           skip: false,
-          buttonText: 'Verify your phone number to complete the setup.',
+          buttonText: t('loginWizard.verifyPhone'),
           action: async () => {
             const verified = verifyUser('sms', user?.phone);
             if (!verified || verified.error) {
@@ -214,7 +214,7 @@ const ContactInfo = observer(() => {
       ? formatters.phone.asDomestic(user?.phone.slice(2))
       : ''
   );
-
+  const { t } = useTranslation();
   return (
     <Stack spacing={4}>
       <Heading
@@ -223,14 +223,13 @@ const ContactInfo = observer(() => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Contact Information
+        {t('loginWizard.addContactInfo')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.300'}>
-        Your email and phone number are used for two-step verification, password
-        recovery, and notifications about your trips.
+        {t('loginWizard.addContactInfoDescription')}
       </Text>
       <FormControl isReadOnly>
-        <FormLabel>Email address</FormLabel>
+        <FormLabel>{t('loginWizard.email')}</FormLabel>
         <Input
           type="email"
           name="email"
@@ -239,7 +238,7 @@ const ContactInfo = observer(() => {
         />
       </FormControl>
       <FormControl isRequired>
-        <FormLabel>Phone Number</FormLabel>
+        <FormLabel>{t('global.phone')}</FormLabel>
         <Input
           type="tel"
           name="phone"
@@ -267,7 +266,7 @@ const HomeAddress = observer(({ index }) => {
     user?.profile?.address?.text || ''
   );
   const { colorMode } = useColorMode();
-
+  const { t } = useTranslation();
   const getUserLocation = forced => {
     if (user?.profile?.address?.point?.lng && !forced) {
       setCenter({
@@ -343,10 +342,10 @@ const HomeAddress = observer(({ index }) => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Home Address
+        {t('loginWizard.addHomeAddress')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        This helps create routes from your home with ease.
+        {t('loginWizard.addHomeDescription')}
       </Text>
       <FormControl isRequired>
         <AddressSearchForm
@@ -400,6 +399,7 @@ const HomeAddress = observer(({ index }) => {
 const Caregiver = observer(() => {
   const { colorMode } = useColorMode();
   const { stagedCaregiver } = useStore().caregivers;
+  const { t } = useTranslation();
   // const [caregiverFirstName, setCaregiverFirstName] = useState(
   //   user?.profile?.caretakers && user.profile.caretakers.length
   //     ? user.profile.caretakers[0]?.firstName
@@ -422,14 +422,14 @@ const Caregiver = observer(() => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Primary Caregiver
+        {t('loginWizard.addPrimaryCaregiver')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        Notify your companions in 1-touch for any of your trips.
+        {t('loginWizard.addPrimaryCaregiverDescription')}
       </Text>
       <HStack>
         <FormControl isRequired>
-          <FormLabel>First Name</FormLabel>
+          <FormLabel>{t('global.firstName')}</FormLabel>
           <Input
             type="text"
             name="caregiverFirstName"
@@ -438,7 +438,7 @@ const Caregiver = observer(() => {
           />
         </FormControl>
         <FormControl isRequired>
-          <FormLabel>Last Name</FormLabel>
+          <FormLabel>{t('global.lastName')}</FormLabel>
           <Input
             type="text"
             name="caregiverLastName"
@@ -448,7 +448,7 @@ const Caregiver = observer(() => {
         </FormControl>
       </HStack>
       <FormControl isRequired>
-        <FormLabel>Email</FormLabel>
+        <FormLabel>{t('global.email')}</FormLabel>
         <Input
           type="email"
           name="caregiverEmail"
@@ -468,7 +468,7 @@ const MobilityOptions = observer(() => {
   const [email3, setEmail3] = useState();
   const [hasEmail2, setHasEmail2] = useState(false);
   const [hasEmail3, setHasEmail3] = useState(false);
-
+  const { t } = useTranslation();
   return (
     <Stack spacing={4}>
       <Heading
@@ -477,14 +477,13 @@ const MobilityOptions = observer(() => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Enhanced Mobility Options
+        {t('loginWizard.addMobilityOptions')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        Enter in your email to find enhanced mobility options you are registered
-        with such as [x]
+        {t('loginWizard.addMobilityOptionsDescription')}
       </Text>
       <FormControl>
-        <FormLabel>Email address</FormLabel>
+        <FormLabel>{t('global.emailAddress')}</FormLabel>
         <Input
           type="email"
           name="email"
@@ -495,7 +494,9 @@ const MobilityOptions = observer(() => {
       {hasEmail2 ? (
         <FormControl>
           <HStack justifyContent={'space-between'}>
-            <FormLabel>Second Email address</FormLabel>
+            <FormLabel>
+              {t('global.second')} {t('global.emailAddress')}
+            </FormLabel>
             <IconButton
               aria-label="Remove Email"
               icon={<DeleteIcon />}
@@ -515,7 +516,8 @@ const MobilityOptions = observer(() => {
         <FormControl>
           <HStack justifyContent={'space-between'}>
             <FormLabel>
-              {hasEmail2 ? 'Third' : 'Second'} Email address
+              {hasEmail2 ? t('global.third') : t('global.second')}{' '}
+              {t('global.emailAddress')}
             </FormLabel>
             <IconButton
               aria-label="Remove Email"
@@ -552,7 +554,7 @@ const MobilityOptions = observer(() => {
           }}
           isDisabled
         >
-          Add Another email address
+          {t('loginWizard.addAnotherEmail')}
         </Button>
       ) : (
         ''
@@ -642,7 +644,7 @@ const MobilityOptions = observer(() => {
 const Complete = observer(() => {
   const { user } = useStore().authentication;
   const { stagedCaregiver } = useStore().caregivers;
-
+  const { t } = useTranslation();
   return (
     <Box m={4}>
       <Box my={4}>
@@ -663,7 +665,7 @@ const Complete = observer(() => {
       </Box>
 
       <Heading as="h3" size="md">
-        Caregiver
+        {t('global.caregiver')}
       </Heading>
       <Text>
         {stagedCaregiver?.firstName || ''} {stagedCaregiver?.lastName || ''}

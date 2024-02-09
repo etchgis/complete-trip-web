@@ -30,6 +30,8 @@ export const DependentsTripsTable = observer(
     const { dependentTracker, resetMap, setActiveTripId } =
       useStore().tripMapStore;
     const [selectedTrip, setSelectedTrip] = useState({});
+    const [name, setName] = useState('');
+
     const allTrips = toJS(dependentTrips);
 
     const now = Date.now();
@@ -70,6 +72,11 @@ export const DependentsTripsTable = observer(
     const openVerticalTripPlan = trip => {
       dependentTracker.start(trip.dependent?.dependent);
       setSelectedTrip(trip);
+      setName(
+        (trip?.dependent?.firstName || '') +
+          ' ' +
+          (trip?.dependent?.lastName || '')
+      );
       console.log({ trip });
       setActiveTripId(trip?.id);
       onOpen();
@@ -80,10 +87,11 @@ export const DependentsTripsTable = observer(
       resetMap();
       onClose();
       setSelectedTrip({});
+      setName('');
       setActiveTripId(null);
     };
     const { t } = useTranslation();
-    //ACCORDION
+
     return (
       <>
         <Box>
@@ -166,7 +174,7 @@ export const DependentsTripsTable = observer(
           isOpen={isOpen}
           onClose={backClickHandler}
           backClickHandler={backClickHandler}
-          title={`Tracking ${selectedTrip?.dependent?.firstName} ${selectedTrip?.dependent?.lastName}'s Trip`}
+          title={t('settingsDependents.trackingTrip', { name })}
         />
       </>
     );

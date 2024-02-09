@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
-import translator from '../../models/translator';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
@@ -57,13 +56,13 @@ const EditNavDirections = observer(() => {
   );
 });
 
-const EditLanguage = observer(() => {
+export const EditLanguage = observer(() => {
   const { user, updateUserProfile } = useStore().authentication;
-  const { setUI } = useStore().uiStore;
+  const { ui, setUI } = useStore().uiStore;
 
   const preferences = user?.profile?.preferences || {};
   const [language, setLanguage] = useState(
-    user?.profile?.preferences?.language || 'en'
+    user?.profile?.preferences?.language || ui?.language || 'en'
   );
 
   const { t } = useTranslation();
@@ -76,11 +75,14 @@ const EditLanguage = observer(() => {
         size={'sm'}
         defaultValue={language || ''}
         onChange={e => {
-          setLanguage(e.target.value);
-          preferences['language'] = e.target.value;
-          updateUserProfile(
-            Object.assign({}, user?.profile, { preferences: preferences })
-          );
+          if (user && user?.profile) {
+            setLanguage(e.target.value);
+            preferences['language'] = e.target.value;
+            updateUserProfile(
+              Object.assign({}, user?.profile, { preferences: preferences })
+            );
+          }
+
           setUI({ language: e.target.value }); //TODO move this to Routes so it's at the root
         }}
       >

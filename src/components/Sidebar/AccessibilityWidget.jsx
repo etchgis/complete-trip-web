@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Divider,
   Heading,
   IconButton,
   Popover,
@@ -15,6 +16,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 
+import { EditLanguage } from '../Settings/EditAccessibility';
 import { FaUniversalAccess } from 'react-icons/fa';
 import FocusLock from 'react-focus-lock';
 import { useRef } from 'react';
@@ -189,6 +191,8 @@ const AccessibilityWidget = ({ showTitle }) => {
               >
                 {t('ariaWidget.largeCursor')}
               </Button>
+              <Divider pt={2} mb={2} />
+              <EditLanguage />
             </SimpleGrid>
           </PopoverBody>
           {/* </FocusLock> */}

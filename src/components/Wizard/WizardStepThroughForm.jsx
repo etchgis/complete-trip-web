@@ -20,6 +20,7 @@ import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const WizardStepThroughForm = ({ content }) => {
   const { colorMode } = useColorMode();
@@ -27,7 +28,7 @@ export const WizardStepThroughForm = ({ content }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [changed, setChanged] = useState(false);
   const { stagedCaregiver, setStagedCaregiver } = useStore().caregivers;
-
+  const { t } = useTranslation();
   // Reset the staged caregiver when the form is opened
   useEffect(() => {
     setStagedCaregiver({
@@ -89,8 +90,8 @@ export const WizardStepThroughForm = ({ content }) => {
                     {i < steps.length - 1 && s.buttonText
                       ? s.buttonText
                       : i < steps.length - 1
-                      ? 'Next'
-                      : 'Verify Phone Number and Complete Setup'}
+                      ? t('global.next')
+                      : t('loginWizard.verifyPhone')}
                   </Button>
                 ) : null}
                 {i > 0 && !s.hideButton ? (
@@ -100,7 +101,7 @@ export const WizardStepThroughForm = ({ content }) => {
                     type="button"
                     onClick={() => setTabIndex(i - 1)}
                   >
-                    Prev
+                    {t('global.prev')}
                   </Button>
                 ) : (
                   ''
@@ -118,7 +119,7 @@ export const WizardStepThroughForm = ({ content }) => {
                     variant={'link'}
                     onClick={() => setTabIndex(i + 1)}
                   >
-                    Skip
+                    {t('global.skip')}
                   </Button>
                 </Flex>
               ) : (

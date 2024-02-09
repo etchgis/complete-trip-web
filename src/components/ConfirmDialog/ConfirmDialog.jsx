@@ -72,7 +72,14 @@ export const ConfirmDialog = ({
                   <Text fontWeight="bold" my={4}>
                     {verifyMessage || 'Verify Message'}
                   </Text>
-                  <Input value={text} onChange={e => setText(e.target.value)} />
+                  <Input
+                    value={text}
+                    onChange={e => {
+                      console.log(e.target.value);
+                      console.log(verifyText);
+                      setText(e.target.value);
+                    }}
+                  />
                 </>
               ) : null}
             </AlertDialogBody>

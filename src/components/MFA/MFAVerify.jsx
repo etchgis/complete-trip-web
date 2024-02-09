@@ -21,6 +21,7 @@ import {
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const MFAVerify = observer(
   ({ isOpen, onClose, buttonText, title, callbackFn }) => {
@@ -34,7 +35,7 @@ export const MFAVerify = observer(
     const [stage, setStage] = useState(0);
     const [method, setMethod] = useState('');
     // console.log({ requireMFA });
-
+    const { t } = useTranslation();
     const onComplete = async e => {
       const to = method === 'email' ? user?.email : user?.phone;
       const valid = await confirmUser(to, e);
@@ -47,7 +48,8 @@ export const MFAVerify = observer(
       onClose();
       callbackFn();
     };
-
+    const email = user?.email;
+    const phone = user?.phone;
     return (
       <Modal
         isOpen={isOpen}
@@ -78,10 +80,7 @@ export const MFAVerify = observer(
                     setStage(1);
                   }}
                 >
-                  <Text mb={4}>
-                    To proceed please choose a method for receiving an
-                    authentication code.
-                  </Text>
+                  <Text mb={4}>{t('twoFactorAuth.text')}</Text>
                   <RadioGroup
                     onChange={setMethod}
                     value={method}
@@ -89,13 +88,13 @@ export const MFAVerify = observer(
                     defaultChecked={method}
                   >
                     <Stack direction="row">
-                      <Radio value="sms">Text Me</Radio>
-                      <Radio value="call">Call Me</Radio>
-                      <Radio value="email">Email Me</Radio>
+                      <Radio value="sms">{t('twoFactorAuth.sms')}</Radio>
+                      <Radio value="call">{t('twoFactorAuth.call')}</Radio>
+                      <Radio value="email">{t('twoFactorAuth.email')}</Radio>
                     </Stack>
                   </RadioGroup>
                   <Button type="submit" variant="brand" mt={4}>
-                    Send Authentication Code
+                    {t('twoFactorAuth.send')}
                   </Button>
                 </Box>
               ) : (
@@ -107,25 +106,18 @@ export const MFAVerify = observer(
                     fontWeight="400"
                     mb={4}
                   >
-                    Enter the Verification Code
+                    {t('twoFactorAuth.verifyTitle')}
                   </Heading>
                   {method === 'email' ? (
                     <Text as={'em'}>
-                      Check <strong>{user?.email}</strong> for the six-digit
-                      verification code and enter it below. You can copy and
-                      paste the code into the first box.
+                      {t('twoFactorAuth.emailMessage', { email })}
                     </Text>
                   ) : method === 'sms' ? (
                     <Text as={'em'}>
-                      Check <strong>{user?.phone}</strong> for the six-digit
-                      verification code and enter it below. You can copy and
-                      paste the code into the first box.
+                      {t('twoFactorAuth.phoneMessage', { phone })}
                     </Text>
                   ) : (
-                    <Text as={'em'}>
-                      Wait for the phone call then type the six digit code into
-                      the box below.
-                    </Text>
+                    <Text as={'em'}>{t('twoFactorAuth.callMessage')}</Text>
                   )}
 
                   <Center flexDirection={'column'}>
@@ -145,7 +137,7 @@ export const MFAVerify = observer(
                       </PinInput>
                     </HStack>
                     {verifyError ? (
-                      <Text color="red.500">Invalid code.</Text>
+                      <Text color="red.500">{t('twoFactor.invalidCode')}</Text>
                     ) : (
                       ''
                     )}
@@ -158,7 +150,7 @@ export const MFAVerify = observer(
                       variant={'link'}
                       color="gray.600"
                     >
-                      Send Another Code?
+                      {t('twoFactor.sendAgain')}
                     </Button>
                   </Center>
                 </>

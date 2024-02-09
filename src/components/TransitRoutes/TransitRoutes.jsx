@@ -18,9 +18,9 @@ import formatters from '../../utils/formatters';
 import moment from 'moment';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
-import translator from '../../models/translator';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const TransitRoutes = observer(({}) => {
   const colorMode = useColorMode();
@@ -36,6 +36,7 @@ export const TransitRoutes = observer(({}) => {
   const { pathname } = useLocation();
 
   const intervalRef = useRef();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (debug) console.log('mapState.geolocation', mapState.geolocation.length);
@@ -270,7 +271,7 @@ export const TransitRoutes = observer(({}) => {
                 }
               }}
               defaultAddress={defaultAddress}
-              label="Find Nearby Routes"
+              label={t('map.searchTitle')}
               resultsMaxWidth="402px"
             />
           </Box>
@@ -290,6 +291,7 @@ export const TransitRoutes = observer(({}) => {
 
 const BackButton = observer(({ backClickHandler }) => {
   const { stoptimes } = useStore().mapStore.mapState;
+  const { t } = useTranslation();
   return (
     <>
       {stoptimes?.features.length ? (
@@ -304,7 +306,7 @@ const BackButton = observer(({ backClickHandler }) => {
           fontWeight="bold"
           minH={'40px'}
         >
-          Back
+          {t('global.prev')}
         </Button>
       ) : (
         ''
@@ -533,7 +535,7 @@ const RouteList = observer(({ routeClickHandler }) => {
   const { routes, stoptimes } = useStore().mapStore.mapState;
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
-  const { t } = translator;
+  const { t } = useTranslation();
 
   const timeToDuration = timestamp => {
     let diff = timestamp - Date.now();

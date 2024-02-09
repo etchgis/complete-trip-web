@@ -64,7 +64,7 @@ export const CaregiversList = observer(({ action }) => {
 export const CaregiverCard = ({ caregiver }) => {
   const { removeCaregiver: remove } = useStore().caregivers;
   const { setToastMessage, setToastStatus } = useStore().uiStore;
-
+  const { t } = useTranslation();
   const removeCaregiver = async id => {
     console.log({ id });
     try {
@@ -96,10 +96,10 @@ export const CaregiverCard = ({ caregiver }) => {
       <Divider />
       <CardFooter p={2} justifyContent={'space-between'} alignItems={'center'}>
         <ConfirmDialog
-          title="Remove Caregiver"
-          confirmText={'Remove'}
-          buttonText={'Remove Caregiver'}
-          message={"Are you sure? You can't undo this action."}
+          title={t('settingsCaregivers.removeCaregiver')}
+          confirmText={t('settingsCaregivers.remove')}
+          buttonText={t('settingsCaregivers.removeCaregiver')}
+          message={t('settingsCaregivers.confirmRemove')}
           confirmFn={() => removeCaregiver(caregiver?.id)}
         />
 
@@ -116,7 +116,7 @@ export const CaregiverCard = ({ caregiver }) => {
                 : 'green'
             }
           >
-            {caregiver?.status.toUpperCase()}
+            {t(`settingsCaregivers.${caregiver?.status.toLowerCase()}`)}
           </Badge>
         ) : (
           ''

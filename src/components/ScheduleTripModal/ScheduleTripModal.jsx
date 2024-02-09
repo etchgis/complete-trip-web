@@ -64,6 +64,7 @@ export const ScheduleTripModal = observer(
     const [chatIsActive, setChatIsActive] = useState(false);
     const [step, setStep] = useState(0);
     const [selectedTrip, setSelectedTrip] = useState({});
+    const { t } = useTranslation();
     // console.log(toJS(stagedTrip));
     if (
       favoriteTrip?.origin &&
@@ -149,15 +150,15 @@ export const ScheduleTripModal = observer(
         <ModalContent textAlign={'center'} pt={0}>
           <ModalHeader as="h3">
             {step === 0
-              ? 'Schedule a Trip'
+              ? t('tripWizard.scheduleTrip')
               : step === 1
-              ? 'Select your Transportation'
+              ? t('tripWizard.selectTransportation')
               : step === 2
-              ? 'Select a Trip'
+              ? t('tripWizard.selectTrip')
               : step === 3
-              ? 'Trip Plan Overview'
+              ? t('tripWizard.overview')
               : step === 4 //chatbot
-              ? 'Where would you like to go?'
+              ? t('tripWizard.chatbot')
               : null}
             {accessToken && (step === 0 || step === 4) ? (
               <IconButton
@@ -207,7 +208,7 @@ export const ScheduleTripModal = observer(
                 onClose();
               }}
             >
-              Cancel
+              {t('global.cancel')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -422,13 +423,13 @@ const First = observer(({ setStep, trip }) => {
                 mt={2}
                 ml={2}
               >
-                Save Address
+                {t('tripWizard.saveAddress')}
               </Checkbox>
             </PopoverTrigger>
             <PopoverContent ml={4} mt={2}>
               <PopoverArrow />
               <PopoverCloseButton />
-              <PopoverHeader>Location Name</PopoverHeader>
+              <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
                 <Input type="text" ref={startRef} />
@@ -439,7 +440,7 @@ const First = observer(({ setStep, trip }) => {
                     onClick={() => saveFavorite(startRef.current.value)}
                     w="50%"
                   >
-                    Save
+                    {t('global.save')}
                   </Button>
                   <Button
                     variant={'outline'}
@@ -454,7 +455,7 @@ const First = observer(({ setStep, trip }) => {
                     }}
                     w="50%"
                   >
-                    Cancel
+                    {t('global.cancel')}
                   </Button>
                 </HStack>
               </PopoverBody>
@@ -489,7 +490,7 @@ const First = observer(({ setStep, trip }) => {
           {favLocations.find(f => f.id === locations?.end?.id) ? (
             <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
               <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
-              <Text fontWeight={'bold'}>Favorite Location</Text>
+              <Text fontWeight={'bold'}>{t('tripWizard.favorite')}</Text>
             </Flex>
           ) : null}
           <Popover
@@ -529,13 +530,13 @@ const First = observer(({ setStep, trip }) => {
                 mt={2}
                 ml={2}
               >
-                Save Address
+                {t('tripWizard.saveAddress')}
               </Checkbox>
             </PopoverTrigger>
             <PopoverContent ml={4} mt={2}>
               <PopoverArrow />
               <PopoverCloseButton />
-              <PopoverHeader>Location Name</PopoverHeader>
+              <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
                 <Input type="text" ref={endRef} />
@@ -546,7 +547,7 @@ const First = observer(({ setStep, trip }) => {
                     onClick={() => saveFavorite(endRef.current.value)}
                     w="50%"
                   >
-                    Save
+                    {t('global.save')}
                   </Button>
                   <Button
                     variant={'outline'}
@@ -558,7 +559,7 @@ const First = observer(({ setStep, trip }) => {
                     }}
                     w="50%"
                   >
-                    Cancel
+                    {t('global.cancel')}
                   </Button>
                 </HStack>
               </PopoverBody>
@@ -567,13 +568,11 @@ const First = observer(({ setStep, trip }) => {
           </Popover>
         </Stack>
 
-        <FormErrorMessage>
-          Please select a location from the result list.
-        </FormErrorMessage>
+        <FormErrorMessage>{t('errors.pleaseSelectLocation')}</FormErrorMessage>
       </FormControl>
 
       <FormControl isRequired>
-        <FormLabel>Select a Date</FormLabel>
+        <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
         <Input
           type="date"
           defaultValue={parseDate(trip?.request?.whenTime)}
@@ -582,15 +581,15 @@ const First = observer(({ setStep, trip }) => {
       </FormControl>
 
       <FormControl isRequired>
-        <FormLabel>Time</FormLabel>
+        <FormLabel>{t('tripWizard.time')}</FormLabel>
         <Select
           name="when"
           mb={6}
           defaultValue={trip?.request?.whenAction || 'asap'}
         >
-          <option value="asap">Leave Now (ASAP)</option>
-          <option value="leave">Leave By</option>
-          <option value="arrive">Arrive By</option>
+          <option value="asap">{t('tripWizard.now')}</option>
+          <option value="leave">{t('tripWizard.leaveBy')}</option>
+          <option value="arrive">{t('tripWizard.arriveBy')}</option>
         </Select>
         <Input
           type="time"
@@ -600,13 +599,14 @@ const First = observer(({ setStep, trip }) => {
       </FormControl>
 
       <Button width="100%" variant="brand" type="submit">
-        Next
+        {t('global.next')}
       </Button>
     </Stack>
   );
 });
 
 const Second = observer(({ setStep, trip, setSelectedTrip }) => {
+  const { t } = useTranslation();
   const { user } = useStore().authentication;
   // console.log(toJS(trip));
   const allowedModes = config.MODES.reduce(
@@ -668,14 +668,14 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
       onSubmit={handleSubmit}
     >
       <FormControl isRequired={!modes.length}>
-        <FormLabel>Mode(s) of Transportation</FormLabel>
+        <FormLabel>{t('tripWizard.modes')}</FormLabel>
         <VStack alignItems={'flex-start'}>
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
               if (mode.id === 'walk') return '';
               return (
                 <Checkbox key={mode.id} value={mode.mode}>
-                  {mode.label}
+                  {t(`settingsPreferences.${mode.id}`)}
                 </Checkbox>
               );
             })}
@@ -713,15 +713,18 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
       </FormControl> */}
 
       <Button type="submit" variant={'brand'}>
-        Next
+        {t('global.next')}
       </Button>
-      <Button onClick={() => setStep(current => current - 1)}>Back</Button>
+      <Button onClick={() => setStep(current => current - 1)}>
+        {t('global.prev')}
+      </Button>
     </Stack>
   );
 });
 
 const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   const { trip } = useStore();
+  const { t } = useTranslation();
   console.log('[schedule trip modal] Third\n', { trip });
   useEffect(() => {
     if (!Object.keys(selectedTrip).length) {
@@ -742,7 +745,7 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
         {trip.generatingPlans ? (
           <>
             <Heading as="p" size="sm">
-              Generating Plans...
+              {t('tripWizard.generatingPlans')}
             </Heading>
             <Spinner
               thickness="4px"
@@ -764,9 +767,11 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
         onClick={() => setStep(current => current + 1)}
         colorScheme="blue"
       >
-        Next
+        {t('global.next')}
       </Button> */}
-      <Button onClick={() => setStep(current => current - 1)}>Back</Button>
+      <Button onClick={() => setStep(current => current - 1)}>
+        {t('global.prev')}
+      </Button>
     </Stack>
   );
 });
@@ -803,7 +808,7 @@ const Fourth = ({
     if (updated) {
       closeModal();
       setToastStatus('success');
-      setToastMessage('Trip Saved');
+      setToastMessage(t('tripWizard.tripScheduled'));
       setSelectedTrip({});
       setHasSelectedPlan(false);
       setStep(0);
@@ -841,6 +846,7 @@ const Fourth = ({
 };
 
 const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
+  const { t } = useTranslation();
   return (
     <>
       {trips.length
@@ -853,7 +859,7 @@ const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
               setSelectedTrip={setSelectedTrip}
             />
           ))
-        : 'No trips found'}
+        : t('tripWizard.noTrips')}
     </>
   );
 });
@@ -863,7 +869,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
   const tripModes = tripPlan.legs.reduce((acc, leg) => [...acc, leg.mode], []);
   const tripModesSet = Array.from(new Set(tripModes));
   const wheelchair = user?.profile?.preferences?.wheelchair;
-
+  const { t } = useTranslation();
   return (
     <Box key={index.toString() + tripPlan?.id} width="100%">
       <Card
@@ -882,7 +888,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
         <CardBody width="100%">
           <Grid gridTemplateColumns={'25% 30px 25% calc(50% - 30px)'}>
             <Stat>
-              <StatLabel>Leave</StatLabel>
+              <StatLabel>{t('tripWizard.leave')}</StatLabel>
               <StatNumber>
                 {formatters.datetime
                   .asHMA(new Date(tripPlan.startTime))
@@ -905,7 +911,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
               <Icon as={FaArrowRight} boxSize={6} />
             </Flex>
             <Stat>
-              <StatLabel>Arrive</StatLabel>
+              <StatLabel>{t('tripWizard.arrive')}</StatLabel>
               <StatNumber>
                 {formatters.datetime
                   .asHMA(new Date(tripPlan.endTime))
@@ -956,8 +962,11 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
           <Flex alignItems={'center'} fontWeight="bold" px={2}>
             {formatters.datetime.asDuration(tripPlan.duration)}
             <Icon as={FaCircle} boxSize={2} mx={2} />{' '}
-            {tripPlan.legs.length > 1 ? 'Includes stops' : 'Direct'}
-            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesSet.length} mode
+            {tripPlan.legs.length > 1
+              ? t('tripWizard.includesStops')
+              : t('tripWizard.direct')}
+            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesSet.length}{' '}
+            {t('tripWizard.mode')}
             {tripModesSet.length > 1 ? 's' : ''}
           </Flex>
         </CardBody>

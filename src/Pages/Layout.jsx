@@ -13,13 +13,14 @@ import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 // import { useEffect } from 'react';
 
 const Layout = observer(({ showMap, children }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
-
+  const { t } = useTranslation();
   const { inviteCode } = useStore().caregivers;
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
@@ -147,7 +148,7 @@ const Layout = observer(({ showMap, children }) => {
       <MFAVerify
         isOpen={requireMFA}
         onClose={closeMFA}
-        title="Get Authentication Code"
+        title={t('twoFactor.title')}
         callbackFn={async () => {
           try {
             await auth(); //NOTE any errors should be handled by the auth function - requireMFA are also handled there

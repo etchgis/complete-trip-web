@@ -11,15 +11,15 @@ import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
 
 import { ColorModeSwitcher } from '../ColorModeSwitcher/ColorModeSwitcher';
 import { observer } from 'mobx-react-lite';
-import translator from '../../models/translator';
 import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 // import logo from '../../assets/images/logo.png';
 
 export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
   const { loggedIn, logout, loggingIn, user } = useStore().authentication;
-  const { t } = translator;
+  const { t } = useTranslation();
 
   //NOTE this forces the language to be set on the navbar
   useEffect(() => {
@@ -50,7 +50,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
             isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
           }
           variant={'ghost'}
-          aria-label={'Toggle Navigation'}
+          aria-label={t('navbar.toggle')}
           mr={2}
           display={{ base: 'inline-flex', lg: 'none' }}
         />

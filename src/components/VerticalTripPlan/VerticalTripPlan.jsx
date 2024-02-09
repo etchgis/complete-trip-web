@@ -5,6 +5,7 @@ import { TripPlanSchedule } from './TripPlanSchedule';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const VerticalTripPlan = observer(
   ({
@@ -66,6 +67,7 @@ export const VerticalTripPlan = observer(
 const TripPlanScheduleButtons = observer(
   ({ scheduleTripHandler, backClickHandler, cancelClickHandler }) => {
     const { loggedIn } = useStore().authentication;
+    const { t } = useTranslation();
     return (
       <Stack
         spacing={4}
@@ -81,7 +83,7 @@ const TripPlanScheduleButtons = observer(
             isDisabled={!loggedIn}
             width={'100%'}
           >
-            Schedule Trip
+            {t('tripWizard.scheduleTrip')}
           </Button>
         )}
         {cancelClickHandler && (
@@ -91,11 +93,11 @@ const TripPlanScheduleButtons = observer(
             colorScheme="red"
             onClick={cancelClickHandler}
           >
-            Cancel
+            {t('global.cancel')}
           </Button>
         )}
         <Button width={'100%'} onClick={backClickHandler}>
-          {scheduleTripHandler ? 'Back' : 'Close'}
+          {scheduleTripHandler ? t('global.prev') : t('global.close')}
         </Button>
       </Stack>
     );

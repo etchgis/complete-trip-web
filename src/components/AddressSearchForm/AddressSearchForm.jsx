@@ -2,11 +2,11 @@ import { Autocomplete, Item } from './Autocomplete';
 
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
-import translator from '../../models/translator';
 import { useAsyncList } from 'react-stately';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const SearchForm = observer(
   ({
@@ -22,7 +22,7 @@ export const SearchForm = observer(
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
-    const { t } = translator;
+    const { t } = useTranslation();
     // console.log({ address });
     useEffect(() => {
       if (saveAddress) saveAddress(address);

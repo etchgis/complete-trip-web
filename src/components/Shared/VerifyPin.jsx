@@ -12,6 +12,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const VerifyPin = observer(
   ({ channel, stagedUser, setActiveView, setLoginMessage }) => {
@@ -21,17 +22,14 @@ export const VerifyPin = observer(
 
     const [verifyError, setVerifyError] = useState(false);
     const to = channel === 'email' ? stagedUser.email : user?.phone;
-
+    const { t } = useTranslation();
     return (
       <Stack>
         <Heading as="h2" size="lg" color="brand" fontWeight="400" mb={4}>
-          Enter the Verification Code
+          {t('twoFactor.verifyTitle')}
         </Heading>
-        <Text as={'em'}>
-          Check <strong>{stagedUser?.email || 'your phone '}</strong> for the
-          six-digit verification code and enter it below. You can copy and paste
-          the code into the first box.
-        </Text>
+        {/* TODO add back in email of staged user */}
+        <Text as={'em'}>{t('twoFactor.emailMessage', { email: to })}</Text>
         <Center flexDirection={'column'}>
           <HStack py={20}>
             {/* TODO move this somewhere else so this can be a generic component */}
@@ -50,9 +48,7 @@ export const VerifyPin = observer(
                     console.log({ newUser });
                     if (setActiveView) setActiveView('login');
                     if (setLoginMessage)
-                      setLoginMessage(
-                        'Your account has been created. Please login.'
-                      );
+                      setLoginMessage(t('loginWizard.accountCreated'));
                   } catch (error) {
                     setActiveView('login');
                   }
@@ -95,7 +91,11 @@ export const VerifyPin = observer(
               <PinInputField />
             </PinInput>
           </HStack>
-          {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
+          {verifyError ? (
+            <Text color="red.500">{t('twoFactor.invalidCode')}</Text>
+          ) : (
+            ''
+          )}
         </Center>
       </Stack>
     );

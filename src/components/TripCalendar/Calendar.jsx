@@ -15,16 +15,16 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { observer } from 'mobx-react-lite';
-import translator from '../../models/translator';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const Calendar = observer(() => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [tabIndex, setTabIndex] = useState(new Date().getMonth() + 1);
   const { colorMode } = useColorMode();
   const { trips } = useStore().schedule;
-  const { t } = translator;
+  const { t } = useTranslation();
 
   const months = [
     'jan',

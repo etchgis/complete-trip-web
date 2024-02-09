@@ -70,6 +70,7 @@ const useTranslation = () => {
 
   useEffect(() => {
     if (!ui?.language) return;
+    console.log('configuring language', ui?.language);
     configure(ui?.language);
   }, [ui]);
 

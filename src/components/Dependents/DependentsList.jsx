@@ -117,14 +117,14 @@ export const DependentsList = observer(() => {
                         alignItems={'center'}
                       >
                         <Badge as="em" colorScheme="yellow">
-                          Pending
+                          {t('settingsCaregivers.pending')}
                         </Badge>
                         <Button
                           colorScheme="green"
                           size="sm"
                           onClick={() => updateHandler(d.id, 'approved')}
                         >
-                          Approve
+                          {t('settingsCaregivers.approve')}
                         </Button>
                         <Button
                           colorScheme="red"
@@ -132,7 +132,7 @@ export const DependentsList = observer(() => {
                           size="sm"
                           onClick={() => updateHandler(d.id, 'denied')}
                         >
-                          Deny
+                          {t('settingsCaregivers.deny')}
                         </Button>
                       </Stack>
                     )}
@@ -165,7 +165,7 @@ export const DependentsList = observer(() => {
 
 const DeleteDependentPopover = ({ dependent: d, removeDependentHandler }) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
-
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   return (
     <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose} placement="top">
@@ -202,7 +202,7 @@ const DeleteDependentPopover = ({ dependent: d, removeDependentHandler }) => {
               onClick={onClose}
               size="sm"
             >
-              Cancel
+              {t('global.cancel')}
             </Button>
             <Button
               onClick={() => removeDependentHandler(d.id)}

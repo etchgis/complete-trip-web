@@ -140,7 +140,7 @@ export const EditProfile = ({ onClose }) => {
               center={center}
               defaultAddress={user?.profile?.address?.text || ''}
               setGeocoderResult={setGeocoderResult}
-              label="Home Address"
+              label={t('settingsProfile.homeAddress')}
             ></AddressSearchForm>
           </FormControl>
           <Button

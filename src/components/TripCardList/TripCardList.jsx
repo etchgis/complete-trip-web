@@ -16,13 +16,13 @@ import { ArrowForwardIcon } from '@chakra-ui/icons';
 import TripFavModal from '../TripFavModal';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
-import translator from '../../models/translator';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
-  const { t } = translator;
+  const { t } = useTranslation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode } = useColorMode();
   const [tripId, setTripId] = useState(null);
@@ -54,7 +54,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
             border="solid 1px gray"
             borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
           >
-            No upcoming trips found.
+            {t('tripLog.noTrips')}
           </Box>
         ) : (
           trips.map(trip => {

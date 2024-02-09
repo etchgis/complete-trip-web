@@ -14,13 +14,13 @@ import { useComboBox, useFilter } from 'react-aria';
 import { ListBox } from './ListBox';
 import { Popover } from './Popover';
 import { Search2Icon } from '@chakra-ui/icons';
-import translator from '../../models/translator';
 import { useComboBoxState } from 'react-stately';
+import useTranslation from '../../models/useTranslation';
 
 export { Item, Section } from 'react-stately';
 
 export const Autocomplete = props => {
-  const { t } = translator;
+  const { t } = useTranslation();
   let { contains } = useFilter({ sensitivity: 'base' });
   let state = useComboBoxState({
     ...props,
