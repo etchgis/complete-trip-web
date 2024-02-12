@@ -33,14 +33,16 @@ export const EditAppNotifications = observer(() => {
 
   return (
     <Box width={{ base: '100%' }} maxW="500px">
-      <Flex justifyContent={'space-between'}>
-        <p>{t('settingsNotifications.type')}</p>
-        <p>{t('settingsNotifications.settings')}</p>
-      </Flex>
+      <Heading as="h2" size="md" tabIndex={0}>
+        <Flex justifyContent={'space-between'}>
+          <p>{t('settingsNotifications.type')}</p>
+          <p>{t('settingsNotifications.setting')}</p>
+        </Flex>
+      </Heading>
       <Box py={6}>
         <Divider />
       </Box>
-      <Heading as="h3" size="md">
+      <Heading as="h3" size="md" tabIndex={0}>
         {t('settingsNotifications.rider')}
       </Heading>
       <Stack spacing={2}>

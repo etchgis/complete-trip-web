@@ -38,10 +38,10 @@ export const AddCaregiver = ({ onClose }) => {
           onClose();
           if (error === 'caregiver already registered for this dependent') {
             setErrorToastMessage(
-              'This email is already registered as a Caregiver.'
+              t('settingsCaregivers.caregiverAlreadyRegistered')
             );
           } else {
-            setErrorToastMessage('There was an error sending the invite.');
+            setErrorToastMessage(t('settingsCaregivers.inviteError'));
           }
         }
 

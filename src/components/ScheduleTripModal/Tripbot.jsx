@@ -28,14 +28,18 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   const [errors, setErrors] = useState(0);
   const [isThinking, setIsThinking] = useState(false);
   const { hasSelectedPlan, setHasSelectedPlan } = useStore().uiStore;
-  const [chat, setChat] = useState([
-    {
-      bot: t('tripbot.greeting'),
-      user: '',
-    },
-  ]);
+  const [chat, setChat] = useState([]);
   const [chatState, setChatState] = useState({});
   const { accessToken } = useStore().authentication;
+
+  useEffect(() => {
+    setChat(() => [
+      {
+        bot: t('tripbot.greeting'),
+        user: '',
+      },
+    ]);
+  }, []);
 
   useEffect(() => {
     (async () => {

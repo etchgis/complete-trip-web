@@ -7,6 +7,7 @@ import { getLocation } from '../../utils/getLocation';
 import { observer } from 'mobx-react-lite';
 import sampleChatResponse from './sample-chat-response.json';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 //18 Goethe St, Buffalo, NY 14206
 //to go
@@ -18,6 +19,7 @@ const key = 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi';
 
 //token is the user's access token
 const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
+  const { t } = useTranslation();
   const [location, setLocation] = useState([
     config.MAP.CENTER[1],
     config.MAP.CENTER[0],
@@ -28,7 +30,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   const { hasSelectedPlan, setHasSelectedPlan } = useStore().uiStore;
   const [chat, setChat] = useState([
     {
-      bot: "Hello! I'm here to help you schedule your ride. Let's get started.",
+      bot: t('tripbot.greeting'),
       user: '',
     },
   ]);
@@ -165,7 +167,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         setChat(state => [
           ...state,
           {
-            bot: 'Sorry, the bot is experiencing issues. Please try again later.',
+            bot: t('tripbot.error1'),
             user: '',
           },
         ]);
@@ -178,7 +180,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       setChat(state => [
         ...state,
         {
-          bot: 'Sorry, I am having trouble. Can you try again?',
+          bot: t('tripbot.error2'),
           user: '',
         },
       ]);
@@ -195,7 +197,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         setChat(state => [
           ...state,
           {
-            bot: 'Sorry, I am having trouble. Can you please try again?',
+            bot: t('tripbot.error2'),
             user: '',
           },
         ]);
@@ -232,6 +234,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       borderRadius={10}
       w="600px"
       maxW={'calc(100% - 6rem)'}
+      data-id="tripbot-v1"
     >
       {chat.map((message, i) => (
         <Flex flexDir="column" key={i.toString()} w="100%">

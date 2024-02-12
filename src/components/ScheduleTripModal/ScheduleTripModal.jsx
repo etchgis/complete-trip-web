@@ -849,17 +849,19 @@ const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
   const { t } = useTranslation();
   return (
     <>
-      {trips.length
-        ? trips.map((t, i) => (
-            <TripCard
-              setStep={setStep}
-              tripPlan={t}
-              index={i}
-              key={i.toString()}
-              setSelectedTrip={setSelectedTrip}
-            />
-          ))
-        : t('tripWizard.noTrips')}
+      {trips.length ? (
+        trips.map((t, i) => (
+          <TripCard
+            setStep={setStep}
+            tripPlan={t}
+            index={i}
+            key={i.toString()}
+            setSelectedTrip={setSelectedTrip}
+          />
+        ))
+      ) : (
+        <Text tabIndex={0}>{t('tripWizard.noTrips')}</Text>
+      )}
     </>
   );
 });

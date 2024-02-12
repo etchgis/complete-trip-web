@@ -192,7 +192,7 @@ const AccessibilityWidget = ({ showTitle }) => {
                 {t('ariaWidget.largeCursor')}
               </Button>
               <Divider pt={2} mb={2} />
-              {/* <EditLanguage /> */}
+              <EditLanguage />
             </SimpleGrid>
           </PopoverBody>
           {/* </FocusLock> */}

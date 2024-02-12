@@ -53,6 +53,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
             borderRadius={'md'}
             border="solid 1px gray"
             borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
+            tabIndex={0}
           >
             {t('tripLog.noTrips')}
           </Box>

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { I18n } from 'i18n-js';
-// import es from './es.json';
 import genLocales from './locales.js';
-import { set } from 'lodash';
 import { useStore } from '../context/RootStore.jsx';
 
 /**
@@ -33,16 +31,16 @@ const generateLanguages = configObject => {
 const languages = generateLanguages(genLocales());
 
 console.log('languages', languages);
-
-// const module = {
-//   t: (key, config) => i18n.t(key, config),
-
-//   configure: languageTag => {
-//     i18n.locale = languageTag;
-//   },
-// };
-
-// export default module;
+let keys = 0;
+Object.keys(languages).forEach(language => {
+  keys = keys + 1;
+});
+Object.keys(languages).forEach(language => {
+  Object.keys(languages[language]).forEach(key => {
+    keys = keys + 1;
+  });
+});
+console.log('keys', keys);
 
 const useTranslation = () => {
   const { ui } = useStore().uiStore;

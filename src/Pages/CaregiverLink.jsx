@@ -77,7 +77,7 @@ const CaregiverLink = observer(() => {
       if (status === 'approved' || status === 'denied') {
         if (status === 'approved') setToastStatus('Success');
         if (status === 'denied') setToastStatus('Info');
-        setToastMessage(`Caregiver request ${status}.`);
+        setToastMessage(t('settingsCaregivers.status', { status }));
         navigate('/settings/dependents');
         onClose();
         reset();
@@ -87,10 +87,10 @@ const CaregiverLink = observer(() => {
       setToastStatus('Error');
       if (error?.message === 'invalid') {
         setInviteCode(null);
-        setToastMessage(t('settingsCaregiver.invalidCaregiver'));
+        setToastMessage(t('settingsCaregivers.invalidCaregiver'));
         navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
-        setToastMessage('An error occurred with the request.');
+        setToastMessage(t('settingsCaregivers.genericError'));
       }
     }
   };
@@ -127,13 +127,13 @@ const CaregiverLink = observer(() => {
                 <></>
               ) : loggedIn ? (
                 <Box>
-                  <Text>{t('settingsCaregiver.linkMessage', { name })}</Text>
+                  <Text>{t('settingsCaregivers.linkMessage', { name })}</Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button
                       colorScheme="facebook"
                       onClick={() => updateHandler('approved')}
                     >
-                      {t('settingsCaregiver.acceptRequest')}
+                      {t('settingsCaregivers.acceptRequest')}
                     </Button>
                     <Button
                       colorScheme="red"
@@ -146,7 +146,7 @@ const CaregiverLink = observer(() => {
               ) : (
                 <Box>
                   <Text textAlign={'justify'}>
-                    {t('settingsCaregiver.linkMessageNoAccount')}
+                    {t('settingsCaregivers.linkMessageNoAccount')}
                   </Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button

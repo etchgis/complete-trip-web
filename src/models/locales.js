@@ -616,6 +616,13 @@ export default function genLocales() {
         removeCaregiver: 'Remove Caregiver',
         remove: 'Remove',
         confirmRemove: "Are you sure? You can't undo this action.",
+
+        caregiverAlreadyRegistered:
+          'This email is already registered as a caregiver.',
+        inviteError: 'There was an error inviting the caregiver.',
+        genericError: 'An error occurred with the request.',
+
+        statusMessage: 'Cargiver status %{status}',
       },
       es: {
         inviteCaregiver: 'Invitar cuidador',
@@ -634,6 +641,13 @@ export default function genLocales() {
         removeCaregiver: 'Eliminar cuidador',
         remove: 'Eliminar',
         confirmRemove: '¿Estás seguro? No puedes deshacer esta acción.',
+
+        caregiverAlreadyRegistered:
+          'Este correo electrónico ya está registrado como cuidador.',
+        inviteError: 'Hubo un error al invitar al cuidador.',
+        genericError: 'Ocurrió un error con la solicitud.',
+
+        statusMessage: 'Estado del cuidador %{status}',
       },
     },
     settingsDependents: {
@@ -655,12 +669,14 @@ export default function genLocales() {
         favorites: 'Favorite Trips',
         noFavorites: 'No favorite trips found.',
         locations: 'Favorite Locations',
+        noLocations: 'No favorite locations found.',
         delete: 'Delete Favorite',
       },
       es: {
         favorites: 'Viajes favoritos',
         noFavorites: 'No se encontraron viajes favoritos.',
         locations: 'Ubicaciones favoritas',
+        noLocations: 'No se encontraron ubicaciones favoritas.',
         delete: 'Eliminar favorito',
       },
     },
@@ -756,7 +772,7 @@ export default function genLocales() {
     settingsNotifications: {
       en: {
         type: 'Notification Preference Type',
-        settings: 'Settings',
+        setting: 'Setting',
         rider: 'Rider Notification Alerts',
         tripStart: 'Trip Start',
         transitArrive: 'Transit Arrival',
@@ -771,7 +787,7 @@ export default function genLocales() {
       },
       es: {
         type: 'Tipo de preferencia de notificación',
-        settings: 'Ajustes',
+        setting: 'Ajuste',
         rider: 'Alertas de notificación del pasajero',
         tripStart: 'Inicio del viaje',
         transitArrive: 'Llegada del tránsito',
