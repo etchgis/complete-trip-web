@@ -96,12 +96,12 @@ export const DependentsTripsTable = observer(
       <>
         <Box>
           {!hideTitle && (
-            <Heading as="h2" size="md">
+            <Heading as="h2" size="md" tabIndex={0}>
               {t('settingsDependents.upcoming')}
             </Heading>
           )}
           {!isLoading && !trips.length && (
-            <p>{t('settingsDependents.noTrips')}</p>
+            <p tabIndex={0}>{t('settingsDependents.noTrips')}</p>
           )}
           {!trips.length ? (
             ''

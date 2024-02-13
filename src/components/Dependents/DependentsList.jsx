@@ -74,7 +74,7 @@ export const DependentsList = observer(() => {
   const { t } = useTranslation();
   return (
     <Box>
-      <Heading as="h2" size="md">
+      <Heading as="h2" size="md" tabIndex={0}>
         {t('settingsDependents.list')}
       </Heading>
       <Box

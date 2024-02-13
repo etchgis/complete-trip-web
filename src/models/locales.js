@@ -107,6 +107,7 @@ export default function genLocales() {
         skip: 'Skip',
         yes: 'Yes',
         no: 'No',
+        to: 'To',
         loading: 'Loading',
         prevMonth: 'Previous Month',
         nextMonth: 'Next Month',
@@ -144,6 +145,7 @@ export default function genLocales() {
         skip: 'Omitir',
         yes: 'Sí',
         no: 'No',
+        to: 'A',
         loading: 'Cargando',
         prevMonth: 'Mes anterior',
         nextMonth: 'Próximo mes',
@@ -393,6 +395,8 @@ export default function genLocales() {
         zoomOut: 'Zoom Out',
         location: 'Find My Location',
         improve: 'Improve this map',
+        ariaDescription:
+          'Interact with the map using the keyboard and screen reader.',
       },
       es: {
         searchTitle: 'Encuentra rutas cercanas',
@@ -871,6 +875,8 @@ export default function genLocales() {
         addFavorite: 'Add to Favorites',
         removeFavorite: 'Remove from Favorites',
         viewDetails: 'View Trip Details',
+        tripInfo: 'Trip Information',
+        viewAll: 'View All Trips',
       },
       es: {
         title: 'Actividad del Viaje',
@@ -879,6 +885,8 @@ export default function genLocales() {
         addFavorite: 'Agregar a favoritos',
         removeFavorite: 'Eliminar de favoritos',
         viewDetails: 'Ver detalles del viaje',
+        tripInfo: 'Información del viaje',
+        viewAll: 'Ver todos los viajes',
       },
     },
   };

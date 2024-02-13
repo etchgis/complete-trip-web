@@ -79,7 +79,7 @@ export const EditAppNotifications = observer(() => {
           <Box py={6}>
             <Divider />
           </Box>
-          <Heading as="h3" size="md">
+          <Heading as="h3" size="md" tabIndex={0}>
             {t('settingsNotifications.caregiverAlerts')}
           </Heading>
           <Stack spacing={2}>

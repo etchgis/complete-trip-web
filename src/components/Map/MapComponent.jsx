@@ -13,6 +13,7 @@ import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loade
 import { observer } from 'mobx-react-lite';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation.js';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
@@ -22,6 +23,7 @@ mapboxgl.accessToken = config.MAP.MAPBOX_TOKEN;
 
 export const MapComponent = observer(({ showMap }) => {
   // console.log('[map-view] rendering');
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const {
     setMapX,
@@ -129,6 +131,7 @@ export const MapComponent = observer(({ showMap }) => {
         className="mapbox"
         style={{ height: '100%', flex: 1 }}
         id="map-container"
+        aria-label={t('map.ariaDescription')}
       />
       <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
     </>

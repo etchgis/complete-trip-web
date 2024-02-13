@@ -41,6 +41,12 @@ export const Routes = observer(() => {
   // console.log('[routes] logging in:', loggingIn);
   useEffect(() => {
     Gleap.initialize(import.meta.env.VITE_GLEAP);
+    const gleapDivs = document.querySelectorAll('.gleap-font');
+    if (gleapDivs.length > 0) {
+      gleapDivs.forEach(div => {
+        div.setAttribute('aria-hidden', 'true');
+      });
+    }
   }, []);
 
   //INIT AUTH & USER

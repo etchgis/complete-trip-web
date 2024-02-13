@@ -234,7 +234,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       borderRadius={10}
       w="600px"
       maxW={'calc(100% - 6rem)'}
-      data-id="tripbot-v1"
+      data-testid="tripbot-v1"
     >
       {chat.map((message, i) => (
         <Flex flexDir="column" key={i.toString()} w="100%">

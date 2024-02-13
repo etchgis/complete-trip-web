@@ -80,15 +80,17 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                 border="1px"
                 borderColor={colorMode === 'light' ? 'gray.300' : 'gray.700'}
                 flexDir={{ base: 'column', sm: 'row' }}
+                tabIndex={0}
+                aria-label={t('tripLog.tripInfo')}
               >
-                <Stat flex={0} pr={10}>
+                <Stat flex={0} pr={10} tabIndex={0}>
                   <StatLabel>{t(`time.${tripMonth}`).toUpperCase()}</StatLabel>
                   <StatNumber>
                     {new Date(trip.plan.startTime).getDate()}
                   </StatNumber>
                 </Stat>
 
-                <Stat>
+                <Stat tabIndex={0}>
                   <StatLabel>
                     {formatters.datetime.asHHMMA(new Date(trip.plan.startTime))}{' '}
                     {formatters.datetime.asDuration(trip?.plan?.duration)}{' '}
@@ -105,7 +107,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                         {startAlias ||
                           trip.plan?.request?.origin?.title ||
                           trip.origin.address.split(',')[0]}
-                        <ArrowForwardIcon aria-hidden={true} />{' '}
+                        <ArrowForwardIcon aria-label={t('global.to')} />{' '}
                         {endAlias ||
                           trip.plan?.request?.destination?.title ||
                           trip.destination.address.split(',')[0]}
@@ -116,7 +118,7 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
                       {startAlias ||
                         trip.plan?.request?.origin?.title ||
                         trip.origin.address.split(',')[0]}{' '}
-                      <ArrowForwardIcon aria-hidden={true} />{' '}
+                      <ArrowForwardIcon aria-label={t('global.to')} />{' '}
                       {endAlias ||
                         trip.plan?.request?.destination?.title ||
                         trip.destination.address.split(',')[0]}
@@ -167,19 +169,15 @@ export const TripCardList = observer(({ openModal, setSelectedTrip }) => {
 
         {allTrips.length > 3 && (
           <Button
-            rightIcon={<FaChevronRight />}
-            backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-            color="white"
-            _hover={{
-              background: colorMode === 'light' ? 'tripLight' : 'tripDim',
-            }}
+            rightIcon={<FaChevronRight aria-hidden={true} />}
+            variant="brand"
             borderRadius={'20px'}
             maxW="200px"
             display={'flex'}
             justifyContent={'space-around'}
             onClick={() => navigate('/trips')}
           >
-            See All Trips
+            {t('tripLog.viewAll')}
           </Button>
         )}
       </Stack>

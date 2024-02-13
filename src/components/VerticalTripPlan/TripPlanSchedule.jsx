@@ -336,7 +336,7 @@ export const TripPlanSchedule = observer(
               <Divider />
             </Box>
 
-            <Box>
+            <Box data-testid="trip-plan-schedule-leg-container" tabIndex={0}>
               {plan.legs.map((leg, i) => {
                 let title = '';
                 if (leg.agencyId || leg.providerId) {
@@ -387,6 +387,7 @@ export const TripPlanSchedule = observer(
                   mode.mode === 'walk' ? 'gray.400' : mode.color;
                 return (
                   <VStack
+                    data-testid="trip-plan-schedule-leg"
                     pos={'relative'}
                     key={i.toString()}
                     alignItems={'flex-start'}

@@ -145,7 +145,7 @@ const FavoriteCard = ({ id, title, description, type }) => {
   const { t } = useTranslation();
   return (
     <Stack
-      data-id={id}
+      data-testid={id}
       background={colorMode === 'light' ? 'white' : 'gray.900'}
       p={4}
       borderRadius={'md'}

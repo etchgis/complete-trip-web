@@ -341,6 +341,7 @@ const HomeAddress = observer(({ index }) => {
         size="lg"
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
+        tabIndex={0}
       >
         {t('loginWizard.addHomeAddress')}
       </Heading>
