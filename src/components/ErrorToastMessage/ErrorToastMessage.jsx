@@ -24,7 +24,10 @@ export const ErrorToastMessage = observer(({ message }) => {
     const msg = errorToastMessage || toastMessage;
     if (!msg) setToastMessage(message);
     toast({
-      title: t(`global.${toastStatus.toLowerCase()}`),
+      title:
+        t(`global.${toastStatus ? toastStatus.toLowerCase() : 'error'}`) ||
+        toastTitle ||
+        '',
       description: msg,
       status: toastStatus?.toLowerCase() || 'error',
       duration: duration,

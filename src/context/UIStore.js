@@ -14,6 +14,7 @@ class UIStore {
     fontSize: 'normal',
     hideImages: false,
     cursor: 'default',
+    language: 'en',
   };
   hasSelectedPlan = false;
 

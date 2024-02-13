@@ -435,6 +435,8 @@ const CreateAccountOrLogin = ({
                 as="span"
                 variant={'link'}
                 onClick={() => setActiveView('forgot')}
+                data-id="forgot-password-link"
+                tabIndex={0}
               >
                 {t('loginWizard.forgotPassword')}
               </Button>
@@ -466,6 +468,7 @@ const CreateAccountOrLogin = ({
               variant={'link'}
               onClick={() => setShowLogin(!showLogin)}
               ml={2}
+              tabIndex={0}
             >
               {showLogin
                 ? t('loginWizard.createAccount')

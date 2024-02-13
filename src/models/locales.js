@@ -47,6 +47,7 @@ export default function genLocales() {
         fri: 'FRI',
         sat: 'SAT',
         sun: 'SUN',
+        hasTrips: 'You have trips on this day.',
       },
       es: {
         jan: 'Enero',
@@ -80,6 +81,7 @@ export default function genLocales() {
         fri: 'VIE',
         sat: 'SÁB',
         sun: 'DOM',
+        hasTrips: 'Tienes viajes en este día.',
       },
     },
     global: {
@@ -118,6 +120,7 @@ export default function genLocales() {
         success: 'Success',
         warning: 'Warning',
         info: 'Info',
+        active: 'Active',
       },
       es: {
         site: 'Buffalo Access',
@@ -152,6 +155,7 @@ export default function genLocales() {
         success: 'Éxito',
         warning: 'Advertencia',
         info: 'Información',
+        active: 'Activo',
       },
     },
     errors: {
@@ -206,7 +210,12 @@ export default function genLocales() {
         medium: 'Medium',
         large: 'Large',
         contrast: 'Contrast',
+        disableHighContrast: 'Disable High Contrast',
+        enableHighContrast: 'Enable High Contrast',
+
         letterSpacing: 'Letter Spacing',
+        expandLetterSpacing: 'Expand Letter Spacing',
+        revertExpandedSpacing: 'Revert to Normal Spacing',
         expanded: 'Expanded',
         normal: 'Normal',
         cursorSize: 'Cursor Size',
@@ -218,7 +227,11 @@ export default function genLocales() {
         medium: 'Medio',
         large: 'Grande',
         contrast: 'Contraste',
+        disableHighContrast: 'Desactivar alto contraste',
+        enableHighContrast: 'Activar alto contraste',
         letterSpacing: 'Espaciado de letras',
+        expandLetterSpacing: 'Expandir el espaciado de letras',
+        revertExpandedSpacing: 'Volver al espaciado normal',
         expanded: 'Expandido',
         normal: 'Normal',
         cursorSize: 'Tamaño del cursor',
@@ -408,7 +421,7 @@ export default function genLocales() {
       en: {
         scheduleTrip: 'Schedule a Trip',
         saveAddress: 'Save Address',
-        addressname: 'Address Name',
+        addressName: 'Address Name',
         favorite: 'Favorite Location',
         selectDate: 'Select a Date',
         time: 'Time',
@@ -581,7 +594,7 @@ export default function genLocales() {
         deleteAccount: 'Delete Account',
         deleteMyAccount: 'Delete My Account',
         confirmDeleteMessage:
-          'Are you sure you would like to delete your account? If you do this, you will need create an new account again for access.',
+          'Are you sure you would like to delete your account? If you do this, you will need to create a new account again for access.',
         homeAddress: 'Home Address',
       },
       es: {

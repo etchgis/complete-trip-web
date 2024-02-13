@@ -3,9 +3,7 @@ import {
   Button,
   Divider,
   Heading,
-  IconButton,
   Popover,
-  PopoverAnchor,
   PopoverArrow,
   PopoverBody,
   PopoverCloseButton,
@@ -13,19 +11,15 @@ import {
   PopoverHeader,
   PopoverTrigger,
   SimpleGrid,
-  Tooltip,
 } from '@chakra-ui/react';
 
 import { EditLanguage } from '../Settings/EditAccessibility';
 import { FaUniversalAccess } from 'react-icons/fa';
-import FocusLock from 'react-focus-lock';
-import { useRef } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
 const AccessibilityWidget = ({ showTitle }) => {
-  const ref = useRef();
-  const { setUI } = useStore().uiStore;
+  const { ui, setUI } = useStore().uiStore;
   const { t } = useTranslation();
   return (
     <Box>
@@ -65,7 +59,7 @@ const AccessibilityWidget = ({ showTitle }) => {
           <PopoverBody>
             <SimpleGrid columns={1} spacing={2}>
               <Heading as="h4" margin="0.5">
-                <Box style={{ fontSize: '16px' }}>
+                <Box style={{ fontSize: '16px' }} tabIndex={0}>
                   {t('ariaWidget.fontSize')} (16px)
                 </Box>
               </Heading>
@@ -85,6 +79,7 @@ const AccessibilityWidget = ({ showTitle }) => {
                 }}
               >
                 {t('ariaWidget.medium')} (18px)
+                {ui?.fontSize === 'med' ? ' ' + t('global.active') : ''}
               </Button>
               <Button
                 variant={'outline'}
@@ -105,8 +100,9 @@ const AccessibilityWidget = ({ showTitle }) => {
                 }}
               >
                 {t('ariaWidget.large')} (22px)
+                {ui?.fontSize === 'lg' ? ' ' + t('global.active') : ''}
               </Button>
-              <Heading as="h4" size="sm" margin="0.5">
+              <Heading as="h4" size="sm" margin="0.5" tabIndex={0}>
                 {t('ariaWidget.contrast')}
               </Heading>
               <Button
@@ -124,10 +120,12 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                {t('ariaWidget.contrast')}
+                {ui.contrast
+                  ? t('ariaWidget.disableHighContrast')
+                  : t('ariaWidget.enableHighContrast')}
               </Button>
 
-              <Heading as="h4" size="sm" margin="0.5">
+              <Heading as="h4" size="sm" margin="0.5" tabIndex={0}>
                 {t('ariaWidget.letterSpacing')}
               </Heading>
               <Button
@@ -145,8 +143,9 @@ const AccessibilityWidget = ({ showTitle }) => {
                   }
                 }}
               >
-                <Box letterSpacing={'0.1rem'}>{t('ariaWidget.expanded')}</Box>
-                <Box letterSpacing={'inherit'}>/{t('ariaWidget.normal')}</Box>
+                {ui?.letterSpacing === 'lg'
+                  ? t('ariaWidget.revertExpandedSpacing')
+                  : t('ariaWidget.expandLetterSpacing')}
               </Button>
 
               {/* <Heading as="h4" size="sm" margin="0.5">
@@ -171,7 +170,7 @@ const AccessibilityWidget = ({ showTitle }) => {
                 Show/Hide Icons
               </Button> */}
 
-              <Heading as="h4" size="sm" margin="0.5">
+              <Heading as="h4" size="sm" margin="0.5" tabIndex={0}>
                 {t('ariaWidget.cursorSize')}
               </Heading>
               <Button
@@ -190,6 +189,7 @@ const AccessibilityWidget = ({ showTitle }) => {
                 }}
               >
                 {t('ariaWidget.largeCursor')}
+                {ui?.cursor === 'lg' ? ' ' + t('global.active') : ''}
               </Button>
               <Divider pt={2} mb={2} />
               <EditLanguage />
@@ -203,4 +203,4 @@ const AccessibilityWidget = ({ showTitle }) => {
   );
 };
 
-export default AccessibilityWidget;
+export { AccessibilityWidget };

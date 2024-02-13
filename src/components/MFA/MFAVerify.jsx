@@ -80,7 +80,7 @@ export const MFAVerify = observer(
                     setStage(1);
                   }}
                 >
-                  <Text mb={4}>{t('twoFactorAuth.text')}</Text>
+                  <Text mb={4}>{t('twoFactor.text')}</Text>
                   <RadioGroup
                     onChange={setMethod}
                     value={method}
@@ -88,13 +88,13 @@ export const MFAVerify = observer(
                     defaultChecked={method}
                   >
                     <Stack direction="row">
-                      <Radio value="sms">{t('twoFactorAuth.sms')}</Radio>
-                      <Radio value="call">{t('twoFactorAuth.call')}</Radio>
-                      <Radio value="email">{t('twoFactorAuth.email')}</Radio>
+                      <Radio value="sms">{t('twoFactor.sms')}</Radio>
+                      <Radio value="call">{t('twoFactor.call')}</Radio>
+                      <Radio value="email">{t('twoFactor.email')}</Radio>
                     </Stack>
                   </RadioGroup>
                   <Button type="submit" variant="brand" mt={4}>
-                    {t('twoFactorAuth.send')}
+                    {t('twoFactor.send')}
                   </Button>
                 </Box>
               ) : (
@@ -106,18 +106,18 @@ export const MFAVerify = observer(
                     fontWeight="400"
                     mb={4}
                   >
-                    {t('twoFactorAuth.verifyTitle')}
+                    {t('twoFactor.verifyTitle')}
                   </Heading>
                   {method === 'email' ? (
                     <Text as={'em'}>
-                      {t('twoFactorAuth.emailMessage', { email })}
+                      {t('twoFactor.emailMessage', { email })}
                     </Text>
                   ) : method === 'sms' ? (
                     <Text as={'em'}>
-                      {t('twoFactorAuth.phoneMessage', { phone })}
+                      {t('twoFactor.smsMessage', { phone })}
                     </Text>
                   ) : (
-                    <Text as={'em'}>{t('twoFactorAuth.callMessage')}</Text>
+                    <Text as={'em'}>{t('twoFactor.callMessage')}</Text>
                   )}
 
                   <Center flexDirection={'column'}>

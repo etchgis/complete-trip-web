@@ -65,7 +65,7 @@ export const ConfirmDialog = ({
               {title || buttonText || ''}
             </AlertDialogHeader>
 
-            <AlertDialogBody>
+            <AlertDialogBody tabIndex={0}>
               {message || 'Confirm  Message'}
               {verifyText ? (
                 <>
@@ -74,6 +74,7 @@ export const ConfirmDialog = ({
                   </Text>
                   <Input
                     value={text}
+                    placeholder={verifyText}
                     onChange={e => {
                       console.log(e.target.value);
                       console.log(verifyText);

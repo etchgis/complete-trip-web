@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import AccessibilityWidget from './AccessibilityWidget';
+import AccessibilityWidget from '../AccessibilityWidget';
 import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
 import { observer } from 'mobx-react-lite';
@@ -80,7 +80,9 @@ const NavIconButton = ({ icon, label, navItem, onClick, ...rest }) => {
     <Tooltip label={t(`sidebar.${label.toLowerCase()}`)}>
       <IconButton
         className="icon-button"
-        aria-label={label}
+        aria-label={
+          label + ' ' + (location === navItem ? t('global.active') : '')
+        }
         icon={icon}
         fontSize={'32px'}
         variant={'ghost'}

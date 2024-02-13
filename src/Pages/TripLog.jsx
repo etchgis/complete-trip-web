@@ -23,7 +23,7 @@ const TripLog = () => {
   return (
     <>
       <Box p={6}>
-        <Heading as="h2" size="md" mb={4}>
+        <Heading as="h2" size="md" mb={4} tabIndex={0}>
           {t('tripLog.title')}
         </Heading>
         <TripTable openModal={openModal} setSelectedTrip={setSelectedTrip} />

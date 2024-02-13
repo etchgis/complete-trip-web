@@ -41,19 +41,21 @@ export const ProfileInformation = observer(({ action }) => {
     }
   }
   return (
-    <Stack p={4} tabIndex={0}>
+    <Stack p={4}>
       <Avatar size="xl" mb={4}></Avatar>
-      <Box fontWeight="bold" fontSize="sm" as="p">
+      <Box fontWeight="bold" fontSize="sm" as="p" tabIndex={0}>
         {t('global.name').toUpperCase()}
       </Box>
-      <Text>
-        {user?.profile?.firstName} {user?.profile?.lastName}
-      </Text>
-      <Text>{user?.email}</Text>
-      <Text> {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}</Text>
-      <Box p={4}></Box>
+      <Box tabIndex={0}>
+        <Text>
+          {user?.profile?.firstName} {user?.profile?.lastName}
+        </Text>
+        <Text>{user?.email}</Text>
+        <Text> {formatters.phone.asDomestic(user?.phone.slice(2)) || ''}</Text>
+        <Box p={4}></Box>
 
-      <Text pb={4}>{user?.profile?.address?.text}</Text>
+        <Text pb={4}>{user?.profile?.address?.text}</Text>
+      </Box>
       {/* <Box pb={4}>Columbus OH, 00000</Box> */}
 
       <Stack spacing={4} direction={{ base: 'column', md: 'row' }}>

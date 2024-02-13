@@ -134,7 +134,11 @@ export const Calendar = observer(() => {
                 border="none"
                 maxW="43px"
                 aria-label={
-                  t(`time.${months[currentMonth.getMonth()]}`) + ' ' + day
+                  t(`time.${months[currentMonth.getMonth()]}`) +
+                  ' ' +
+                  day +
+                  ' ' +
+                  (selectedDates.includes(day) ? t('time.hasTrips') : '')
                 }
               >
                 {day}
@@ -178,7 +182,7 @@ export const Calendar = observer(() => {
         pl={5}
         pr={3}
       >
-        <Text fontWeight={'bold'}>
+        <Text fontWeight={'bold'} tabIndex={0}>
           {t(`time.${months[currentMonth.getMonth()]}`)}{' '}
           {currentMonth.getFullYear()}
         </Text>

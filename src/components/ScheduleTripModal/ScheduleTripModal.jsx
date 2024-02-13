@@ -138,8 +138,13 @@ export const ScheduleTripModal = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
+          stagedTrip.create();
           setStep(0);
           onClose();
+          setHasSelectedPlan(false);
+        }}
+        onOpen={() => {
+          setStep(0);
           setHasSelectedPlan(false);
           stagedTrip.create();
         }}
@@ -395,6 +400,7 @@ const First = observer(({ setStep, trip }) => {
             }}
             placement="bottom"
             closeOnBlur={false}
+            tabIndex={0}
           >
             <PopoverTrigger>
               <Checkbox
@@ -432,7 +438,11 @@ const First = observer(({ setStep, trip }) => {
               <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
               {/* <FocusLock returnFocus persistentFocus={false}> */}
               <PopoverBody>
-                <Input type="text" ref={startRef} />
+                <Input
+                  type="text"
+                  ref={startRef}
+                  placeholder={t('tripWizard.addressName')}
+                />
                 <HStack mt={2}>
                   <Button
                     variant={'solid'}
@@ -505,6 +515,7 @@ const First = observer(({ setStep, trip }) => {
             }}
             placement="bottom"
             closeOnBlur={false}
+            tabIndex={0}
           >
             <PopoverTrigger>
               <Checkbox
@@ -787,7 +798,7 @@ const Fourth = ({
   const { setToastMessage, setToastStatus, setHasSelectedPlan } =
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
-
+  const { t } = useTranslation();
   // //------------------DEBUG------------------//
   // const _selectedTrip = toJS(selectedTrip);
   // const _stagedTrip = toJS(trip);
@@ -804,15 +815,19 @@ const Fourth = ({
       ' ' +
       trip.request.destination.description;
     const updated = await saveTrip(selectedTrip, _request);
-    // console.log({ updated });
+    console.log({ updated });
     if (updated) {
       closeModal();
+
       setToastStatus('success');
       setToastMessage(t('tripWizard.tripScheduled'));
-      setSelectedTrip({});
+
       setHasSelectedPlan(false);
-      setStep(0);
+      setSelectedTrip({});
+
       trip.create();
+
+      setStep(0);
     }
   }
   // console.log(toJS(trip));

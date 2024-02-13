@@ -75,7 +75,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                     .match(/\b\w{3}\b/)[0]
                     .toLowerCase() + 'Abr';
                 return (
-                  <Tr key={trip.id}>
+                  <Tr key={trip.id} tabIndex={0}>
                     <Td fontWeight="bold">
                       {t(`time.${tripMonth}`)}{' '}
                       {new Date(trip.plan.startTime).getDate()}
