@@ -374,7 +374,7 @@ const First = observer(({ setStep, trip }) => {
           }
           setGeocoderResult={setStart}
           name="startAddress"
-          label="From"
+          label={t('tripWizard.searchFrom')}
           required={true}
           clearResult={true}
         />
@@ -491,7 +491,7 @@ const First = observer(({ setStep, trip }) => {
           }
           setGeocoderResult={setEnd}
           name="endAddress"
-          label="To"
+          label={t('tripWizard.searchTo')}
           required={true}
           clearResult={true}
         />

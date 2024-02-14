@@ -354,7 +354,7 @@ const HomeAddress = observer(({ index }) => {
           center={center}
           defaultAddress={defaultAddress}
           setGeocoderResult={setGeocoderResult}
-          label="Home Address"
+          label={t('settingsProfile.homeAddress')}
         ></AddressSearchForm>
       </FormControl>
       <VisuallyHiddenInput

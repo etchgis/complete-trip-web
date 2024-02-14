@@ -391,6 +391,7 @@ export default function genLocales() {
       en: {
         searchTitle: 'Find Nearby Routes',
         searchPlaceholder: 'Start typing an address...',
+
         zoomIn: 'Zoom In',
         zoomOut: 'Zoom Out',
         location: 'Find My Location',
@@ -401,6 +402,7 @@ export default function genLocales() {
       es: {
         searchTitle: 'Encuentra rutas cercanas',
         searchPlaceholder: 'Comience a escribir una dirección...',
+
         zoomIn: 'Acercar',
         zoomOut: 'Alejar',
         location: 'Encuentra mi ubicación',
@@ -423,6 +425,8 @@ export default function genLocales() {
     },
     tripWizard: {
       en: {
+        searchFrom: 'From',
+        searchTo: 'To',
         scheduleTrip: 'Schedule a Trip',
         saveAddress: 'Save Address',
         addressName: 'Address Name',
@@ -453,6 +457,8 @@ export default function genLocales() {
         tripScheduled: 'Trip Scheduled',
       },
       es: {
+        searchFrom: 'De',
+        searchTo: 'A',
         scheduleTrip: 'Programar un viaje',
         saveAddress: 'Guardar dirección',
         addressName: 'Nombre de la dirección',

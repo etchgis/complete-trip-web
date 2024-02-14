@@ -61,7 +61,7 @@
     "zustand": "^4.3.1"
   },
   "scripts": {
-    "start": "vite --port 5175",
+    "start": "vite --port 5175 --host",
     "build": "vite build",
     "serve": "vite preview",
     "dev-old": "react-scripts start",

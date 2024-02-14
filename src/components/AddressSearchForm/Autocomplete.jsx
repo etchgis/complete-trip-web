@@ -50,7 +50,7 @@ export const Autocomplete = props => {
       isRequired={props.required}
     >
       {props.label ? (
-        <FormLabel {...labelProps}>{t('map.searchTitle')} </FormLabel>
+        <FormLabel {...labelProps}>{props.label} </FormLabel>
       ) : null}
       <InputGroup>
         <InputLeftElement>

@@ -22,7 +22,11 @@ const customTheme = {
       },
     },
     //change color scheme of 'error' state in the alert component
-
+    Divider: {
+      baseStyle: {
+        'aria-hidden': true,
+      },
+    },
     Button: {
       baseStyle: {
         cursor: 'pointer',

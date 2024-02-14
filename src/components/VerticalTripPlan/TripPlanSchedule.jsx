@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Center,
   Divider,
   Flex,
@@ -101,7 +102,8 @@ const TimelineStep = ({ start, label, steps }) => {
             {details.length === 3 && i === 1 && !showDetails ? (
               <Box ml={6}>
                 {/* TODO convert this to a button for accessibility */}
-                <Text
+                <Button
+                  variant={'link'}
                   fontWeight="bold"
                   fontSize="sm"
                   onClick={() => setShowDetails(!showDetails)}
@@ -111,7 +113,7 @@ const TimelineStep = ({ start, label, steps }) => {
                   data-name="step-name"
                 >
                   {step.name}
-                </Text>
+                </Button>
               </Box>
             ) : (
               <>
@@ -170,7 +172,8 @@ const TimelineStep = ({ start, label, steps }) => {
               borderLeft="solid 4px #00205b"
               borderColor={accentColor}
             ></Box>
-            <Text
+            <Button
+              variant="link"
               fontWeight="bold"
               fontSize="sm"
               onClick={() => setShowDetails(!showDetails)}
@@ -180,7 +183,7 @@ const TimelineStep = ({ start, label, steps }) => {
               pl={'24px'}
             >
               Hide Details
-            </Text>
+            </Button>
           </>
         ) : null}
       </VStack>
@@ -329,11 +332,12 @@ export const TripPlanSchedule = observer(
               <Divider
                 borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
                 borderWidth={2}
+                aria-hidden={true}
               />
             </Box>
 
             <Box py={2}>
-              <Divider />
+              <Divider aria-hidden={true} />
             </Box>
 
             <Box data-testid="trip-plan-schedule-leg-container" tabIndex={0}>
@@ -419,6 +423,7 @@ export const TripPlanSchedule = observer(
                         m={0}
                         fontWeight={'extrabold'}
                         data-name="route-or-title"
+                        tabIndex={0}
                       >
                         {route || title}
                       </Heading>
@@ -492,13 +497,13 @@ export const TripPlanSchedule = observer(
                       </>
                     ) : null}
                     <Box>
-                      <Divider />
+                      <Divider aria-hidden={true} />
                     </Box>
                   </VStack>
                 );
               })}
 
-              <Flex alignItems={'center'} my={4}>
+              <Flex alignItems={'center'} my={4} tabIndex={0}>
                 <Icon as={FaStar} mr={2} />
                 <Text fontWeight={'bold'}>
                   {t('tripWizard.arriveAt')} {request?.destination?.title}{' '}
