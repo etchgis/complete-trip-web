@@ -5,6 +5,7 @@ import {
   Grid,
   Heading,
   Stack,
+  Text,
   useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -14,7 +15,7 @@ import {
   ProfileInformation,
   TermsOfUse,
 } from '../components/Settings/SettingsViews';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AddCaregiver } from '../components/Settings/AddCaregiver';
@@ -149,6 +150,20 @@ const Settings = observer(({ view }) => {
     },
   ];
 
+  const activePageRef = useRef(null);
+  useEffect(() => {
+    if (activePageRef.current) {
+      console.log('setting focus');
+      var focusable = activePageRef?.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      console.log(focusable);
+      if (focusable?.length) {
+        focusable[0].focus();
+      }
+    }
+  }, [view]);
+
   return (
     <>
       <Grid
@@ -193,8 +208,14 @@ const Settings = observer(({ view }) => {
           id="rightSettingsPanel"
           p={{ base: 10, md: 10 }}
           maxW={{ base: '100%', md: '600px', lg: '1000px' }}
+          ref={activePageRef}
         >
-          {switchViews({ view, caregivers, setActivePanel, setCaretakerId })}
+          <Text tabIndex={0} aria-label=""></Text>
+          {switchViews({
+            view,
+            caregivers,
+            setActivePanel,
+          })}
         </Box>
       </Grid>
       <SettingsModal
@@ -228,6 +249,7 @@ function switchViews({ view, setActivePanel }) {
       return (
         <CaregiversList
           action={() => setActivePanel('Add Caregiver')}
+
           //   if (!id && id !== 0) {
           //     return setActivePanel('Add Caregiver');
           //   }
