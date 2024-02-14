@@ -88,7 +88,7 @@ export const FavoritesList = observer(() => {
   return (
     <Box maxW={{ base: '100%', md: 'md' }}>
       <Box py={6}>
-        <Divider />
+        <Divider aria-hidden={true} />
       </Box>
       <Stack spacing={4}>
         {favoriteTrips.length ? (
@@ -113,7 +113,7 @@ export const FavoritesList = observer(() => {
         })}
       </Stack>
       <Box py={6}>
-        <Divider />
+        <Divider aria-hidden={true} />
       </Box>
       <Stack spacing={4}>
         {favoriteLocations.length ? (
@@ -250,62 +250,52 @@ export const PrivacyPolicy = () => {
         Privacy Policy We respect your privacy and are committed to protecting
         it. This Privacy Policy explains what information we collect, how we use
         it, and how you can control it.
-        <br></br>
-        <br></br>
-        Information Collection
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>Information Collection</Text>
+      <Text>
         We collect information that you provide to us directly, such as when you
         create an account, place an order, or contact us with a question or
         concern. This information may include your name, email address, and
         other contact information.
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>
         We may also automatically collect certain information about your use of
         our services, such as your browsing and search history, device
         information, and location data. This information is collected through
         the use of cookies and other technologies.
-        <br></br>
-        <br></br>
-        Information Use
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>Information Use</Text>
+      <Text>
         We use the information we collect to provide and improve our services,
         and to communicate with you. For example, we may use your email address
         to send you updates on your order or to respond to your customer service
         inquiries.
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>
         We may also use the information we collect to personalize your
         experience on our website and to send you targeted marketing
         communications.
-        <br></br>
-        <br></br>
-        Information Control
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>Information Control</Text>
+      <Text>
         You have the right to access and control your personal information. You
         can request access to your information, update your information, or ask
         us to delete it by contacting us at privacy@example.com.
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>
         You can also control the use of cookies and other technologies through
         your browser settings.
-        <br></br>
-        <br></br>
-        Changes to this Privacy Policy
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>Changes to this Privacy Policy</Text>
+      <Text>
         We may update this Privacy Policy from time to time. If we make any
         changes, we will notify you by revising the date at the top of this
         policy and, in some cases, provide you with additional notice (such as
         adding a statement to our homepage or sending you an email
         notification).
-        <br></br>
-        <br></br>
-        Contact Us
-        <br></br>
-        <br></br>
+      </Text>
+      <Text>Contact Us</Text>
+      <Text>
         If you have any questions or concerns about this Privacy Policy or our
         privacy practices, please contact us at privacy@example.com.
       </Text>

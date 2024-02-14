@@ -19,7 +19,7 @@ export const EditAccessibility = observer(() => {
     <Box width="100%" maxW="500px" id="edit-accessibility">
       <EditNavDirections />
       <Box py={6}>
-        <Divider />
+        <Divider aria-hidden={true} />
       </Box>
       <EditLanguage />
       <EditNotifyMethods />

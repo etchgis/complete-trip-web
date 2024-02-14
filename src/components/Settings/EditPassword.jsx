@@ -129,7 +129,7 @@ export const EditPassword = () => {
         </FormControl>
 
         <Box py={6}>
-          <Divider></Divider>
+          <Divider aria-hidden={true}></Divider>
         </Box>
 
         <FormControl isRequired>

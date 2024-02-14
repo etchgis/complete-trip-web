@@ -53,7 +53,7 @@ export const EditTripPreferences = observer(() => {
       <MinimizeWalkingToggle />
       <MaxTransfersSlider />
       <Spacer my={10} />
-      <Divider />
+      <Divider aria-hidden={true} />
 
       <FormControl>
         <FormLabel>{t('settingsPreferences.modes')}</FormLabel>
@@ -81,7 +81,7 @@ export const EditTripPreferences = observer(() => {
           })}
         </Stack>
       </FormControl>
-      <Divider />
+      <Divider aria-hidden={true} />
 
       {/* <FormControl>
         <FormLabel>Enhanced Mobility Options</FormLabel>

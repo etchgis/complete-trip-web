@@ -93,7 +93,7 @@ export const CaregiverCard = ({ caregiver }) => {
           <Text>{caregiver?.email}</Text>
         </Stack>
       </CardBody>
-      <Divider />
+      <Divider aria-hidden={true} />
       <CardFooter p={2} justifyContent={'space-between'} alignItems={'center'}>
         <ConfirmDialog
           title={t('settingsCaregivers.removeCaregiver')}

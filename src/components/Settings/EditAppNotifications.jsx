@@ -40,7 +40,7 @@ export const EditAppNotifications = observer(() => {
         </Flex>
       </Heading>
       <Box py={6}>
-        <Divider />
+        <Divider aria-hidden={true} />
       </Box>
       <Heading as="h3" size="md" tabIndex={0}>
         {t('settingsNotifications.rider')}
@@ -77,7 +77,7 @@ export const EditAppNotifications = observer(() => {
       {dependents.length ? (
         <>
           <Box py={6}>
-            <Divider />
+            <Divider aria-hidden={true} />
           </Box>
           <Heading as="h3" size="md" tabIndex={0}>
             {t('settingsNotifications.caregiverAlerts')}

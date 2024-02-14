@@ -186,7 +186,7 @@ const Settings = observer(({ view }) => {
             })}
           </Stack>
           <Box mt={6} display={{ base: 'block', md: 'none' }}>
-            <Divider />
+            <Divider aria-hidden={true} />
           </Box>
         </Box>
         <Box
