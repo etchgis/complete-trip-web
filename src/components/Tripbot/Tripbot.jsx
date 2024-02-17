@@ -5,7 +5,7 @@ import config from '../../config';
 import geocode from '../../services/transport/geocoder';
 import { getLocation } from '../../utils/getLocation';
 import { observer } from 'mobx-react-lite';
-import sampleChatResponse from './sample-chat-response.json';
+import sampleChatResponse from '../ScheduleTripModal/sample-chat-response.json';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
@@ -166,19 +166,20 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
     }
 
     const response = await fetchChat(input, accessToken);
-    console.log('[tripbot]', { response });
+    console.log('[tripbot]', response);
 
     if (
       !response ||
       !response?.response ||
-      !response?.response?.state?.assistantAnswer
+      (!response?.response?.state?.assistantAnswer &&
+        !response?.isFinalResponse)
     ) {
       setIsThinking(false);
       if (errors > 2) {
         setChat(state => [
           ...state,
           {
-            bot: t('tripbox.error1'),
+            bot: t('tripbot.error1'),
             user: '',
           },
         ]);
@@ -191,7 +192,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       setChat(state => [
         ...state,
         {
-          bot: t('tripbox.error2'),
+          bot: t('tripbot.error2'),
           user: '',
         },
       ]);
@@ -208,7 +209,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         setChat(state => [
           ...state,
           {
-            bot: t('tripbox.error2'),
+            bot: t('tripbot.error2'),
             user: '',
           },
         ]);

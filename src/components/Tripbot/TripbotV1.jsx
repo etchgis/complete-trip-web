@@ -5,7 +5,7 @@ import config from '../../config';
 import geocode from '../../services/transport/geocoder';
 import { getLocation } from '../../utils/getLocation';
 import { observer } from 'mobx-react-lite';
-import sampleChatResponse from './sample-chat-response.json';
+import sampleChatResponse from '../ScheduleTripModal/sample-chat-response.json';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 

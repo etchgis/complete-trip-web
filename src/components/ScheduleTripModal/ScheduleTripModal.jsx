@@ -45,7 +45,7 @@ import { useEffect, useRef } from 'react';
 import AddressSearchForm from '../AddressSearchForm';
 import { BsFillChatDotsFill } from 'react-icons/bs';
 import CreateIcon from '../CreateIcon';
-import { Tripbot } from './Tripbot';
+import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
 import config from '../../config';
 import formatters from '../../utils/formatters';
