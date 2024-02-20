@@ -17,7 +17,7 @@ export default function genLocales() {
     time: {
       en: {
         jan: 'January',
-        feb: 'Febraury',
+        feb: 'February',
         mar: 'March',
         apr: 'April',
         may: 'May',
