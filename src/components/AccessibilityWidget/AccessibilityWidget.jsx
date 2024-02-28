@@ -191,8 +191,8 @@ const AccessibilityWidget = ({ showTitle }) => {
                 {t('ariaWidget.largeCursor')}
                 {ui?.cursor === 'lg' ? ' ' + t('global.active') : ''}
               </Button>
-              {/* <Divider aria-hidden={true} pt={2} mb={2} />
-              <EditLanguage /> */}
+              <Divider aria-hidden={true} pt={2} mb={2} />
+              <EditLanguage />
             </SimpleGrid>
           </PopoverBody>
           {/* </FocusLock> */}
