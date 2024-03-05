@@ -16,7 +16,7 @@ export default function genLocales() {
   return {
     time: {
       en: {
-        jan: 'January', 
+        jan: 'January',
         feb: 'February',
         mar: 'March',
         apr: 'April',
@@ -50,18 +50,18 @@ export default function genLocales() {
         hasTrips: 'You have trips on this day.',
       },
       es: {
-        jan: 'Enero',//✅
+        jan: 'Enero', //✅
         feb: 'Febrero', //✅
-        mar: 'Marzo',//✅
-        apr: 'Abril',//✅
-        may: 'Mayo',//✅
-        jun: 'Junio',//✅
-        jul: 'Julio',//✅
-        aug: 'Agosto',//✅
-        sep: 'Septiembre',//✅
-        oct: 'Octubre',//✅
-        nov: 'Noviembre',//✅
-        dec: 'Diciembre',//✅
+        mar: 'Marzo', //✅
+        apr: 'Abril', //✅
+        may: 'Mayo', //✅
+        jun: 'Junio', //✅
+        jul: 'Julio', //✅
+        aug: 'Agosto', //✅
+        sep: 'Septiembre', //✅
+        oct: 'Octubre', //✅
+        nov: 'Noviembre', //✅
+        dec: 'Diciembre', //✅
         janAbr: 'enero',
         febAbr: 'feb',
         marAbr: 'mar',
@@ -81,12 +81,12 @@ export default function genLocales() {
         fri: 'VIE',
         sat: 'SÁB',
         sun: 'DOM',
-        hasTrips: 'Tienes viajes en este día.',
+        hasTrips: 'Tienes viajes en este día.', //✅
       },
     },
     global: {
       en: {
-        site: 'Buffalo Access',
+        site: 'All Access',
         name: 'name',
         firstName: 'First Name',
         lastName: 'Last Name',
@@ -124,10 +124,10 @@ export default function genLocales() {
         active: 'Active',
       },
       es: {
-        site: 'Buffalo Access',
-        name: 'nombre',//✅
-        firstName: 'Nombre',//✅
-        lastName: 'Apellido',//✅
+        site: 'All Access',
+        name: 'nombre', //✅
+        firstName: 'Nombre', //✅
+        lastName: 'Apellido', //✅
         email: 'Correo electrónico',
         emailAddress: 'Dirección de correo electrónico',
         phone: 'Teléfono',
@@ -136,25 +136,25 @@ export default function genLocales() {
         cancel: 'Cancelar',
         close: 'Cerrar',
         home: 'Casa',
-        trips: 'Viajes',
+        trips: 'Viajes', //✅
         profileSettings: 'Perfil y ajustes',
         accessibility: 'Accesibilidad',
         favorite: 'Favorito',
         next: 'Próximo',
-        prev: 'Anterior',
+        prev: 'Anterior', //✅
         skip: 'Omitir',
         yes: 'Sí',
         no: 'No',
         to: 'A',
         loading: 'Cargando',
-        prevMonth: 'Mes anterior',
-        nextMonth: 'Próximo mes',
+        prevMonth: 'Mes Anterior', //✅
+        nextMonth: 'Mes Próximo', //✅
         second: 'Segundo',
         third: 'Tercero',
         caregiver: 'Cuidador',
 
         error: 'Error',
-        success: 'Éxito',
+        success: 'Éxito', //✅
         warning: 'Advertencia',
         info: 'Información',
         active: 'Activo',
@@ -170,11 +170,11 @@ export default function genLocales() {
       },
       es: {
         login: 'Se produjo un error al iniciar sesión',
-        recover: 'Error al enviar el código. Por favor, inténtelo de nuevo.',
+        recover: 'Error al enviar el código. Por favor, inténtelo de nuevo.', //✅
         conflict:
           'Este correo electrónico ya está registrado. Por favor inicie sesión.',
-        expired: 'Su sesión ha expirado. Por favor inicie sesión.',
-        pleaseSelectLocation: 'Por favor seleccione una ubicación de la lista',
+        expired: 'Su sesión ha caducado. Por favor, inicie sesión.',
+        pleaseSelectLocation: 'Por favor seleccione una ubicación de la lista', //✅
       },
     },
     navbar: {
@@ -186,7 +186,7 @@ export default function genLocales() {
       es: {
         logout: 'Cerrar sesión',
         loginSignUp: 'Iniciar sesión/Registrarse',
-        toggle: 'Alternar menú de navegación',
+        toggle: 'Alternar Menú de Navegación', //✅
       },
     },
     sidebar: {
@@ -198,7 +198,7 @@ export default function genLocales() {
         accessibility: 'Accessibility',
       },
       es: {
-        home: 'Incio',
+        home: 'Página Principal', //✅
         trips: 'Viajes',
         map: 'Mapa',
         profile: 'Perfil y ajustes',
@@ -225,19 +225,19 @@ export default function genLocales() {
       },
       es: {
         settings: 'Ajustes',
-        fontSize: 'Tamaño de fuente',
-        medium: 'Medio',
-        large: 'Grande',
-        contrast: 'Contraste',
-        disableHighContrast: 'Desactivar alto contraste',
-        enableHighContrast: 'Activar alto contraste',
-        letterSpacing: 'Espaciado de letras',
-        expandLetterSpacing: 'Expandir el espaciado de letras',
-        revertExpandedSpacing: 'Volver al espaciado normal',
-        expanded: 'Expandido',
-        normal: 'Normal',
-        cursorSize: 'Tamaño del cursor',
-        largeCursor: 'Tamaño del cursor grande',
+        fontSize: 'Tamaño de las Letras', //✅
+        medium: 'Medio', //✅
+        large: 'Grande', //✅
+        contrast: 'Contraste', //✅
+        disableHighContrast: 'Desactivar Contraste Alto', //✅
+        enableHighContrast: 'Activar Contraste Alto', //✅
+        letterSpacing: 'Espaciado entre Letras', //✅
+        expandLetterSpacing: 'Ampliar Espacio entre Letras', //✅
+        revertExpandedSpacing: 'Volver al Espaciado Normal', //✅
+        expanded: 'Ampliado', //✅
+        normal: 'Normal (tipo de letra)', //✅
+        cursorSize: 'Tamaño del Cursor', //✅
+        largeCursor: 'Tamaño Grande del Cursor', //✅
       },
     },
     loginWizard: {
@@ -292,14 +292,14 @@ export default function genLocales() {
         forgotPassword: '¿Olvidó su contraseña?',
         noAccount: '¿No tienes una cuenta?',
         createAccount: 'Crear cuenta',
-        accountCreated: 'Su cuenta ha sido creada. Por favor inicie sesión.',
+        accountCreated: 'Su cuenta ha sido creada. Por favor, inicie sesión.', //✅
 
-        accessibilityOptions: 'Opciones de accesibilidad',
+        accessibilityOptions: 'Opciones de Accesibilidad',
 
-        verifyPhone: 'Verifique su número de teléfono para continuar',
+        verifyPhone: 'Verifique tu número de teléfono para continuar', //✅
 
         addContactInfo: 'Agregar información de contacto',
-        addContactInfoDescription: `Su correo electrónico y número de teléfono se utilizan para la verificación en dos pasos, la recuperación de contraseña y las notificaciones sobre sus viajes.`,
+        addContactInfoDescription: `Su correo electrónico y número de teléfono se utilizan para la verificación en dos pasos, la recuperación de contraseña y las notificaciones sobre sus viajes.`, //✅
 
         addHomeAddress: 'Agregar dirección de casa',
         addHomeDescription: `Esto ayuda a crear rutas desde su casa con facilidad.`,
@@ -400,12 +400,12 @@ export default function genLocales() {
           'Interact with the map using the keyboard and screen reader.',
       },
       es: {
-        searchTitle: 'Encuentra rutas cercanas',
-        searchPlaceholder: 'Comience a escribir una dirección...',
+        searchTitle: 'Encuentra Rutas Cercanas', //✅
+        searchPlaceholder: 'Empiece a escribir una dirección...', //✅
 
         zoomIn: 'Acercar',
         zoomOut: 'Alejar',
-        location: 'Encuentra mi ubicación',
+        location: 'Encuentra mi Ubicación', //✅
         improve: 'Mejorar este mapa',
       },
     },
@@ -463,7 +463,7 @@ export default function genLocales() {
         saveAddress: 'Guardar dirección',
         addressName: 'Nombre de la dirección',
         favorite: 'Ubicación favorita',
-        selectDate: 'Seleccionar una fecha',
+        selectDate: 'Seleccionar una Fecha', //✅
         time: 'Hora',
         now: 'Salir ahora (ASAP)',
         leaveBy: 'Salir por',
@@ -471,22 +471,22 @@ export default function genLocales() {
         modes: 'Modo(s) de transporte',
         selectTransportation: 'Seleccione su transporte',
         chatbot: '¿A dónde te gustaría ir?',
-        selectTrip: 'Seleccionar un viaje',
+        selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
         arrive: 'Llegar',
         arriveAt: 'Llegar a',
-        direct: 'Directo',
+        direct: 'Directo', //✅
         includesStops: 'Incluye paradas',
         mode: 'Modo',
-        generatingPlans: 'Generando planes...',
+        generatingPlans: 'Generando Planes...', //✅
         schedule: 'Programar viaje',
-        overview: 'Resumen del plan de viaje',
+        overview: 'Descripción General del Plan de Viaje', //✅
         transfer: 'transferir',
         roll: 'Rodar',
         walk: 'Caminar',
         drive: 'Conducir',
-        wait: 'Esperar',
-        tripScheduled: 'Viaje programado',
+        wait: 'Esperar', //✅
+        tripScheduled: 'Viaje Programado', //✅
       },
     },
     tripbot: {
@@ -501,9 +501,9 @@ export default function genLocales() {
         greeting:
           '¡Hola! Estoy aquí para ayudarte a programar tu viaje. Empecemos.',
         error1:
-          'Lo siento, el bot está experimentando problemas. Por favor, inténtelo de nuevo más tarde.',
+          'Lo siento, el bot está experimentando problemas. Por favor, inténtelo de nuevo más tarde.', //✅
         error2:
-          'Lo siento, estoy teniendo problemas. ¿Puedes intentarlo de nuevo?',
+          'Lo siento, estoy experimentando problemas. ¿Puedes intentarlo de nuevo?', //✅
       },
     },
     accessibility: {
@@ -520,12 +520,12 @@ export default function genLocales() {
       },
       es: {
         settings: 'Ajustes',
-        fontSize: 'Tamaño de fuente',
+        fontSize: 'Tamaño de las Letras', //✅
         medium: 'Medio',
         large: 'Grande',
         contrast: 'Contraste',
         letterSpacing: 'Espaciado de letras',
-        expanded: 'Expandido/Normal',
+        expanded: 'Ampliado/Normal',
         cursorSize: 'Tamaño del cursor',
         cursorSizeLarge: 'Tamaño del cursor grande',
       },
@@ -557,7 +557,7 @@ export default function genLocales() {
         smsMessage: `Revise su teléfono para el código de verificación de seis dígitos y escríbalo a continuación. Puede copiar y pegar el código en el primer cuadro.`,
         call: 'Llámame',
         callMessage:
-          'Espere la llamada telefónica y luego escriba el código de seis dígitos en el cuadro a continuación.',
+          'Espere la llamada telefónica y luego escriba el código de seis dígitos en el cuadro a continuación.', //✅
         email: 'Envíame un correo electrónico',
         emailMessage: `Revise %{email} para el código de verificación de seis dígitos y escríbalo a continuación. Puede copiar y pegar el código en el primer cuadro.`,
         send: 'Enviar código de autenticación',
@@ -652,15 +652,15 @@ export default function genLocales() {
         addCaregiver: 'Agregar cuidador',
         invalidCaregiver: 'Cuidador inválido',
         linkMessage:
-          'Se le ha solicitado que sea un cuidador para %{name}. ¿Quieres aceptar la solicitud?',
-        linkMessageNoAccount: `Se le ha solicitado que sea un cuidador para All Access App. Inicie sesión para ver la solicitud. Si no tiene una cuenta, regístrese y podrá revisar la solicitud una vez que complete el registro.`,
+          'Se le ha solicitado que sea coordinator(a) de %{name}. ¿Quieres aceptar la solicitud?', //✅
+        linkMessageNoAccount: `Se le ha solicitado que sea coordinador de la aplicación Buffalo Complete Trip. Inicie sesión para ver la solicitud. Si no tiene una cuenta, regístrese y podrá revisar la solicitud una vez se registre.`, //✅
         pending: 'Pendiente',
         received: 'Recibido',
-        denied: 'Negado',
-        approve: 'Aprobar',
-        deny: 'Negar',
-        acceptRequest: 'Aceptar solicitud',
-        denyRequest: 'Negar solicitud',
+        denied: 'Negado', //✅
+        approve: 'Aprobar', //✅
+        deny: 'Negar', //✅
+        acceptRequest: 'Aceptar Solicitud', //✅
+        denyRequest: 'Negar Solicitud', //✅
         removeCaregiver: 'Eliminar cuidador',
         remove: 'Eliminar',
         confirmRemove: '¿Estás seguro? No puedes deshacer esta acción.',
@@ -700,7 +700,7 @@ export default function genLocales() {
         noFavorites: 'No se encontraron viajes favoritos.',
         locations: 'Ubicaciones favoritas',
         noLocations: 'No se encontraron ubicaciones favoritas.',
-        delete: 'Eliminar favorito',
+        delete: 'Eliminar Favorito', //✅
       },
     },
     settingsPreferences: {
@@ -754,13 +754,13 @@ export default function genLocales() {
       es: {
         password: 'Contraseña',
         placeholder: 'Ingrese una contraseña de 8 caracteres',
-        error: 'Error al actualizar la contraseña',
-        success: 'Contraseña actualizada con éxito',
-        hide: 'Ocultar contraseña',
-        show: 'Mostrar contraseña',
-        errorMatch: 'Las contraseñas no coinciden',
+        error: 'Error al actualizar la contraseña', //✅
+        success: 'Contraseña actualizada exitosamente', //✅
+        hide: 'Ocultar Contraseña',
+        show: 'Mostrar Contraseña', //✅
+        errorMatch: 'Las contraseñas no coinciden', //✅
         errorSame:
-          'La nueva contraseña no puede ser igual que la contraseña actual',
+          'La nueva contraseña no puede ser la misma que la contraseña actual', //✅
         current: 'Contraseña actual',
         enter: 'Ingrese una nueva contraseña',
         newPassword: 'Nueva contraseña',
@@ -818,7 +818,7 @@ export default function genLocales() {
         shuttleArrive: 'Llegada del autobús bajo demanda',
         intersection: 'Información mejorada de la intersección',
         caregiverAlerts: 'Alertas de notificación del cuidador',
-        dependentTripStart: 'Inicio del viaje del pasajero',
+        dependentTripStart: 'Inicio del Viaje del Viajero', //✅
         dependentArriveDepart: 'Llegada/salida del pasajero',
         dependentShuttleArriveDepart:
           'Llegada/drop off del autobús del pasajero',
@@ -885,14 +885,14 @@ export default function genLocales() {
         viewAll: 'View All Trips',
       },
       es: {
-        title: 'Actividad del Viaje',
+        title: 'Actividad del Viaje', //✅
         upcoming: 'Próximos',
         noTrips: 'No se encontraron viajes próximos.',
         addFavorite: 'Agregar a favoritos',
         removeFavorite: 'Eliminar de favoritos',
-        viewDetails: 'Ver detalles del viaje',
-        tripInfo: 'Información del viaje',
-        viewAll: 'Ver todos los viajes',
+        viewDetails: 'Ver Detalles del Viaje', //✅
+        tripInfo: 'Información del Viaje', //✅
+        viewAll: 'Ver Todos los Viajes', //✅
       },
     },
   };
