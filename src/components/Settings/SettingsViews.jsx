@@ -95,11 +95,7 @@ export const FavoritesList = observer(() => {
           <Heading as="h3" size="md" tabIndex={0}>
             {t('settingsFavorites.favorites')}
           </Heading>
-        ) : (
-          <Text opacity={0.8} tabIndex={0}>
-            {t('settingsFavorites.noFavorites')}
-          </Text>
-        )}
+        ) : null}
         {favoriteTrips.map((f, i) => {
           return (
             <FavoriteCard
@@ -120,11 +116,7 @@ export const FavoritesList = observer(() => {
           <Heading as="h3" size="md">
             {t('settingsFavorites.locations')}
           </Heading>
-        ) : (
-          <Text opacity={0.8} tabIndex={0}>
-            {t('settingsFavorites.noLocations')}
-          </Text>
-        )}
+        ) : null}
         {favoriteLocations.map((f, i) => (
           <FavoriteCard
             key={f.id.toString()}

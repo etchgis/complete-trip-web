@@ -129,23 +129,23 @@ export default function genLocales() {
         firstName: 'Nombre', //✅
         lastName: 'Apellido', //✅
         email: 'Correo electrónico',
-        emailAddress: 'Dirección de correo electrónico',
-        phone: 'Teléfono',
+        emailAddress: 'Correo Electrónico', //✅
+        phone: 'Número de Teléfono', //✅
         save: 'Guardar',
         submit: 'Enviar',
         cancel: 'Cancelar',
         close: 'Cerrar',
-        home: 'Casa',
+        home: 'Hogar', //✅
         trips: 'Viajes', //✅
-        profileSettings: 'Perfil y ajustes',
+        profileSettings: 'Perfil y configuración', //✅
         accessibility: 'Accesibilidad',
         favorite: 'Favorito',
         next: 'Próximo',
         prev: 'Anterior', //✅
-        skip: 'Omitir',
+        skip: 'Saltar', //✅
         yes: 'Sí',
         no: 'No',
-        to: 'A',
+        to: 'hacia', //✅
         loading: 'Cargando',
         prevMonth: 'Mes Anterior', //✅
         nextMonth: 'Mes Próximo', //✅
@@ -162,14 +162,14 @@ export default function genLocales() {
     },
     errors: {
       en: {
-        login: 'An error occurred while logging in',
+        login: 'Unknown Error',
         recover: 'Error sending code. Please try again.',
         conflict: 'This email is already registered. Please login.',
         expired: 'Your session has expired. Please login.',
         pleaseSelectLocation: 'Please select a location from the list',
       },
       es: {
-        login: 'Se produjo un error al iniciar sesión',
+        login: 'Error desconocido', //✅
         recover: 'Error al enviar el código. Por favor, inténtelo de nuevo.', //✅
         conflict:
           'Este correo electrónico ya está registrado. Por favor inicie sesión.',
@@ -224,7 +224,7 @@ export default function genLocales() {
         largeCursor: 'Larger Cursor Size',
       },
       es: {
-        settings: 'Ajustes',
+        settings: 'CONFIGURACIÓN', //✅
         fontSize: 'Tamaño de las Letras', //✅
         medium: 'Medio', //✅
         large: 'Grande', //✅
@@ -243,13 +243,13 @@ export default function genLocales() {
     loginWizard: {
       en: {
         login: 'Login',
-        register: 'Register',
+        register: 'Sign Up',
         signUp: 'Sign Up',
         continueGuest: 'Continue as Guest',
         email: 'Email address',
         password: 'Password',
         forgotPassword: 'Forgot Password?',
-        noAccount: 'Don’t have an account?',
+        noAccount: "Don't have an account?",
         createAccount: 'Create Account',
         accountCreated: 'Your account has been created. Please login.',
 
@@ -264,16 +264,16 @@ export default function genLocales() {
         addHomeAddress: 'Add Home Address',
         addHomeDescription: `This helps create routes from your home with ease.`,
 
-        addPrimaryCaregiver: 'Add Primary Caregiver',
+        addPrimaryCaregiver: 'Add Primary Coordinator',
         addPrimaryCaregiverDescription: `Notify your companions in 1-touch for any of your trips.`,
 
         addMobilityOptions: 'Enhanced Mobility Options',
         addMobilityOptionsDescription: `Enter in your email to find enhanced mobility options you are registered with such as [x]`,
 
-        addAnotherEmail: 'Add Another email address',
+        // addAnotherEmail: 'Add Another email address',
 
         termsTitle: 'Terms and Conditions',
-        termsMessage: 'Please read and accept the terms and conditions.',
+        termsMessage: 'I agree to the Terms and Conditions',
         termsText: '',
         terms1: 'I have read the',
         terms2: 'terms and conditions',
@@ -284,7 +284,7 @@ export default function genLocales() {
       },
       es: {
         login: 'Iniciar sesión',
-        register: 'Registrarse',
+        register: 'Regístrate', //✅
         signUp: 'Regístrate',
         continueGuest: 'Continuar como invitado',
         email: 'Correo electrónico',
@@ -301,31 +301,30 @@ export default function genLocales() {
         addContactInfo: 'Agregar información de contacto',
         addContactInfoDescription: `Su correo electrónico y número de teléfono se utilizan para la verificación en dos pasos, la recuperación de contraseña y las notificaciones sobre sus viajes.`, //✅
 
-        addHomeAddress: 'Agregar dirección de casa',
-        addHomeDescription: `Esto ayuda a crear rutas desde su casa con facilidad.`,
+        addHomeAddress: 'Agregar Dirección de su Hogar', //✅
+        addHomeDescription: `Esto ayuda a crear rutas desde su hogar con facilidad.`,
 
-        addPrimaryCaregiver: 'Agregar cuidador principal',
+        addPrimaryCaregiver: 'Agregar Coordinador Principal', //✅
         addPrimaryCaregiverDescription: `Notifique a sus compañeros en 1 toque para cualquiera de sus viajes.`,
-        addMobilityOptions: 'Opciones de movilidad mejoradas',
+        addMobilityOptions: 'Opciones de Movilidad Mejoradas',
         addMobilityOptionsDescription: `Ingrese su correo electrónico para encontrar opciones de movilidad mejoradas con las que está registrado, como [x]`,
-        addAnotherEmail: 'Agregar otra dirección de correo electrónico',
+        // addAnotherEmail: 'Agregar otra dirección de correo electrónico',
 
         termsTitle: 'Términos y condiciones',
-        termsMessage: 'Lea y acepte los términos y condiciones.',
+        termsMessage: 'Acepto los Términos y Condiciones',
         termsText: '',
         terms1: 'He leído los',
         terms2: 'términos y condiciones',
         accept: 'Aceptar',
-        decline: 'Disminución',
+        decline: 'Declinar', //✅
 
-        haveAccount: '¿Ya tienes una cuenta?',
+        haveAccount: '¿Ya tiene una cuenta?',
       },
     },
 
     forgotPassword: {
       en: {
-        message: `In order to reset your password, a code will need to be sent to the
-        email or device registered with us.`,
+        message: `In order to reset your password, a code will need to be sent to the email or device registered with us.`,
         codeOptions: 'How would you like to receive the code?',
         sms: 'Text Me',
         call: 'Call Me',
@@ -333,13 +332,12 @@ export default function genLocales() {
         sendCode: 'Send Code',
       },
       es: {
-        message: `Para restablecer su contraseña, se deberá enviar un código al
-        correo electrónico o dispositivo registrado con nosotros.`,
+        message: `Para restablecer su contraseña, deberá enviar un código al correo electrónico o al dispositivo registrado con nosotros.`, //✅
         codeOptions: '¿Cómo le gustaría recibir el código?',
         sms: 'Envíame un mensaje de texto',
         call: 'Llámame',
         email: 'Envíame un correo electrónico',
-        sendCode: 'Enviar código',
+        sendCode: 'Reenviar codigo', //✅
       },
     },
 
@@ -377,12 +375,12 @@ export default function genLocales() {
     },
     home: {
       en: {
-        tripButton: 'Start Trip',
+        tripButton: 'Schedule a Trip',
         tripName: 'Trip Name',
         saveFavorite: 'Save as Favorite',
       },
       es: {
-        tripButton: 'Comenzar Viaje',
+        tripButton: 'Programar un Viaje',
         tripName: 'Nombre del Viaje',
         saveFavorite: 'Guardar como Favorito',
       },
@@ -429,7 +427,7 @@ export default function genLocales() {
         searchTo: 'To',
         scheduleTrip: 'Schedule a Trip',
         saveAddress: 'Save Address',
-        addressName: 'Address Name',
+        addressName: 'Address Nickname',
         favorite: 'Favorite Location',
         selectDate: 'Select a Date',
         time: 'Time',
@@ -437,12 +435,12 @@ export default function genLocales() {
         leaveBy: 'Leave By',
         arriveBy: 'Arrive By',
         modes: 'Mode(s) of Transportation',
-        selectTransportation: 'Select your Transportation',
+        selectTransportation: 'Schedule a Trip',
         chatbot: 'Where would you like to go?',
         selectTrip: 'Select a Trip',
         leave: 'Leave',
         arrive: 'Arrive',
-        arriveAt: 'Arrive at',
+        arriveAt: 'Arrive By',
         direct: 'Direct',
         includesStops: 'Includes Stops',
         mode: 'Mode',
@@ -461,28 +459,28 @@ export default function genLocales() {
         searchTo: 'A',
         scheduleTrip: 'Programar un viaje',
         saveAddress: 'Guardar dirección',
-        addressName: 'Nombre de la dirección',
+        addressName: 'Apodo de la dirección',
         favorite: 'Ubicación favorita',
         selectDate: 'Seleccionar una Fecha', //✅
-        time: 'Hora',
+        time: 'Tiempo',
         now: 'Salir ahora (ASAP)',
         leaveBy: 'Salir por',
         arriveBy: 'Llegar por',
         modes: 'Modo(s) de transporte',
-        selectTransportation: 'Seleccione su transporte',
+        selectTransportation: 'Programar un Viaje',
         chatbot: '¿A dónde te gustaría ir?',
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
         arrive: 'Llegar',
-        arriveAt: 'Llegar a',
+        arriveAt: 'Llegar antes de', //✅
         direct: 'Directo', //✅
         includesStops: 'Incluye paradas',
         mode: 'Modo',
         generatingPlans: 'Generando Planes...', //✅
         schedule: 'Programar viaje',
         overview: 'Descripción General del Plan de Viaje', //✅
-        transfer: 'transferir',
-        roll: 'Rodar',
+        transfer: 'transferencia', //✅
+        roll: 'Rollo', //✅
         walk: 'Caminar',
         drive: 'Conducir',
         wait: 'Esperar', //✅
@@ -491,15 +489,13 @@ export default function genLocales() {
     },
     tripbot: {
       en: {
-        greeting:
-          "Hello! I'm here to help you schedule your ride. Let's get started.",
+        greeting: 'Where To?',
         error1:
           'Sorry, the bot is experiencing issues. Please try again later.',
         error2: 'Sorry, I am having trouble. Can you try again?',
       },
       es: {
-        greeting:
-          '¡Hola! Estoy aquí para ayudarte a programar tu viaje. Empecemos.',
+        greeting: '¿A dónde?', //✅
         error1:
           'Lo siento, el bot está experimentando problemas. Por favor, inténtelo de nuevo más tarde.', //✅
         error2:
@@ -519,7 +515,7 @@ export default function genLocales() {
         cursorSizeLarge: 'Large Cursor Size',
       },
       es: {
-        settings: 'Ajustes',
+        settings: 'CONFIGURACIÓN',
         fontSize: 'Tamaño de las Letras', //✅
         medium: 'Medio',
         large: 'Grande',
@@ -532,7 +528,7 @@ export default function genLocales() {
     },
     twoFactor: {
       en: {
-        title: 'Get Authentication Code',
+        title: 'Send Code',
         text: 'To proceed please choose a method for receiving your authentication code.',
         sms: 'Text Me',
         smsMessage: `Check %{phone} for the six-digit
@@ -545,13 +541,13 @@ export default function genLocales() {
         emailMessage: `Check %{email} for the six-digit
         verification code and enter it below. You can copy and
         paste the code into the first box.`,
-        send: 'Send Authentication Code',
-        verifyTitle: 'Enter the Verification Code',
-        sendAgain: 'Send Another Code?',
+        send: 'Send Code',
+        verifyTitle: 'Please enter the 6 digit code sent to you.',
+        sendAgain: 'Need another 6 digit code?',
         invalidCode: 'Invalid Code',
       },
       es: {
-        title: 'Obtener código de autenticación',
+        title: 'Reenviar codigo', //✅
         text: 'Para continuar, elija un método para recibir su código de autenticación.',
         sms: 'Envíame un mensaje de texto',
         smsMessage: `Revise su teléfono para el código de verificación de seis dígitos y escríbalo a continuación. Puede copiar y pegar el código en el primer cuadro.`,
@@ -560,9 +556,9 @@ export default function genLocales() {
           'Espere la llamada telefónica y luego escriba el código de seis dígitos en el cuadro a continuación.', //✅
         email: 'Envíame un correo electrónico',
         emailMessage: `Revise %{email} para el código de verificación de seis dígitos y escríbalo a continuación. Puede copiar y pegar el código en el primer cuadro.`,
-        send: 'Enviar código de autenticación',
-        verifyTitle: 'Ingrese el código de verificación',
-        sendAgain: '¿Enviar otro código?',
+        send: 'Reenviar codigo', //✅
+        verifyTitle: 'Ingrese el código de 6 dígitos que se le envió.', //✅
+        sendAgain: '¿Necesitas otro código de 6 dígitos?',
         invalidCode: 'Código inválido',
       },
     },
@@ -584,17 +580,17 @@ export default function genLocales() {
       },
       es: {
         account: 'Cuenta',
-        profile: 'Información del perfil',
+        profile: 'Información del Perfil', //✅
         caregivers: 'Cuidadores',
         dependents: 'Dependientes',
         favorites: 'Favoritos',
         tripPreferences: 'Preferencias de viaje',
-        settings: 'Ajustes',
+        settings: 'CONFIGURACIÓN', //✅
         password: 'Contraseña',
         accessibility: 'Accesibilidad',
         notifications: 'Notificaciones',
-        terms: 'Términos de uso',
-        privacy: 'Política de privacidad',
+        terms: 'Condiciones de uso',
+        privacy: 'Política de Privacidad', //✅
       },
     },
     settingsProfile: {
@@ -619,12 +615,12 @@ export default function genLocales() {
     },
     settingsCaregivers: {
       en: {
-        inviteCaregiver: 'Invite Caregiver',
-        addCaregiver: 'Add Caregiver',
-        invalidCaregiver: 'Invalid Caregiver',
+        inviteCaregiver: 'Invite a Coordinator',
+        addCaregiver: 'Add a Coordinator',
+        invalidCaregiver: 'Invalid Coordinator',
         linkMessage:
-          'You have been requested to be a caregiver for %{name}. Do you want to accept the request?',
-        linkMessageNoAccount: `You have been requested to be a caregiver for All Access
+          'You have been requested to be a coordinator for %{name}. Do you want to accept the request?',
+        linkMessageNoAccount: `You have been requested to be a coordinator for All Access
         App. Please login to view the request. If you do not have an
         account, please register and you can review the request once
         you complete the registration.`,
@@ -636,26 +632,26 @@ export default function genLocales() {
         deny: 'Deny',
         acceptRequest: 'Accept Request',
         denyRequest: 'Deny Request',
-        removeCaregiver: 'Remove Caregiver',
+        removeCaregiver: 'Remove Organizer',
         remove: 'Remove',
-        confirmRemove: "Are you sure? You can't undo this action.",
+        confirmRemove: 'Are you sure you want to remove this coordinator?',
 
         caregiverAlreadyRegistered:
-          'This email is already registered as a caregiver.',
-        inviteError: 'There was an error inviting the caregiver.',
-        genericError: 'An error occurred with the request.',
+          'This email is already registered as a organizer.',
+        inviteError: 'There was an error inviting the organizer.',
+        genericError: 'Unknown Error',
 
-        statusMessage: 'Cargiver status %{status}',
+        statusMessage: 'Coordinator status %{status}',
       },
       es: {
-        inviteCaregiver: 'Invitar cuidador',
-        addCaregiver: 'Agregar cuidador',
+        inviteCaregiver: 'Invitar a un Coordinator',
+        addCaregiver: 'Invitar a un Coordinador',
         invalidCaregiver: 'Cuidador inválido',
         linkMessage:
           'Se le ha solicitado que sea coordinator(a) de %{name}. ¿Quieres aceptar la solicitud?', //✅
         linkMessageNoAccount: `Se le ha solicitado que sea coordinador de la aplicación Buffalo Complete Trip. Inicie sesión para ver la solicitud. Si no tiene una cuenta, regístrese y podrá revisar la solicitud una vez se registre.`, //✅
         pending: 'Pendiente',
-        received: 'Recibido',
+        received: 'RECIBIDO', //✅
         denied: 'Negado', //✅
         approve: 'Aprobar', //✅
         deny: 'Negar', //✅
@@ -663,43 +659,43 @@ export default function genLocales() {
         denyRequest: 'Negar Solicitud', //✅
         removeCaregiver: 'Eliminar cuidador',
         remove: 'Eliminar',
-        confirmRemove: '¿Estás seguro? No puedes deshacer esta acción.',
+        confirmRemove: '¿Está seguro de que desea eliminar a este coordinador?',
 
         caregiverAlreadyRegistered:
           'Este correo electrónico ya está registrado como cuidador.',
         inviteError: 'Hubo un error al invitar al cuidador.',
-        genericError: 'Ocurrió un error con la solicitud.',
+        genericError: 'Error desconocido',
 
         statusMessage: 'Estado del cuidador %{status}',
       },
     },
     settingsDependents: {
       en: {
-        upcoming: 'Upcoming Dependent Trips',
+        upcoming: 'Upcoming Traveler Trips',
         noTrips: 'No trips found',
-        list: 'Dependents List',
+        list: 'Travelers List',
         tracking: "Tracking %{name}'s Trip",
       },
       es: {
         upcoming: 'Próximos viajes dependientes',
         noTrips: 'No se encontraron viajes',
-        list: 'Lista de dependientes',
+        list: 'Viajeros',
         trackingTrip: 'Seguimiento del viaje de %{name}',
       },
     },
     settingsFavorites: {
       en: {
         favorites: 'Favorite Trips',
-        noFavorites: 'No favorite trips found.',
+        // noFavorites: 'No favorite trips found.',
         locations: 'Favorite Locations',
-        noLocations: 'No favorite locations found.',
+        // noLocations: 'No favorite locations found.',
         delete: 'Delete Favorite',
       },
       es: {
         favorites: 'Viajes favoritos',
-        noFavorites: 'No se encontraron viajes favoritos.',
+        // noFavorites: 'No se encontraron viajes favoritos.',
         locations: 'Ubicaciones favoritas',
-        noLocations: 'No se encontraron ubicaciones favoritas.',
+        // noLocations: 'No se encontraron ubicaciones favoritas.',
         delete: 'Eliminar Favorito', //✅
       },
     },
@@ -708,33 +704,33 @@ export default function genLocales() {
         wheelchair: 'Wheelchair Accessible',
         serviceAnimal: 'Service Animal',
         minimizeWalking: 'Minimize Walking',
-        maximumTransfers: 'Maximum Transfers',
+        maximumTransfers: 'Max Transfers',
         transfers: 'transfers',
         modes: 'Preferred Mode(s) of Transportation',
         car: 'Car',
         bicycle: 'Bike',
         bus: 'Bus',
-        tram: 'Rail',
+        tram: 'Metro Rail',
         hail: 'Community Shuttle',
       },
       es: {
         wheelchair: 'Accesible para silla de ruedas',
         serviceAnimal: 'Animal de servicio',
-        minimizeWalking: 'Minimizar caminar',
+        minimizeWalking: 'Minimice la Distancia a Pie', //✅
         maximumTransfers: 'Transferencias máximas',
-        transfers: 'transferencias',
+        transfers: 'transferencias', //✅
         modes: 'Modo(s) de transporte preferido(s)',
         car: 'Coche',
         bicycle: 'Bicicleta',
         bus: 'Autobús',
-        tram: 'Tren',
+        tram: 'Metro Rail', //✅
         hail: 'Transporte comunitario',
       },
     },
     settingsPassword: {
       en: {
         password: 'Password',
-        placeholder: 'Enter 8 character password',
+        placeholder: 'Password',
         error: 'Error updating password',
         success: 'Password updated successfully',
         hide: 'Hide Password',
@@ -778,18 +774,18 @@ export default function genLocales() {
         voiceOn: 'Voice On',
         voiceOff: 'Voice Off',
         language: 'Display Language',
-        push: 'Push Notifications',
+        push: 'Push',
         sms: 'SMS',
-        voice: 'Phone Call',
+        voice: 'Phone',
       },
       es: {
         directions: 'Direcciones de navegación',
         voiceOn: 'Activar Voz',
         voiceOff: 'Desactivar Voz',
         language: 'Idioma de visualización',
-        push: 'Notificaciones push',
+        push: 'Push',
         sms: 'SMS',
-        voice: 'Llamada telefónica',
+        voice: 'Teléfono', //✅
       },
     },
     settingsNotifications: {
@@ -802,7 +798,7 @@ export default function genLocales() {
         transitDelay: 'Mass Transit Delay',
         shuttleArrive: 'On Demand Shuttle Arrival',
         intersection: 'Enhanced Intersection Information',
-        caregiverAlerts: 'Caregiver Notification Alerts',
+        caregiverAlerts: 'Coordinator Notification Alerts',
         dependentTripStart: 'Trip Start',
         dependentArriveDepart: 'Rider Arrival/Departure',
         dependentShuttleArriveDepart: 'Rider Shuttle Arrival/Drop Off',
@@ -816,8 +812,8 @@ export default function genLocales() {
         transitArrive: 'Llegada del tránsito',
         transitDelay: 'Retraso del transporte masivo',
         shuttleArrive: 'Llegada del autobús bajo demanda',
-        intersection: 'Información mejorada de la intersección',
-        caregiverAlerts: 'Alertas de notificación del cuidador',
+        intersection: 'Información de Intersección', //✅
+        caregiverAlerts: 'Alertas de Notificación al Coordinador',
         dependentTripStart: 'Inicio del Viaje del Viajero', //✅
         dependentArriveDepart: 'Llegada/salida del pasajero',
         dependentShuttleArriveDepart:
@@ -828,11 +824,9 @@ export default function genLocales() {
     settingsTerms: {
       en: {
         title: 'Terms of Use',
-        content: 'Terms of Use content',
       },
       es: {
-        title: 'Términos de uso',
-        content: 'Contenido de términos de uso',
+        title: 'Condiciones de uso',
       },
     },
     settingsPrivacy: {
@@ -878,8 +872,6 @@ export default function genLocales() {
         title: 'Trip Activity',
         upcoming: 'Upcoming',
         noTrips: 'No upcoming trips found.',
-        addFavorite: 'Add to Favorites',
-        removeFavorite: 'Remove from Favorites',
         viewDetails: 'View Trip Details',
         tripInfo: 'Trip Information',
         viewAll: 'View All Trips',
@@ -888,8 +880,6 @@ export default function genLocales() {
         title: 'Actividad del Viaje', //✅
         upcoming: 'Próximos',
         noTrips: 'No se encontraron viajes próximos.',
-        addFavorite: 'Agregar a favoritos',
-        removeFavorite: 'Eliminar de favoritos',
         viewDetails: 'Ver Detalles del Viaje', //✅
         tripInfo: 'Información del Viaje', //✅
         viewAll: 'Ver Todos los Viajes', //✅

@@ -8,6 +8,7 @@ class UIStore {
   toastStatus = '';
   toastTitle = '';
   debug = false;
+  ux = 'kiosk';
   ui = {
     contrast: false,
     letterSpacing: 'normal',
@@ -29,10 +30,16 @@ class UIStore {
     )
       makePersistable(this, {
         name: 'UIStore',
-        properties: ['mode', 'debug', 'ui'],
+        properties: ['mode', 'debug', 'ui', 'ux'],
         storage: localStorage,
       });
   }
+
+  setUX = value => {
+    runInAction(() => {
+      this.ux = value;
+    });
+  };
 
   setUI = value => {
     runInAction(() => {

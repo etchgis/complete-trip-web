@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react';
 import Loader from '../Loader';
 import config from '../../config';
 import { getLocation } from '../../utils/getLocation';
+import { map } from 'lodash';
 import { mapControls } from './mapboxControls.js';
 import { mapLayers } from './mapLayers';
 // import { mapListeners } from './mapListeners';
@@ -33,6 +34,7 @@ export const MapComponent = observer(({ showMap }) => {
     setMapState,
     setMapGeolocation,
   } = useStore().mapStore;
+  const { ux } = useStore().uiStore;
   const mapRef = useRef(null);
   const mapContainer = useRef(null);
   const [mapIsLoaded, setMapIsLoaded] = useState(
@@ -69,7 +71,13 @@ export const MapComponent = observer(({ showMap }) => {
     });
 
     (async () => {
-      const userLocation = await getLocation();
+      const queryParams = new URLSearchParams(window.location.search);
+      const location = queryParams.get('location');
+      console.log('[map] location:', location);
+      const userLocation = location
+        ? { center: location.split(',').map(l => +l) }
+        : await getLocation();
+      console.log('[map] userLocation:', userLocation);
       const center = userLocation?.center || [
         config.MAP.CENTER[1],
         config.MAP.CENTER[0],
@@ -89,10 +97,9 @@ export const MapComponent = observer(({ showMap }) => {
             container: mapContainer.current,
             style: config.MAP.BASEMAPS[mapStyle], //change to style from store
             center: center,
-            zoom: 16,
+            zoom: config.MAP.ZOOM,
           })
             .addControl(mapControls.nav, 'top-right')
-            .addControl(mapControls.locate, 'top-right')
             // .addControl(mapControls.bookmarks, 'top-right')
             .on('load', initMap)
             .on('style.load', mapLayers)
@@ -105,8 +112,11 @@ export const MapComponent = observer(({ showMap }) => {
             .on('contextmenu', e => {
               console.log(e.target.getZoom());
               console.log(e.lngLat);
+              console.log(mapRef.current.getCenter());
               console.log(mapRef.current.getStyle().layers);
             });
+          if (ux === 'webapp')
+            mapRef.current.addControl(mapControls.locate, 'top-right');
         } catch (error) {
           setMapIsLoaded(true);
           console.log(error);

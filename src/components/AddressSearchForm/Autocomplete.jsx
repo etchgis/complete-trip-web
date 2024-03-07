@@ -15,20 +15,18 @@ import { ListBox } from './ListBox';
 import { Popover } from './Popover';
 import { Search2Icon } from '@chakra-ui/icons';
 import { useComboBoxState } from 'react-stately';
-import useTranslation from '../../models/useTranslation';
 
 export { Item, Section } from 'react-stately';
 
 export const Autocomplete = props => {
-  const { t } = useTranslation();
   let { contains } = useFilter({ sensitivity: 'base' });
   let state = useComboBoxState({
     ...props,
     defaultFilter: contains,
     allowsCustomValue: true,
   });
-
-  let inputRef = React.useRef(null);
+  let inputRef = props.inputRef;
+  // let inputRef = React.useRef(null);
   let listBoxRef = React.useRef(null);
   let popoverRef = React.useRef(null);
 
@@ -71,7 +69,7 @@ export const Autocomplete = props => {
           ) : null}
         </InputRightElement>
       </InputGroup>
-      {state.isOpen && (
+      {(state.isOpen || props.showKeyboard) && (
         <Popover
           popoverRef={popoverRef}
           triggerRef={inputRef}

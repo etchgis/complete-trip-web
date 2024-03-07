@@ -8,23 +8,28 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { useEffect, useState } from 'react';
 
 import { ColorModeSwitcher } from '../ColorModeSwitcher/ColorModeSwitcher';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
 // import logo from '../../assets/images/logo.png';
 
 export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
-  const { loggedIn, logout, loggingIn, user } = useStore().authentication;
+  const { loggedIn, logout, user } = useStore().authentication;
+  const { ux } = useStore().uiStore;
   const { t } = useTranslation();
+
+  useEffect(() => {
+    console.log({ ux });
+  }, [ux]);
 
   //NOTE this forces the language to be set on the navbar
   useEffect(() => {
     console.log(
-      '[navbar]: language:',
+      '[navbar] user language:',
       user?.profile?.preferences?.language.toString()
     );
   }, [user?.profile?.preferences]);
@@ -64,7 +69,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
         </Box>
       </Flex>
 
-      <Flex>
+      <Flex display={ux === 'webapp' ? 'flex' : 'none'}>
         <Stack
           flex={{ base: 1, lg: 0 }}
           justify={'flex-end'}

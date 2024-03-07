@@ -135,29 +135,27 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
                 return navigate('/trips');
               }}
             />
+
+            <NavIconButton
+              label={'map'}
+              icon={<BiMapAlt />}
+              navItem={'/map'}
+              onClick={() => {
+                if (onClose) onClose();
+                return navigate('/map');
+              }}
+            />
+
+            <NavIconButton
+              label={'profile'}
+              icon={<BsPerson />}
+              navItem={'/settings'}
+              onClick={() => {
+                if (onClose) onClose();
+                return navigate('/settings/profile');
+              }}
+            />
           </>
-        ) : (
-          ''
-        )}
-        <NavIconButton
-          label={'map'}
-          icon={<BiMapAlt />}
-          navItem={'/map'}
-          onClick={() => {
-            if (onClose) onClose();
-            return navigate('/map');
-          }}
-        />
-        {loggedIn || testUser?.loggedIn ? (
-          <NavIconButton
-            label={'profile'}
-            icon={<BsPerson />}
-            navItem={'/settings'}
-            onClick={() => {
-              if (onClose) onClose();
-              return navigate('/settings/profile');
-            }}
-          />
         ) : (
           ''
         )}

@@ -461,108 +461,108 @@ const Caregiver = observer(() => {
   );
 });
 
-const MobilityOptions = observer(() => {
-  const { colorMode } = useColorMode();
-  // const { user } = useStore().authentication;
-  const [email, setEmail] = useState();
-  const [email2, setEmail2] = useState();
-  const [email3, setEmail3] = useState();
-  const [hasEmail2, setHasEmail2] = useState(false);
-  const [hasEmail3, setHasEmail3] = useState(false);
-  const { t } = useTranslation();
-  return (
-    <Stack spacing={4}>
-      <Heading
-        as="h2"
-        size="lg"
-        fontWeight="400"
-        color={colorMode === 'light' ? 'brandDark' : 'brand'}
-      >
-        {t('loginWizard.addMobilityOptions')}
-      </Heading>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        {t('loginWizard.addMobilityOptionsDescription')}
-      </Text>
-      <FormControl>
-        <FormLabel>{t('global.emailAddress')}</FormLabel>
-        <Input
-          type="email"
-          name="email"
-          onChange={e => setEmail(e.target.value)}
-          value={email || ''}
-        />
-      </FormControl>
-      {hasEmail2 ? (
-        <FormControl>
-          <HStack justifyContent={'space-between'}>
-            <FormLabel>
-              {t('global.second')} {t('global.emailAddress')}
-            </FormLabel>
-            <IconButton
-              aria-label="Remove Email"
-              icon={<DeleteIcon />}
-              onClick={() => setHasEmail2(false)}
-              variant="ghost"
-            />
-          </HStack>
-          <Input
-            type="email"
-            name="email2"
-            onChange={e => setEmail2(e.target.value)}
-            value={email2 || ''}
-          />
-        </FormControl>
-      ) : null}
-      {hasEmail3 ? (
-        <FormControl>
-          <HStack justifyContent={'space-between'}>
-            <FormLabel>
-              {hasEmail2 ? t('global.third') : t('global.second')}{' '}
-              {t('global.emailAddress')}
-            </FormLabel>
-            <IconButton
-              aria-label="Remove Email"
-              icon={<DeleteIcon />}
-              onClick={() => setHasEmail3(false)}
-            />
-          </HStack>
+// const MobilityOptions = observer(() => {
+//   const { colorMode } = useColorMode();
+//   // const { user } = useStore().authentication;
+//   const [email, setEmail] = useState();
+//   const [email2, setEmail2] = useState();
+//   const [email3, setEmail3] = useState();
+//   const [hasEmail2, setHasEmail2] = useState(false);
+//   const [hasEmail3, setHasEmail3] = useState(false);
+//   const { t } = useTranslation();
+//   return (
+//     <Stack spacing={4}>
+//       <Heading
+//         as="h2"
+//         size="lg"
+//         fontWeight="400"
+//         color={colorMode === 'light' ? 'brandDark' : 'brand'}
+//       >
+//         {t('loginWizard.addMobilityOptions')}
+//       </Heading>
+//       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+//         {t('loginWizard.addMobilityOptionsDescription')}
+//       </Text>
+//       <FormControl>
+//         <FormLabel>{t('global.emailAddress')}</FormLabel>
+//         <Input
+//           type="email"
+//           name="email"
+//           onChange={e => setEmail(e.target.value)}
+//           value={email || ''}
+//         />
+//       </FormControl>
+//       {hasEmail2 ? (
+//         <FormControl>
+//           <HStack justifyContent={'space-between'}>
+//             <FormLabel>
+//               {t('global.second')} {t('global.emailAddress')}
+//             </FormLabel>
+//             <IconButton
+//               aria-label="Remove Email"
+//               icon={<DeleteIcon />}
+//               onClick={() => setHasEmail2(false)}
+//               variant="ghost"
+//             />
+//           </HStack>
+//           <Input
+//             type="email"
+//             name="email2"
+//             onChange={e => setEmail2(e.target.value)}
+//             value={email2 || ''}
+//           />
+//         </FormControl>
+//       ) : null}
+//       {hasEmail3 ? (
+//         <FormControl>
+//           <HStack justifyContent={'space-between'}>
+//             <FormLabel>
+//               {hasEmail2 ? t('global.third') : t('global.second')}{' '}
+//               {t('global.emailAddress')}
+//             </FormLabel>
+//             <IconButton
+//               aria-label="Remove Email"
+//               icon={<DeleteIcon />}
+//               onClick={() => setHasEmail3(false)}
+//             />
+//           </HStack>
 
-          <Input
-            type="email"
-            name="email3"
-            onChange={e => setEmail3(e.target.value)}
-            value={email3 || ''}
-          />
-        </FormControl>
-      ) : null}
-      {!hasEmail3 || !hasEmail2 ? (
-        <Button
-          color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
-          _hover={{
-            opacity: 0.9,
-          }}
-          w="100%"
-          type="button"
-          variant={'link'}
-          leftIcon={<AddIcon />}
-          justifyContent="start"
-          onClick={() => {
-            if (!hasEmail2) {
-              setHasEmail2(true);
-            } else if (!hasEmail3) {
-              setHasEmail3(true);
-            } else return;
-          }}
-          isDisabled
-        >
-          {t('loginWizard.addAnotherEmail')}
-        </Button>
-      ) : (
-        ''
-      )}
-    </Stack>
-  );
-});
+//           <Input
+//             type="email"
+//             name="email3"
+//             onChange={e => setEmail3(e.target.value)}
+//             value={email3 || ''}
+//           />
+//         </FormControl>
+//       ) : null}
+//       {!hasEmail3 || !hasEmail2 ? (
+//         <Button
+//           color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
+//           _hover={{
+//             opacity: 0.9,
+//           }}
+//           w="100%"
+//           type="button"
+//           variant={'link'}
+//           leftIcon={<AddIcon />}
+//           justifyContent="start"
+//           onClick={() => {
+//             if (!hasEmail2) {
+//               setHasEmail2(true);
+//             } else if (!hasEmail3) {
+//               setHasEmail3(true);
+//             } else return;
+//           }}
+//           isDisabled
+//         >
+//           {t('loginWizard.addAnotherEmail')}
+//         </Button>
+//       ) : (
+//         ''
+//       )}
+//     </Stack>
+//   );
+// });
 
 // const Notifications = observer(() => {
 //   const { colorMode } = useColorMode();

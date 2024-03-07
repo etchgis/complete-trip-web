@@ -125,7 +125,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                           }}
                           colorScheme="red"
                           fontSize={'xl'}
-                          aria-label={t('tripLog.removeFavorite')}
+                          aria-label={t('settingFavorites.delete')}
                         />
                       ) : (
                         <IconButton
@@ -137,7 +137,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                           }}
                           colorScheme="gray"
                           fontSize={'xl'}
-                          aria-label={t('tripLog.addFavorite')}
+                          aria-label={t('home.saveFavorite')}
                         />
                       )}
                     </Td>

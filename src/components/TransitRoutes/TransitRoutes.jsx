@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react';
 import Loader from '../Loader';
 import SearchForm from '../AddressSearchForm';
 import { WarningTwoIcon } from '@chakra-ui/icons';
+import config from '../../config';
 import debounce from '../../utils/debounce';
 import { featureCollection } from '@turf/helpers';
 import formatters from '../../utils/formatters';
@@ -40,7 +41,7 @@ export const TransitRoutes = observer(({}) => {
 
   useEffect(() => {
     if (debug) console.log('mapState.geolocation', mapState.geolocation.length);
-    //NOTE this fires on map moveend and on map GPS button
+    //NOTE this is supposed to fire on map moveend and on map GPS button
     if (mapState.geolocation.length) {
       debounce(
         getRouteList(mapState.geolocation[0], mapState.geolocation[1]),
@@ -59,12 +60,18 @@ export const TransitRoutes = observer(({}) => {
 
   const getRouteList = (x, y) => {
     const exists = mapState?.stoptimes?.features.length; //NOTE this disables the map from updating when the user pans if the stops are already loaded)
-    if (exists) return;
+    if (exists) {
+      console.log(
+        '[transit-routes] stops already loaded - exting getRouteList'
+      );
+      return;
+    }
     const { lng, lat } = map ? map.getCenter() : { lng: x, lat: y };
     //latlng of buffalo
-    const buffalo = [-78.8784, 42.8864];
+    const buffalo = [config.MAP.CENTER[1], config.MAP.CENTER[0]];
     getRoutes(x || lng || buffalo[0], y || lat || buffalo[1]);
-    setMapState('center', [lng, lat]);
+
+    // setMapState('center', [lng, lat]);
     if (map) setMapState('zoom', map.getZoom());
   };
 
@@ -213,7 +220,10 @@ export const TransitRoutes = observer(({}) => {
       map.flyTo({ center: mapState.center, zoom: map.getZoom() });
     } else {
       console.log({ error: 'TransitRoutes: no center found in mapState' });
-      map.flyTo({ center: [-78.8964921, 42.8915053], zoom: map.getZoom() });
+      map.flyTo({
+        center: [config.MAP.CENTER[1], config.MAP.CENTER[0]],
+        zoom: map.getZoom(),
+      });
     }
   };
 

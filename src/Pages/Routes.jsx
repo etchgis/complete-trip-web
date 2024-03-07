@@ -29,13 +29,18 @@ export const Routes = observer(() => {
   }
   const { user, loggedIn, auth } = useStore().authentication;
   const { debug, setDebugMode } = useStore().uiStore;
-  const { ui, setUI } = useStore().uiStore;
+  const { ui, setUI, setUX } = useStore().uiStore;
 
-  if (window && window.location) {
+  useEffect(() => {
+    // if (window && window.location) {
     const urlParams = new URLSearchParams(window.location.search);
-    const debugMode = urlParams.get('debug');
-    if (debugMode) setDebugMode(debugMode === 'true' ? true : false);
-  }
+    const params = Object.fromEntries(urlParams.entries());
+    const { debug, mode } = params;
+    console.log('[routes] queryParams:', { debug, mode });
+    if (debug) setDebugMode(debug === 'true' ? true : false);
+    setUX(mode === 'kiosk' ? 'kiosk' : 'webapp');
+    // }
+  }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
   // console.log('[routes] logging in:', loggingIn);
