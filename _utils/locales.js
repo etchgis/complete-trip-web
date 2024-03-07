@@ -567,7 +567,7 @@ export default function genLocales() {
       en: {
         account: 'Account',
         profile: 'Profile Information',
-        caregivers: 'Caregivers',
+        caregivers: 'Coordinators',
         dependents: 'Dependents',
         favorites: 'Favorites',
         tripPreferences: 'Trip Preferences',
@@ -581,10 +581,10 @@ export default function genLocales() {
       es: {
         account: 'Cuenta',
         profile: 'Información del Perfil', //✅
-        caregivers: 'Cuidadores',
+        caregivers: 'Coordinators',
         dependents: 'Dependientes',
         favorites: 'Favoritos',
-        tripPreferences: 'Preferencias de viaje',
+        tripPreferences: 'Preferencias de Viaje',
         settings: 'CONFIGURACIÓN', //✅
         password: 'Contraseña',
         accessibility: 'Accesibilidad',
@@ -632,13 +632,13 @@ export default function genLocales() {
         deny: 'Deny',
         acceptRequest: 'Accept Request',
         denyRequest: 'Deny Request',
-        removeCaregiver: 'Remove Organizer',
+        removeCaregiver: 'Remove Coordinator',
         remove: 'Remove',
         confirmRemove: 'Are you sure you want to remove this coordinator?',
 
         caregiverAlreadyRegistered:
-          'This email is already registered as a organizer.',
-        inviteError: 'There was an error inviting the organizer.',
+          'This email is already registered as a coordinator.',
+        inviteError: 'There was an error inviting the coordinator.',
         genericError: 'Unknown Error',
 
         statusMessage: 'Coordinator status %{status}',
@@ -791,8 +791,7 @@ export default function genLocales() {
     settingsNotifications: {
       en: {
         type: 'Notification Preference Type',
-        setting: 'Setting',
-        rider: 'Rider Notification Alerts',
+        rider: 'Traveler Notification Alerts',
         tripStart: 'Trip Start',
         transitArrive: 'Transit Arrival',
         transitDelay: 'Mass Transit Delay',
@@ -800,25 +799,24 @@ export default function genLocales() {
         intersection: 'Enhanced Intersection Information',
         caregiverAlerts: 'Coordinator Notification Alerts',
         dependentTripStart: 'Trip Start',
-        dependentArriveDepart: 'Rider Arrival/Departure',
-        dependentShuttleArriveDepart: 'Rider Shuttle Arrival/Drop Off',
-        dependentModeChange: 'Rider Transportation Mode Change',
+        dependentArriveDepart: 'Traveler Arrival/Departure',
+        dependentShuttleArriveDepart: 'Traveler Shuttle Arrival/Drop Off',
+        dependentModeChange: 'Traveler Transportation Mode Change',
       },
       es: {
-        type: 'Tipo de preferencia de notificación',
-        setting: 'Ajuste',
-        rider: 'Alertas de notificación del pasajero',
+        type: 'Tipo de Preferencia de Notificación',
+        rider: 'AAlertas de notificación del pasajero',
         tripStart: 'Inicio del viaje',
-        transitArrive: 'Llegada del tránsito',
-        transitDelay: 'Retraso del transporte masivo',
-        shuttleArrive: 'Llegada del autobús bajo demanda',
+        transitArrive: 'Llegada del Transporte Público', //✅
+        transitDelay: 'Retraso en el Transporte Público', //✅
+        shuttleArrive: 'Llegada del Autobús',
         intersection: 'Información de Intersección', //✅
         caregiverAlerts: 'Alertas de Notificación al Coordinador',
         dependentTripStart: 'Inicio del Viaje del Viajero', //✅
-        dependentArriveDepart: 'Llegada/salida del pasajero',
+        dependentArriveDepart: 'Llegada/salida del Viajero',
         dependentShuttleArriveDepart:
-          'Llegada/drop off del autobús del pasajero',
-        dependentModeChange: 'Cambio de modo de transporte del pasajero',
+          'Llegada/Desembarque del Viajero en Autobús',
+        dependentModeChange: 'Cambio de Modo de Transporte del Viajero',
       },
     },
     settingsTerms: {
