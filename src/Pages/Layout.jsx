@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import CustomModal from '../components/Modal';
 import ErrorToastMessage from '../components/ErrorToastMessage';
+import Keyboard from '../components/OnScreenKeyboard';
 import Loader from '../components/Loader';
 import LoginRegister from '../components/LoginRegister';
 import { MFAVerify } from '../components/MFA/MFAVerify';
@@ -26,7 +27,7 @@ const Layout = observer(({ showMap, children }) => {
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
     useStore().authentication;
 
-  const { isLoading } = useStore().uiStore;
+  const { isLoading, ux } = useStore().uiStore;
   // const { trips } = useStore().schedule;
 
   // const _trips = toJS(trips);
@@ -161,6 +162,9 @@ const Layout = observer(({ showMap, children }) => {
 
       {/* LOADER */}
       <Loader isOpen={inTransaction || isLoading}></Loader>
+
+      {/* KEYBOARD */}
+      {!loggedIn && ux === 'kiosk' && <Keyboard />}
     </Flex>
   );
 });

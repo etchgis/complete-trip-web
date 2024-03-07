@@ -7,6 +7,7 @@ import {
   Grid,
   Heading,
   Icon,
+  Image,
   Text,
   VStack,
   createIcon,
@@ -15,6 +16,7 @@ import {
 import { FaArrowRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
+import QRCODE from '../../assets/qr_code.png';
 import { RxDotFilled } from 'react-icons/rx';
 import config from '../../config';
 import { fillGaps } from '../../utils/tripplan';
@@ -221,6 +223,7 @@ export const TripPlanSchedule = observer(
     const { colorMode } = useColorMode();
     const { user } = useStore().authentication;
     const { activeLegIndex } = useStore().tripMapStore;
+    const { ux } = useStore().uiStore;
     const [legIndex, setL] = useState(-1);
     const riderProfile = rider?.profile ? JSON.parse(rider.profile) : false;
     const wheelchair =
@@ -241,6 +244,24 @@ export const TripPlanSchedule = observer(
 
     return (
       <>
+        {ux === 'kiosk' && (
+          <Flex
+            background={'white'}
+            position={'absolute'}
+            zIndex={2}
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            h="400px"
+            w="400px"
+            alignItems={'center'}
+            justifyContent={'center'}
+            borderRadius={'md'}
+            boxShadow={'md'}
+          >
+            <Image src={QRCODE} alt="QR Code" width="200px" height="auto" />
+          </Flex>
+        )}
         {plan && plan?.legs?.length ? (
           <Box
             px={4}
@@ -299,7 +320,6 @@ export const TripPlanSchedule = observer(
                 </Box>
               </Box>
             </Grid>
-
             <Text textAlign={'left'} data-name="to">
               To{' '}
               <strong>
@@ -307,7 +327,6 @@ export const TripPlanSchedule = observer(
                 {request?.destination?.description}
               </strong>
             </Text>
-
             <Flex alignItems={'center'} mx={0} data-name="transfers">
               <Text mr={1} fontSize={'sm'}>
                 {formatters.datetime.asDuration(plan.duration)} (
@@ -327,7 +346,6 @@ export const TripPlanSchedule = observer(
                     : t('tripWizard.transfer') + 's')}
               </Text>
             </Flex>
-
             <Box pt={4} pb={0} mb={-2}>
               <Divider
                 borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
@@ -335,11 +353,9 @@ export const TripPlanSchedule = observer(
                 aria-hidden={true}
               />
             </Box>
-
             <Box py={2}>
               <Divider aria-hidden={true} />
             </Box>
-
             <Box data-testid="trip-plan-schedule-leg-container" tabIndex={0}>
               {plan.legs.map((leg, i) => {
                 let title = '';

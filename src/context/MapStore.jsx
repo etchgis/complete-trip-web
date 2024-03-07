@@ -91,7 +91,7 @@ class MapStore {
       .byDistance(lng, lat, 0.5, 'COMPLETE_TRIP')
       .then(values => {
         console.log('got service: count', values.length);
-        if (values.length === 0 && n < 5) {
+        if (values.length === 0 && n < 2) {
           return this.getRoutes(lng, lat, n + 1);
         }
         runInAction(() => {

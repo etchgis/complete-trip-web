@@ -20,13 +20,14 @@ export { Item, Section } from 'react-stately';
 
 export const Autocomplete = props => {
   let { contains } = useFilter({ sensitivity: 'base' });
+
   let state = useComboBoxState({
     ...props,
     defaultFilter: contains,
     allowsCustomValue: true,
   });
-  let inputRef = props.inputRef;
-  // let inputRef = React.useRef(null);
+
+  let inputRef = React.useRef(null);
   let listBoxRef = React.useRef(null);
   let popoverRef = React.useRef(null);
 
@@ -39,6 +40,20 @@ export const Autocomplete = props => {
     },
     state
   );
+
+  /*KEYBOARD*/
+  React.useEffect(() => {
+    if (
+      props.showResults &&
+      !state.isOpen &&
+      inputRef?.current?.value &&
+      props?.items?.length > 0
+    ) {
+      state.open();
+    } else if (!inputRef?.current?.value || !props?.items?.length) {
+      state.close();
+    }
+  }, [props.showResults, state, inputRef, props.items]);
 
   return (
     <FormControl
@@ -69,7 +84,7 @@ export const Autocomplete = props => {
           ) : null}
         </InputRightElement>
       </InputGroup>
-      {(state.isOpen || props.showKeyboard) && (
+      {state.isOpen && (
         <Popover
           popoverRef={popoverRef}
           triggerRef={inputRef}

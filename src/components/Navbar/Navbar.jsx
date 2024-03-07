@@ -23,7 +23,7 @@ export const Navbar = observer(({ isOpen, onToggle, action1 }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    console.log({ ux });
+    console.log('[navbar] ux mode:', ux);
   }, [ux]);
 
   //NOTE this forces the language to be set on the navbar

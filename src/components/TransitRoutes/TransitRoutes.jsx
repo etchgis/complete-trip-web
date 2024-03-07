@@ -9,8 +9,8 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
+import AddressSearchForm from '../AddressSearchForm';
 import Loader from '../Loader';
-import SearchForm from '../AddressSearchForm';
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import config from '../../config';
 import debounce from '../../utils/debounce';
@@ -265,7 +265,7 @@ export const TransitRoutes = observer(({}) => {
         <Box>
           {/* TODO find a way to clear to search result */}
           <Box p={2}>
-            <SearchForm
+            <AddressSearchForm
               saveAddress={() => {}}
               setGeocoderResult={e => {
                 if (map) {
@@ -283,6 +283,7 @@ export const TransitRoutes = observer(({}) => {
               defaultAddress={defaultAddress}
               label={t('map.searchTitle')}
               resultsMaxWidth="402px"
+              inputName="transitSearch"
             />
           </Box>
           <BackButton backClickHandler={backClickHandler} />

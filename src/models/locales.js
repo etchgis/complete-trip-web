@@ -201,7 +201,7 @@ export default function genLocales() {
         home: 'Página Principal', //✅
         trips: 'Viajes',
         map: 'Mapa',
-        profile: 'Perfil y ajustes',
+        profile: 'Perfil y configuración', //✅
         accessibility: 'Accesibilidad',
       },
     },
@@ -275,7 +275,7 @@ export default function genLocales() {
         termsTitle: 'Terms and Conditions',
         termsMessage: 'I agree to the Terms and Conditions',
         termsText: '',
-        terms1: 'I have read the',
+        terms1: 'I agree to the',
         terms2: 'terms and conditions',
         accept: 'Accept',
         decline: 'Decline',
@@ -313,7 +313,7 @@ export default function genLocales() {
         termsTitle: 'Términos y condiciones',
         termsMessage: 'Acepto los Términos y Condiciones',
         termsText: '',
-        terms1: 'He leído los',
+        terms1: 'Acepto los ',
         terms2: 'términos y condiciones',
         accept: 'Aceptar',
         decline: 'Declinar', //✅
@@ -432,11 +432,11 @@ export default function genLocales() {
         selectDate: 'Select a Date',
         time: 'Time',
         now: 'Leave Now (ASAP)',
-        leaveBy: 'Leave By',
+        leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
-        modes: 'Mode(s) of Transportation',
+        modes: 'Modes of Transportation',
         selectTransportation: 'Schedule a Trip',
-        chatbot: 'Where would you like to go?',
+        chatbot: 'Where To?',
         selectTrip: 'Select a Trip',
         leave: 'Leave',
         arrive: 'Arrive',
@@ -456,19 +456,19 @@ export default function genLocales() {
       },
       es: {
         searchFrom: 'De',
-        searchTo: 'A',
+        searchTo: 'hacia',
         scheduleTrip: 'Programar un viaje',
         saveAddress: 'Guardar dirección',
         addressName: 'Apodo de la dirección',
         favorite: 'Ubicación favorita',
         selectDate: 'Seleccionar una Fecha', //✅
         time: 'Tiempo',
-        now: 'Salir ahora (ASAP)',
-        leaveBy: 'Salir por',
-        arriveBy: 'Llegar por',
-        modes: 'Modo(s) de transporte',
+        now: 'Salir Ahora', //✅
+        leaveBy: 'Salir A', //✅
+        arriveBy: 'Llegar antes de', //✅
+        modes: 'Modos de Transporte', //✅
         selectTransportation: 'Programar un Viaje',
-        chatbot: '¿A dónde te gustaría ir?',
+        chatbot: '¿A dónde?', //✅
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
         arrive: 'Llegar',
@@ -481,8 +481,8 @@ export default function genLocales() {
         overview: 'Descripción General del Plan de Viaje', //✅
         transfer: 'transferencia', //✅
         roll: 'Rollo', //✅
-        walk: 'Caminar',
-        drive: 'Conducir',
+        walk: 'camine',
+        drive: 'Drive', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
       },
@@ -529,18 +529,14 @@ export default function genLocales() {
     twoFactor: {
       en: {
         title: 'Send Code',
-        text: 'To proceed please choose a method for receiving your authentication code.',
+        text: 'How would you like to receive the code?',
         sms: 'Text Me',
-        smsMessage: `Check %{phone} for the six-digit
-        verification code and enter it below. You can copy and
-        paste the code into the first box.`,
+        smsMessage: `Please enter the 6 digit code sent to you.`,
         call: 'Call Me',
         callMessage:
           'Wait for the phone call then type the six digit code into the box below.',
         email: 'Email Me',
-        emailMessage: `Check %{email} for the six-digit
-        verification code and enter it below. You can copy and
-        paste the code into the first box.`,
+        emailMessage: `Please enter the 6 digit code sent to the email you provided.`,
         send: 'Send Code',
         verifyTitle: 'Please enter the 6 digit code sent to you.',
         sendAgain: 'Need another 6 digit code?',
@@ -548,14 +544,14 @@ export default function genLocales() {
       },
       es: {
         title: 'Reenviar codigo', //✅
-        text: 'Para continuar, elija un método para recibir su código de autenticación.',
+        text: '¿Cómo le gustaría recibir el código?',
         sms: 'Envíame un mensaje de texto',
-        smsMessage: `Revise su teléfono para el código de verificación de seis dígitos y escríbalo a continuación. Puede copiar y pegar el código en el primer cuadro.`,
+        smsMessage: `Ingrese el código de 6 dígitos que se le envió.`,
         call: 'Llámame',
         callMessage:
           'Espere la llamada telefónica y luego escriba el código de seis dígitos en el cuadro a continuación.', //✅
         email: 'Envíame un correo electrónico',
-        emailMessage: `Revise %{email} para el código de verificación de seis dígitos y escríbalo a continuación. Puede copiar y pegar el código en el primer cuadro.`,
+        emailMessage: `Ingrese el código de 6 dígitos enviado al correo electrónico que proporcionó.`,
         send: 'Reenviar codigo', //✅
         verifyTitle: 'Ingrese el código de 6 dígitos que se le envió.', //✅
         sendAgain: '¿Necesitas otro código de 6 dígitos?',
@@ -567,7 +563,7 @@ export default function genLocales() {
       en: {
         account: 'Account',
         profile: 'Profile Information',
-        caregivers: 'Caregivers',
+        caregivers: 'Coordinators',
         dependents: 'Dependents',
         favorites: 'Favorites',
         tripPreferences: 'Trip Preferences',
@@ -581,10 +577,10 @@ export default function genLocales() {
       es: {
         account: 'Cuenta',
         profile: 'Información del Perfil', //✅
-        caregivers: 'Cuidadores',
+        caregivers: 'Coordinators',
         dependents: 'Dependientes',
         favorites: 'Favoritos',
-        tripPreferences: 'Preferencias de viaje',
+        tripPreferences: 'Preferencias de Viaje',
         settings: 'CONFIGURACIÓN', //✅
         password: 'Contraseña',
         accessibility: 'Accesibilidad',
@@ -600,17 +596,17 @@ export default function genLocales() {
         deleteAccount: 'Delete Account',
         deleteMyAccount: 'Delete My Account',
         confirmDeleteMessage:
-          'Are you sure you would like to delete your account? If you do this, you will need to create a new account again for access.',
+          'Are you sure you would like to delete your account?',
         homeAddress: 'Home Address',
       },
       es: {
         name: 'Nombre',
-        editProfile: 'Editar perfil',
+        editProfile: 'Editar Perfil',
         deleteAccount: 'Eliminar cuenta',
         deleteMyAccount: 'Eliminar mi cuenta',
         confirmDeleteMessage:
-          '¿Estás seguro de que te gustaría eliminar tu cuenta? Si haces esto, deberás crear una nueva cuenta para acceder.',
-        homeAddress: 'Dirección de casa',
+          '¿Está seguro(a) de que quieres eliminar tu cuenta?',
+        homeAddress: 'Dirección del hogar', //✅
       },
     },
     settingsCaregivers: {
@@ -632,13 +628,13 @@ export default function genLocales() {
         deny: 'Deny',
         acceptRequest: 'Accept Request',
         denyRequest: 'Deny Request',
-        removeCaregiver: 'Remove Organizer',
+        removeCaregiver: 'Remove Coordinator',
         remove: 'Remove',
         confirmRemove: 'Are you sure you want to remove this coordinator?',
 
         caregiverAlreadyRegistered:
-          'This email is already registered as a organizer.',
-        inviteError: 'There was an error inviting the organizer.',
+          'This email is already registered as a coordinator.',
+        inviteError: 'There was an error inviting the coordinator.',
         genericError: 'Unknown Error',
 
         statusMessage: 'Coordinator status %{status}',
@@ -706,7 +702,7 @@ export default function genLocales() {
         minimizeWalking: 'Minimize Walking',
         maximumTransfers: 'Max Transfers',
         transfers: 'transfers',
-        modes: 'Preferred Mode(s) of Transportation',
+        modes: 'Modes of Transportation',
         car: 'Car',
         bicycle: 'Bike',
         bus: 'Bus',
@@ -714,15 +710,15 @@ export default function genLocales() {
         hail: 'Community Shuttle',
       },
       es: {
-        wheelchair: 'Accesible para silla de ruedas',
+        wheelchair: 'Accesibilidad para Sillas de Ruedas',
         serviceAnimal: 'Animal de servicio',
         minimizeWalking: 'Minimice la Distancia a Pie', //✅
         maximumTransfers: 'Transferencias máximas',
         transfers: 'transferencias', //✅
-        modes: 'Modo(s) de transporte preferido(s)',
-        car: 'Coche',
-        bicycle: 'Bicicleta',
-        bus: 'Autobús',
+        modes: 'Modos de Transporte', //✅
+        car: 'automóvil', //✅
+        bicycle: 'bicicleta', //✅
+        bus: 'autobús', //✅
         tram: 'Metro Rail', //✅
         hail: 'Transporte comunitario',
       },
@@ -758,14 +754,14 @@ export default function genLocales() {
         errorSame:
           'La nueva contraseña no puede ser la misma que la contraseña actual', //✅
         current: 'Contraseña actual',
-        enter: 'Ingrese una nueva contraseña',
+        enter: 'Introduzca una Nueva Contraseña', //✅
         newPassword: 'Nueva contraseña',
         reEnter: 'Vuelva a ingresar la nueva contraseña',
-        characters: 'Caracteres',
-        uppercase: 'Mayúsculas',
-        lowercase: 'Minúsculas',
+        characters: 'caracteres', //✅
+        uppercase: 'mayúsculas',
+        lowercase: 'minúsculas',
         number: 'Número',
-        submit: 'Cambiar contraseña',
+        submit: 'Cambiar Contraseña', //✅
       },
     },
     settingsAccessibility: {
@@ -791,8 +787,7 @@ export default function genLocales() {
     settingsNotifications: {
       en: {
         type: 'Notification Preference Type',
-        setting: 'Setting',
-        rider: 'Rider Notification Alerts',
+        rider: 'Traveler Notification Alerts',
         tripStart: 'Trip Start',
         transitArrive: 'Transit Arrival',
         transitDelay: 'Mass Transit Delay',
@@ -800,25 +795,24 @@ export default function genLocales() {
         intersection: 'Enhanced Intersection Information',
         caregiverAlerts: 'Coordinator Notification Alerts',
         dependentTripStart: 'Trip Start',
-        dependentArriveDepart: 'Rider Arrival/Departure',
-        dependentShuttleArriveDepart: 'Rider Shuttle Arrival/Drop Off',
-        dependentModeChange: 'Rider Transportation Mode Change',
+        dependentArriveDepart: 'Traveler Arrival/Departure',
+        dependentShuttleArriveDepart: 'Traveler Shuttle Arrival/Drop Off',
+        dependentModeChange: 'Traveler Transportation Mode Change',
       },
       es: {
-        type: 'Tipo de preferencia de notificación',
-        setting: 'Ajuste',
-        rider: 'Alertas de notificación del pasajero',
-        tripStart: 'Inicio del viaje',
-        transitArrive: 'Llegada del tránsito',
-        transitDelay: 'Retraso del transporte masivo',
-        shuttleArrive: 'Llegada del autobús bajo demanda',
+        type: 'Tipo de Preferencia de Notificación',
+        rider: 'AAlertas de notificación del pasajero',
+        tripStart: 'Inicio del Viaje', //✅
+        transitArrive: 'Llegada del Transporte Público', //✅
+        transitDelay: 'Retraso en el Transporte Público', //✅
+        shuttleArrive: 'Llegada del Autobús',
         intersection: 'Información de Intersección', //✅
         caregiverAlerts: 'Alertas de Notificación al Coordinador',
         dependentTripStart: 'Inicio del Viaje del Viajero', //✅
-        dependentArriveDepart: 'Llegada/salida del pasajero',
+        dependentArriveDepart: 'Llegada/salida del Viajero',
         dependentShuttleArriveDepart:
-          'Llegada/drop off del autobús del pasajero',
-        dependentModeChange: 'Cambio de modo de transporte del pasajero',
+          'Llegada/Desembarque del Viajero en Autobús',
+        dependentModeChange: 'Cambio de Modo de Transporte del Viajero',
       },
     },
     settingsTerms: {
@@ -861,7 +855,7 @@ export default function genLocales() {
         If you have any questions or concerns about this Privacy Policy or our privacy practices, please contact us at privacy@example.com.`,
       },
       es: {
-        title: 'Política de privacidad',
+        title: 'Política de Privacidad',
         content: `
         TBD
         `,

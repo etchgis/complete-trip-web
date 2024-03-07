@@ -209,7 +209,6 @@ export const ScheduleTripModal = observer(
                 setStep(0);
                 setHasSelectedPlan(false);
                 stagedTrip.create();
-
                 onClose();
               }}
             >
@@ -377,6 +376,7 @@ const First = observer(({ setStep, trip }) => {
           label={t('tripWizard.searchFrom')}
           required={true}
           clearResult={true}
+          inputName="startAddress"
         />
         {/* TODO convert to mini component */}
         <Stack spacing={4} direction="row" alignItems={'center'}>
@@ -494,6 +494,7 @@ const First = observer(({ setStep, trip }) => {
           label={t('tripWizard.searchTo')}
           required={true}
           clearResult={true}
+          inputName="endAddress"
         />
 
         <Stack spacing={4} direction="row" alignItems={'center'}>

@@ -8,7 +8,13 @@ class UIStore {
   toastStatus = '';
   toastTitle = '';
   debug = false;
-  ux = 'kiosk';
+  ux = 'webapp'; //kiosk, webapp
+  onScreenKeyboardInput = {
+    transitSearch: '',
+    startAddress: '',
+    endAddress: '',
+  };
+  activeInput = 'transitSearch';
   ui = {
     contrast: false,
     letterSpacing: 'normal',
@@ -34,6 +40,36 @@ class UIStore {
         storage: localStorage,
       });
   }
+
+  setKeyboardActiveInput = value => {
+    runInAction(() => {
+      this.activeInput = value;
+    });
+  };
+
+  getInputValue = inputName => {
+    return this.onScreenKeyboardInput[inputName];
+  };
+
+  clearOnScreenKeyboard = () => {
+    const emptyState = {
+      transitSearch: '',
+      startAddress: '',
+      endAddress: '',
+    };
+    runInAction(() => {
+      this.onScreenKeyboardInput = { ...emptyState };
+      this.activeInput = 'transitSearch';
+    });
+  };
+
+  setOnScreenKeyboardInput = value => {
+    runInAction(() => {
+      const newInput = { ...this.onScreenKeyboardInput };
+      newInput[this.activeInput] = value;
+      this.onScreenKeyboardInput = { ...newInput };
+    });
+  };
 
   setUX = value => {
     runInAction(() => {
