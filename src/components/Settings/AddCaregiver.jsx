@@ -41,7 +41,7 @@ export const AddCaregiver = ({ onClose }) => {
               t('settingsCaregivers.caregiverAlreadyRegistered')
             );
           } else {
-            setErrorToastMessage(t('settingsCaregivers.inviteError'));
+            setErrorToastMessage(t('errors.unknown'));
           }
         }
 

@@ -308,7 +308,7 @@ const CreateAccountOrLogin = ({
             </>
           )}
           {loginError && showLogin ? (
-            <Box color="red.500">{t('errors.login')}</Box>
+            <Box color="red.500">{t('errors.unknown')}</Box>
           ) : (
             ''
           )}

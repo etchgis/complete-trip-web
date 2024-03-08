@@ -5,17 +5,17 @@
 ## Kiosk & Keyboard
 
 - A close button is added to the search inputs on the map screen and trip wizard screen
-- This close button does not appear in the `webapp` mode or non-kiosk mode
+- This close button does not appear in the `webapp`/non-kiosk mode
 - The close button _should_ clear the input, results, and stored keyboard state for that input
-- The search results are usually shown when the input is focused, which does not work with the keyboard, to get around this we use a `showResults` state inside the `AddressSearchForm` component, passed down to `Autocomplete`, that then programatically opens the `useComboBox` state via `useEffect`.
+- The search results are usually shown when the input is focused, which does not work with the keyboard as the input loses focus once you click the keyboard. To get around this we use a `showResults` state inside the `AddressSearchForm` component, passed down to `Autocomplete`, that then programatically opens the `useComboBox` state via `useEffect`.
 - The map page and trip wizard modal are given a padding/margin on the bottom to account for the keyboard
 - The keyboard is positioned `absolute` so it can show up over the trip wizard modal
-- On the initial screen the visible search input is set as the target
-- Each input when clicked/focused becomes the target
-- When the modal is opened the start address search is the default target
+- On the initial screen the visible search input is set as the target input for the keyboard.
+- Each input when focused becomes the target.
+- When the modal is opened the start address search is the default target.
 - The keyboard has three states where the input values are stored:
-  - the state of the keyboard itself - managed via `inputName` key prop
-  - the state stored in the uiStore object in redux - managed with the same keys
+  - the state of the keyboard itself - managed via the `inputName` key prop
+  - the state stored in the uiStore `onScreenKeyboardInput` object in redux - managed with the same keys
   - the local `address` state inside the search component
 
 ## Gleap

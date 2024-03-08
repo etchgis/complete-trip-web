@@ -50,37 +50,37 @@ export default function genLocales() {
         hasTrips: 'You have trips on this day.',
       },
       es: {
-        jan: 'Enero', //✅
-        feb: 'Febrero', //✅
-        mar: 'Marzo', //✅
-        apr: 'Abril', //✅
-        may: 'Mayo', //✅
-        jun: 'Junio', //✅
-        jul: 'Julio', //✅
-        aug: 'Agosto', //✅
-        sep: 'Septiembre', //✅
-        oct: 'Octubre', //✅
-        nov: 'Noviembre', //✅
-        dec: 'Diciembre', //✅
-        janAbr: 'enero',
+        jan: 'enero', //✅
+        feb: 'febrero', //✅
+        mar: 'marzo', //✅
+        apr: 'abril', //✅
+        may: 'mayo', //✅
+        jun: 'junio', //✅
+        jul: 'julio', //✅
+        aug: 'agosto', //✅
+        sep: 'septiembre', //✅
+        oct: 'octubre', //✅
+        nov: 'noviembre', //✅
+        dec: 'diciembre', //✅
+        janAbr: 'ene',
         febAbr: 'feb',
         marAbr: 'mar',
         aprAbr: 'abr',
-        mayAbr: 'mayo',
+        mayAbr: 'may',
         junAbr: 'jun',
         julAbr: 'jul',
-        augAbr: 'agoto',
+        augAbr: 'ago',
         sepAbr: 'set',
         octAbr: 'oct',
         novAbr: 'nov',
         decAbr: 'dic',
-        mon: 'LUN',
-        tue: 'MAR',
-        wed: 'MIÉ',
-        thu: 'JUE',
-        fri: 'VIE',
-        sat: 'SÁB',
-        sun: 'DOM',
+        mon: 'lun',
+        tue: 'mar',
+        wed: 'ié',
+        thu: 'jue',
+        fri: 'vie',
+        sat: 'sáb',
+        sun: 'dom',
         hasTrips: 'Tienes viajes en este día.', //✅
       },
     },
@@ -162,14 +162,14 @@ export default function genLocales() {
     },
     errors: {
       en: {
-        login: 'Unknown Error',
+        unknown: 'Unknown Error',
         recover: 'Error sending code. Please try again.',
         conflict: 'This email is already registered. Please login.',
         expired: 'Your session has expired. Please login.',
         pleaseSelectLocation: 'Please select a location from the list',
       },
       es: {
-        login: 'Error desconocido', //✅
+        unknown: 'Error desconocido', //✅
         recover: 'Error al enviar el código. Por favor, inténtelo de nuevo.', //✅
         conflict:
           'Este correo electrónico ya está registrado. Por favor inicie sesión.',
@@ -222,6 +222,8 @@ export default function genLocales() {
         normal: 'Normal',
         cursorSize: 'Cursor Size',
         largeCursor: 'Larger Cursor Size',
+        en: 'English',
+        es: 'Spanish',
       },
       es: {
         settings: 'CONFIGURACIÓN', //✅
@@ -238,6 +240,8 @@ export default function genLocales() {
         normal: 'Normal (tipo de letra)', //✅
         cursorSize: 'Tamaño del Cursor', //✅
         largeCursor: 'Tamaño Grande del Cursor', //✅
+        en: 'Inglés', //✅
+        es: 'Español', //✅
       },
     },
     loginWizard: {
@@ -274,7 +278,8 @@ export default function genLocales() {
 
         termsTitle: 'Terms and Conditions',
         termsMessage: 'I agree to the Terms and Conditions',
-        termsText: '',
+        termsText:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Id leo in vitae turpis massa. Proin fermentum leo vel orci. In nulla posuere sollicitudin aliquam ultrices. Enim neque volutpat ac tincidunt vitae. Pharetra convallis posuere morbi leo urna molestie at. Amet consectetur adipiscing elit pellentesque habitant morbi tristique senectus. In est ante in nibh. Lobortis mattis aliquam faucibus purus in massa tempor nec. Eget velit aliquet sagittis id consectetur. Lacus sed turpis tincidunt id aliquet risus feugiat in. Mattis nunc sed blandit libero volutpat sed cras ornare arcu. Praesent tristique magna sit amet purus gravida. A cras semper auctor neque vitae. Odio pellentesque diam volutpat commodo sed egestas egestas fringilla. Varius quam quisque id diam. Phasellus vestibulum lorem sed risus ultricies. Mollis nunc sed id semper risus in.\n\nVolutpat commodo sed egestas egestas. Ut venenatis tellus in metus vulputate. Rhoncus est pellentesque elit ullamcorper dignissim cras. At risus viverra adipiscing at in tellus integer. Libero enim sed faucibus turpis in eu mi bibendum. Convallis convallis tellus id interdum velit laoreet id donec. Quam vulputate dignissim suspendisse in est ante in. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Gravida rutrum quisque non tellus. Massa tincidunt dui ut ornare lectus sit amet est placerat. Habitasse platea dictumst quisque sagittis purus. Quam nulla porttitor massa id. Commodo sed egestas egestas fringilla phasellus faucibus scelerisque. Amet aliquam id diam maecenas ultricies mi. Mattis nunc sed blandit libero volutpat sed. Turpis egestas maecenas pharetra convallis posuere morbi. Eget magna fermentum iaculis eu non diam phasellus vestibulum. Semper viverra nam libero justo laoreet sit amet cursus. Libero enim sed faucibus turpis in eu mi bibendum. Tortor at auctor urna nunc id cursus.\n\nSed tempus urna et pharetra pharetra massa massa. Lorem mollis aliquam ut porttitor leo a. Enim diam vulputate ut pharetra. Venenatis cras sed felis eget. Consequat ac felis donec et odio pellentesque diam. Senectus et netus et malesuada fames ac turpis egestas. Nulla facilisi nullam vehicula ipsum. Scelerisque eleifend donec pretium vulputate sapien nec sagittis aliquam. Venenatis urna cursus eget nunc scelerisque viverra mauris in aliquam. Fusce ut placerat orci nulla pellentesque dignissim enim. Ante in nibh mauris cursus mattis molestie a iaculis. Nulla pharetra diam sit amet. Massa tincidunt dui ut ornare lectus sit amet est. Eu nisl nunc mi ipsum faucibus vitae aliquet. Diam in arcu cursus euismod quis viverra nibh cras. Fusce ut placerat orci nulla pellentesque dignissim enim. Lectus mauris ultrices eros in cursus turpis massa tincidunt. Nisl rhoncus mattis rhoncus urna neque viverra justo. In hac habitasse platea dictumst quisque sagittis purus sit amet.\n\nRhoncus mattis rhoncus urna neque viverra justo nec ultrices. Amet luctus venenatis lectus magna fringilla. Blandit massa enim nec dui. Consectetur adipiscing elit duis tristique sollicitudin nibh. Eget duis at tellus at. Tellus in metus vulputate eu scelerisque felis imperdiet proin fermentum. Imperdiet dui accumsan sit amet nulla facilisi. Eu augue ut lectus arcu bibendum at. Eget dolor morbi non arcu risus quis varius. Purus in mollis nunc sed. Dui vivamus arcu felis bibendum ut tristique. In cursus turpis massa tincidunt dui ut ornare.\n\nEget dolor morbi non arcu risus. Ac tortor dignissim convallis aenean. Leo vel orci porta non pulvinar neque. Nulla facilisi cras fermentum odio eu feugiat. Tincidunt tortor aliquam nulla facilisi cras. Ut placerat orci nulla pellentesque dignissim enim sit amet venenatis. Donec adipiscing tristique risus nec feugiat in fermentum posuere. Lectus mauris ultrices eros in cursus. Adipiscing at in tellus integer. Enim ut tellus elementum sagittis vitae et leo duis ut. Donec et odio pellentesque diam. Nec nam aliquam sem et tortor consequat. A pellentesque sit amet porttitor eget dolor morbi non. Massa eget egestas purus viverra.',
         terms1: 'I agree to the',
         terms2: 'terms and conditions',
         accept: 'Accept',
@@ -312,7 +317,8 @@ export default function genLocales() {
 
         termsTitle: 'Términos y condiciones',
         termsMessage: 'Acepto los Términos y Condiciones',
-        termsText: '',
+        termsText:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Id leo in vitae turpis massa. Proin fermentum leo vel orci. In nulla posuere sollicitudin aliquam ultrices. Enim neque volutpat ac tincidunt vitae. Pharetra convallis posuere morbi leo urna molestie at. Amet consectetur adipiscing elit pellentesque habitant morbi tristique senectus. In est ante in nibh. Lobortis mattis aliquam faucibus purus in massa tempor nec. Eget velit aliquet sagittis id consectetur. Lacus sed turpis tincidunt id aliquet risus feugiat in. Mattis nunc sed blandit libero volutpat sed cras ornare arcu. Praesent tristique magna sit amet purus gravida. A cras semper auctor neque vitae. Odio pellentesque diam volutpat commodo sed egestas egestas fringilla. Varius quam quisque id diam. Phasellus vestibulum lorem sed risus ultricies. Mollis nunc sed id semper risus in.\n\nVolutpat commodo sed egestas egestas. Ut venenatis tellus in metus vulputate. Rhoncus est pellentesque elit ullamcorper dignissim cras. At risus viverra adipiscing at in tellus integer. Libero enim sed faucibus turpis in eu mi bibendum. Convallis convallis tellus id interdum velit laoreet id donec. Quam vulputate dignissim suspendisse in est ante in. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Gravida rutrum quisque non tellus. Massa tincidunt dui ut ornare lectus sit amet est placerat. Habitasse platea dictumst quisque sagittis purus. Quam nulla porttitor massa id. Commodo sed egestas egestas fringilla phasellus faucibus scelerisque. Amet aliquam id diam maecenas ultricies mi. Mattis nunc sed blandit libero volutpat sed. Turpis egestas maecenas pharetra convallis posuere morbi. Eget magna fermentum iaculis eu non diam phasellus vestibulum. Semper viverra nam libero justo laoreet sit amet cursus. Libero enim sed faucibus turpis in eu mi bibendum. Tortor at auctor urna nunc id cursus.\n\nSed tempus urna et pharetra pharetra massa massa. Lorem mollis aliquam ut porttitor leo a. Enim diam vulputate ut pharetra. Venenatis cras sed felis eget. Consequat ac felis donec et odio pellentesque diam. Senectus et netus et malesuada fames ac turpis egestas. Nulla facilisi nullam vehicula ipsum. Scelerisque eleifend donec pretium vulputate sapien nec sagittis aliquam. Venenatis urna cursus eget nunc scelerisque viverra mauris in aliquam. Fusce ut placerat orci nulla pellentesque dignissim enim. Ante in nibh mauris cursus mattis molestie a iaculis. Nulla pharetra diam sit amet. Massa tincidunt dui ut ornare lectus sit amet est. Eu nisl nunc mi ipsum faucibus vitae aliquet. Diam in arcu cursus euismod quis viverra nibh cras. Fusce ut placerat orci nulla pellentesque dignissim enim. Lectus mauris ultrices eros in cursus turpis massa tincidunt. Nisl rhoncus mattis rhoncus urna neque viverra justo. In hac habitasse platea dictumst quisque sagittis purus sit amet.\n\nRhoncus mattis rhoncus urna neque viverra justo nec ultrices. Amet luctus venenatis lectus magna fringilla. Blandit massa enim nec dui. Consectetur adipiscing elit duis tristique sollicitudin nibh. Eget duis at tellus at. Tellus in metus vulputate eu scelerisque felis imperdiet proin fermentum. Imperdiet dui accumsan sit amet nulla facilisi. Eu augue ut lectus arcu bibendum at. Eget dolor morbi non arcu risus quis varius. Purus in mollis nunc sed. Dui vivamus arcu felis bibendum ut tristique. In cursus turpis massa tincidunt dui ut ornare.\n\nEget dolor morbi non arcu risus. Ac tortor dignissim convallis aenean. Leo vel orci porta non pulvinar neque. Nulla facilisi cras fermentum odio eu feugiat. Tincidunt tortor aliquam nulla facilisi cras. Ut placerat orci nulla pellentesque dignissim enim sit amet venenatis. Donec adipiscing tristique risus nec feugiat in fermentum posuere. Lectus mauris ultrices eros in cursus. Adipiscing at in tellus integer. Enim ut tellus elementum sagittis vitae et leo duis ut. Donec et odio pellentesque diam. Nec nam aliquam sem et tortor consequat. A pellentesque sit amet porttitor eget dolor morbi non. Massa eget egestas purus viverra.',
         terms1: 'Acepto los ',
         terms2: 'términos y condiciones',
         accept: 'Aceptar',
@@ -630,7 +636,7 @@ export default function genLocales() {
         deny: 'Deny',
         acceptRequest: 'Accept Request',
         denyRequest: 'Deny Request',
-        removeCaregiver: 'Remove Coordinator',
+        removeCaregiver: 'Remove this Coordinator',
         remove: 'Remove',
         confirmRemove: 'Are you sure you want to remove this coordinator?',
 
@@ -642,7 +648,7 @@ export default function genLocales() {
         statusMessage: 'Coordinator status %{status}',
       },
       es: {
-        inviteCaregiver: 'Invitar a un Coordinator',
+        inviteCaregiver: 'Invitar a un Coordinador', //✅
         addCaregiver: 'Invitar a un Coordinador',
         invalidCaregiver: 'Cuidador inválido',
         linkMessage:
@@ -655,7 +661,7 @@ export default function genLocales() {
         deny: 'Negar', //✅
         acceptRequest: 'Aceptar Solicitud', //✅
         denyRequest: 'Negar Solicitud', //✅
-        removeCaregiver: 'Eliminar cuidador',
+        removeCaregiver: 'Eliminar a este coordinador', //✅
         remove: 'Eliminar',
         confirmRemove: '¿Está seguro de que desea eliminar a este coordinador?',
 
@@ -809,7 +815,7 @@ export default function genLocales() {
         transitDelay: 'Retraso en el Transporte Público', //✅
         shuttleArrive: 'Llegada del Autobús',
         intersection: 'Información de Intersección', //✅
-        caregiverAlerts: 'Alertas de Notificación al Coordinador',
+        caregiverAlerts: 'Alertas de Notificación al Coordinador', //✅
         dependentTripStart: 'Inicio del Viaje del Viajero', //✅
         dependentArriveDepart: 'Llegada/salida del Viajero',
         dependentShuttleArriveDepart:
@@ -865,16 +871,16 @@ export default function genLocales() {
     },
     tripLog: {
       en: {
-        title: 'Trip Activity',
-        upcoming: 'Upcoming',
+        title: 'Activity',
+        upcoming: 'UPCOMING TRIPS',
         noTrips: 'No upcoming trips found.',
         viewDetails: 'View Trip Details',
         tripInfo: 'Trip Information',
         viewAll: 'View All Trips',
       },
       es: {
-        title: 'Actividad del Viaje', //✅
-        upcoming: 'Próximos',
+        title: 'Actividad', //✅
+        upcoming: 'PRÓXIMOS VIAJES', //✅
         noTrips: 'No se encontraron viajes próximos.',
         viewDetails: 'Ver Detalles del Viaje', //✅
         tripInfo: 'Información del Viaje', //✅

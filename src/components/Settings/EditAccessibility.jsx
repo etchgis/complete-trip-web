@@ -88,7 +88,7 @@ export const EditLanguage = observer(() => {
       >
         {Object.keys(config.LANAGUAGES).map(key => (
           <option key={key} value={key}>
-            {config.LANAGUAGES[key]}
+            {t(`ariaWidget.${key}`)}
           </option>
         ))}
       </Select>
