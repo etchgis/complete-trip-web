@@ -453,6 +453,7 @@ export default function genLocales() {
         drive: 'Drive',
         wait: 'Wait',
         tripScheduled: 'Trip Scheduled',
+        showQR: 'Show QR Code',
       },
       es: {
         searchFrom: 'De',
@@ -485,6 +486,7 @@ export default function genLocales() {
         drive: 'Drive', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
+        showQR: 'Mostrar código QR', //✅
       },
     },
     tripbot: {

@@ -32,6 +32,7 @@ export const Routes = observer(() => {
   const { ui, setUI, setUX } = useStore().uiStore;
 
   useEffect(() => {
+    //NOTE this will always be true in the browser by using useEffect
     // if (window && window.location) {
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
@@ -39,7 +40,6 @@ export const Routes = observer(() => {
     console.log('[routes] queryParams:', { debug, mode });
     if (debug) setDebugMode(debug === 'true' ? true : false);
     setUX(mode === 'kiosk' ? 'kiosk' : 'webapp');
-    // }
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);

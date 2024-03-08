@@ -7,6 +7,7 @@ import {
   Grid,
   Heading,
   Icon,
+  IconButton,
   Image,
   Text,
   VStack,
@@ -16,6 +17,7 @@ import {
 import { FaArrowRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
+import { CloseIcon } from '@chakra-ui/icons';
 import QRCODE from '../../assets/qr_code.png';
 import { RxDotFilled } from 'react-icons/rx';
 import config from '../../config';
@@ -235,6 +237,8 @@ export const TripPlanSchedule = observer(
     const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
     const { t } = useTranslation();
 
+    const [showQR, setShowQR] = useState(true);
+
     useEffect(() => {
       // console.log('activeLegIndex', activeLegIndex);
       if (activeLegIndex !== legIndex) {
@@ -244,7 +248,7 @@ export const TripPlanSchedule = observer(
 
     return (
       <>
-        {ux === 'kiosk' && (
+        {ux === 'kiosk' && showQR && (
           <Flex
             background={'white'}
             position={'absolute'}
@@ -258,7 +262,17 @@ export const TripPlanSchedule = observer(
             justifyContent={'center'}
             borderRadius={'md'}
             boxShadow={'md'}
+            data-testid="trip-plan-schedule-qr"
           >
+            <IconButton
+              onClick={() => setShowQR(false)}
+              aria-label={t('global.close')}
+              icon={<CloseIcon />}
+              pos={'absolute'}
+              top={4}
+              right={4}
+              variant={'ghost'}
+            />
             <Image src={QRCODE} alt="QR Code" width="200px" height="auto" />
           </Flex>
         )}
@@ -269,6 +283,20 @@ export const TripPlanSchedule = observer(
             id="trip-plan-schedule"
             data-testid="trip-plan-schedule"
           >
+            {ux === 'kiosk' && (
+              <Box textAlign={'center'}>
+                <Divider aria-hidden={true} my={2} />
+                <Button
+                  size="sm"
+                  variant="brand"
+                  onClick={() => setShowQR(true)}
+                  data-testid="show-qr"
+                >
+                  {t('tripWizard.showQR')}
+                </Button>
+                <Divider aria-hidden={true} my={2} />
+              </Box>
+            )}
             <Grid
               gridTemplateColumns={'1fr 1fr 1fr'}
               width="80%"
