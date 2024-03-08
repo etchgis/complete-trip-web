@@ -76,7 +76,7 @@ export default function genLocales() {
         decAbr: 'dic',
         mon: 'lun',
         tue: 'mar',
-        wed: 'ié',
+        wed: 'mié',
         thu: 'jue',
         fri: 'vie',
         sat: 'sáb',
@@ -145,7 +145,7 @@ export default function genLocales() {
         skip: 'Saltar', //✅
         yes: 'Sí',
         no: 'No',
-        to: 'hacia', //✅
+        to: 'Hacia', //✅
         loading: 'Cargando',
         prevMonth: 'Mes Anterior', //✅
         nextMonth: 'Mes Próximo', //✅
@@ -272,7 +272,7 @@ export default function genLocales() {
         addPrimaryCaregiverDescription: `Notify your companions in 1-touch for any of your trips.`,
 
         addMobilityOptions: 'Enhanced Mobility Options',
-        addMobilityOptionsDescription: `Enter in your email to find enhanced mobility options you are registered with such as [x]`,
+        // addMobilityOptionsDescription: `Enter in your email to find enhanced mobility options you are registered with such as [x]`,
 
         // addAnotherEmail: 'Add Another email address',
 
@@ -312,7 +312,7 @@ export default function genLocales() {
         addPrimaryCaregiver: 'Agregar Coordinador Principal', //✅
         addPrimaryCaregiverDescription: `Notifique a sus compañeros en 1 toque para cualquiera de sus viajes.`,
         addMobilityOptions: 'Opciones de Movilidad Mejoradas',
-        addMobilityOptionsDescription: `Ingrese su correo electrónico para encontrar opciones de movilidad mejoradas con las que está registrado, como [x]`,
+        // addMobilityOptionsDescription: `Ingrese su correo electrónico para encontrar opciones de movilidad mejoradas con las que está registrado, como [x]`,
         // addAnotherEmail: 'Agregar otra dirección de correo electrónico',
 
         termsTitle: 'Términos y condiciones',
@@ -361,24 +361,22 @@ export default function genLocales() {
       es: {},
     },
 
-    caregiverLink: {
-      en: {
-        title: 'Caregiver Link',
-        description:
-          'Caregiver Link is a service that connects caregivers with their loved ones.',
-        login: 'Log In',
-        signUp: 'Sign Up',
-        forgotPassword: 'Forgot Password?',
-      },
-      es: {
-        title: 'Enlace de Cuidador',
-        description:
-          'Enlace de Cuidador es un servicio que conecta a los cuidadores con sus seres queridos.',
-        login: 'Iniciar sesión',
-        signUp: 'Regístrate',
-        forgotPassword: '¿Olvidó su contraseña?',
-      },
-    },
+    // caregiverLink: {
+    //   en: {
+    //     description:
+    //       'Caregiver Link is a service that connects caregivers with their loved ones.',
+    //     login: 'Log In',
+    //     signUp: 'Sign Up',
+    //     forgotPassword: 'Forgot Password?',
+    //   },
+    //   es: {
+    //     description:
+    //       'Enlace de Cuidador es un servicio que conecta a los cuidadores con sus seres queridos.',
+    //     login: 'Iniciar sesión',
+    //     signUp: 'Regístrate',
+    //     forgotPassword: '¿Olvidó su contraseña?',
+    //   },
+    // },
     home: {
       en: {
         tripButton: 'Schedule a Trip',
@@ -621,7 +619,6 @@ export default function genLocales() {
       en: {
         inviteCaregiver: 'Invite a Coordinator',
         addCaregiver: 'Add a Coordinator',
-        invalidCaregiver: 'Invalid Coordinator',
         linkMessage:
           'You have been requested to be a coordinator for %{name}. Do you want to accept the request?',
         linkMessageNoAccount: `You have been requested to be a coordinator for All Access
@@ -644,16 +641,13 @@ export default function genLocales() {
           'This email is already registered as a coordinator.',
         inviteError: 'There was an error inviting the coordinator.',
         genericError: 'Unknown Error',
-
-        statusMessage: 'Coordinator status %{status}',
       },
       es: {
         inviteCaregiver: 'Invitar a un Coordinador', //✅
         addCaregiver: 'Invitar a un Coordinador',
-        invalidCaregiver: 'Cuidador inválido',
         linkMessage:
           'Se le ha solicitado que sea coordinator(a) de %{name}. ¿Quieres aceptar la solicitud?', //✅
-        linkMessageNoAccount: `Se le ha solicitado que sea coordinador de la aplicación Buffalo Complete Trip. Inicie sesión para ver la solicitud. Si no tiene una cuenta, regístrese y podrá revisar la solicitud una vez se registre.`, //✅
+        linkMessageNoAccount: `Se le ha solicitado que sea coordinador de la aplicación All Access. Inicie sesión para ver la solicitud. Si no tiene una cuenta, regístrese y podrá revisar la solicitud una vez se registre.`, //✅
         pending: 'Pendiente',
         received: 'RECIBIDO', //✅
         denied: 'Negado', //✅
@@ -669,8 +663,6 @@ export default function genLocales() {
           'Este correo electrónico ya está registrado como cuidador.',
         inviteError: 'Hubo un error al invitar al cuidador.',
         genericError: 'Error desconocido',
-
-        statusMessage: 'Estado del cuidador %{status}',
       },
     },
     settingsDependents: {
@@ -681,7 +673,7 @@ export default function genLocales() {
         tracking: "Tracking %{name}'s Trip",
       },
       es: {
-        upcoming: 'Próximos viajes dependientes',
+        upcoming: 'Próximos Viajes del Viajero',
         noTrips: 'No se encontraron viajes',
         list: 'Viajeros',
         trackingTrip: 'Seguimiento del viaje de %{name}',
@@ -802,7 +794,7 @@ export default function genLocales() {
         shuttleArrive: 'On Demand Shuttle Arrival',
         intersection: 'Enhanced Intersection Information',
         caregiverAlerts: 'Coordinator Notification Alerts',
-        dependentTripStart: 'Trip Start',
+        dependentTripStart: 'Traveler Trip Start',
         dependentArriveDepart: 'Traveler Arrival/Departure',
         dependentShuttleArriveDepart: 'Traveler Shuttle Arrival/Drop Off',
         dependentModeChange: 'Traveler Transportation Mode Change',

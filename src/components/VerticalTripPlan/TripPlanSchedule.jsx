@@ -359,7 +359,7 @@ export const TripPlanSchedule = observer(
               </Box>
             </Grid>
             <Text textAlign={'left'} data-name="to">
-              To{' '}
+              {t('global.to')}{' '}
               <strong>
                 {request?.destination?.title}{' '}
                 {request?.destination?.description}
@@ -505,7 +505,7 @@ export const TripPlanSchedule = observer(
                               data-name="headsign"
                               textAlign={'left'}
                             >
-                              To {headsign}
+                              <span>{t('global.to')}</span> {headsign}
                             </Text>
                             <Text
                               fontWeight={'black'}

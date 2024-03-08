@@ -37,9 +37,10 @@ export const AddCaregiver = ({ onClose }) => {
         } catch (error) {
           onClose();
           if (error === 'caregiver already registered for this dependent') {
-            setErrorToastMessage(
-              t('settingsCaregivers.caregiverAlreadyRegistered')
-            );
+            // setErrorToastMessage(
+            //   t('settingsCaregivers.caregiverAlreadyRegistered')
+            // );
+            setErrorToastMessage(t('errors.unknown'));
           } else {
             setErrorToastMessage(t('errors.unknown'));
           }

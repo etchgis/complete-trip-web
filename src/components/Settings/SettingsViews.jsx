@@ -102,7 +102,9 @@ export const FavoritesList = observer(() => {
               key={f.id.toString()}
               id={f.id}
               title={f.alias}
-              description={f.origin.text + ' to ' + f.destination.text}
+              description={`${f.origin.text} ${t('global.to').toLowerCase()} ${
+                f.destination.text
+              }`}
               type="trip"
             />
           );

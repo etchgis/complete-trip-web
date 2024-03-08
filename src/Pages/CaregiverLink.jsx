@@ -77,7 +77,7 @@ const CaregiverLink = observer(() => {
       if (status === 'approved' || status === 'denied') {
         if (status === 'approved') setToastStatus('Success');
         if (status === 'denied') setToastStatus('Info');
-        setToastMessage(t('settingsCaregivers.status', { status }));
+        setToastMessage(t('global.success', { status }));
         navigate('/settings/dependents');
         onClose();
         reset();
@@ -87,7 +87,7 @@ const CaregiverLink = observer(() => {
       setToastStatus('Error');
       if (error?.message === 'invalid') {
         setInviteCode(null);
-        setToastMessage(t('settingsCaregivers.invalidCaregiver'));
+        setToastMessage(t('errors.unknown'));
         navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
         setToastMessage(t('settingsCaregivers.genericError'));
@@ -139,7 +139,7 @@ const CaregiverLink = observer(() => {
                       colorScheme="red"
                       onClick={() => updateHandler('denied')}
                     >
-                      {t('settingsCaregiver.denyRequest')}
+                      {t('settingsCaregivers.denyRequest')}
                     </Button>
                   </Stack>
                 </Box>

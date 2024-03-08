@@ -157,7 +157,7 @@ const Settings = observer(({ view }) => {
       var focusable = activePageRef?.current?.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
-      console.log(focusable);
+      // console.log(focusable);
       if (focusable?.length) {
         focusable[0].focus();
       }
