@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react';
 
 import { CloseIcon } from '@chakra-ui/icons';
 import QRCODE from '../../assets/qr_code.png';
+import QRCODE_ES from '../../assets/qr_code_es.png';
 import { RxDotFilled } from 'react-icons/rx';
 import config from '../../config';
 import { fillGaps } from '../../utils/tripplan';
@@ -225,7 +226,7 @@ export const TripPlanSchedule = observer(
     const { colorMode } = useColorMode();
     const { user } = useStore().authentication;
     const { activeLegIndex } = useStore().tripMapStore;
-    const { ux } = useStore().uiStore;
+    const { ux, ui } = useStore().uiStore;
     const [legIndex, setL] = useState(-1);
     const riderProfile = rider?.profile ? JSON.parse(rider.profile) : false;
     const wheelchair =
@@ -236,6 +237,10 @@ export const TripPlanSchedule = observer(
     // console.log(toJS(request));
     const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
     const { t } = useTranslation();
+    const qrImages = {
+      en: QRCODE,
+      es: QRCODE_ES,
+    };
 
     const [showQR, setShowQR] = useState(true);
 
@@ -273,7 +278,12 @@ export const TripPlanSchedule = observer(
               right={4}
               variant={'ghost'}
             />
-            <Image src={QRCODE} alt="QR Code" width="200px" height="auto" />
+            <Image
+              src={qrImages[ui.language]}
+              alt="QR Code"
+              width="200px"
+              height="auto"
+            />
           </Flex>
         )}
         {plan && plan?.legs?.length ? (
@@ -287,7 +297,7 @@ export const TripPlanSchedule = observer(
               <Box textAlign={'center'}>
                 <Divider aria-hidden={true} my={2} />
                 <Button
-                  size="sm"
+                  size="md"
                   variant="brand"
                   onClick={() => setShowQR(true)}
                   data-testid="show-qr"

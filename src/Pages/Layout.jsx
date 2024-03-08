@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import CustomModal from '../components/Modal';
 import ErrorToastMessage from '../components/ErrorToastMessage';
+import Home from './Home';
 import Keyboard from '../components/OnScreenKeyboard';
 import Loader from '../components/Loader';
 import LoginRegister from '../components/LoginRegister';
@@ -18,7 +19,7 @@ import useTranslation from '../models/useTranslation';
 
 // import { useEffect } from 'react';
 
-const Layout = observer(({ showMap, children }) => {
+const Layout = observer(({ showMap, isHome, children }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const { t } = useTranslation();
@@ -85,6 +86,12 @@ const Layout = observer(({ showMap, children }) => {
     // eslint-disable-next-line
   }, [loggedIn]);
 
+  const {
+    isOpen: isTripWizardOpen,
+    onOpen: openTripWizard,
+    onClose: closeTripWizard,
+  } = useDisclosure();
+
   return (
     <Flex
       id="app"
@@ -102,6 +109,7 @@ const Layout = observer(({ showMap, children }) => {
         onToggle={onToggle}
         onClose={onClose}
         action1={showLogin}
+        openTripWizard={openTripWizard}
       ></Navbar>
 
       {/* MAIN SHELL */}
@@ -113,7 +121,19 @@ const Layout = observer(({ showMap, children }) => {
         ></ResponsiveSidebar>
         {/* MAP */}
         {/* NOTE the map is always loaded so we dont have to re-load it each time we navigate to the map route */}
-        <Map showMap={showMap}></Map>
+        <Map
+          showMap={showMap}
+          isTripWizardOpen={isTripWizardOpen}
+          closeTripWizard={closeTripWizard}
+          openTripWizard={openTripWizard}
+        ></Map>
+        {isHome && (
+          <Home
+            isTripWizardOpen={isTripWizardOpen}
+            closeTripWizard={closeTripWizard}
+            openTripWizard={openTripWizard}
+          ></Home>
+        )}
         {children}
         {/* KEYBOARD */}
       </Grid>

@@ -3,7 +3,6 @@ import { toJS, trace } from 'mobx';
 
 import CaregiverLink from './CaregiverLink';
 import Gleap from 'gleap';
-import Home from './Home';
 import Layout from './Layout';
 import Login from './Login';
 import Settings from './Settings';
@@ -155,10 +154,7 @@ export const Routes = observer(() => {
       {/* Profile */}
       {loggedIn ? (
         <>
-          <Route
-            path={'/home'}
-            element={<Layout children={<Home />}></Layout>}
-          />
+          <Route path={'/home'} element={<Layout isHome={true}></Layout>} />
 
           <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
