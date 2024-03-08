@@ -23,7 +23,7 @@ const OnScreenKeyboard = observer(() => {
   };
 
   const onInputChange = input => {
-    console.log(input);
+    // console.log(input);
     setKeyboardInputValue(input);
     if (keyboard.current) keyboard.current.setInput(input);
   };

@@ -27,7 +27,7 @@ export const TransitRoutes = observer(({}) => {
   const colorMode = useColorMode();
   const { map, mapState, setMapState, mapCache, getRoutes, getStops } =
     useStore().mapStore;
-  const { debug } = useStore().uiStore;
+  const { debug, setKeyboardInputValue } = useStore().uiStore;
   // const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(
     mapState.routesLoading || mapState.stopsLoading
@@ -88,6 +88,7 @@ export const TransitRoutes = observer(({}) => {
     console.log('[map-view] route click handler');
     try {
       setDefaultAddress('');
+      setKeyboardInputValue(''); //NOTE this is supposed to clear the keyboard input (not working)
       setMapState('activeRoute', service);
       if (service.service && service.route) {
         getStops(service, true)
