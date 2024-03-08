@@ -11,7 +11,8 @@ import useTranslation from '../../models/useTranslation';
 export const ScheduleTripHeader = observer(() => {
   const { t } = useTranslation();
   const { trips: favoriteTrips } = useStore().favorites;
-  const { clearOnScreenKeyboard, setKeyboardActiveInput } = useStore().uiStore;
+  const { clearKeyboardInputValues, setKeyboardActiveInput } =
+    useStore().uiStore;
   const { colorMode } = useColorMode();
   const [tripPlan, setTripPlan] = useState({});
   const {
@@ -40,7 +41,7 @@ export const ScheduleTripHeader = observer(() => {
         <Button
           variant={'brand'}
           onClick={() => {
-            clearOnScreenKeyboard();
+            clearKeyboardInputValues();
             setKeyboardActiveInput('startAddress');
             openModal();
           }}
@@ -61,7 +62,7 @@ export const ScheduleTripHeader = observer(() => {
         onClose={() => {
           console.log('[ScheduleTripHeader] onClose');
           setTripPlan({});
-          clearOnScreenKeyboard();
+          clearKeyboardInputValues();
           setKeyboardActiveInput('transitSearch');
           closeModal();
         }}

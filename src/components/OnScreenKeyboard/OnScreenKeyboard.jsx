@@ -9,7 +9,8 @@ import { useStore } from '../../context/RootStore';
 
 const OnScreenKeyboard = observer(() => {
   const [layout, setLayout] = useState('default');
-  const { setOnScreenKeyboardInput, activeInput } = useStore().uiStore;
+  const { onScreenKeyboardInput, setKeyboardInputValue, activeInput } =
+    useStore().uiStore;
   const keyboard = useRef();
 
   const handleShift = () => {
@@ -23,9 +24,14 @@ const OnScreenKeyboard = observer(() => {
 
   const onInputChange = input => {
     console.log(input);
-    setOnScreenKeyboardInput(input);
+    setKeyboardInputValue(input);
     if (keyboard.current) keyboard.current.setInput(input);
   };
+
+  useEffect(() => {
+    if (keyboard.current)
+      keyboard.current.setInput(onScreenKeyboardInput[activeInput] || '');
+  }, [onScreenKeyboardInput]);
 
   useEffect(() => {
     if (keyboard.current) keyboard.current.setInput('');
@@ -34,7 +40,7 @@ const OnScreenKeyboard = observer(() => {
   return (
     <Flex
       data-test-id="keyboard"
-      position="absolute"
+      // position="absolute"
       bottom="0"
       left="0"
       zIndex="1500"

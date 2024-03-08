@@ -104,7 +104,7 @@ export const MapComponent = observer(({ showMap }) => {
             .on('load', initMap)
             .on('style.load', mapLayers)
             .on('moveend', e => {
-              console.log('moveend');
+              // console.log('moveend');
               const { lng, lat } = e.target.getCenter();
               setMapState('geolocation', [lng, lat]);
               // debounce(getRouteList(e.target), 1000);

@@ -2,15 +2,18 @@ import { Flex } from '@chakra-ui/react';
 import MapComponent from '../components/Map';
 import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TransitRoutes from '../components/TransitRoutes';
+import { observer } from 'mobx-react-lite';
+import { useStore } from '../context/RootStore';
 
-const Map = ({ showMap }) => {
-  // console.log('[map-view] rendering');
+const Map = observer(({ showMap }) => {
+  const { ux } = useStore().uiStore;
+
   return (
     <Flex
       flex={1}
       flexDir={'row'}
       id="map-view"
-      height={'calc(100vh - 60px)'}
+      height={ux === 'webapp' ? 'calc(100vh - 60px)' : 'calc(100vh - 315px)'}
       overflow={'hidden'}
       display={showMap ? 'flex' : 'none'}
     >
@@ -25,6 +28,6 @@ const Map = ({ showMap }) => {
       </Flex>
     </Flex>
   );
-};
+});
 
 export default Map;

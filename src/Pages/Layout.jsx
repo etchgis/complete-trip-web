@@ -105,7 +105,7 @@ const Layout = observer(({ showMap, children }) => {
       ></Navbar>
 
       {/* MAIN SHELL */}
-      <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex="1">
+      <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex={1}>
         {/* SIDEBAR */}
         <ResponsiveSidebar
           isOpen={isOpen}
@@ -115,7 +115,10 @@ const Layout = observer(({ showMap, children }) => {
         {/* NOTE the map is always loaded so we dont have to re-load it each time we navigate to the map route */}
         <Map showMap={showMap}></Map>
         {children}
+        {/* KEYBOARD */}
       </Grid>
+
+      {!loggedIn && ux === 'kiosk' && <Keyboard />}
 
       {/* MODALS */}
 
@@ -162,9 +165,6 @@ const Layout = observer(({ showMap, children }) => {
 
       {/* LOADER */}
       <Loader isOpen={inTransaction || isLoading}></Loader>
-
-      {/* KEYBOARD */}
-      {!loggedIn && ux === 'kiosk' && <Keyboard />}
     </Flex>
   );
 });

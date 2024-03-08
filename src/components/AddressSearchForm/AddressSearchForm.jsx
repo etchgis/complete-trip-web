@@ -24,11 +24,11 @@ export const SearchForm = observer(
     const { locations } = useStore().favorites;
     const {
       onScreenKeyboardInput,
-      setOnScreenKeyboardInput,
+      setKeyboardInputValue,
       ux,
       activeInput,
       setKeyboardActiveInput,
-      getInputValue,
+      getKeyboardInputValue,
     } = useStore().uiStore;
     const { t } = useTranslation();
 
@@ -119,11 +119,10 @@ export const SearchForm = observer(
 
     useEffect(() => {
       if (ux !== 'kiosk') return;
-      // if (inputName !== activeInput) return;
-      console.log(onScreenKeyboardInput);
-      console.log(address);
-      console.log(getInputValue(inputName));
-      setAddress(getInputValue(inputName));
+      console.log('[addressSearchForm] setting address');
+      if (inputName !== activeInput) return;
+      setShowResults(true);
+      setAddress(getKeyboardInputValue(inputName));
     }, [onScreenKeyboardInput, ux]);
 
     useEffect(() => {
@@ -136,7 +135,6 @@ export const SearchForm = observer(
         }
         return;
       }
-      setShowResults(true);
       list.setFilterText(address);
     }, [address]);
 
@@ -145,6 +143,8 @@ export const SearchForm = observer(
         // KEYBOARD
         showResults={showResults}
         onFocus={() => setKeyboardActiveInput(inputName)}
+        inputName={inputName}
+        activeInput={activeInput}
         //END KEYBOARD
         required={required || false}
         placeholder={t('map.searchPlaceholder')}
@@ -157,13 +157,16 @@ export const SearchForm = observer(
           console.log('[addressSearchForm] onInputChange');
           list.setFilterText(e);
           if (!list.selectedKeys.size) {
+            setShowResults(false);
             //NOTE needed so that when we come back we clear out the result if the user changes the input value
             //NOTE not sure how this will affect the other places where the input is so adding a check here
             if (defaultAddress && clearResult) {
               setGeocoderResult({});
             }
+            setShowResults(true);
             setAddress(e);
           } else {
+            setShowResults(false);
             setAddress('');
           }
         }}
@@ -174,9 +177,13 @@ export const SearchForm = observer(
           }
           document.activeElement.blur();
           const selected = list.items.find(e => e.childKey === item);
-          setAddress(selected?.name);
-          setOnScreenKeyboardInput(selected?.name);
-          setGeocoderResult(list.items.find(e => e.childKey === item));
+          console.log({ selected });
+          if (selected?.name) {
+            setAddress(selected?.name);
+            setShowResults(false);
+            setGeocoderResult(list.items.find(e => e.childKey === item));
+            return;
+          }
         }}
         loadingState={list.loadingState}
         onLoadMore={list.loadMore}

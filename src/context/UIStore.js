@@ -42,16 +42,20 @@ class UIStore {
   }
 
   setKeyboardActiveInput = value => {
+    //NOTE this would reset the state of the keyboard input for the active input
+    // const newState = { ...this.onScreenKeyboardInput };
+    // newState[value] = '';
     runInAction(() => {
       this.activeInput = value;
+      // this.onScreenKeyboardInput = { ...newState };
     });
   };
 
-  getInputValue = inputName => {
+  getKeyboardInputValue = inputName => {
     return this.onScreenKeyboardInput[inputName];
   };
 
-  clearOnScreenKeyboard = () => {
+  clearKeyboardInputValues = () => {
     const emptyState = {
       transitSearch: '',
       startAddress: '',
@@ -63,7 +67,7 @@ class UIStore {
     });
   };
 
-  setOnScreenKeyboardInput = value => {
+  setKeyboardInputValue = value => {
     runInAction(() => {
       const newInput = { ...this.onScreenKeyboardInput };
       newInput[this.activeInput] = value;

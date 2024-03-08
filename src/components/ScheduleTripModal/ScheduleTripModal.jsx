@@ -58,7 +58,7 @@ import useTranslation from '../../models/useTranslation';
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
     const { trip: stagedTrip } = useStore();
-    const { setHasSelectedPlan } = useStore().uiStore;
+    const { setHasSelectedPlan, ux } = useStore().uiStore;
     const { accessToken } = useStore().authentication;
 
     const [chatIsActive, setChatIsActive] = useState(false);
@@ -152,7 +152,12 @@ export const ScheduleTripModal = observer(
         scrollBehavior="inside"
       >
         <ModalOverlay />
-        <ModalContent textAlign={'center'} pt={0}>
+        <ModalContent
+          textAlign={'center'}
+          pt={0}
+          pb={ux === 'kiosk' ? '180px' : '0'}
+          data-testid="schedule-trip-modal--content"
+        >
           <ModalHeader as="h3">
             {step === 0
               ? t('tripWizard.scheduleTrip')
