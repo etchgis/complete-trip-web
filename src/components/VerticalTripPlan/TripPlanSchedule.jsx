@@ -407,12 +407,16 @@ export const TripPlanSchedule = observer(
                 }
                 let name = getLegModeName(leg, wheelchair);
                 const mode =
-                  title === 'WAIT'
+                  name.toLowerCase() === 'indoor' && wheelchair
+                    ? config.WHEELCHAIR
+                    : name.toLowerCase() === 'indoor'
+                    ? config.MODES.find(m => m.id === 'walk')
+                    : title === 'WAIT'
                     ? config.WAIT
                     : name.toLowerCase() === 'roll'
                     ? config.WHEELCHAIR
                     : config.MODES.find(m => m.id === name);
-                // console.log(name, title, mode);
+                console.log(mode.name, { leg });
                 if (name === 'scooter') {
                   // later
                 } else if (name === 'bus') {
@@ -441,6 +445,7 @@ export const TripPlanSchedule = observer(
                   const dur = formatters.datetime.asDuration(leg.duration);
                   intermediateStopsLabel = `${lbl}, ${dur}`;
                 }
+                // console.log({ mode });
                 const accentColor =
                   mode.mode === 'walk' ? 'gray.400' : mode.color;
                 return (

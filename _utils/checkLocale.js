@@ -1,18 +1,6 @@
-/*
-ref: https://www.npmjs.com/package/i18n-js/v/latest
-  en: { greetings: "Hi, %{name}!" },
+import * as fs from 'fs';
 
-  //counts
-    en: {
-    inbox: {
-      zero: "You have no messages",
-      one: "You have one message",
-      other: "You have %{count} messages",
-    },
-  },
-*/
-
-export default function genLocales() {
+const genLocales = () => {
   return {
     time: {
       en: {
@@ -878,4 +866,71 @@ export default function genLocales() {
       },
     },
   };
-}
+};
+
+const generateLanguages = configObject => {
+  const languages = {};
+  Object.keys(configObject).forEach(key => {
+    Object.keys(configObject[key]).forEach(language => {
+      if (!languages[language]) {
+        languages[language] = {};
+      }
+    });
+  });
+
+  Object.keys(languages).forEach(language => {
+    Object.keys(configObject).forEach(key => {
+      languages[language][key] = configObject[key][language];
+    });
+  });
+  return languages;
+};
+
+const languages = generateLanguages(genLocales());
+
+let keys = 0;
+Object.keys(languages).forEach(language => {
+  keys = keys + 1;
+});
+Object.keys(languages).forEach(language => {
+  Object.keys(languages[language]).forEach(key => {
+    keys = keys + 1;
+  });
+});
+
+const keyValues = [];
+
+const spanish = languages.es;
+const english = languages.en;
+
+//check that both languages have the same keys
+Object.keys(spanish).forEach(key => {
+  if (!english[key]) {
+    console.log('english missing', key);
+  }
+});
+console.log('all english keys have a spanish translation');
+Object.keys(english).forEach(key => {
+  if (!spanish[key]) {
+    console.log('spanish missing', key);
+  }
+});
+console.log('all spanish keys have an english translation');
+
+Object.keys(spanish).forEach(key => {
+  const cat = key;
+  keyValues.push({ category: cat, ...spanish[key] });
+});
+
+let csv = 'category, key, value, english\n';
+
+keyValues.forEach(obj => {
+  const cat = obj.category;
+  delete obj.category;
+  Object.keys(obj).forEach(key => {
+    //find the english value
+    const eng = english[cat][key];
+    csv += `${cat},${key},"${obj[key]}","${eng}"\n`;
+  });
+});
+fs.writeFileSync('es.csv', csv);

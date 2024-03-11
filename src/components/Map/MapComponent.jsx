@@ -141,7 +141,6 @@ export const MapComponent = observer(({ showMap }) => {
         className="mapbox"
         style={{ height: '100%', flex: 1 }}
         id="map-container"
-        aria-label={t('map.ariaDescription')}
       />
       <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
     </>

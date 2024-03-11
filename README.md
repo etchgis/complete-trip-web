@@ -18,6 +18,14 @@
   - the state stored in the uiStore `onScreenKeyboardInput` object in redux - managed with the same keys
   - the local `address` state inside the search component
 
+## Cypress Tests
+
+Tests are located in the following folders:
+
+- `./cypress/e2e/api`
+- `./cypress/e2e/translations`
+- `./src/__tests__`
+
 ## Gleap
 
 ## Questions?

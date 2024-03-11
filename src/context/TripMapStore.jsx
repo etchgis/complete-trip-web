@@ -286,7 +286,7 @@ const getModeColor = mode => {
   const found = config.MODES.find(
     m => m.mode.toLowerCase() === mode.toLowerCase()
   );
-  return found.color || color;
+  return found?.color || color;
 };
 
 export default TripMapStore;
