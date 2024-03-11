@@ -568,7 +568,7 @@ export default function genLocales() {
         account: 'Account',
         profile: 'Profile Information',
         caregivers: 'Coordinators',
-        dependents: 'Dependents',
+        dependents: 'Travelers',
         favorites: 'Favorites',
         tripPreferences: 'Trip Preferences',
         settings: 'Settings',
@@ -582,7 +582,7 @@ export default function genLocales() {
         account: 'Cuenta',
         profile: 'Información del Perfil', //✅
         caregivers: 'Coordinators',
-        dependents: 'Dependientes',
+        dependents: 'Viajeros', //✅
         favorites: 'Favoritos',
         tripPreferences: 'Preferencias de Viaje',
         settings: 'CONFIGURACIÓN', //✅
