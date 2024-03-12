@@ -67,6 +67,7 @@ export const VerticalTripPlan = observer(
 const TripPlanScheduleButtons = observer(
   ({ scheduleTripHandler, backClickHandler, cancelClickHandler }) => {
     const { loggedIn } = useStore().authentication;
+    const { ux } = useStore().uiStore;
     const { t } = useTranslation();
     return (
       <Stack
@@ -76,7 +77,7 @@ const TripPlanScheduleButtons = observer(
         px={2}
         id="trip-plan-schedule-buttons"
       >
-        {scheduleTripHandler && (
+        {scheduleTripHandler && ux === 'webapp' && (
           <Button
             onClick={scheduleTripHandler ? scheduleTripHandler : null}
             variant={'brand'}
