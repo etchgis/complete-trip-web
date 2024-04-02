@@ -23,6 +23,7 @@ import useTranslation from '../../models/useTranslation.js';
 mapboxgl.accessToken = config.MAP.MAPBOX_TOKEN;
 
 export const MapComponent = observer(({ showMap }) => {
+/*
   // console.log('[map-view] rendering');
   const { t } = useTranslation();
   const { pathname } = useLocation();
@@ -133,16 +134,16 @@ export const MapComponent = observer(({ showMap }) => {
 
     //eslint-disable-next-line
   }, [mapStyle, pathname, mapCache.stops]);
-
+*/
   return (
     <>
-      <Box
+      {/*<Box
         ref={mapContainer}
         className="mapbox"
         style={{ height: '100%', flex: 1 }}
         id="map-container"
       />
-      <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
+  <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>*/}
     </>
   );
 });
