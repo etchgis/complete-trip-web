@@ -17,7 +17,7 @@ class MapStore {
     center: [],
     zoom: 12,
     geolocation: [],
-    routesLoading: false,
+    routesLoading: true,
     stopsLoading: false,
   };
   mapCache = {
