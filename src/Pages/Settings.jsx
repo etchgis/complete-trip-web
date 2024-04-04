@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react';
 import {
   FavoritesList,
-  PrivacyPolicy,
   ProfileInformation,
   TermsOfUse,
 } from '../components/Settings/SettingsViews';
@@ -109,12 +108,12 @@ const Settings = observer(({ view }) => {
       type: 'setting',
       action: () => navigate('/settings/terms'),
     },
-    {
-      title: t('settingsMenu.privacy'),
-      path: 'privacy',
-      type: 'setting',
-      action: () => navigate('/settings/privacy'),
-    },
+    // {
+    //   title: t('settingsMenu.privacy'),
+    //   path: 'privacy',
+    //   type: 'setting',
+    //   action: () => navigate('/settings/privacy'),
+    // },
   ];
 
   const settingsPanels = [
@@ -268,8 +267,8 @@ function switchViews({ view, setActivePanel }) {
       return <EditAppNotifications />;
     case 'terms':
       return <TermsOfUse />;
-    case 'privacy':
-      return <PrivacyPolicy />;
+    // case 'privacy':
+    //   return <PrivacyPolicy />;
     case 'favorites':
       return <FavoritesList />;
     case 'dependents':

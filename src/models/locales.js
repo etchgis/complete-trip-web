@@ -575,7 +575,7 @@ export default function genLocales() {
         password: 'Password',
         accessibility: 'Accessibility',
         notifications: 'Notifications',
-        terms: 'Terms of Use',
+        terms: 'Terms and Conditions',
         privacy: 'Privacy Policy',
       },
       es: {
@@ -589,7 +589,7 @@ export default function genLocales() {
         password: 'Contraseña',
         accessibility: 'Accesibilidad',
         notifications: 'Notificaciones',
-        terms: 'Condiciones de uso',
+        terms: 'Términos y condiciones',
         privacy: 'Política de Privacidad', //✅
       },
     },
@@ -815,10 +815,10 @@ export default function genLocales() {
     },
     settingsTerms: {
       en: {
-        title: 'Terms of Use',
+        title: 'Terms and Conditions',
       },
       es: {
-        title: 'Condiciones de uso',
+        title: 'Términos y condiciones',
       },
     },
     settingsPrivacy: {

@@ -196,10 +196,10 @@ export const Routes = observer(() => {
             path="/settings/terms"
             element={<Layout children={<Settings view="terms" />} />}
           />
-          <Route
+          {/* <Route
             path="/settings/privacy"
             element={<Layout children={<Settings view="privacy" />} />}
-          />
+          /> */}
         </>
       ) : (
         <>
