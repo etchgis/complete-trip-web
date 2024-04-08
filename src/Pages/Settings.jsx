@@ -81,16 +81,21 @@ const Settings = observer(({ view }) => {
       action: () => navigate('/settings/favorites'),
     },
     {
-      title: t('settingsMenu.tripPreferences'),
-      path: 'preferences',
+      title: t('settingsMenu.palsDirect'),
       type: 'account',
-      action: () => navigate('/settings/preferences'),
+      action: () => window.open('https://paldirect.nfta.com/', '_blank'),
     },
     {
-      title: t('settingsMenu.password'),
-      path: 'password',
+      title: t('settingsMenu.terms'),
+      path: 'terms',
+      type: 'account',
+      action: () => navigate('/settings/terms'),
+    },
+    {
+      title: t('settingsMenu.tripPreferences'),
+      path: 'preferences',
       type: 'setting',
-      action: () => navigate('/settings/password'),
+      action: () => navigate('/settings/preferences'),
     },
     {
       title: t('settingsMenu.accessibility'),
@@ -103,10 +108,10 @@ const Settings = observer(({ view }) => {
       action: () => navigate('/settings/notifications'),
     },
     {
-      title: t('settingsMenu.terms'),
-      path: 'terms',
+      title: t('settingsMenu.password'),
+      path: 'password',
       type: 'setting',
-      action: () => navigate('/settings/terms'),
+      action: () => navigate('/settings/password'),
     },
     // {
     //   title: t('settingsMenu.privacy'),

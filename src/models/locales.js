@@ -571,6 +571,7 @@ export default function genLocales() {
         dependents: 'Travelers',
         favorites: 'Favorites',
         tripPreferences: 'Trip Preferences',
+        palsDirect: 'NFTA PAL Direct Users',
         settings: 'Settings',
         password: 'Password',
         accessibility: 'Accessibility',
@@ -585,6 +586,7 @@ export default function genLocales() {
         dependents: 'Viajeros', //✅
         favorites: 'Favoritos',
         tripPreferences: 'Preferencias de Viaje',
+        palsDirect: 'NFTA PAL Direct Users',
         settings: 'CONFIGURACIÓN', //✅
         password: 'Contraseña',
         accessibility: 'Accesibilidad',
