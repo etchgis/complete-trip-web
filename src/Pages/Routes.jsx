@@ -16,8 +16,6 @@ import useNotifications from '../hooks/useNotifications';
 import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
 
-// import { toJS } from 'mobx';
-
 export const Routes = observer(() => {
   //add trace if env is development
   if (
@@ -26,9 +24,8 @@ export const Routes = observer(() => {
   ) {
     trace(false);
   }
-  const { user, loggedIn, auth } = useStore().authentication;
-  const { debug, setDebugMode } = useStore().uiStore;
-  const { ui, setUI, setUX } = useStore().uiStore;
+  const { user, loggedIn, auth, logout } = useStore().authentication;
+  const { debug, setDebugMode, ui, setUI, setUX} = useStore().uiStore;
 
   useEffect(() => {
     //NOTE this will always be true in the browser by using useEffect
@@ -42,7 +39,8 @@ export const Routes = observer(() => {
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
-  // console.log('[routes] logging in:', loggingIn);
+
+  //GLEAP
   useEffect(() => {
     Gleap.initialize(import.meta.env.VITE_GLEAP);
     const gleapDivs = document.querySelectorAll('.gleap-font');
@@ -55,6 +53,19 @@ export const Routes = observer(() => {
 
   //INIT AUTH & USER
   useEffect(() => {
+    console.log('[routes]', {cachedUser: user?.refreshToken ? true : false}, {loggedIn});
+    console.log('[routes] checking for kiosk mode')
+    const urlParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlParams.entries());
+    const { mode } = params;
+    if (mode && mode === 'kiosk') {
+      console.log('[routes] in kiosk mode, logging out user if one exists')
+      logout();
+      return
+    }else{
+      console.log('[routes] not in kiosk mode')
+    }
+
     (async () => {
       if (user?.refreshToken && !loggedIn) {
         if (debug) console.log('[routes] checking for auth');

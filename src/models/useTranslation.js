@@ -30,7 +30,7 @@ const generateLanguages = configObject => {
 
 const languages = generateLanguages(genLocales());
 
-console.log('languages', languages);
+console.log('{useTranslation} languages', languages);
 let keys = 0;
 Object.keys(languages).forEach(language => {
   keys = keys + 1;
@@ -40,7 +40,7 @@ Object.keys(languages).forEach(language => {
     keys = keys + 1;
   });
 });
-console.log('keys', keys);
+console.log('{useTranslation} keys', keys);
 
 const useTranslation = () => {
   const { ui } = useStore().uiStore;
@@ -68,7 +68,7 @@ const useTranslation = () => {
 
   useEffect(() => {
     if (!ui?.language) return;
-    console.log('configuring language', ui?.language);
+    console.log('{useTranslation} configuring language', ui?.language);
     configure(ui?.language);
   }, [ui]);
 
