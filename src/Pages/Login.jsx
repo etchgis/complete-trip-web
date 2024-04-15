@@ -3,11 +3,13 @@ import { Button, Flex } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import { useSearchParams } from 'react-router-dom';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 const Login = observer(() => {
   const setSearchParams = useSearchParams()[1];
 
   const { inTransaction } = useStore().authentication;
+  const { t } = useTranslation();
 
   return (
     <Flex justifyContent={'center'} alignSelf={'center'}>
@@ -18,11 +20,11 @@ const Login = observer(() => {
           onClick={() => {
             setSearchParams({ login: 'true' });
           }}
-          colorScheme="facebook"
+          variant={'brand'}
           size="md"
           minWidth={'140px'}
         >
-          Login
+          {t('loginWizard.login')}
         </Button>
       )}
     </Flex>

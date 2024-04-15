@@ -30,6 +30,7 @@ import { DependentsTripsTable } from './DependentsTripsTable';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const DependentsList = observer(() => {
   const { colorMode } = useColorMode();
@@ -70,11 +71,11 @@ export const DependentsList = observer(() => {
   const sortedDependents = toJS(dependents).sort((a, b) =>
     a.firstName.localeCompare(b.firstName)
   );
-
+  const { t } = useTranslation();
   return (
     <Box>
-      <Heading as="h2" size="md">
-        Dependents List
+      <Heading as="h2" size="md" tabIndex={0}>
+        {t('settingsDependents.list')}
       </Heading>
       <Box
         border="solid thin lightgray"
@@ -116,14 +117,14 @@ export const DependentsList = observer(() => {
                         alignItems={'center'}
                       >
                         <Badge as="em" colorScheme="yellow">
-                          Pending
+                          {t('settingsCaregivers.pending')}
                         </Badge>
                         <Button
                           colorScheme="green"
                           size="sm"
                           onClick={() => updateHandler(d.id, 'approved')}
                         >
-                          Approve
+                          {t('settingsCaregivers.approve')}
                         </Button>
                         <Button
                           colorScheme="red"
@@ -131,7 +132,7 @@ export const DependentsList = observer(() => {
                           size="sm"
                           onClick={() => updateHandler(d.id, 'denied')}
                         >
-                          Deny
+                          {t('settingsCaregivers.deny')}
                         </Button>
                       </Stack>
                     )}
@@ -146,7 +147,11 @@ export const DependentsList = observer(() => {
                     maxH="300px"
                     overflow={'auto'}
                   >
-                    <DependentsTripsTable dependent={d.id} hideTitle={true} />
+                    <DependentsTripsTable
+                      dependent={d.id}
+                      hideTitle={true}
+                      limit={10}
+                    />
                   </AccordionPanel>
                 </>
               )}
@@ -160,7 +165,7 @@ export const DependentsList = observer(() => {
 
 const DeleteDependentPopover = ({ dependent: d, removeDependentHandler }) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
-
+  const { t } = useTranslation();
   const { colorMode } = useColorMode();
   return (
     <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose} placement="top">
@@ -197,7 +202,7 @@ const DeleteDependentPopover = ({ dependent: d, removeDependentHandler }) => {
               onClick={onClose}
               size="sm"
             >
-              Cancel
+              {t('global.cancel')}
             </Button>
             <Button
               onClick={() => removeDependentHandler(d.id)}

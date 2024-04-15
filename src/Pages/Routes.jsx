@@ -1,12 +1,12 @@
 import { Navigate, Routes as ReactRoutes, Route } from 'react-router-dom';
 import { toJS, trace } from 'mobx';
 
-import CargiverLink from './CargiverLink';
+import CaregiverLink from './CaregiverLink';
 import Gleap from 'gleap';
-import Home from './Home';
 import Layout from './Layout';
 import Login from './Login';
 import Settings from './Settings';
+import StyleGuide from './StyleGuide.jsx';
 import TripLog from './TripLog';
 import { observer } from 'mobx-react-lite';
 import useDependentTripNotifier from '../hooks/useDependentNotifier';
@@ -16,8 +16,6 @@ import useNotifications from '../hooks/useNotifications';
 import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
 
-// import { toJS } from 'mobx';
-
 export const Routes = observer(() => {
   //add trace if env is development
   if (
@@ -26,28 +24,54 @@ export const Routes = observer(() => {
   ) {
     trace(false);
   }
-  const { user, loggedIn, auth } = useStore().authentication;
-  const { debug, setDebugMode } = useStore().uiStore;
+  const { user, loggedIn, auth, logout } = useStore().authentication;
+  const { debug, setDebugMode, ui, setUI, setUX} = useStore().uiStore;
 
-  if (window && window.location) {
+  useEffect(() => {
+    //NOTE this will always be true in the browser by using useEffect
+    // if (window && window.location) {
     const urlParams = new URLSearchParams(window.location.search);
-    const debugMode = urlParams.get('debug');
-    if (debugMode) setDebugMode(debugMode === 'true' ? true : false);
-  }
+    const params = Object.fromEntries(urlParams.entries());
+    const { debug, mode } = params;
+    console.log('[routes] queryParams:', { debug, mode });
+    if (debug) setDebugMode(debug === 'true' ? true : false);
+    setUX(mode === 'kiosk' ? 'kiosk' : 'webapp');
+  }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
-  // console.log('[routes] logging in:', loggingIn);
+
+  //GLEAP
   useEffect(() => {
     Gleap.initialize(import.meta.env.VITE_GLEAP);
+    const gleapDivs = document.querySelectorAll('.gleap-font');
+    if (gleapDivs.length > 0) {
+      gleapDivs.forEach(div => {
+        div.setAttribute('aria-hidden', 'true');
+      });
+    }
   }, []);
 
   //INIT AUTH & USER
   useEffect(() => {
+    console.log('[routes]', {cachedUser: user?.refreshToken ? true : false}, {loggedIn});
+    console.log('[routes] checking for kiosk mode')
+    const urlParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlParams.entries());
+    const { mode } = params;
+    if (mode && mode === 'kiosk') {
+      console.log('[routes] in kiosk mode, logging out user if one exists')
+      logout();
+      return
+    }else{
+      console.log('[routes] not in kiosk mode')
+    }
+
     (async () => {
       if (user?.refreshToken && !loggedIn) {
         if (debug) console.log('[routes] checking for auth');
         try {
           await auth(); //any errors will be handled by auth()
+          setUI({ language: user?.profile?.preferences?.language || 'en' });
           if (user?.profile) {
             const _user = toJS(user);
             if (debug) console.log({ _user });
@@ -67,11 +91,59 @@ export const Routes = observer(() => {
   useNotifications();
   //---------------------NOTIFICATIONS---------------------
 
+  //---------------------ACCESSIBILITY---------------------
+
+  useEffect(() => {
+    console.log('{sidebar--aaa-widget} ui update');
+
+    if (ui.contrast) {
+      document.body.classList.add('contrast');
+    } else {
+      document.body.classList.remove('contrast');
+    }
+
+    if (ui.letterSpacing === 'lg') {
+      document.body.classList.add('letter-spacing-lg');
+    } else {
+      document.body.classList.remove('letter-spacing-lg');
+    }
+
+    if (ui.fontSize === 'med') {
+      document.body.classList.add('fontsize-md');
+      document.body.classList.remove('fontsize-lg');
+    } else if (ui.fontSize === 'lg') {
+      document.body.classList.add('fontsize-lg');
+      document.body.classList.remove('fontsize-md');
+    } else {
+      document.body.classList.remove('fontsize-md');
+      document.body.classList.remove('fontsize-lg');
+    }
+
+    if (ui.hideImages) {
+      document.body.classList.add('hide-images');
+    } else {
+      document.body.classList.remove('hide-images');
+    }
+
+    if (ui.cursor === 'lg') {
+      document.body.classList.add('cursor-lg');
+    } else {
+      document.body.classList.remove('cursor-lg');
+    }
+  }, [ui]);
+  //---------------------ACCESSIBILITY---------------------
+
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
       <Route path={'/:url(/+)'} element={<Navigate to={'/map'} />} />
       <Route path={'/'} element={<Navigate to={'/map'} />} />
+
+      {/* STYLE GUIDE */}
+      <Route
+        path={'/styleguide'}
+        element={<Layout children={<StyleGuide />} />}
+      />
 
       {/* Map */}
       <Route
@@ -82,7 +154,7 @@ export const Routes = observer(() => {
       {/* CAREGIVER LINK */}
       <Route
         path={'/caregiver'}
-        element={<Layout children={<CargiverLink />}></Layout>}
+        element={<Layout children={<CaregiverLink />}></Layout>}
       />
       {/* 
         <Route to={{ pathname: '/caregiver', search: `?id=${caregiverId}` }}>
@@ -93,10 +165,7 @@ export const Routes = observer(() => {
       {/* Profile */}
       {loggedIn ? (
         <>
-          <Route
-            path={'/home'}
-            element={<Layout children={<Home />}></Layout>}
-          />
+          <Route path={'/home'} element={<Layout isHome={true}></Layout>} />
 
           <Route path={'/trips'} element={<Layout children={<TripLog />} />} />
 
@@ -138,10 +207,10 @@ export const Routes = observer(() => {
             path="/settings/terms"
             element={<Layout children={<Settings view="terms" />} />}
           />
-          <Route
+          {/* <Route
             path="/settings/privacy"
             element={<Layout children={<Settings view="privacy" />} />}
-          />
+          /> */}
         </>
       ) : (
         <>

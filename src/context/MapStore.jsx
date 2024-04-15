@@ -83,7 +83,7 @@ class MapStore {
   };
   //TODO convert map state to mapcache
 
-  getRoutes = (lng, lat) => {
+  getRoutes = (lng, lat, n = 0) => {
     runInAction(() => {
       this.mapState.routesLoading = true;
     });
@@ -91,6 +91,9 @@ class MapStore {
       .byDistance(lng, lat, 0.5, 'COMPLETE_TRIP')
       .then(values => {
         console.log('got service: count', values.length);
+        if (values.length === 0 && n < 2) {
+          return this.getRoutes(lng, lat, n + 1);
+        }
         runInAction(() => {
           this.mapCache.routes = values.filter(v => v.mode !== 'shuttle');
           this.mapState.routesLoading = false;

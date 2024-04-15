@@ -16,8 +16,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
-const CargiverLink = observer(() => {
+const CaregiverLink = observer(() => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,6 +32,7 @@ const CargiverLink = observer(() => {
   } = useStore().caregivers;
   const { user, loggedIn, inTransaction } = useStore().authentication;
   const { isLoading, setToastMessage, setToastStatus } = useStore().uiStore;
+  const { t } = useTranslation();
 
   useEffect(() => {
     // console.log('render', searchParams.get('code'), inviteCode);
@@ -75,7 +77,7 @@ const CargiverLink = observer(() => {
       if (status === 'approved' || status === 'denied') {
         if (status === 'approved') setToastStatus('Success');
         if (status === 'denied') setToastStatus('Info');
-        setToastMessage(`Caregiver request ${status}.`);
+        setToastMessage(t('global.success', { status }));
         navigate('/settings/dependents');
         onClose();
         reset();
@@ -85,10 +87,10 @@ const CargiverLink = observer(() => {
       setToastStatus('Error');
       if (error?.message === 'invalid') {
         setInviteCode(null);
-        setToastMessage('Invalid caregiver.');
+        setToastMessage(t('errors.unknown'));
         navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
-        setToastMessage('An error occurred with the request.');
+        setToastMessage(t('settingsCaregivers.genericError'));
       }
     }
   };
@@ -98,8 +100,17 @@ const CargiverLink = observer(() => {
     setSearchParams({ login: true, invited: true });
   };
 
+  const name = stagedDependent?.firstName
+    ? `for ${stagedDependent?.firstName} ${stagedDependent?.lastName}`
+    : '.';
+
   return (
-    <Modal isOpen={isOpen} size={'full'} blockScrollOnMount={false} style={{zIndex: 0}}>
+    <Modal
+      isOpen={isOpen}
+      size={'full'}
+      blockScrollOnMount={false}
+      style={{ zIndex: 0 }}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalBody display={'flex'} p={0}>
@@ -116,56 +127,41 @@ const CargiverLink = observer(() => {
                 <></>
               ) : loggedIn ? (
                 <Box>
-                  <Text>
-                    You have been requested to be a caregiver
-                    {stagedDependent?.firstName ? ' for' : '.'}
-                    {stagedDependent?.firstName && (
-                      <span style={{ fontWeight: 'bold' }}>
-                        {' '}
-                        {stagedDependent?.firstName} {stagedDependent?.lastName}
-                        .
-                      </span>
-                    )}{' '}
-                    Do you want to accept it?
-                  </Text>
+                  <Text>{t('settingsCaregivers.linkMessage', { name })}</Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button
                       colorScheme="facebook"
                       onClick={() => updateHandler('approved')}
                     >
-                      Accept Request
+                      {t('settingsCaregivers.acceptRequest')}
                     </Button>
                     <Button
                       colorScheme="red"
                       onClick={() => updateHandler('denied')}
                     >
-                      Deny Request
+                      {t('settingsCaregivers.denyRequest')}
                     </Button>
                   </Stack>
                 </Box>
               ) : (
                 <Box>
                   <Text textAlign={'justify'}>
-                    You have been requested to be a caregiver for All Access
-                    App. Please login to view the request. If you do not have an
-                    account, please register and you can review the request once
-                    you complete the registration.
+                    {t('settingsCaregivers.linkMessageNoAccount')}
                   </Text>
                   <Stack spacing={10} direction={['column', 'row']} my={8}>
                     <Button
-                      colorScheme="facebook"
+                      variant={'brand'}
                       onClick={loginHandler}
                       width="100%"
                     >
-                      Login
+                      {t('loginWizard.login')}
                     </Button>
                     <Button
-                      colorScheme="facebook"
-                      variant={'outline'}
+                      variant={'brand-outline'}
                       onClick={loginHandler}
                       width="100%"
                     >
-                      Register
+                      {t('loginWizard.register')}
                     </Button>
                   </Stack>
                 </Box>
@@ -179,4 +175,4 @@ const CargiverLink = observer(() => {
   );
 });
 
-export default CargiverLink;
+export default CaregiverLink;

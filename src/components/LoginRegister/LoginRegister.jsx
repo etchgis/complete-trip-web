@@ -35,6 +35,7 @@ import { VerifyPin } from '../Shared/VerifyPin';
 import { authentication } from '../../services/transport';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
@@ -152,7 +153,11 @@ export const LoginRegister = observer(({ hideModal }) => {
         // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
-          <Image src={'/buffalo_logo_full.png'} h={'200px'} />
+          <Image
+            src={'/buffalo_logo_full.png'}
+            h={'200px'}
+            alt="Buffalo Access"
+          />
         </Center>
         <Stack spacing={4} p={8}>
           {views.find(v => v.id === activeView).view}
@@ -164,34 +169,25 @@ export const LoginRegister = observer(({ hideModal }) => {
 
 const Init = ({ setActiveView, hideModal }) => {
   let { colorMode } = useColorMode();
-
+  const { t } = useTranslation();
   return (
     <Stack spacing={4}>
       <Box p={10}></Box>
       <Button
-        bg={'brand'}
-        color="white"
-        fontWeight={500}
-        _hover={{
-          opacity: 0.9,
-        }}
+        variant={'brand'}
         onClick={() => {
           setActiveView('login');
         }}
       >
-        Login
+        {t('loginWizard.login')}
       </Button>
       <Button
-        variant={'outline'}
-        color="brandDark"
-        _hover={{ opacity: 0.9 }}
-        borderColor={colorMode === 'light' ? 'brand' : 'white'}
-        bg={colorMode === 'light' ? 'transparent' : 'white'}
+        variant={'brand-outline'}
         onClick={() => {
           setActiveView('create');
         }}
       >
-        Sign Up
+        {t('loginWizard.signUp')}
       </Button>
       <Button
         variant="link"
@@ -204,7 +200,7 @@ const Init = ({ setActiveView, hideModal }) => {
           }, 500);
         }}
       >
-        Continue as Guest
+        {t('loginWizard.continueGuest')}
       </Button>
     </Stack>
   );
@@ -227,12 +223,14 @@ const CreateAccountOrLogin = ({
   const [hideTerms, setHideTerms] = useState(true);
   const [shownTerms, setShownTerms] = useState(false);
 
+  const { ui } = useStore().uiStore;
   const { auth } = useStore().authentication;
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (error) {
       if (error === 'Conflict')
-        setLoginMessage('This email is already registered. Please login.');
+        setLoginMessage(t('errors.conflict', { email: error.email }));
       console.log({ error });
       return setLoginHasError(true);
     }
@@ -273,6 +271,7 @@ const CreateAccountOrLogin = ({
                 lastName: lastName,
                 email: email,
                 password: password,
+                language: ui?.language || 'en',
               });
               //send verify email to twilio
               const verified = await verifyUser('email', email);
@@ -285,16 +284,16 @@ const CreateAccountOrLogin = ({
           {!showLogin ? (
             <Box>
               <HStack>
-                <FormControl id="name" isRequired>
-                  <FormLabel>Name</FormLabel>
+                <FormControl id="firstName" isRequired>
+                  <FormLabel>{t('global.firstName')}</FormLabel>
                   <Input
                     type="text"
                     onChange={e => setFirstName(e.target.value)}
                     value={firstName || ''}
                   />
                 </FormControl>
-                <FormControl id="name" isRequired>
-                  <FormLabel>Last Name</FormLabel>
+                <FormControl id="lastName" isRequired>
+                  <FormLabel>{t('global.lastName')}</FormLabel>
                   <Input
                     type="text"
                     onChange={e => setLastName(e.target.value)}
@@ -305,26 +304,16 @@ const CreateAccountOrLogin = ({
             </Box>
           ) : (
             <>
-              {/* <Heading
-                as="h1"
-                size="2xl"
-                fontWeight={400}
-                color="brandText"
-                textAlign={'center'}
-                mb={8}
-              >
-                Welcome Back
-              </Heading> */}
               <Text>{loginMessage}</Text>
             </>
           )}
           {loginError && showLogin ? (
-            <Box color="red.500">An error occurred logging in.</Box>
+            <Box color="red.500">{t('errors.unknown')}</Box>
           ) : (
             ''
           )}
           <FormControl isRequired>
-            <FormLabel>Email address</FormLabel>
+            <FormLabel>{t('global.emailAddress')}</FormLabel>
             <Input
               type="email"
               onChange={e => setEmail(e.target.value)}
@@ -332,13 +321,13 @@ const CreateAccountOrLogin = ({
             />
           </FormControl>
           <FormControl id="password" isRequired>
-            <FormLabel>Password</FormLabel>
+            <FormLabel>{t('settingsPassword.password')}</FormLabel>
             <InputGroup>
               <Input
                 type={showPassword ? 'text' : 'password'}
                 onChange={e => setPassword(e.target.value)}
                 value={password || ''}
-                placeholder="Enter 8 character password"
+                placeholder={t('settingsPassword.placeholder')}
                 pattern={
                   '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
                 }
@@ -348,7 +337,11 @@ const CreateAccountOrLogin = ({
                   variant={'ghost'}
                   onClick={() => setShowPassword(showPassword => !showPassword)}
                 >
-                  {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                  {showPassword ? (
+                    <ViewIcon aria-label={t('settingsPassword.hide')} />
+                  ) : (
+                    <ViewOffIcon aria-label={t('settingsPassword.show')} />
+                  )}
                 </Button>
               </InputRightElement>
             </InputGroup>
@@ -357,12 +350,14 @@ const CreateAccountOrLogin = ({
             <Flex justifyContent={'space-around'}>
               <VStack
                 spacing={0}
-                color={password.length > 7 ? 'green.400' : 'red.400'}
+                color={password.length > 7 ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   8+
                 </Text>
-                <Text>Characters</Text>
+                <Text fontSize="lg" fontWeight={'bold'}>
+                  {t('settingsPassword.characters')}
+                </Text>
                 {password.length > 7 ? (
                   <CheckCircleIcon size="xs" />
                 ) : (
@@ -371,12 +366,12 @@ const CreateAccountOrLogin = ({
               </VStack>
               <VStack
                 spacing={0}
-                color={hasUpperCase(password) ? 'green.400' : 'red.400'}
+                color={hasUpperCase(password) ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   A-Z
                 </Text>
-                <Text>Uppercase</Text>
+                <Text>{t('settingsPassword.uppercase')}</Text>
                 {hasUpperCase(password) ? (
                   <CheckCircleIcon size="xs" />
                 ) : (
@@ -385,12 +380,14 @@ const CreateAccountOrLogin = ({
               </VStack>
               <VStack
                 spacing={0}
-                color={hasLowerCase(password) ? 'green.400' : 'red.400'}
+                color={hasLowerCase(password) ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   a-z
                 </Text>
-                <Text>Lowercase</Text>
+                <Text color="ariaRedText">
+                  {t('settingsPassword.lowercase')}
+                </Text>
                 {hasLowerCase(password) ? (
                   <CheckCircleIcon size="xs" />
                 ) : (
@@ -399,12 +396,12 @@ const CreateAccountOrLogin = ({
               </VStack>
               <VStack
                 spacing={0}
-                color={hasNumber(password) ? 'green.400' : 'red.400'}
+                color={hasNumber(password) ? 'ariaGreenText' : 'red.500'}
               >
                 <Text fontSize={'xl'} fontWeight="bold">
                   0-9
                 </Text>
-                <Text>Number</Text>
+                <Text>{t('settingsPassword.number')}</Text>
                 {hasNumber(password) ? (
                   <CheckCircleIcon size="xs" />
                 ) : (
@@ -416,14 +413,14 @@ const CreateAccountOrLogin = ({
           {!showLogin ? (
             <FormControl isRequired>
               <Checkbox name="terms" isReadOnly={true} isChecked={shownTerms}>
-                I have read the{' '}
+                {t('loginWizard.terms1')}{' '}
                 <Button
                   variant={'link'}
                   onClick={() => setHideTerms(false)}
-                  color="blue.400"
+                  color="brand"
                   textDecoration={'underline'}
                 >
-                  terms and conditions
+                  {t('loginWizard.terms2')}
                 </Button>
                 .
               </Checkbox>
@@ -438,32 +435,32 @@ const CreateAccountOrLogin = ({
                 as="span"
                 variant={'link'}
                 onClick={() => setActiveView('forgot')}
+                data-testid="forgot-password-link"
+                tabIndex={0}
               >
-                Forgot Password?
+                {t('loginWizard.forgotPassword')}
               </Button>
             </Box>
           ) : (
             ''
           )}
           <Button
-            bg={'brand'}
-            color={'white'}
-            _hover={{
-              bg: 'blue.500',
-            }}
+            variant={'brand'}
             type="submit"
             mt={6}
             isDisabled={
               showLogin ? false : !showLogin && !shownTerms ? true : false
             }
           >
-            {showLogin ? 'Login' : 'Create Account'}
+            {showLogin
+              ? t('loginWizard.login')
+              : t('loginWizard.createAccount')}
           </Button>
           <Center p={6}>
-            <Text color={'gray.500'}>
+            <Text color={'gray.600'}>
               {showLogin
-                ? "Don't have an account?"
-                : 'Already have an account?'}
+                ? t('loginWizard.noAccount')
+                : t('loginWizard.haveAccount')}
             </Text>
             <Button
               color={colorMode === 'light' ? 'brandDark' : 'white'}
@@ -471,8 +468,11 @@ const CreateAccountOrLogin = ({
               variant={'link'}
               onClick={() => setShowLogin(!showLogin)}
               ml={2}
+              tabIndex={0}
             >
-              {showLogin ? 'Create Account' : 'Login'}
+              {showLogin
+                ? t('loginWizard.createAccount')
+                : t('loginWizard.login')}
             </Button>
           </Center>
           {/* <SocialLogins
@@ -492,6 +492,8 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   const { setInTransaction, setErrorToastMessage } = useStore().authentication;
   const [method, setMethod] = useState('');
   const [email, setEmail] = useState('');
+  const { t } = useTranslation();
+
   const onSubmit = async e => {
     e.preventDefault();
     setInTransaction(true);
@@ -513,7 +515,7 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
       setActiveView('reset');
     } catch (error) {
       console.log('error', error);
-      setErrorToastMessage('Error sending code. Please try again.');
+      setErrorToastMessage(t('errors.recover'));
       setInTransaction(false);
       return;
     }
@@ -521,18 +523,15 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   return (
     <Stack spacing={4} as="form" onSubmit={onSubmit}>
       <FormControl isRequired>
-        <FormLabel>Email</FormLabel>
+        <FormLabel>{t('global.email')}</FormLabel>
         <Input
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
       </FormControl>
-      <Text>
-        In order to reset your password, a code will need to be sent to the
-        email or device registered with us.
-      </Text>
-      <Text fontWeight={'bold'}>How would you like to receive the code?</Text>
+      <Text>{t('forgotPassword.message')}</Text>
+      <Text fontWeight={'bold'}>{t('forgotPassword.codeOptions')}</Text>
       <FormControl isRequired>
         <RadioGroup
           onChange={setMethod}
@@ -541,20 +540,14 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
           defaultChecked={method}
         >
           <Stack direction="column">
-            <Radio value="sms">Text me</Radio>
-            <Radio value="call">Call me</Radio>
-            <Radio value="email">Email me</Radio>
+            <Radio value="sms">{t('forgotPassword.sms')}</Radio>
+            <Radio value="call">{t('forgotPassword.call')}</Radio>
+            <Radio value="email">{t('forgotPassword.email')}</Radio>
           </Stack>
         </RadioGroup>
       </FormControl>
-      <Button
-        variant={'solid'}
-        bg="brand"
-        color="white"
-        _hover={{ opacity: 0.9 }}
-        type="submit"
-      >
-        Submit
+      <Button variant={'brand'} type="submit">
+        {t('forgotPassword.sendCode')}
       </Button>
       <Button
         variant={'link'}
@@ -565,7 +558,7 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
           setTimeout(() => setActiveView('init'), 500);
         }}
       >
-        Cancel
+        {t('global.cancel')}
       </Button>
     </Stack>
   );
@@ -584,6 +577,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
   const [pin, setPin] = useState('');
   const [code, setCode] = useState(options?.code);
+  const { t } = useTranslation();
 
   // console.log({ options });
   // console.log({ pin });
@@ -618,7 +612,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   return (
     <Stack spacing={4} as="form" onSubmit={onSubmit}>
       <Text fontWeight="bold" mx={0} mb={6}>
-        Type in the 6-digit code. The code can also be pasted in the first box.
+        {t('resetPassword.message')}
       </Text>
       <FormControl isRequired>
         <Center flexDirection={'column'}>
@@ -650,6 +644,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       </FormControl>
       <Button
         variant={'link'}
+        color="gray.600"
         onClick={async () => {
           setInTransaction(true);
           const recovered = await recover(options.email, options.method);
@@ -659,17 +654,21 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           setInTransaction(false);
         }}
       >
-        Send Another Code?
+        {t('resetPassword.resendCode')}
       </Button>
-      {verifyError ? <Text color="red.500">Invalid code.</Text> : ''}
+      {verifyError ? (
+        <Text color="red.500">{t('resetPassword.invalid')}</Text>
+      ) : (
+        ''
+      )}
       <FormControl isRequired>
-        <FormLabel>New Password</FormLabel>
+        <FormLabel>{t('settingsPassword.newPassword')}</FormLabel>
         <InputGroup>
           <Input
             type={showPassword ? 'text' : 'password'}
             onChange={e => setPassword(e.target.value)}
             value={password || ''}
-            placeholder="Enter 8 character password"
+            placeholder={t('settingsPassword.placeholder')}
             pattern={
               '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
             }
@@ -680,7 +679,11 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
               variant={'ghost'}
               onClick={() => setShowPassword(showPassword => !showPassword)}
             >
-              {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+              {showPassword ? (
+                <ViewIcon aria-label={t('settingsPassword.hide')} />
+              ) : (
+                <ViewOffIcon aria-label={t('settingsPassword.show')} />
+              )}
             </Button>
           </InputRightElement>
         </InputGroup>
@@ -695,21 +698,21 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
               setPasswordsDontMatch(false);
             }}
             value={password2 || ''}
-            placeholder="Password *"
+            placeholder={t('settingsPassword.password')}
             name="pass2"
           />
         </InputGroup>
-        <FormErrorMessage>Passwords must match.</FormErrorMessage>
+        <FormErrorMessage>{t('settingsPassword.errorMatch')}</FormErrorMessage>
       </FormControl>
       <Flex justifyContent={'space-around'} w="100%" fontSize="sm" my={2}>
         <VStack
           spacing={0}
-          color={password.length > 7 ? 'green.400' : 'red.400'}
+          color={password.length > 7 ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             8+
           </Text>
-          <Text>Characters</Text>
+          <Text color="ariaRedText">{t('settingsPassword.characters')}</Text>
           {password.length > 7 ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -718,12 +721,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         </VStack>
         <VStack
           spacing={0}
-          color={hasUpperCase(password) ? 'green.400' : 'red.400'}
+          color={hasUpperCase(password) ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             A-Z
           </Text>
-          <Text>Uppercase</Text>
+          <Text color={'ariaRedText'}>{t('settingsPassword.uppercase')}</Text>
           {hasUpperCase(password) ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -732,12 +735,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         </VStack>
         <VStack
           spacing={0}
-          color={hasLowerCase(password) ? 'green.400' : 'red.400'}
+          color={hasLowerCase(password) ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             a-z
           </Text>
-          <Text>Lowercase</Text>
+          <Text color="ariaRedText">{t('settingsPassword.lowercase')}</Text>
           {hasLowerCase(password) ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -746,12 +749,12 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         </VStack>
         <VStack
           spacing={0}
-          color={hasNumber(password) ? 'green.400' : 'red.400'}
+          color={hasNumber(password) ? 'ariaGreenText' : 'red.500'}
         >
           <Text fontSize={'xl'} fontWeight="bold">
             0-9
           </Text>
-          <Text>Number</Text>
+          <Text color="ariaRedText">{t('settingsPassword.number')}</Text>
           {hasNumber(password) ? (
             <CheckCircleIcon size="xs" />
           ) : (
@@ -759,14 +762,8 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           )}
         </VStack>
       </Flex>
-      <Button
-        variant={'solid'}
-        bg="brand"
-        color="white"
-        _hover={{ opacity: 0.9 }}
-        type="submit"
-      >
-        Submit
+      <Button variant={'brand'} type="submit">
+        {t('global.submit')}
       </Button>
       <Button
         variant={'link'}
@@ -777,7 +774,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           setTimeout(() => setActiveView('init'), 500);
         }}
       >
-        Cancel
+        {t('global.cancel')}
       </Button>
     </Stack>
   );
@@ -815,6 +812,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
 const Terms = ({ hideTerms, agreedToTerms }) => {
   const { colorMode } = useColorMode();
+  const { t } = useTranslation();
   return (
     <Stack spacing={4}>
       <Heading
@@ -823,10 +821,10 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Terms and Conditions
+        {t('loginWizard.termsTitle')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        Please read and accept the terms and conditions.
+        {t('loginWizard.termsMessage')}
       </Text>
       <Box>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor,
@@ -850,26 +848,22 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
       </Box>
       <Flex justifyContent={'space-between'}>
         <Button
-          variant={'solid'}
-          color="white"
-          bg={'brand'}
-          _hover={{
-            opacity: 0.8,
-          }}
+          variant={'brand'}
           onClick={() => {
             agreedToTerms(true);
             hideTerms(true);
           }}
         >
-          Accept
+          {t('loginWizard.accept')}
         </Button>
         <Button
+          variant={'error'}
           onClick={() => {
             agreedToTerms(false);
             hideTerms(true);
           }}
         >
-          Decline
+          {t('loginWizard.decline')}
         </Button>
       </Flex>
     </Stack>

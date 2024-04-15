@@ -11,6 +11,7 @@ import {
   IconButton,
   Image,
   Input,
+  Spacer,
   Stack,
   Text,
   VisuallyHiddenInput,
@@ -20,23 +21,24 @@ import {
 import { useEffect, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
+import ServiceAnimalToggle from '../Settings/Accessibility/ServiceAnimalToggle';
 import { VerifyPin } from '../Shared/VerifyPin';
+import WheelchairToggle from '../Settings/Accessibility/WheelchairToggle';
 import { WizardStepThroughForm } from './WizardStepThroughForm';
 import formatters from '../../utils/formatters';
 import geocoder from '../../services/transport/geocoder';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const Wizard = observer(({ hideModal }) => {
   const { loggedIn, reset } = useStore().authentication;
-
+  const { t } = useTranslation();
   useEffect(() => {
     if (loggedIn) hideModal();
   }, [loggedIn, hideModal]);
 
   // FORMS STATE
-
   return (
     <Flex
       id="login-card"
@@ -53,14 +55,19 @@ export const Wizard = observer(({ hideModal }) => {
         // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
-          <Image src={'/buffalo_logo_full.png'} h={'200px'} />
+          <Image
+            id="wizard-logo"
+            src={'/buffalo_logo_full.png'}
+            h={'200px'}
+            alt={t('global.site')}
+          />
         </Center>
         <Stack spacing={4} p={8}>
           <WizardStepThrough hideModal={hideModal}></WizardStepThrough>
         </Stack>
       </Stack>
       <Button variant={'outline'} colorScheme="red" onClick={() => reset()}>
-        Cancel
+        {t('global.cancel')}
       </Button>
     </Flex>
   );
@@ -70,7 +77,7 @@ const WizardStepThrough = observer(() => {
   const { user, updateUserProfile, updateUserPhone, verifyUser } =
     useStore().authentication;
   const { setStagedCaregiver } = useStore().caregivers;
-
+  const { t } = useTranslation();
   return (
     <WizardStepThroughForm
       content={[
@@ -133,17 +140,33 @@ const WizardStepThrough = observer(() => {
           },
           skip: true,
         },
+        // {
+        //   title: 'mobility',
+        //   content: () => <MobilityOptions></MobilityOptions>,
+        //   skip: true,
+        //   buttonText: 'Check Email Address',
+        // },
         {
           title: 'mobility',
-          content: () => <MobilityOptions></MobilityOptions>,
+          content: () => (
+            <>
+              <Heading as="h2" size="lg" fontWeight={400} color="brandDark">
+                {t('loginWizard.accessibilityOptions')}
+              </Heading>
+              <Stack spacing={4}>
+                <WheelchairToggle />
+                <ServiceAnimalToggle />
+              </Stack>
+              <Spacer my={10} />
+            </>
+          ),
           skip: true,
-          buttonText: 'Check Email Address',
         },
         {
           title: 'verify',
           content: () => <Complete></Complete>,
           skip: false,
-          buttonText: 'Verify your phone number to complete the setup.',
+          buttonText: t('loginWizard.verifyPhone'),
           action: async () => {
             const verified = verifyUser('sms', user?.phone);
             if (!verified || verified.error) {
@@ -191,7 +214,7 @@ const ContactInfo = observer(() => {
       ? formatters.phone.asDomestic(user?.phone.slice(2))
       : ''
   );
-
+  const { t } = useTranslation();
   return (
     <Stack spacing={4}>
       <Heading
@@ -200,14 +223,13 @@ const ContactInfo = observer(() => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Contact Information
+        {t('loginWizard.addContactInfo')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.300'}>
-        Your email and phone number are used for two-step verification, password
-        recovery, and notifications about your trips.
+        {t('loginWizard.addContactInfoDescription')}
       </Text>
       <FormControl isReadOnly>
-        <FormLabel>Email address</FormLabel>
+        <FormLabel>{t('loginWizard.email')}</FormLabel>
         <Input
           type="email"
           name="email"
@@ -216,7 +238,7 @@ const ContactInfo = observer(() => {
         />
       </FormControl>
       <FormControl isRequired>
-        <FormLabel>Phone Number</FormLabel>
+        <FormLabel>{t('global.phone')}</FormLabel>
         <Input
           type="tel"
           name="phone"
@@ -244,7 +266,7 @@ const HomeAddress = observer(({ index }) => {
     user?.profile?.address?.text || ''
   );
   const { colorMode } = useColorMode();
-
+  const { t } = useTranslation();
   const getUserLocation = forced => {
     if (user?.profile?.address?.point?.lng && !forced) {
       setCenter({
@@ -319,11 +341,12 @@ const HomeAddress = observer(({ index }) => {
         size="lg"
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
+        tabIndex={0}
       >
-        Add Home Address
+        {t('loginWizard.addHomeAddress')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        This helps create routes from your home with ease.
+        {t('loginWizard.addHomeDescription')}
       </Text>
       <FormControl isRequired>
         <AddressSearchForm
@@ -331,7 +354,7 @@ const HomeAddress = observer(({ index }) => {
           center={center}
           defaultAddress={defaultAddress}
           setGeocoderResult={setGeocoderResult}
-          label="Home Address"
+          label={t('settingsProfile.homeAddress')}
         ></AddressSearchForm>
       </FormControl>
       <VisuallyHiddenInput
@@ -377,6 +400,7 @@ const HomeAddress = observer(({ index }) => {
 const Caregiver = observer(() => {
   const { colorMode } = useColorMode();
   const { stagedCaregiver } = useStore().caregivers;
+  const { t } = useTranslation();
   // const [caregiverFirstName, setCaregiverFirstName] = useState(
   //   user?.profile?.caretakers && user.profile.caretakers.length
   //     ? user.profile.caretakers[0]?.firstName
@@ -399,14 +423,14 @@ const Caregiver = observer(() => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        Add Primary Caregiver
+        {t('loginWizard.addPrimaryCaregiver')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        Notify your companions in 1-touch for any of your trips.
+        {t('loginWizard.addPrimaryCaregiverDescription')}
       </Text>
       <HStack>
         <FormControl isRequired>
-          <FormLabel>First Name</FormLabel>
+          <FormLabel>{t('global.firstName')}</FormLabel>
           <Input
             type="text"
             name="caregiverFirstName"
@@ -415,7 +439,7 @@ const Caregiver = observer(() => {
           />
         </FormControl>
         <FormControl isRequired>
-          <FormLabel>Last Name</FormLabel>
+          <FormLabel>{t('global.lastName')}</FormLabel>
           <Input
             type="text"
             name="caregiverLastName"
@@ -425,7 +449,7 @@ const Caregiver = observer(() => {
         </FormControl>
       </HStack>
       <FormControl isRequired>
-        <FormLabel>Email</FormLabel>
+        <FormLabel>{t('global.email')}</FormLabel>
         <Input
           type="email"
           name="caregiverEmail"
@@ -437,106 +461,108 @@ const Caregiver = observer(() => {
   );
 });
 
-const MobilityOptions = observer(() => {
-  const { colorMode } = useColorMode();
-  // const { user } = useStore().authentication;
-  const [email, setEmail] = useState();
-  const [email2, setEmail2] = useState();
-  const [email3, setEmail3] = useState();
-  const [hasEmail2, setHasEmail2] = useState(false);
-  const [hasEmail3, setHasEmail3] = useState(false);
+// const MobilityOptions = observer(() => {
+//   const { colorMode } = useColorMode();
+//   // const { user } = useStore().authentication;
+//   const [email, setEmail] = useState();
+//   const [email2, setEmail2] = useState();
+//   const [email3, setEmail3] = useState();
+//   const [hasEmail2, setHasEmail2] = useState(false);
+//   const [hasEmail3, setHasEmail3] = useState(false);
+//   const { t } = useTranslation();
+//   return (
+//     <Stack spacing={4}>
+//       <Heading
+//         as="h2"
+//         size="lg"
+//         fontWeight="400"
+//         color={colorMode === 'light' ? 'brandDark' : 'brand'}
+//       >
+//         {t('loginWizard.addMobilityOptions')}
+//       </Heading>
+//       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+//         {t('loginWizard.addMobilityOptionsDescription')}
+//       </Text>
+//       <FormControl>
+//         <FormLabel>{t('global.emailAddress')}</FormLabel>
+//         <Input
+//           type="email"
+//           name="email"
+//           onChange={e => setEmail(e.target.value)}
+//           value={email || ''}
+//         />
+//       </FormControl>
+//       {hasEmail2 ? (
+//         <FormControl>
+//           <HStack justifyContent={'space-between'}>
+//             <FormLabel>
+//               {t('global.second')} {t('global.emailAddress')}
+//             </FormLabel>
+//             <IconButton
+//               aria-label="Remove Email"
+//               icon={<DeleteIcon />}
+//               onClick={() => setHasEmail2(false)}
+//               variant="ghost"
+//             />
+//           </HStack>
+//           <Input
+//             type="email"
+//             name="email2"
+//             onChange={e => setEmail2(e.target.value)}
+//             value={email2 || ''}
+//           />
+//         </FormControl>
+//       ) : null}
+//       {hasEmail3 ? (
+//         <FormControl>
+//           <HStack justifyContent={'space-between'}>
+//             <FormLabel>
+//               {hasEmail2 ? t('global.third') : t('global.second')}{' '}
+//               {t('global.emailAddress')}
+//             </FormLabel>
+//             <IconButton
+//               aria-label="Remove Email"
+//               icon={<DeleteIcon />}
+//               onClick={() => setHasEmail3(false)}
+//             />
+//           </HStack>
 
-  return (
-    <Stack spacing={4}>
-      <Heading
-        as="h2"
-        size="lg"
-        fontWeight="400"
-        color={colorMode === 'light' ? 'brandDark' : 'brand'}
-      >
-        Enhanced Mobility Options
-      </Heading>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        Enter in your email to find enhanced mobility options you are registered
-        with such as [x]
-      </Text>
-      <FormControl>
-        <FormLabel>Email address</FormLabel>
-        <Input
-          type="email"
-          name="email"
-          onChange={e => setEmail(e.target.value)}
-          value={email || ''}
-        />
-      </FormControl>
-      {hasEmail2 ? (
-        <FormControl>
-          <HStack justifyContent={'space-between'}>
-            <FormLabel>Second Email address</FormLabel>
-            <IconButton
-              aria-label="Remove Email"
-              icon={<DeleteIcon />}
-              onClick={() => setHasEmail2(false)}
-              variant="ghost"
-            />
-          </HStack>
-          <Input
-            type="email"
-            name="email2"
-            onChange={e => setEmail2(e.target.value)}
-            value={email2 || ''}
-          />
-        </FormControl>
-      ) : null}
-      {hasEmail3 ? (
-        <FormControl>
-          <HStack justifyContent={'space-between'}>
-            <FormLabel>
-              {hasEmail2 ? 'Third' : 'Second'} Email address
-            </FormLabel>
-            <IconButton
-              aria-label="Remove Email"
-              icon={<DeleteIcon />}
-              onClick={() => setHasEmail3(false)}
-            />
-          </HStack>
-
-          <Input
-            type="email"
-            name="email3"
-            onChange={e => setEmail3(e.target.value)}
-            value={email3 || ''}
-          />
-        </FormControl>
-      ) : null}
-      {!hasEmail3 || !hasEmail2 ? (
-        <Button
-          color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
-          _hover={{
-            opacity: 0.9,
-          }}
-          w="100%"
-          type="button"
-          variant={'link'}
-          leftIcon={<AddIcon />}
-          justifyContent="start"
-          onClick={() => {
-            if (!hasEmail2) {
-              setHasEmail2(true);
-            } else if (!hasEmail3) {
-              setHasEmail3(true);
-            } else return;
-          }}
-          isDisabled
-        >
-          Add Another email address
-        </Button>
-      ) : (
-        ''
-      )}
-    </Stack>
-  );
-});
+//           <Input
+//             type="email"
+//             name="email3"
+//             onChange={e => setEmail3(e.target.value)}
+//             value={email3 || ''}
+//           />
+//         </FormControl>
+//       ) : null}
+//       {!hasEmail3 || !hasEmail2 ? (
+//         <Button
+//           color={colorMode === 'light' ? 'brandDark' : 'gray.400'}
+//           _hover={{
+//             opacity: 0.9,
+//           }}
+//           w="100%"
+//           type="button"
+//           variant={'link'}
+//           leftIcon={<AddIcon />}
+//           justifyContent="start"
+//           onClick={() => {
+//             if (!hasEmail2) {
+//               setHasEmail2(true);
+//             } else if (!hasEmail3) {
+//               setHasEmail3(true);
+//             } else return;
+//           }}
+//           isDisabled
+//         >
+//           {t('loginWizard.addAnotherEmail')}
+//         </Button>
+//       ) : (
+//         ''
+//       )}
+//     </Stack>
+//   );
+// });
 
 // const Notifications = observer(() => {
 //   const { colorMode } = useColorMode();
@@ -587,7 +613,7 @@ const MobilityOptions = observer(() => {
 //         happening so you won’t miss a step. To use this application, you must
 //         have at least one activated.
 //       </Text>
-//       {/* {error ? <Box color="red.400">{error}</Box> : ''} */}
+//       {/* {error ? <Box color="red.500">{error}</Box> : ''} */}
 //       <Box as="form" onChange={() => setChanged(true)}>
 //         <FormControl display="flex" alignItems="center" pl={10} mb={2}>
 //           <FormLabel htmlFor="smsAlerts" mb="0" minW={'12'}>
@@ -619,7 +645,7 @@ const MobilityOptions = observer(() => {
 const Complete = observer(() => {
   const { user } = useStore().authentication;
   const { stagedCaregiver } = useStore().caregivers;
-
+  const { t } = useTranslation();
   return (
     <Box m={4}>
       <Box my={4}>
@@ -640,7 +666,7 @@ const Complete = observer(() => {
       </Box>
 
       <Heading as="h3" size="md">
-        Caregiver
+        {t('global.caregiver')}
       </Heading>
       <Text>
         {stagedCaregiver?.firstName || ''} {stagedCaregiver?.lastName || ''}

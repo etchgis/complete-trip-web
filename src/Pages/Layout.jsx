@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import CustomModal from '../components/Modal';
 import ErrorToastMessage from '../components/ErrorToastMessage';
+import Home from './Home';
+import Keyboard from '../components/OnScreenKeyboard';
 import Loader from '../components/Loader';
 import LoginRegister from '../components/LoginRegister';
 import { MFAVerify } from '../components/MFA/MFAVerify';
@@ -13,19 +15,20 @@ import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 // import { useEffect } from 'react';
 
-const Layout = observer(({ showMap, children }) => {
+const Layout = observer(({ showMap, isHome, children }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
-
+  const { t } = useTranslation();
   const { inviteCode } = useStore().caregivers;
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
     useStore().authentication;
 
-  const { isLoading } = useStore().uiStore;
+  const { isLoading, ux } = useStore().uiStore;
   // const { trips } = useStore().schedule;
 
   // const _trips = toJS(trips);
@@ -83,6 +86,12 @@ const Layout = observer(({ showMap, children }) => {
     // eslint-disable-next-line
   }, [loggedIn]);
 
+  const {
+    isOpen: isTripWizardOpen,
+    onOpen: openTripWizard,
+    onClose: closeTripWizard,
+  } = useDisclosure();
+
   return (
     <Flex
       id="app"
@@ -100,10 +109,11 @@ const Layout = observer(({ showMap, children }) => {
         onToggle={onToggle}
         onClose={onClose}
         action1={showLogin}
+        openTripWizard={openTripWizard}
       ></Navbar>
 
       {/* MAIN SHELL */}
-      <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex="1">
+      <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex={1}>
         {/* SIDEBAR */}
         <ResponsiveSidebar
           isOpen={isOpen}
@@ -111,9 +121,24 @@ const Layout = observer(({ showMap, children }) => {
         ></ResponsiveSidebar>
         {/* MAP */}
         {/* NOTE the map is always loaded so we dont have to re-load it each time we navigate to the map route */}
-        <Map showMap={showMap}></Map>
+        <Map
+          showMap={showMap}
+          isTripWizardOpen={isTripWizardOpen}
+          closeTripWizard={closeTripWizard}
+          openTripWizard={openTripWizard}
+        ></Map>
+        {isHome && (
+          <Home
+            isTripWizardOpen={isTripWizardOpen}
+            closeTripWizard={closeTripWizard}
+            openTripWizard={openTripWizard}
+          ></Home>
+        )}
         {children}
+        {/* KEYBOARD */}
       </Grid>
+
+      {ux === 'kiosk' && <Keyboard />}
 
       {/* MODALS */}
 
@@ -147,7 +172,7 @@ const Layout = observer(({ showMap, children }) => {
       <MFAVerify
         isOpen={requireMFA}
         onClose={closeMFA}
-        title="Get Authentication Code"
+        title={t('twoFactor.title')}
         callbackFn={async () => {
           try {
             await auth(); //NOTE any errors should be handled by the auth function - requireMFA are also handled there

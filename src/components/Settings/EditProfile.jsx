@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const EditProfile = ({ onClose }) => {
   const { user, updateUserProfile } = useStore().authentication;
@@ -54,6 +55,8 @@ export const EditProfile = ({ onClose }) => {
     if (navigator && navigator.geolocation) getUserLocation();
   }, []);
 
+  const { t } = useTranslation();
+
   return (
     <Box>
       <Box
@@ -88,7 +91,7 @@ export const EditProfile = ({ onClose }) => {
         <Stack spacing={4}>
           <HStack>
             <FormControl>
-              <FormLabel>First Name</FormLabel>
+              <FormLabel>{t('global.firstName')}</FormLabel>
               <Input
                 ref={firstName}
                 type="text"
@@ -97,7 +100,7 @@ export const EditProfile = ({ onClose }) => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel>Last Name</FormLabel>
+              <FormLabel>{t('global.lastName')}</FormLabel>
               <Input
                 ref={lastName}
                 type="text"
@@ -108,7 +111,7 @@ export const EditProfile = ({ onClose }) => {
           </HStack>
 
           <FormControl>
-            <FormLabel>Email</FormLabel>
+            <FormLabel>{t('global.email')}</FormLabel>
             <Input
               ref={email}
               type="email"
@@ -118,11 +121,11 @@ export const EditProfile = ({ onClose }) => {
             />
           </FormControl>
           <FormControl>
-            <FormLabel>Phone</FormLabel>
+            <FormLabel>{t('global.phone')}</FormLabel>
             <Input
               type="tel"
               name="phone"
-              onChange={() => { }}
+              onChange={() => {}}
               disabled
               value={
                 user.phone
@@ -137,7 +140,7 @@ export const EditProfile = ({ onClose }) => {
               center={center}
               defaultAddress={user?.profile?.address?.text || ''}
               setGeocoderResult={setGeocoderResult}
-              label='Home Address'
+              label={t('settingsProfile.homeAddress')}
             ></AddressSearchForm>
           </FormControl>
           <Button
@@ -149,7 +152,7 @@ export const EditProfile = ({ onClose }) => {
             type="submit"
             mt={6}
           >
-            Save
+            {t('global.save')}
           </Button>
         </Stack>
       </Box>

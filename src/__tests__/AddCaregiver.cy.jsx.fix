@@ -23,7 +23,7 @@ describe('AddCaregiver', () => {
         <AddCaregiver></AddCaregiver>
       </TestWrapper>
     );
-    cy.get('button').should('exist').should('have.text', 'Send Invite');
+    cy.get('button').should('exist').should('have.text', 'Invite Caregiver');
     cy.get('button').should('be.disabled');
     cy.findByText(/First Name/i)
       .should('exist')

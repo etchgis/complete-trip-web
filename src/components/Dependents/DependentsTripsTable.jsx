@@ -19,6 +19,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const DependentsTripsTable = observer(
   ({ dependent, hideTitle, limit }) => {
@@ -29,12 +30,26 @@ export const DependentsTripsTable = observer(
     const { dependentTracker, resetMap, setActiveTripId } =
       useStore().tripMapStore;
     const [selectedTrip, setSelectedTrip] = useState({});
+    const [name, setName] = useState('');
+
     const allTrips = toJS(dependentTrips);
+
+    const now = Date.now();
+    const filteredTrips = allTrips.filter(
+      trip => new Date(trip.plan.endTime) > now
+    );
+    filteredTrips.map(
+      t =>
+        (t.plan.endTimeText = formatters.datetime.asHHMMA(
+          new Date(t.plan.endTime)
+        ))
+    );
+    console.log({ filteredTrips });
 
     const stagedTrips = [];
     const tripCount = {};
 
-    allTrips.forEach(trip => {
+    filteredTrips.forEach(trip => {
       // console.log({ trip });
       if (!tripCount[trip.dependent.dependent])
         tripCount[trip.dependent.dependent] = 0;
@@ -57,6 +72,11 @@ export const DependentsTripsTable = observer(
     const openVerticalTripPlan = trip => {
       dependentTracker.start(trip.dependent?.dependent);
       setSelectedTrip(trip);
+      setName(
+        (trip?.dependent?.firstName || '') +
+          ' ' +
+          (trip?.dependent?.lastName || '')
+      );
       console.log({ trip });
       setActiveTripId(trip?.id);
       onOpen();
@@ -67,19 +87,22 @@ export const DependentsTripsTable = observer(
       resetMap();
       onClose();
       setSelectedTrip({});
+      setName('');
       setActiveTripId(null);
     };
+    const { t } = useTranslation();
 
-    //ACCORDION
     return (
       <>
         <Box>
           {!hideTitle && (
-            <Heading as="h2" size="md">
-              Upcoming Dependent Trips
+            <Heading as="h2" size="md" tabIndex={0}>
+              {t('settingsDependents.upcoming')}
             </Heading>
           )}
-          {!isLoading && !trips.length && <p>No trips found.</p>}
+          {!isLoading && !trips.length && (
+            <p tabIndex={0}>{t('settingsDependents.noTrips')}</p>
+          )}
           {!trips.length ? (
             ''
           ) : (
@@ -151,7 +174,7 @@ export const DependentsTripsTable = observer(
           isOpen={isOpen}
           onClose={backClickHandler}
           backClickHandler={backClickHandler}
-          title={`Tracking ${selectedTrip?.dependent?.firstName} ${selectedTrip?.dependent?.lastName}'s Trip`}
+          title={t('settingsDependents.trackingTrip', { name })}
         />
       </>
     );

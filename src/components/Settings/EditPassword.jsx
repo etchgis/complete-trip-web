@@ -23,6 +23,7 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 
 // import ConfirmDialog from '../ConfirmDialog';
@@ -39,7 +40,7 @@ export const EditPassword = () => {
   const passwordRef = useRef();
   const newPasswordTestRef = useRef();
   const [success, showSuccess] = useState(false);
-
+  const { t } = useTranslation();
   useEffect(() => {
     if (!success) return;
     setToastMessage(success);
@@ -57,12 +58,12 @@ export const EditPassword = () => {
       newPassword !== newPasswordTestRef.current.value
     ) {
       return newPasswordTestRef.current.setCustomValidity(
-        'Passwords do not match'
+        t('settingsPassword.errorMatch')
       );
     }
     if (newPassword === passwordRef.current.value) {
       return newPasswordTestRef.current.setCustomValidity(
-        'Password cannot be the same as the current password'
+        t('settingsPassword.errorSame')
       );
     }
   }, [newPassword]);
@@ -83,29 +84,33 @@ export const EditPassword = () => {
           data.get('new_password')
         );
         if (!updatedPassword || updatedPassword.error) {
-          console.log('Error updating password');
+          console.log(t('settingsPassword.error'));
         }
-        showSuccess('Password updated successfully');
+        showSuccess(t('settingsPassword.success'));
         setNewPassword('');
         e.target.reset();
       }}
     >
       <Stack spacing={4}>
         <FormControl isRequired>
-          <FormLabel>Current Password</FormLabel>
+          <FormLabel>{t('settingsPassword.current')}</FormLabel>
           <InputGroup>
             <Input
               ref={passwordRef}
               type={showPassword ? 'text' : 'password'}
               name={'password'}
-              placeholder={'Password'}
+              placeholder={t('settingsPassword.password')}
             />
             <InputRightElement h={'full'}>
               <Button
                 variant={'ghost'}
                 onClick={() => setShowPassword(showPassword => !showPassword)}
               >
-                {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                {showPassword ? (
+                  <ViewIcon aria-label={t('settingsPassword.hide')} />
+                ) : (
+                  <ViewOffIcon aria-label={t('settingsPassword.show')} />
+                )}
               </Button>
             </InputRightElement>
           </InputGroup>
@@ -124,16 +129,16 @@ export const EditPassword = () => {
         </FormControl>
 
         <Box py={6}>
-          <Divider></Divider>
+          <Divider aria-hidden={true}></Divider>
         </Box>
 
         <FormControl isRequired>
-          <FormLabel>Enter a New Password</FormLabel>
+          <FormLabel>{t('settingsPassword.enter')}</FormLabel>
           <InputGroup>
             <Input
               type={showNewPassword ? 'text' : 'password'}
               name={'new_password'}
-              placeholder={'New Password'}
+              placeholder={t('settingsPassword.newPassword')}
               pattern={
                 '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
               }
@@ -149,7 +154,11 @@ export const EditPassword = () => {
                   setShowNewPassword(showNewPassword => !showNewPassword)
                 }
               >
-                {showNewPassword ? <ViewIcon /> : <ViewOffIcon />}
+                {showNewPassword ? (
+                  <ViewIcon aria-label={t('settingsPassword.hide')} />
+                ) : (
+                  <ViewOffIcon aria-label={t('settingsPassword.show')} />
+                )}
               </Button>
             </InputRightElement>
           </InputGroup>
@@ -157,12 +166,12 @@ export const EditPassword = () => {
         <Flex justifyContent={'space-around'} fontSize="md">
           <VStack
             spacing={0}
-            color={newPassword.length > 7 ? 'green.400' : 'red.400'}
+            color={newPassword.length > 7 ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               8+
             </Text>
-            <Text>Characters</Text>
+            <Text color="ariaRedText">{t('settingsPassword.characters')}</Text>
             {newPassword.length > 7 ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -171,12 +180,12 @@ export const EditPassword = () => {
           </VStack>
           <VStack
             spacing={0}
-            color={hasUpperCase(newPassword) ? 'green.400' : 'red.400'}
+            color={hasUpperCase(newPassword) ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               A-Z
             </Text>
-            <Text>Uppercase</Text>
+            <Text color="ariaRedText">{t('settingsPassword.uppercase')}</Text>
             {hasUpperCase(newPassword) ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -185,12 +194,12 @@ export const EditPassword = () => {
           </VStack>
           <VStack
             spacing={0}
-            color={hasLowerCase(newPassword) ? 'green.400' : 'red.400'}
+            color={hasLowerCase(newPassword) ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               a-z
             </Text>
-            <Text>Lowercase</Text>
+            <Text color="ariaRedText">{t('settingsPassword.lowercase')}</Text>
             {hasLowerCase(newPassword) ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -199,12 +208,12 @@ export const EditPassword = () => {
           </VStack>
           <VStack
             spacing={0}
-            color={hasNumber(newPassword) ? 'green.400' : 'red.400'}
+            color={hasNumber(newPassword) ? 'ariaGreenText' : 'red.500'}
           >
             <Text fontSize={'lg'} fontWeight="bold">
               0-9
             </Text>
-            <Text>Number</Text>
+            <Text color="ariaRedText">{t('settingsPassword.number')}</Text>
             {hasNumber(newPassword) ? (
               <CheckCircleIcon size="xs" />
             ) : (
@@ -213,39 +222,31 @@ export const EditPassword = () => {
           </VStack>
         </Flex>
         <FormControl isRequired>
-          <FormLabel>Re-enter Password</FormLabel>
+          <FormLabel>{t('settingsPassword.reEnter')}</FormLabel>
           <InputGroup>
             <Input
               ref={newPasswordTestRef}
               type={showNewPassword ? 'text' : 'password'}
               name={'new_password_test'}
-              placeholder={'Password'}
+              placeholder={t('settingsPassword.password')}
               onChange={e => {
                 newPasswordTestRef.current.setCustomValidity('');
                 if (e.target.value === passwordRef.current.value) {
                   return newPasswordTestRef.current.setCustomValidity(
-                    'Password cannot be the same as the current password'
+                    t('settingsPassword.errorSame')
                   );
                 }
                 if (e.target.value !== newPassword) {
                   return newPasswordTestRef.current.setCustomValidity(
-                    'Passwords do not match'
+                    t('settingsPassword.errorMatch')
                   );
                 }
               }}
             />
           </InputGroup>
         </FormControl>
-        <Button
-          bg={'brand'}
-          color={'white'}
-          _hover={{
-            opacity: 0.8,
-          }}
-          type="submit"
-          mt={6}
-        >
-          Change Password
+        <Button variant="brand" type="submit" mt={6}>
+          {t('settingsPassword.submit')}
         </Button>
       </Stack>
     </Box>

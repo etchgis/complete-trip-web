@@ -17,26 +17,28 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const Calendar = observer(() => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [tabIndex, setTabIndex] = useState(new Date().getMonth() + 1);
   const { colorMode } = useColorMode();
   const { trips } = useStore().schedule;
+  const { t } = useTranslation();
 
-  const FullMonths = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+  const months = [
+    'jan',
+    'feb',
+    'mar',
+    'apr',
+    'may',
+    'jun',
+    'jul',
+    'aug',
+    'sep',
+    'oct',
+    'nov',
+    'dec',
   ];
 
   // const Months = [
@@ -107,10 +109,10 @@ export const Calendar = observer(() => {
     ).getDay();
 
     // Generate table header with day abbreviations
-    const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const header = weekdays.map(weekday => (
-      <Th key={weekday} textAlign={'center'}>
-        {weekday}
+      <Th key={weekday} textAlign={'center'} fontSize={'sm'}>
+        {t(`time.${weekday}`)}
       </Th>
     ));
 
@@ -128,14 +130,15 @@ export const Calendar = observer(() => {
             <Td key={`${i}-${j}`} textAlign="center" px={1} py={2}>
               <Button
                 fontSize={{ base: 'sm', lg: 'lg' }}
-                colorScheme={selectedDates.includes(day) ? 'blue' : 'gray'}
+                variant={selectedDates.includes(day) ? 'brand' : 'outline'}
+                border="none"
                 maxW="43px"
-                backgroundColor={
-                  selectedDates.includes(day)
-                    ? 'facebook'
-                    : colorMode === 'light'
-                    ? 'white'
-                    : 'transparent'
+                aria-label={
+                  t(`time.${months[currentMonth.getMonth()]}`) +
+                  ' ' +
+                  day +
+                  ' ' +
+                  (selectedDates.includes(day) ? t('time.hasTrips') : '')
                 }
               >
                 {day}
@@ -179,12 +182,13 @@ export const Calendar = observer(() => {
         pl={5}
         pr={3}
       >
-        <Text fontWeight={'bold'}>
-          {FullMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        <Text fontWeight={'bold'} tabIndex={0}>
+          {t(`time.${months[currentMonth.getMonth()]}`)}{' '}
+          {currentMonth.getFullYear()}
         </Text>
         <Flex>
           <IconButton
-            aria-label="Previous month"
+            aria-label={t('global.prevMonth')}
             icon={<ChevronLeftIcon boxSize={8} />}
             onClick={() => {
               if (tabIndex === 0) {
@@ -199,7 +203,7 @@ export const Calendar = observer(() => {
             variant="ghost"
           />
           <IconButton
-            aria-label="Next month"
+            aria-label={t('global.nextMonth')}
             icon={<ChevronRightIcon boxSize={8} />}
             onClick={() => {
               if (tabIndex === 11) {

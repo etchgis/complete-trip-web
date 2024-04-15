@@ -17,67 +17,72 @@ import { useStore } from '../context/RootStore';
 // import ScheduleTripModal from '../../components/ScheduleTripModal';
 
 // import config from '../../config';
-const Home = observer(() => {
-  // const {
-  //   isOpen: isModalOpen,
-  //   onOpen: openModal,
-  //   onClose: closeModal,
-  // } = useDisclosure();
-  const {
-    isOpen: isVTModalOpen,
-    onOpen: openVTModal,
-    onClose: closeVTModal,
-  } = useDisclosure();
-  const { colorMode } = useColorMode();
-  const { cancel } = useStore().schedule;
-  const [selectedTrip, setSelectedTrip] = useState({});
+const Home = observer(
+  ({ isTripWizardOpen, openTripWizard, closeTripWizard }) => {
+    // const {
+    //   isOpen: isModalOpen,
+    //   onOpen: openModal,
+    //   onClose: closeModal,
+    // } = useDisclosure();
+    const {
+      isOpen: isVTModalOpen,
+      onOpen: openVTModal,
+      onClose: closeVTModal,
+    } = useDisclosure();
+    const { colorMode } = useColorMode();
+    const { cancel } = useStore().schedule;
+    const [selectedTrip, setSelectedTrip] = useState({});
 
-  const cancelTrip = async id => {
-    await cancel(id);
-    close();
-  };
+    const cancelTrip = async id => {
+      await cancel(id);
+      close();
+    };
 
-  return (
-    <Flex flexDir={'column'}>
-      {/* HEADER */}
-      <ScheduleTripHeader />
-
-      <Grid
-        id="home-grid-container"
-        p={6}
-        gridTemplateColumns={['1fr', '1fr', '1fr', '1fr', '440px 1fr']}
-        columnGap={10}
-        rowGap={8}
-        background={colorMode === 'light' ? 'gray.100' : 'tripDim'}
-        flex={1}
-        gridTemplateRows={'max-content'}
-        // backgroundImage={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.NIGHT.replace(
-        //   'mapbox://styles/',
-        //   ''
-        // )}/static/${config.MAP.CENTER[1]},${config.MAP.CENTER[0]},12/1280x1280?&access_token=${config.MAP.MAPBOX_TOKEN
-        //   }`}
-        // backgroundImage={overviewMap}
-        // backgroundPosition="center"
-        // backgroundRepeat="no-repeat"
-        // backgroundSize="cover"
-        // onClick={(e) => {
-        //   const target = e.target.id;
-        //   // console.log(e.target)
-        //   if (target === 'home-grid-container' || target === 'trip-card-list') {
-        //     // console.log('clicked')
-        //     navigate("/map")
-        //   }
-        // }}
-        cursor="pointer"
-      >
-        <TripCardList
-          openModal={openVTModal}
-          setSelectedTrip={setSelectedTrip}
+    return (
+      <Flex flexDir={'column'}>
+        {/* HEADER */}
+        <ScheduleTripHeader
+          isTripWizardOpen={isTripWizardOpen}
+          closeTripWizard={closeTripWizard}
+          openTripWizard={openTripWizard}
         />
-        <Calendar />
-      </Grid>
 
-      {/* TRIP SCHEDULER
+        <Grid
+          id="home-grid-container"
+          p={6}
+          gridTemplateColumns={['1fr', '1fr', '1fr', '1fr', '440px 1fr']}
+          columnGap={10}
+          rowGap={8}
+          background={colorMode === 'light' ? 'gray.100' : 'tripDim'}
+          flex={1}
+          gridTemplateRows={'max-content'}
+          // backgroundImage={`https://api.mapbox.com/styles/v1/${config.MAP.BASEMAPS.NIGHT.replace(
+          //   'mapbox://styles/',
+          //   ''
+          // )}/static/${config.MAP.CENTER[1]},${config.MAP.CENTER[0]},12/1280x1280?&access_token=${config.MAP.MAPBOX_TOKEN
+          //   }`}
+          // backgroundImage={overviewMap}
+          // backgroundPosition="center"
+          // backgroundRepeat="no-repeat"
+          // backgroundSize="cover"
+          // onClick={(e) => {
+          //   const target = e.target.id;
+          //   // console.log(e.target)
+          //   if (target === 'home-grid-container' || target === 'trip-card-list') {
+          //     // console.log('clicked')
+          //     navigate("/map")
+          //   }
+          // }}
+          cursor="pointer"
+        >
+          <TripCardList
+            openModal={openVTModal}
+            setSelectedTrip={setSelectedTrip}
+          />
+          <Calendar />
+        </Grid>
+
+        {/* TRIP SCHEDULER
       <ScheduleTripModal
         favoriteTrip={tripPlan}
         isOpen={isModalOpen}
@@ -87,21 +92,21 @@ const Home = observer(() => {
         }}
       ></ScheduleTripModal> */}
 
-      {/* VERTICAL TRIP PLAN */}
-      <TripPlanStandaloneModal
-        request={selectedTrip?.plan?.request}
-        plan={selectedTrip?.plan}
-        isOpen={isVTModalOpen}
-        onClose={closeVTModal}
-        backClickHandler={() => {
-          closeVTModal();
-        }}
-        cancelClickHandler={async () => {
-          await cancelTrip(selectedTrip?.id);
-          closeVTModal();
-        }}
-      />
-      {/* <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal} size="full">
+        {/* VERTICAL TRIP PLAN */}
+        <TripPlanStandaloneModal
+          request={selectedTrip?.plan?.request}
+          plan={selectedTrip?.plan}
+          isOpen={isVTModalOpen}
+          onClose={closeVTModal}
+          backClickHandler={() => {
+            closeVTModal();
+          }}
+          cancelClickHandler={async () => {
+            await cancelTrip(selectedTrip?.id);
+            closeVTModal();
+          }}
+        />
+        {/* <CustomModal isOpen={isVTModalOpen} onClose={closeVTModal} size="full">
         <VerticalTripPlanModal
           title={selectedTrip?.request?.alias}
           descritption={selectedTrip.description}
@@ -109,9 +114,10 @@ const Home = observer(() => {
           close={closeVTModal}
         />
       </CustomModal> */}
-    </Flex>
-  );
-});
+      </Flex>
+    );
+  }
+);
 
 export default Home;
 

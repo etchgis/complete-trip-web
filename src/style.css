@@ -1,3 +1,8 @@
+:root {
+  --color-aaa-gray: #595959;
+  --color-brand: hsl(215, 100%, 35%);
+}
+
 /* .etch-calendar button,
 .etch-calendar button,
 .etch-calendar button:hover,
@@ -39,6 +44,8 @@ sub {
     font-size: 1.5rem;
     padding: 2rem 0.5rem !important;
     height: unset;
+    opacity: 1;
+    color: black;
   }
 }
 

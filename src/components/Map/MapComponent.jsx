@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react';
 import Loader from '../Loader';
 import config from '../../config';
 import { getLocation } from '../../utils/getLocation';
+import { map } from 'lodash';
 import { mapControls } from './mapboxControls.js';
 import { mapLayers } from './mapLayers';
 // import { mapListeners } from './mapListeners';
@@ -13,6 +14,7 @@ import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loade
 import { observer } from 'mobx-react-lite';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation.js';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
@@ -21,7 +23,9 @@ import { useStore } from '../../context/RootStore';
 mapboxgl.accessToken = config.MAP.MAPBOX_TOKEN;
 
 export const MapComponent = observer(({ showMap }) => {
+
   // console.log('[map-view] rendering');
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const {
     setMapX,
@@ -31,6 +35,7 @@ export const MapComponent = observer(({ showMap }) => {
     setMapState,
     setMapGeolocation,
   } = useStore().mapStore;
+  const { ux } = useStore().uiStore;
   const mapRef = useRef(null);
   const mapContainer = useRef(null);
   const [mapIsLoaded, setMapIsLoaded] = useState(
@@ -67,7 +72,13 @@ export const MapComponent = observer(({ showMap }) => {
     });
 
     (async () => {
-      const userLocation = await getLocation();
+      const queryParams = new URLSearchParams(window.location.search);
+      const location = queryParams.get('location');
+      console.log('[map] location:', location);
+      const userLocation = location
+        ? { center: location.split(',').map(l => +l) }
+        : await getLocation();
+      console.log('[map] userLocation:', userLocation);
       const center = userLocation?.center || [
         config.MAP.CENTER[1],
         config.MAP.CENTER[0],
@@ -87,15 +98,14 @@ export const MapComponent = observer(({ showMap }) => {
             container: mapContainer.current,
             style: config.MAP.BASEMAPS[mapStyle], //change to style from store
             center: center,
-            zoom: 16,
+            zoom: config.MAP.ZOOM,
           })
             .addControl(mapControls.nav, 'top-right')
-            .addControl(mapControls.locate, 'top-right')
             // .addControl(mapControls.bookmarks, 'top-right')
             .on('load', initMap)
             .on('style.load', mapLayers)
             .on('moveend', e => {
-              console.log('moveend');
+              // console.log('moveend');
               const { lng, lat } = e.target.getCenter();
               setMapState('geolocation', [lng, lat]);
               // debounce(getRouteList(e.target), 1000);
@@ -103,8 +113,11 @@ export const MapComponent = observer(({ showMap }) => {
             .on('contextmenu', e => {
               console.log(e.target.getZoom());
               console.log(e.lngLat);
+              console.log(mapRef.current.getCenter());
               console.log(mapRef.current.getStyle().layers);
             });
+          if (ux === 'webapp')
+            mapRef.current.addControl(mapControls.locate, 'top-right');
         } catch (error) {
           setMapIsLoaded(true);
           console.log(error);
@@ -130,7 +143,7 @@ export const MapComponent = observer(({ showMap }) => {
         style={{ height: '100%', flex: 1 }}
         id="map-container"
       />
-      <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
+  <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
     </>
   );
 });

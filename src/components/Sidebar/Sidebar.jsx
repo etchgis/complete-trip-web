@@ -14,10 +14,12 @@ import {
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import AccessibilityWidget from '../AccessibilityWidget';
 import { BsPerson } from 'react-icons/bs';
 import { CgCalendarToday } from 'react-icons/cg';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const ResponsiveSidebar = ({
   isOpen,
@@ -60,10 +62,48 @@ export const ResponsiveSidebar = ({
             data-testid="mobile-sidebar"
             testUser={testUser}
           />
+          <Box px={5}>
+            <AccessibilityWidget showTitle={true} />
+          </Box>
           {testContent ? testContent : null}
         </DrawerContent>
       </Drawer>
     </>
+  );
+};
+
+const NavIconButton = ({ icon, label, navItem, onClick, ...rest }) => {
+  const { colorMode } = useColorMode();
+  const { pathname: location } = useLocation();
+  const { t } = useTranslation();
+  return (
+    <Tooltip label={t(`sidebar.${label.toLowerCase()}`)}>
+      <IconButton
+        className="icon-button"
+        aria-label={
+          label + ' ' + (location === navItem ? t('global.active') : '')
+        }
+        icon={icon}
+        fontSize={'32px'}
+        variant={'ghost'}
+        onClick={onClick}
+        color={
+          colorMode === 'dark'
+            ? 'white'
+            : location === navItem
+            ? 'brandDark'
+            : 'brand'
+        }
+        bg={
+          location === navItem
+            ? colorMode === 'light'
+              ? 'gray.50'
+              : 'gray.700'
+            : 'transparent'
+        }
+        {...rest}
+      />
+    </Tooltip>
   );
 };
 
@@ -77,124 +117,50 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
       <Stack spacing={2} p={2}>
         {loggedIn || testUser?.loggedIn ? (
           <>
-            {' '}
-            <Tooltip label="Home">
-              <IconButton
-                aria-label="Home"
-                icon={<BiHomeAlt />}
-                fontSize={'32px'}
-                variant={'ghost'}
-                color={
-                  colorMode === 'dark'
-                    ? 'white'
-                    : location === '/home'
-                    ? 'brandDark'
-                    : 'brand'
-                }
-                bg={
-                  location === '/home'
-                    ? colorMode === 'light'
-                      ? 'gray.100'
-                      : 'gray.700'
-                    : 'transparent'
-                }
-                fontWeight={location === '/home' ? '600' : 400}
-                onClick={() => {
-                  if (onClose) onClose();
-                  return navigate('/home');
-                }}
-              />
-            </Tooltip>
-            <Tooltip label="Trips">
-              <IconButton
-                aria-label="Trips"
-                icon={<CgCalendarToday />}
-                fontSize={'32px'}
-                variant={'ghost'}
-                color={
-                  colorMode === 'dark'
-                    ? 'white'
-                    : location === '/trips'
-                    ? 'brandDark'
-                    : 'brand'
-                }
-                bg={
-                  location === '/trips'
-                    ? colorMode === 'light'
-                      ? 'gray.100'
-                      : 'gray.700'
-                    : 'transparent'
-                }
-                fontWeight={location === '/trips' ? '600' : 400}
-                onClick={() => {
-                  if (onClose) onClose();
-                  return navigate('/trips');
-                }}
-              />
-            </Tooltip>
-          </>
-        ) : (
-          ''
-        )}
-        <Tooltip label="Map">
-          <IconButton
-            aria-label="Map"
-            icon={<BiMapAlt />}
-            variant={'ghost'}
-            fontSize={'32px'}
-            color={
-              colorMode === 'dark'
-                ? 'white'
-                : location === '/map'
-                ? 'brandDark'
-                : 'brand'
-            }
-            bg={
-              location === '/map'
-                ? colorMode === 'light'
-                  ? 'gray.100'
-                  : 'gray.700'
-                : 'transparent'
-            }
-            fontWeight={location === '/map' ? '600' : 400}
-            onClick={() => {
-              if (onClose) onClose();
-              return navigate('/map');
-            }}
-          />
-        </Tooltip>
+            <NavIconButton
+              label={'home'}
+              icon={<BiHomeAlt />}
+              navItem={'/home'}
+              onClick={() => {
+                if (onClose) onClose();
+                return navigate('/home');
+              }}
+            />
+            <NavIconButton
+              label={'trips'}
+              icon={<CgCalendarToday />}
+              navItem={'/trips'}
+              onClick={() => {
+                if (onClose) onClose();
+                return navigate('/trips');
+              }}
+            />
 
-        {loggedIn || testUser?.loggedIn ? (
-          <Tooltip label="Profile and Settings">
-            <IconButton
-              aria-label="Profile and Settings"
+            <NavIconButton
+              label={'map'}
+              icon={<BiMapAlt />}
+              navItem={'/map'}
+              onClick={() => {
+                if (onClose) onClose();
+                return navigate('/map');
+              }}
+            />
+
+            <NavIconButton
+              label={'profile'}
               icon={<BsPerson />}
-              variant={'ghost'}
-              fontSize={'32px'}
-              color={
-                colorMode === 'dark'
-                  ? 'white'
-                  : location.includes('/settings')
-                  ? 'brandDark'
-                  : 'brand'
-              }
-              bg={
-                location.includes('/settings')
-                  ? colorMode === 'light'
-                    ? 'gray.100'
-                    : 'gray.700'
-                  : 'transparent'
-              }
-              fontWeight={location.includes('/settings') ? '600' : 400}
+              navItem={'/settings'}
               onClick={() => {
                 if (onClose) onClose();
                 return navigate('/settings/profile');
               }}
             />
-          </Tooltip>
+          </>
         ) : (
           ''
         )}
+
+        <AccessibilityWidget />
       </Stack>
     </Flex>
   );
@@ -205,6 +171,7 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const { pathname: location } = useLocation();
+  const { t } = useTranslation();
   return (
     <Flex flexDir={'column'} {...rest} p={4}>
       <CloseButton
@@ -225,13 +192,15 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               ? 'brandDark'
               : 'brand'
           }
+          bg={location === '/home' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/home' ? '600' : 400}
+          fontSize={'22px'}
           onClick={() => {
             if (onClose) onClose();
             return navigate('/home');
           }}
         >
-          Home
+          {t(`sidebar.home`)}
         </Button>
         <Button
           leftIcon={<CgCalendarToday />}
@@ -244,13 +213,15 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               ? 'brandDark'
               : 'brand'
           }
+          bg={location === '/trips' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/trips' ? '600' : 400}
+          fontSize={'22px'}
           onClick={() => {
             if (onClose) onClose();
             return navigate('/trips');
           }}
         >
-          Trips
+          {t(`sidebar.trips`)}
         </Button>
 
         <Button
@@ -264,13 +235,15 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               ? 'brandDark'
               : 'brand'
           }
+          bg={location === '/map' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/map' ? '600' : 400}
+          fontSize={'22px'}
           onClick={() => {
             if (onClose) onClose();
             return navigate('/map');
           }}
         >
-          Map
+          {t(`sidebar.map`)}
         </Button>
         {loggedIn || testUser?.loggedIn ? (
           <Button
@@ -284,13 +257,15 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
                 ? 'brandDark'
                 : 'brand'
             }
+            bg={location.includes('/settings') ? 'gray.50' : 'transparent'}
             fontWeight={location.includes('/settings') ? '600' : 400}
+            fontSize={'22px'}
             onClick={() => {
               if (onClose) onClose();
               return navigate('/settings/profile');
             }}
           >
-            Profile and Settings
+            {t(`sidebar.profile`)}
           </Button>
         ) : (
           ''

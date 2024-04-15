@@ -1,3 +1,4 @@
+import config from '../../config';
 import distance from '@turf/distance';
 import { point } from '@turf/helpers';
 // import geolocation from '../../models/geolocation';
@@ -45,9 +46,9 @@ function runForwardQuery(params) {
   // TODO: make prefs a Promise
   // const language = prefs.get().language;
   // https://mmapi.etch.app/geocode?query=
-  let uri = `https://511ny.etch.app/geocode?query=${encodeURIComponent(
+  let uri = `${config.SERVICES.geocode}?query=${encodeURIComponent(
     params.query
-  )}`;
+  )}&org=${config.ORGANIZATION}`;
   // if (language !== 'en')
   //  uri += `&language=${language}`;
   uri += `&limit=${NBR_RESULTS}`;
@@ -78,7 +79,13 @@ function processReverseResults(result, pt) {
       description:
         result.description === 'No details available.'
           ? null
-          : item.description, // TEMP!
+          : item?.description && item?.locality
+          ? item.description + ', ' + item.locality
+          : item?.description
+          ? item.description
+          : item.locality
+          ? item.locality
+          : null,
       distance: 0,
       point: pt, // item.point
     });
@@ -87,7 +94,7 @@ function processReverseResults(result, pt) {
 }
 
 function runReverseQuery(pt) {
-  const uri = `https://511ny.etch.app/geocode?query=${pt.lng},${pt.lat}&limit=1`;
+  const uri = `${config.SERVICES.geocode}?query=${pt.lng},${pt.lat}&limit=1&org=${config.ORGANIZATION}`;
   return fetch(uri)
     .then(response => {
       if (response.status === 200) {

@@ -6,61 +6,76 @@ import { observer } from 'mobx-react-lite';
 import { useColorMode } from '@chakra-ui/color-mode';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
-export const ScheduleTripHeader = observer(() => {
-  const { trips: favoriteTrips } = useStore().favorites;
-  const { colorMode } = useColorMode();
-  const [tripPlan, setTripPlan] = useState({});
-  const {
-    isOpen: isModalOpen,
-    onOpen: openModal,
-    onClose: closeModal,
-  } = useDisclosure();
-  return (
-    <>
-      {/* HEADER */}
-      <Flex
-        spacing={4}
-        p={4}
-        borderBottom={'1px'}
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
-        flexWrap={'wrap'}
-      >
-        {favoriteTrips.map(trip => (
-          <FavoriteTripButton
-            key={trip.id.toString()}
-            favorite={trip}
-            setTripPlan={setTripPlan}
-            openScheduleModal={openModal}
-          />
-        ))}
-        <Button
-          backgroundColor={colorMode === 'light' ? 'trip' : 'trip'}
-          color="white"
-          _hover={{
-            opacity: 0.8,
+export const ScheduleTripHeader = observer(
+  ({ isTripWizardOpen, openTripWizard, closeTripWizard }) => {
+    const { t } = useTranslation();
+    const { trips: favoriteTrips } = useStore().favorites;
+    const { clearKeyboardInputValues, setKeyboardActiveInput, ux } =
+      useStore().uiStore;
+    const { colorMode } = useColorMode();
+    const [tripPlan, setTripPlan] = useState({});
+
+    // const {
+    //   isOpen: isTripWizardOpen,
+    //   onOpen: openTripWizard,
+    //   onClose: closeTripWizard,
+    // } = useDisclosure();
+
+    return (
+      <>
+        {/* HEADER */}
+        {ux === 'webapp' && (
+          <Flex
+            spacing={4}
+            p={4}
+            borderBottom={'1px'}
+            borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+            flexWrap={'wrap'}
+          >
+            {favoriteTrips.map(trip => (
+              <FavoriteTripButton
+                key={trip.id.toString()}
+                favorite={trip}
+                setTripPlan={setTripPlan}
+                openScheduleModal={openTripWizard}
+              />
+            ))}
+            <Button
+              variant={'brand'}
+              onClick={() => {
+                clearKeyboardInputValues();
+                setKeyboardActiveInput('startAddress');
+                openTripWizard();
+              }}
+              minWidth={'180px'}
+              width="auto"
+              height={'80px'}
+              m={2}
+            >
+              {t('home.tripButton')}{' '}
+              <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
+            </Button>
+          </Flex>
+        )}
+
+        {/* TRIP SCHEDULER */}
+        <ScheduleTripModal
+          favoriteTrip={tripPlan}
+          isOpen={isTripWizardOpen}
+          onClose={() => {
+            console.log('[ScheduleTripHeader] onClose');
+            setTripPlan({});
+            clearKeyboardInputValues();
+            setKeyboardActiveInput('transitSearch');
+            closeTripWizard();
           }}
-          onClick={openModal}
-          width={'180px'}
-          height={'80px'}
-          m={2}
-        >
-          Schedule a Trip <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
-        </Button>
-      </Flex>
-
-      {/* TRIP SCHEDULER */}
-      <ScheduleTripModal
-        favoriteTrip={tripPlan}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setTripPlan({});
-          closeModal();
-        }}
-      ></ScheduleTripModal>
-    </>
-  );
-});
+        ></ScheduleTripModal>
+      </>
+    );
+  }
+);
 
 const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
   const { colorMode } = useColorMode();
@@ -74,7 +89,8 @@ const FavoriteTripButton = ({ favorite, setTripPlan, openScheduleModal }) => {
         setTripPlan(favorite);
         openScheduleModal();
       }}
-      width={'180px'}
+      minWidth={'180px'}
+      width="auto"
       height={'80px'}
       whiteSpace={'break-spaces'}
       backgroundColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}

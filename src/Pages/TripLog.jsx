@@ -4,6 +4,7 @@ import { TripPlanStandaloneModal } from '../components/VerticalTripPlan/TripPlan
 import TripTable from '../components/TripTable';
 import { useState } from 'react';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 const TripLog = () => {
   const {
@@ -13,7 +14,8 @@ const TripLog = () => {
   } = useDisclosure();
   const [selectedTrip, setSelectedTrip] = useState({});
   const { cancel } = useStore().schedule;
-
+  const { t } = useTranslation();
+  console.log(t('tripLog.title'));
   const cancelTrip = async id => {
     await cancel(id);
     close();
@@ -21,8 +23,8 @@ const TripLog = () => {
   return (
     <>
       <Box p={6}>
-        <Heading as="h2" size="md" mb={4}>
-          Trip Activity
+        <Heading as="h2" size="md" mb={4} tabIndex={0}>
+          {t('tripLog.title')}
         </Heading>
         <TripTable openModal={openModal} setSelectedTrip={setSelectedTrip} />
       </Box>

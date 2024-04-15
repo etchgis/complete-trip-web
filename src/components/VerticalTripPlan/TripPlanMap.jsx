@@ -34,7 +34,7 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
       return;
     }
 
-    //TODO move this all to the TripMapStore?
+    console.log({ tripPlan });
     const __data = setData(tripPlan);
     // console.log(toJS(__data.stops));
     // console.log(toJS(__data.modeIcons));
