@@ -92,8 +92,8 @@ const NavIconButton = ({ icon, label, navItem, onClick, ...rest }) => {
           colorMode === 'dark'
             ? 'white'
             : location === navItem
-            ? 'brandDark'
-            : 'brand'
+              ? 'brandDark'
+              : 'brand'
         }
         bg={
           location === navItem
@@ -156,11 +156,12 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
                 return navigate('/settings/profile');
               }}
             />
+
+            <FeedbackWidget />
           </>
         ) : (
           ''
         )}
-        <FeedbackWidget/>
         <AccessibilityWidget />
       </Stack>
     </Flex>
@@ -190,8 +191,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             colorMode === 'dark'
               ? 'white'
               : location === '/home'
-              ? 'brandDark'
-              : 'brand'
+                ? 'brandDark'
+                : 'brand'
           }
           bg={location === '/home' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/home' ? '600' : 400}
@@ -211,8 +212,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             colorMode === 'dark'
               ? 'white'
               : location === '/trips'
-              ? 'brandDark'
-              : 'brand'
+                ? 'brandDark'
+                : 'brand'
           }
           bg={location === '/trips' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/trips' ? '600' : 400}
@@ -233,8 +234,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
             colorMode === 'dark'
               ? 'white'
               : location === '/map'
-              ? 'brandDark'
-              : 'brand'
+                ? 'brandDark'
+                : 'brand'
           }
           bg={location === '/map' ? 'gray.50' : 'transparent'}
           fontWeight={location === '/map' ? '600' : 400}
@@ -255,8 +256,8 @@ const SidebarContent = observer(({ onClose, rest, testUser }) => {
               colorMode === 'dark'
                 ? 'white'
                 : location.includes('/settings')
-                ? 'brandDark'
-                : 'brand'
+                  ? 'brandDark'
+                  : 'brand'
             }
             bg={location.includes('/settings') ? 'gray.50' : 'transparent'}
             fontWeight={location.includes('/settings') ? '600' : 400}
