@@ -18,7 +18,7 @@ test:
   phases:
     preTest:
       commands:
-        - yarn install
+        - yarn install --ignore-engines
         - yarn add mocha mochawesome mochawesome-merge mochawesome-report-generator
         # - npm ci
         # - npm install -g pm2
