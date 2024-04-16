@@ -3,7 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - yarn install --ignore-engines
+        - yarn install
     build:
       commands:
         - yarn run build
@@ -18,7 +18,7 @@ test:
   phases:
     preTest:
       commands:
-        - yarn install --ignore-engines
+        - yarn install
         - yarn add mocha mochawesome mochawesome-merge mochawesome-report-generator
         # - npm ci
         # - npm install -g pm2
