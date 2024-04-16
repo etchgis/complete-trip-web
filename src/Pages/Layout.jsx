@@ -138,7 +138,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
         {/* KEYBOARD */}
       </Grid>
 
-      {!loggedIn && ux === 'kiosk' && <Keyboard />}
+      {ux === 'kiosk' && <Keyboard />}
 
       {/* MODALS */}
 
