@@ -101,6 +101,7 @@ export default function genLocales() {
         trips: 'Trips',
         profileSettings: 'Profile and Settings',
         accessibility: 'Accessibility',
+        feedback: 'Feedback',
         favorite: 'Favorite',
         next: 'Next',
         prev: 'Previous',
@@ -139,6 +140,7 @@ export default function genLocales() {
         trips: 'Viajes', //✅
         profileSettings: 'Perfil y configuración', //✅
         accessibility: 'Accesibilidad',
+        feedback: 'Comentario', //✅
         favorite: 'Favorito',
         next: 'Próximo',
         prev: 'Anterior', //✅
@@ -196,6 +198,7 @@ export default function genLocales() {
         map: 'Map',
         profile: 'Profile and Settings',
         accessibility: 'Accessibility',
+        feedback: 'Feedback',
       },
       es: {
         home: 'Página Principal', //✅
@@ -203,6 +206,7 @@ export default function genLocales() {
         map: 'Mapa',
         profile: 'Perfil y configuración', //✅
         accessibility: 'Accesibilidad',
+        feedback: 'Comentario', //✅
       },
     },
     ariaWidget: {
@@ -243,6 +247,42 @@ export default function genLocales() {
         en: 'Inglés', //✅
         es: 'Español', //✅
       },
+    },
+    feedbackWidget: {
+      en: {
+        title: 'Feedback',
+        categories: {
+          scheduling: "Trip Scheduling",
+          hds: "Community Shuttle",
+          sds: "Autonomous Bus",
+          intersections: "Smart Intersections",
+          transit: "Transit",
+          outdoorNavigation: "Outdoor Navigation",
+          indoorNavigation: "Indoor Navigation",
+          caregiver: "Coordinator and Traveler",
+          accessibility: "Accessibility",
+          mapping: "General Mapping",
+          other: "Other"
+        },
+        checkbox: "Include my email address for follow-up if needed",
+      },
+      es: {
+        title: 'Comentario', //✅
+        categories: {
+          scheduling: "Programación de viajes",
+          hds: "NFTA Community Shuttle",
+          sds: "UB Autonomous Bus",
+          intersections: "Intersecciones inteligentes",
+          transit: "Tránsito (autobús, ferrocarril)",
+          outdoorNavigation: "Navegación al aire libre",
+          indoorNavigation: "Navegación interior",
+          caregiver: "Coordinador y Viajero",
+          accessibility: "Accesibilidad",
+          mapping: "Mapeo general",
+          other: "Otro"
+        },
+        checkbox: "Include my email address for follow-up if needed",
+      }
     },
     loginWizard: {
       en: {

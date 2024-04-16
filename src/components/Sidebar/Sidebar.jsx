@@ -20,6 +20,7 @@ import { CgCalendarToday } from 'react-icons/cg';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import FeedbackWidget from '../Feedback';
 
 export const ResponsiveSidebar = ({
   isOpen,
@@ -159,7 +160,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
         ) : (
           ''
         )}
-
+        <FeedbackWidget/>
         <AccessibilityWidget />
       </Stack>
     </Flex>

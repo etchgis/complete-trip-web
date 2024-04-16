@@ -42,6 +42,10 @@ const API = {
       url: 'https://staging.lambda.etch.app/notifications',
       xApiKey: 'qzefkF03af3epdSSiN0Jz8IwSTQBamVD8R4xcfAv',
     },
+    feedback: {
+      url: 'https://staging.lambda.etch.app/feedback',
+      xApiKey: 'hBkiGj26pw1v0h4W3yAc36yFHu8x6dVK9MPRuCPY',
+    },
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
@@ -83,6 +87,10 @@ const API = {
     caregivers: {
       url: 'https://staging.lambda.etch.app/caregivers',
       xApiKey: 'SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE',
+    },
+    feedback: {
+      url: 'https://staging.lambda.etch.app/feedback',
+      xApiKey: 'hBkiGj26pw1v0h4W3yAc36yFHu8x6dVK9MPRuCPY',
     },
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging', //'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging?groups=dependent-{dependentId}
     streamsocket: 'wss://{org}.etch.app/services',
@@ -330,6 +338,10 @@ const LANAGUAGES = {
   es: 'Spanish',
 };
 
+const FEEDBACK = {
+  categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
+}
+
 const defaults = {
   ENV: ENV,
   DEBUG: false,
@@ -363,6 +375,7 @@ const defaults = {
   NOTIFICATION_TYPES,
   LANAGUAGES,
   NOTIFY_METHODS,
+  FEEDBACK
 };
 const config = { ...defaults };
 
