@@ -597,6 +597,7 @@ const RouteList = observer(({ routeClickHandler }) => {
           data-testid="map-route-list"
         >
           {routes.map((r, i) => {
+            console.log('route', r.mode);
             return (
               <Button
                 key={i}

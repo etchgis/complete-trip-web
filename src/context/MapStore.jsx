@@ -87,6 +87,7 @@ class MapStore {
     runInAction(() => {
       this.mapState.routesLoading = true;
     });
+    const appMode = this.rootStore.uiStore.ux;
     mobility.skids.services
       .byDistance(lng, lat, 0.5, 'COMPLETE_TRIP')
       .then(values => {
@@ -95,7 +96,7 @@ class MapStore {
           return this.getRoutes(lng, lat, n + 1);
         }
         runInAction(() => {
-          this.mapCache.routes = values.filter(v => v.mode !== 'shuttle');
+          this.mapCache.routes = values.filter(v => appMode === 'webapp' ? v.mode !== 'shuttle' : true);
           this.mapState.routesLoading = false;
         });
       })
