@@ -59,8 +59,8 @@ const TimelineStep = ({ start, label, steps }) => {
     !steps || !steps.length
       ? []
       : showDetails
-      ? [{ name: start }, ...steps]
-      : [{ name: start }, { name: label }, steps[steps.length - 1]];
+        ? [{ name: start }, ...steps]
+        : [{ name: start }, { name: label }, steps[steps.length - 1]];
   const accentColor = colorMode === 'light' ? '#00205b' : 'gray.400';
 
   return (
@@ -410,12 +410,12 @@ export const TripPlanSchedule = observer(
                   name.toLowerCase() === 'indoor' && wheelchair
                     ? config.WHEELCHAIR
                     : name.toLowerCase() === 'indoor'
-                    ? config.MODES.find(m => m.id === 'walk')
-                    : title === 'WAIT'
-                    ? config.WAIT
-                    : name.toLowerCase() === 'roll'
-                    ? config.WHEELCHAIR
-                    : config.MODES.find(m => m.id === name);
+                      ? config.MODES.find(m => m.id === 'walk')
+                      : title === 'WAIT'
+                        ? config.WAIT
+                        : name.toLowerCase() === 'roll'
+                          ? config.WHEELCHAIR
+                          : config.MODES.find(m => m.id === name);
                 console.log(mode.name, { leg });
                 if (name === 'scooter') {
                   // later
@@ -465,16 +465,16 @@ export const TripPlanSchedule = observer(
                       legIndex !== -1 && legIndex === i
                         ? 'opacity(1)'
                         : legIndex === -1
-                        ? 'unset'
-                        : 'opacity(0.5)'
+                          ? 'unset'
+                          : 'opacity(0.5)'
                     }
                   >
                     <Flex alignItems={'center'} mt={2}>
                       {mode?.svg
                         ? CreateCircleIcon({
-                            svg: mode.svg,
-                            backgroundColor: accentColor,
-                          })
+                          svg: mode.svg,
+                          backgroundColor: accentColor,
+                        })
                         : null}
                       <Heading
                         as="h3"

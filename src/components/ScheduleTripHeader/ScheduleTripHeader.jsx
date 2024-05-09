@@ -4,7 +4,7 @@ import { ChevronRightIcon } from '@chakra-ui/icons';
 import ScheduleTripModal from '../ScheduleTripModal';
 import { observer } from 'mobx-react-lite';
 import { useColorMode } from '@chakra-ui/color-mode';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
@@ -14,8 +14,14 @@ export const ScheduleTripHeader = observer(
     const { trips: favoriteTrips } = useStore().favorites;
     const { clearKeyboardInputValues, setKeyboardActiveInput, ux } =
       useStore().uiStore;
+    const { trip: sTrip } = useStore();
     const { colorMode } = useColorMode();
     const [tripPlan, setTripPlan] = useState({});
+    const [shuttleTrip, setShuttleTrip] = useState({});
+
+    useEffect(() => {
+      console.log('useEffect isShuttleTrip', sTrip.isShuttle);
+    }, [sTrip.isShuttle]);
 
     // const {
     //   isOpen: isTripWizardOpen,
@@ -63,7 +69,7 @@ export const ScheduleTripHeader = observer(
         {/* TRIP SCHEDULER */}
         <ScheduleTripModal
           favoriteTrip={tripPlan}
-          isOpen={isTripWizardOpen}
+          isOpen={isTripWizardOpen || sTrip.isShuttle}
           onClose={() => {
             console.log('[ScheduleTripHeader] onClose');
             setTripPlan({});

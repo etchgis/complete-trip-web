@@ -23,11 +23,11 @@ import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
-export const TransitRoutes = observer(({}) => {
+export const TransitRoutes = observer(({ onShuttlePress }) => {
   const colorMode = useColorMode();
   const { map, mapState, setMapState, mapCache, getRoutes, getStops } =
     useStore().mapStore;
-  const { debug, setKeyboardInputValue } = useStore().uiStore;
+  const { debug, setKeyboardInputValue, ux } = useStore().uiStore;
   // const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(
     mapState.routesLoading || mapState.stopsLoading
@@ -120,6 +120,11 @@ export const TransitRoutes = observer(({}) => {
           .catch(e => {
             console.error('getRoutesAndStops', e);
           });
+      }
+      else if (service.mode === 'shuttle') {
+        if (onShuttlePress) {
+          onShuttlePress(service);
+        }
       }
     } catch (error) {
       setMapState('activeRoute', '');
@@ -257,7 +262,7 @@ export const TransitRoutes = observer(({}) => {
       <Flex
         flexDir={'column'}
         height="100%"
-        width="420px"
+        width={ux === 'webapp' ? '420px' : '270px'}
         borderRight={'1px'}
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         p={0}
@@ -267,7 +272,7 @@ export const TransitRoutes = observer(({}) => {
           {/* TODO find a way to clear to search result */}
           <Box p={2}>
             <AddressSearchForm
-              saveAddress={() => {}}
+              saveAddress={() => { }}
               setGeocoderResult={e => {
                 if (map) {
                   //TODO change this to a function
@@ -389,9 +394,8 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                         {s.properties.publicCode}
                       </span>
                       {s.properties?.routes && (
-                        <span>{`Servicing Route${
-                          s.properties.routes.length !== 0 ? 's' : ''
-                        } ${s.properties.routes.join(',')}`}</span>
+                        <span>{`Servicing Route${s.properties.routes.length !== 0 ? 's' : ''
+                          } ${s.properties.routes.join(',')}`}</span>
                       )}
                     </Flex>
                     <Flex
@@ -626,7 +630,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                       flexDir={'row'}
                       justifyContent={'space-between'}
                       width={'100%'}
-                      // whiteSpace={'normal'}
+                    // whiteSpace={'normal'}
                     >
                       <Heading as="h3" className="route-list-heading">
                         {r?.route?.subRoute}
@@ -640,8 +644,8 @@ const RouteList = observer(({ routeClickHandler }) => {
                         <Box style={{ textAlign: 'right' }}>
                           {r?.route?.arriveNext
                             ? `${t('global.next')} ${moment(
-                                r.route.arriveNext
-                              ).format('h:mm A')}`
+                              r.route.arriveNext
+                            ).format('h:mm A')}`
                             : ''}
                         </Box>
                       </Flex>

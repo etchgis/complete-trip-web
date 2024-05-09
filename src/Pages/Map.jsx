@@ -4,10 +4,43 @@ import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TransitRoutes from '../components/TransitRoutes';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
+import { useEffect, useState } from 'react';
 
 const Map = observer(
   ({ showMap, isTripWizardOpen, openTripWizard, closeTripWizard }) => {
     const { ux } = useStore().uiStore;
+    const { trip: shuttleTrip } = useStore();
+
+    const handleShuttlePress = (shuttle) => {
+      // console.log('handleShuttlePress', shuttle);
+      if (ux === 'kiosk') {
+        shuttleTrip.create();
+        const queryParams = new URLSearchParams(window.location.search),
+          location = queryParams.get('location'),
+          coordinates = location.split(',');
+        let origin = {
+          description: "",
+          distance: 0,
+          point: {
+            lat: +coordinates[1],
+            lng: +coordinates[0]
+          },
+          text: "Kiosk",
+          title: "Kiosk"
+        }
+        shuttleTrip.updateOrigin(origin);
+        shuttleTrip.addMode('hail');
+        shuttleTrip.addMode('walk');
+        shuttleTrip.updateWhenAction('asap');
+        shuttleTrip.updateWhen(new Date());
+        console.log('shuttleTrip', shuttleTrip);
+        shuttleTrip.toggleShuttle(true);
+      }
+    }
+
+    // useEffect(() => {
+    //   console.log('useEffect', shuttleTrip);
+    // }), [shuttleTrip]
 
     return (
       <Flex
@@ -19,9 +52,16 @@ const Map = observer(
         display={showMap ? 'flex' : 'none'}
       >
         {/* SIDEBAR */}
-        <TransitRoutes />
+        <TransitRoutes
+          onShuttlePress={handleShuttlePress}
+        />
         {/* MAIN */}
-        <Flex flex="1" flexDir={'column'} data-name="map-and-schedule-button">
+        <Flex
+          flex="1"
+          flexDir={'column'}
+          data-name="map-and-schedule-button"
+          width={ux === 'webapp' ? 'calc(100vw - 420px)' : 'calc(100vw - 420px)'}
+        >
           {/* HEADER */}
           <ScheduleTripHeader
             isTripWizardOpen={isTripWizardOpen}

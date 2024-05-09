@@ -510,6 +510,8 @@ export default function genLocales() {
         wait: 'Wait',
         tripScheduled: 'Trip Scheduled',
         showQR: 'Download the App!',
+        summonShuttle: 'Summon Shuttle',
+        noTrips: 'No trips found.',
       },
       es: {
         searchFrom: 'De',
@@ -543,6 +545,8 @@ export default function genLocales() {
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
         showQR: '¡Descarga la aplicación!', //✅
+        summonShuttle: 'Llamar al autobús', //✅
+        noTrips: 'No se encontraron viajes.', //✅
       },
     },
     tripbot: {

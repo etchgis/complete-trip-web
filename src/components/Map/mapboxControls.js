@@ -82,6 +82,6 @@ export const mapControls = {
     showUserHeading: false,
   }),
   nav: new mapboxgl.NavigationControl(),
-  fullscreen: new MapboxGLFullPage(),
-  fullscreen2: new mapboxgl.FullscreenControl(),
+  // fullscreen: new MapboxGLFullPage(),
+  // fullscreen2: new mapboxgl.FullscreenControl(),
 };

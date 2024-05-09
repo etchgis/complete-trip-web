@@ -41,7 +41,7 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     // console.log(toJS(__data.route));
 
     // const popup = new mapboxgl.Popup();
-    const fs = new mapboxgl.FullscreenControl();
+    // const fs = new mapboxgl.FullscreenControl();
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -50,9 +50,9 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
       zoom: 10,
     })
       .addControl(mapControls.nav, 'bottom-right')
-      .addControl(mapControls.locate, 'bottom-right')
+      // .addControl(mapControls.locate, 'bottom-right')
       // .addControl(mapControls.fullscreen, 'bottom-right')
-      .addControl(fs, 'bottom-right')
+      // .addControl(fs, 'bottom-right')
       .on('load', initMap)
       .on('style.load', () => {
         console.log('[trip-map] style loaded');
