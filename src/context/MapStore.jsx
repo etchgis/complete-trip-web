@@ -96,7 +96,7 @@ class MapStore {
           return this.getRoutes(lng, lat, n + 1);
         }
         runInAction(() => {
-          this.mapCache.routes = values.filter(v => appMode === 'webapp' ? v.mode !== 'shuttle' : true);
+          this.mapCache.routes = values.filter(v => appMode === 'webapp' ? v.mode !== 'shuttle' : v.service !== 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02');
           this.mapState.routesLoading = false;
         });
       })

@@ -512,6 +512,17 @@ export default function genLocales() {
         showQR: 'Download the App!',
         summonShuttle: 'Summon Shuttle',
         noTrips: 'No trips found.',
+        popUpTitle: "To summon the shuttle you must provide you PIN and Phone number below.",
+        popUpPin: "PIN",
+        popUpPhone: "Phone",
+        popUpError: "You must provide a valid PIN and phone number.",
+        popUpUnknownError: "An unknown error occurred. Please try again.",
+        popUpSuccess: "Success! Your shuttle has been summoned.",
+        timeRemaining: {
+          zero: "Refreshing now...",
+          one: "Refreshing in 1 second",
+          other: "Refreshing in %{count} seconds",
+        }
       },
       es: {
         searchFrom: 'De',
@@ -547,6 +558,17 @@ export default function genLocales() {
         showQR: '¡Descarga la aplicación!', //✅
         summonShuttle: 'Llamar al autobús', //✅
         noTrips: 'No se encontraron viajes.', //✅
+        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación.", //✅
+        popUpPin: "PIN", //✅
+        popUpPhone: "Teléfono", //✅
+        popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
+        popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
+        popUpSuccess: "¡Éxito! Su lanzadera ha sido convocada.",
+        timeRemaining: {
+          zero: "Refrescándose ahora...",
+          one: "Refrescante en 1 segundo",
+          other: "Refrescante en %{count} segundos",
+        }
       },
     },
     tripbot: {

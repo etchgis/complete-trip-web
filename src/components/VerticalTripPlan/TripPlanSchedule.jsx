@@ -242,7 +242,7 @@ export const TripPlanSchedule = observer(
       es: QRCODE_ES,
     };
 
-    const [showQR, setShowQR] = useState(true);
+    const [showQR, setShowQR] = useState(false);
 
     useEffect(() => {
       // console.log('activeLegIndex', activeLegIndex);

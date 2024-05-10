@@ -6,8 +6,11 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CloseIcon } from '@chakra-ui/icons';
+import rides from '../../services/transport/rides';
+import { result } from 'lodash';
+import useIntervalHook from '../../hooks/useIntervalHook';
 
 export const VerticalTripPlan = observer(
   ({
@@ -23,11 +26,67 @@ export const VerticalTripPlan = observer(
     const { trip } = useStore();
     const { ux } = useStore().uiStore;
     const { t } = useTranslation();
-
+    const [pin, setPin] = useState('');
+    const [phone, setPhone] = useState('');
+    const [error, setError] = useState('');
+    const [shuttleSuccess, setShuttleSuccess] = useState(false);
     const [showSummon, setShowSummon] = useState(false);
+    const [timerStarted, setTimerStarted] = useState(false);
+    const [secondsLeft, setSecondsLeft] = useState(10);
+
+    useIntervalHook(
+      () => {
+        if (secondsLeft > 0) {
+          setSecondsLeft(secondsLeft - 1)
+        } else {
+          setTimerStarted(false);
+          window.location.reload();
+        }
+      },
+      timerStarted ? 1000 : null
+    );
 
     const handleSummonShuttle = () => {
       setShowSummon(true);
+      setTimerStarted(true);
+    }
+
+    const handleSummonPress = () => {
+      if (pin.length !== 4 || phone.length !== 10) {
+        setError(t('tripWizard.popUpError'));
+      }
+      else {
+        const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
+          driverId = 'd95c52b6-ee0d-44f1-9148-7c77971a4653',
+          datetime = Date.now(),
+          passengers = 1;
+        rides.request(
+          organizationId,
+          datetime,
+          'leave',
+          trip.request.origin,
+          trip.request.destination,
+          driverId,
+          passengers,
+          `+1${phone}`,
+          pin
+        )
+          .then((result) => {
+            console.log('SUMMONED RESULT:', result);
+            setShuttleSuccess(t('tripWizard.popUpSuccess'));
+            setPin('');
+            setPhone('');
+            setShowSummon(false);
+          })
+          .catch((e) => {
+            if (e === 'invalid pin' || e === 'user not found for this phone number') {
+              setError(t('tripWizard.popUpError'));
+            }
+            else {
+              setError(t('tripWizard.popUpUnknownError'));
+            }
+          })
+      }
     }
 
     return (
@@ -40,13 +99,15 @@ export const VerticalTripPlan = observer(
             top="50%"
             left="50%"
             transform="translate(-50%, -50%)"
-            h="400px"
+            h="500px"
             w="700px"
+            paddingX={'40px'}
+            paddingTop={'110px'}
+            paddingBottom={'60px'}
             alignItems={'center'}
             justifyContent={'center'}
             borderRadius={'md'}
             boxShadow={'md'}
-            data-testid="trip-plan-schedule-qr"
           >
             <IconButton
               onClick={() => setShowSummon(false)}
@@ -57,18 +118,30 @@ export const VerticalTripPlan = observer(
               right={4}
               variant={'ghost'}
             />
-            <Box
-              as='form'
-              onSubmit={(e) => { }}
-            >
+            <Box>
+              <Text
+                style={{
+                  position: 'absolute',
+                  top: '40px',
+                  left: '70px',
+                  right: '70px',
+                  textAlign: 'center',
+                  color: 'red',
+                }}
+              >{error}</Text>
               <VStack>
-                <FormControl>
-                  <FormLabel textAlign={'center'}>PIN</FormLabel>
+                <Text
+                  fontSize={'xl'}
+                  mb={'10px'}
+                >{t('tripWizard.popUpTitle')}</Text>
+
+                <FormControl mb={'20px'}>
+                  <FormLabel textAlign={'center'}>{t('tripWizard.popUpPin')}</FormLabel>
                   <Center w={'100%'}>
                     <PinInput
                       otp
                       onChange={(e) => {
-                        console.log('e', e);
+                        setPin(e);
                       }}
                       name={'pin'}
                       size="lg"
@@ -80,13 +153,14 @@ export const VerticalTripPlan = observer(
                     </PinInput>
                   </Center>
                 </FormControl>
-                <FormControl>
-                  <FormLabel textAlign={'center'}>Phone</FormLabel>
+
+                <FormControl mb={'40px'}>
+                  <FormLabel textAlign={'center'}>{t('tripWizard.popUpPhone')}</FormLabel>
                   <Center w={'100%'}>
                     <PinInput
                       otp
                       onChange={(e) => {
-                        console.log('e', e);
+                        setPhone(e);
                       }}
                       name={'pin'}
                       size="lg"
@@ -106,15 +180,18 @@ export const VerticalTripPlan = observer(
                     </PinInput>
                   </Center>
                 </FormControl>
+
                 <Button
                   variant={'brand'}
                   width={'100%'}
+                  type='button'
+                  onClick={handleSummonPress}
                 >
                   {t('tripWizard.summonShuttle')}
                 </Button>
               </VStack>
             </Box>
-          </Flex>
+          </Flex >
         }
         <Flex
           id="vertical-trip-plan"
@@ -147,6 +224,25 @@ export const VerticalTripPlan = observer(
                 tripRequest={tripRequest}
                 rider={rider}
               />
+              {ux === 'kiosk' && trip.isShuttle &&
+                <Box
+                  style={{
+                    position: 'absolute',
+                    top: '35%',
+                    width: '380px',
+                    textAlign: 'center',
+                  }}
+                >
+                  <Text
+                    colorScheme='green'
+                    fontSize={'2xl'}
+                    style={{
+                      fontWeight: 'bold',
+                    }}
+                  >{shuttleSuccess}</Text>
+                  <Text>{t('tripWizard.timeRemaining', { count: secondsLeft })}</Text>
+                </Box>
+              }
             </Box>
             <TripPlanScheduleButtons
               scheduleTripHandler={scheduleTripHandler}
