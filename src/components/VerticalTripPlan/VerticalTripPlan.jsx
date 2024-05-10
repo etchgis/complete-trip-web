@@ -48,7 +48,6 @@ export const VerticalTripPlan = observer(
 
     const handleSummonShuttle = () => {
       setShowSummon(true);
-      setTimerStarted(true);
     }
 
     const handleSummonPress = () => {
@@ -77,6 +76,7 @@ export const VerticalTripPlan = observer(
             setPin('');
             setPhone('');
             setShowSummon(false);
+            setTimerStarted(true);
           })
           .catch((e) => {
             if (e === 'invalid pin' || e === 'user not found for this phone number') {
@@ -240,7 +240,7 @@ export const VerticalTripPlan = observer(
                       fontWeight: 'bold',
                     }}
                   >{shuttleSuccess}</Text>
-                  <Text>{t('tripWizard.timeRemaining', { count: secondsLeft })}</Text>
+                  <Text>{timerStarted ? t('tripWizard.timeRemaining', { count: secondsLeft }) : ''}</Text>
                 </Box>
               }
             </Box>
