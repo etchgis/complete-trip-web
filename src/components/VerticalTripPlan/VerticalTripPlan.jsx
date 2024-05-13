@@ -207,7 +207,8 @@ export const VerticalTripPlan = observer(
             flexDir={'column'}
             borderRight="solid thin lightgray"
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-            w={{ base: '100%', md: '380px' }}
+            // w={{ base: '100%', md: '380px' }}
+            w={{ base: ux === 'kiosk' ? '380px' : '100%', md: '380px' }}
             id="vertical-trip-plan-sidebar"
           >
             <Box
