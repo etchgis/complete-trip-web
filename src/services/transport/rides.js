@@ -26,14 +26,14 @@ const rides = {
     }).then(async (response) => {
       const json = await response.json();
       if (response.status === 200) {
-        // fetch(`${config.SERVICES.plans.url}/ride/${json.id}`, {
-        //   method: 'PATCH',
-        //   headers: {
-        //     Authorization: `Bearer ${accessToken}`,
-        //     'X-Organization-Id': organizationId,
-        //     'x-api-key': config.SERVICES.plans.xApiKey,
-        //   },
-        // });
+        fetch(`${config.SERVICES.plans.url}/ride/${json.id}`, {
+          method: 'PATCH',
+          headers: {
+            // Authorization: `Bearer ${accessToken}`,
+            'X-Organization-Id': organizationId,
+            'x-api-key': config.SERVICES.plans.xApiKey,
+          },
+        });
         return json;
       }
       throw json?.message || json?.error.message;
