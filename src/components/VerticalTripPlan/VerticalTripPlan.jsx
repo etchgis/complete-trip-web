@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, PinInput, PinInputField, Stack, Text, VStack, useColorMode } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, Input, PinInput, PinInputField, Stack, Text, VStack, useColorMode } from '@chakra-ui/react';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
@@ -9,7 +9,7 @@ import useTranslation from '../../models/useTranslation';
 import { useEffect, useRef, useState } from 'react';
 import { CloseIcon } from '@chakra-ui/icons';
 import rides from '../../services/transport/rides';
-import { result } from 'lodash';
+import { result, set } from 'lodash';
 import useIntervalHook from '../../hooks/useIntervalHook';
 
 export const VerticalTripPlan = observer(
@@ -24,10 +24,12 @@ export const VerticalTripPlan = observer(
   }) => {
     const { colorMode } = useColorMode();
     const { trip } = useStore();
-    const { ux } = useStore().uiStore;
+    const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
     const { t } = useTranslation();
     const [pin, setPin] = useState('');
-    const [phone, setPhone] = useState('');
+    const [areaCode, setAreaCode] = useState('');
+    const [phone1, setPhone1] = useState('');
+    const [phone2, setPhone2] = useState('');
     const [error, setError] = useState('');
     const [shuttleSuccess, setShuttleSuccess] = useState(false);
     const [showSummon, setShowSummon] = useState(false);
@@ -50,11 +52,28 @@ export const VerticalTripPlan = observer(
       setShowSummon(true);
     }
 
+    useEffect(() => {
+      if (ux !== 'kiosk') return;
+      console.log('[PIN] setting pin');
+      if ('pin' !== activeInput && 'areaCode' !== activeInput && 'phone1' !== activeInput && 'phone2' !== activeInput) return;
+      if ('pin' === activeInput) setPin(getKeyboardInputValue('pin'));
+      if ('areaCode' === activeInput) setAreaCode(getKeyboardInputValue('areaCode'));
+      if ('phone1' === activeInput) setPhone1(getKeyboardInputValue('phone1'));
+      if ('phone2' === activeInput) setPhone2(getKeyboardInputValue('phone2'));
+      // if ('pin' !== activeInput && 'phone' !== activeInput) return;
+      setPin(getKeyboardInputValue('pin'));
+    }, [onScreenKeyboardInput, ux]);
+
+    useEffect(() => {
+      setKeyboardType('numeric')
+    }, []);
+
     const handleSummonPress = () => {
-      if (pin.length !== 4 || phone.length !== 10) {
+      if (pin.length !== 4 || areaCode.length !== 3 || phone1.length !== 3 || phone2.length !== 4) {
         setError(t('tripWizard.popUpError'));
       }
       else {
+        setError('');
         const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
           driverId = 'd95c52b6-ee0d-44f1-9148-7c77971a4653',
           datetime = Date.now(),
@@ -67,14 +86,16 @@ export const VerticalTripPlan = observer(
           trip.request.destination,
           driverId,
           passengers,
-          `+1${phone}`,
+          `+1${areaCode}${phone1}${phone2}`,
           pin
         )
           .then((result) => {
             console.log('SUMMONED RESULT:', result);
             setShuttleSuccess(t('tripWizard.popUpSuccess'));
             setPin('');
-            setPhone('');
+            setAreaCode('');
+            setPhone1('');
+            setPhone2('');
             setShowSummon(false);
             setTimerStarted(true);
           })
@@ -138,26 +159,102 @@ export const VerticalTripPlan = observer(
                 <FormControl mb={'20px'}>
                   <FormLabel textAlign={'center'}>{t('tripWizard.popUpPin')}</FormLabel>
                   <Center w={'100%'}>
-                    <PinInput
-                      otp
+                    <Input
+                      type="number"
+                      w={'100px'}
+                      letterSpacing={'10px'}
                       onChange={(e) => {
-                        setPin(e);
+                        console.log('e:', e);
                       }}
-                      name={'pin'}
+                      inputName={'pin'}
+                      onFocus={(e) => {
+                        e.target.select();
+                        setKeyboardActiveInput('pin')
+                      }}
+                      value={pin}
+                      maxLength={4}
+                      autoComplete='off'
+                    />
+                    {/* <PinInput
+                      otp
+                      // onChange={(e) => {
+                      //   // setPin(e);
+                      // }}
+                      // name={'pin'}
                       size="lg"
                     >
+                      <PinInputField
+                      name='pin'
+                        mx={2}
+                        onFocus={(e) => {
+                          e.target.select();
+                          setKeyboardActiveInput('pin');
+                        }}
+                        onChange={(e) => {
+                          setPin(e.target.value);
+                        }}
+                        value={pin} />
                       <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
                       <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
                       <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                    </PinInput>
+                    </PinInput> */}
                   </Center>
                 </FormControl>
 
                 <FormControl mb={'40px'}>
                   <FormLabel textAlign={'center'}>{t('tripWizard.popUpPhone')}</FormLabel>
                   <Center w={'100%'}>
-                    <PinInput
+                    <Input
+                      type="number"
+                      w={'82px'}
+                      letterSpacing={'10px'}
+                      onChange={(e) => {
+                        console.log('e:', e);
+                      }}
+                      inputName={'areaCode'}
+                      onFocus={(e) => {
+                        e.target.select();
+                        setKeyboardActiveInput('areaCode')
+                      }}
+                      value={areaCode}
+                      maxLength={3}
+                      autoComplete='off'
+                    />
+                    <Text mx={'10px'} fontSize={'28px'}>-</Text>
+                    <Input
+                      type="number"
+                      w={'82px'}
+                      letterSpacing={'10px'}
+                      onChange={(e) => {
+                        console.log('e:', e);
+                      }}
+                      inputName={'phone1'}
+                      onFocus={(e) => {
+                        e.target.select();
+                        setKeyboardActiveInput('phone1')
+                      }}
+                      value={phone1}
+                      maxLength={3}
+                      autoComplete='off'
+                    />
+                    <Text mx={'10px'} fontSize={'28px'}>-</Text>
+                    <Input
+                      type="number"
+                      w={'100px'}
+                      letterSpacing={'10px'}
+                      onChange={(e) => {
+                        console.log('e:', e);
+                      }}
+                      inputName={'phone2'}
+                      onFocus={(e) => {
+                        e.target.select();
+                        setKeyboardActiveInput('phone2')
+                      }}
+                      value={phone2}
+                      maxLength={4}
+                      autoComplete='off'
+                    />
+                    {/* <PinInput
                       otp
                       onChange={(e) => {
                         setPhone(e);
@@ -177,7 +274,7 @@ export const VerticalTripPlan = observer(
                       <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
                       <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
                       <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                    </PinInput>
+                    </PinInput> */}
                   </Center>
                 </FormControl>
 

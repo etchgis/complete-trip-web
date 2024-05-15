@@ -1,5 +1,6 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
+import { set } from 'lodash';
 
 class UIStore {
   mode = 'light';
@@ -13,8 +14,11 @@ class UIStore {
     transitSearch: '',
     startAddress: '',
     endAddress: '',
+    pin: '',
+    phone: ''
   };
   activeInput = 'transitSearch';
+  keyBoardType = 'default';
   ui = {
     contrast: false,
     letterSpacing: 'normal',
@@ -74,6 +78,12 @@ class UIStore {
       this.onScreenKeyboardInput = { ...newInput };
     });
   };
+
+  setKeyboardType = value => {
+    runInAction(() => {
+      this.keyBoardType = value;
+    });
+  }
 
   setUX = value => {
     runInAction(() => {
