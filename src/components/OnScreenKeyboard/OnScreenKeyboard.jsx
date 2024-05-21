@@ -9,7 +9,8 @@ import { useStore } from '../../context/RootStore';
 
 const OnScreenKeyboard = observer(() => {
   const [layout, setLayout] = useState('default');
-  const { onScreenKeyboardInput, setKeyboardInputValue, activeInput } =
+  const [layoutType, setLayoutType] = useState('default');
+  const { onScreenKeyboardInput, setKeyboardInputValue, activeInput, keyBoardType } =
     useStore().uiStore;
   const keyboard = useRef();
 
@@ -23,19 +24,45 @@ const OnScreenKeyboard = observer(() => {
   };
 
   const onInputChange = input => {
-    // console.log(input);
+    // console.log(input, layoutType, typeof input);
+    // console.log('input', input, layoutType, typeof input, isNaN(input), activeInput);
+    // if (layoutType === 'numeric' && !isNaN(input)) {
+    //   console.log('SET NUMERIC', input);
     setKeyboardInputValue(input);
+    // if (keyboard.current) keyboard.current.setInput(input);
+    // }
+    // else if (layoutType === 'default') {
+    //   console.log('SET ALPHA', input);
+    //   setKeyboardInputValue(input);
+    //   // if (keyboard.current) keyboard.current.setInput(input);
+    // }
     if (keyboard.current) keyboard.current.setInput(input);
   };
 
   useEffect(() => {
-    if (keyboard.current)
+    if (keyboard.current) {
+      console.log('onScreenKeyboardInput', onScreenKeyboardInput[activeInput]);
       keyboard.current.setInput(onScreenKeyboardInput[activeInput] || '');
+    }
   }, [onScreenKeyboardInput]);
 
   useEffect(() => {
     if (keyboard.current) keyboard.current.setInput('');
   }, [activeInput]);
+
+  useEffect(() => {
+    setLayoutType(keyBoardType);
+  }, [keyBoardType]);
+
+  const getMaxLength = () => {
+    if (activeInput === 'pin' || activeInput === 'phone2') {
+      return 4;
+    }
+    else if (activeInput === 'areaCode' || activeInput === 'phone1') {
+      return 3;
+    }
+    return null;
+  }
 
   return (
     <Flex
@@ -60,6 +87,8 @@ const OnScreenKeyboard = observer(() => {
           onChange={onInputChange}
           onKeyPress={onKeyPress}
           inputName={activeInput}
+          inputPattern={keyBoardType === 'numeric' ? /^[0-9]*$/ : null}
+          maxLength={getMaxLength()}
         />
       </Box>
     </Flex>

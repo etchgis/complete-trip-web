@@ -25,7 +25,7 @@ export const Routes = observer(() => {
     trace(false);
   }
   const { user, loggedIn, auth, logout } = useStore().authentication;
-  const { debug, setDebugMode, ui, setUI, setUX} = useStore().uiStore;
+  const { debug, setDebugMode, ui, setUI, setUX, ux } = useStore().uiStore;
 
   useEffect(() => {
     //NOTE this will always be true in the browser by using useEffect
@@ -42,18 +42,23 @@ export const Routes = observer(() => {
 
   //GLEAP
   useEffect(() => {
-    Gleap.initialize(import.meta.env.VITE_GLEAP);
-    const gleapDivs = document.querySelectorAll('.gleap-font');
-    if (gleapDivs.length > 0) {
-      gleapDivs.forEach(div => {
-        div.setAttribute('aria-hidden', 'true');
-      });
+    const urlParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlParams.entries());
+    const { mode } = params;
+    if (mode === 'webapp') {
+      Gleap.initialize(import.meta.env.VITE_GLEAP);
+      const gleapDivs = document.querySelectorAll('.gleap-font');
+      if (gleapDivs.length > 0) {
+        gleapDivs.forEach(div => {
+          div.setAttribute('aria-hidden', 'true');
+        });
+      }
     }
   }, []);
 
   //INIT AUTH & USER
   useEffect(() => {
-    console.log('[routes]', {cachedUser: user?.refreshToken ? true : false}, {loggedIn});
+    console.log('[routes]', { cachedUser: user?.refreshToken ? true : false }, { loggedIn });
     console.log('[routes] checking for kiosk mode')
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
@@ -62,7 +67,7 @@ export const Routes = observer(() => {
       console.log('[routes] in kiosk mode, logging out user if one exists')
       logout();
       return
-    }else{
+    } else {
       console.log('[routes] not in kiosk mode')
     }
 

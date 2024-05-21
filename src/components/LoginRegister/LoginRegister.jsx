@@ -150,7 +150,7 @@ export const LoginRegister = observer(({ hideModal }) => {
         w="100%"
         id="stack"
         bg={useColorModeValue('white', 'gray.700')}
-        // boxShadow={'lg'}
+      // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image
@@ -824,28 +824,35 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
         {t('loginWizard.termsTitle')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.termsText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.availability')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.availabilityText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.privacy')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.privacyText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.changesToApp')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.changesToAppText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.changesToTerms')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.changesToTermsText')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         {t('loginWizard.termsMessage')}
       </Text>
-      <Box>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor,
-        magna id congue commodo, ipsum velit sollicitudin velit, vel tincidunt
-        velit augue id odio. Sed varius, nibh quis malesuada aliquet, turpis
-        augue convallis odio, id malesuada quam magna sit amet massa. Nam
-        bibendum justo eget ante luctus, in aliquet enim faucibus. Praesent id
-        ligula eget erat auctor euismod. Praesent auctor, enim id faucibus
-        aliquam, odio erat posuere ipsum, eu malesuada ipsum magna sit amet
-        turpis. Sed ac semper magna. Sed malesuada, magna eget malesuada
-        pellentesque, leo ligula ornare velit, id condimentum augue orci vitae
-        elit. Donec quis elit velit. Duis vel mi id ipsum congue vestibulum. Sed
-        aliquet, eros eget accumsan scelerisque, nibh nulla placerat velit, id
-        dictum velit ipsum vel nibh. In euismod elit velit, vel pellentesque
-        ipsum scelerisque vel. Nam augue nibh, aliquet ac facilisis a, placerat
-        vitae ipsum. Sed malesuada, turpis id dictum bibendum, magna augue
-        malesuada enim, ut viverra risus libero id ligula. Sed pellentesque,
-        ipsum vel accumsan malesuada, magna risus interdum nulla, non congue
-        urna nibh id magna. Nam eget dolor vestibulum, gravida magna ut, rhoncus
-        libero.
-      </Box>
       <Flex justifyContent={'space-between'}>
         <Button
           variant={'brand'}

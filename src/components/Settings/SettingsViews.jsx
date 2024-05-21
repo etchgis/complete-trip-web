@@ -208,26 +208,31 @@ export const TermsOfUse = () => {
         {t('settingsTerms.title')}
       </Heading>
       <Text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor,
-        magna id congue commodo, ipsum velit sollicitudin velit, vel tincidunt
-        velit augue id odio. Sed varius, nibh quis malesuada aliquet, turpis
-        augue convallis odio, id malesuada quam magna sit amet massa. Nam
-        bibendum justo eget ante luctus, in aliquet enim faucibus. Praesent id
-        ligula eget erat auctor euismod. Praesent auctor, enim id faucibus
-        aliquam, odio erat posuere ipsum, eu malesuada ipsum magna sit amet
-        turpis. Sed ac semper magna. Sed malesuada, magna eget malesuada
-        pellentesque, leo ligula ornare velit, id condimentum augue orci vitae
-        elit. Donec quis elit velit.
+      {t('settingsTerms.termsText')}
+      </Text>
+      <Text as={'b'}>
+      {t('settingsTerms.availability')}
       </Text>
       <Text>
-        Duis vel mi id ipsum congue vestibulum. Sed aliquet, eros eget accumsan
-        scelerisque, nibh nulla placerat velit, id dictum velit ipsum vel nibh.
-        In euismod elit velit, vel pellentesque ipsum scelerisque vel. Nam augue
-        nibh, aliquet ac facilisis a, placerat vitae ipsum. Sed malesuada,
-        turpis id dictum bibendum, magna augue malesuada enim, ut viverra risus
-        libero id ligula. Sed pellentesque, ipsum vel accumsan malesuada, magna
-        risus interdum nulla, non congue urna nibh id magna. Nam eget dolor
-        vestibulum, gravida magna ut, rhoncus libero.
+      {t('settingsTerms.availabilityText')}
+      </Text>
+      <Text as={'b'}>
+      {t('settingsTerms.privacy')}
+      </Text>
+      <Text>
+      {t('settingsTerms.privacyText')}
+      </Text>
+      <Text as={'b'}>
+      {t('settingsTerms.changesToApp')}
+      </Text>
+      <Text>
+      {t('settingsTerms.changesToAppText')}
+      </Text>
+      <Text as={'b'}>
+      {t('settingsTerms.changesToTerms')}
+      </Text>
+      <Text>
+      {t('settingsTerms.changesToTermsText')}
       </Text>
     </Stack>
   );

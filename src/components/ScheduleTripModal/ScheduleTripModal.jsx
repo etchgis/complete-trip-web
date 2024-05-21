@@ -79,6 +79,21 @@ export const ScheduleTripModal = observer(
       stagedTrip.updateProperty('id', favoriteTrip?.id);
     }
 
+    if (stagedTrip.isShuttle) {
+      console.log('IS SHUTTLE');
+    }
+
+    // if (shuttleTrip) {
+    //   console.log('ScheduleTripModal', shuttleTrip);
+    //   // const { trip: sTrip } = useStore();
+    //   // sTrip.updateOrigin(locations.start);
+    //   // sTrip.updateDestination(locations.end);
+    //   // sTrip.updateWhenAction('asap'); //TODO add leave, arrive
+    //   // sTrip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+    //   // sTrip.updateWhenAction(data.get('when'));
+    //   // sTrip.create();
+    // }
+
     const Wizard = [
       {
         name: 'First',
@@ -142,11 +157,13 @@ export const ScheduleTripModal = observer(
           setStep(0);
           onClose();
           setHasSelectedPlan(false);
+          setSelectedTrip({});
         }}
         onOpen={() => {
           setStep(0);
           setHasSelectedPlan(false);
           stagedTrip.create();
+          setSelectedTrip({});
         }}
         size="full"
         scrollBehavior="inside"
@@ -162,14 +179,14 @@ export const ScheduleTripModal = observer(
             {step === 0
               ? t('tripWizard.scheduleTrip')
               : step === 1
-              ? t('tripWizard.selectTransportation')
-              : step === 2
-              ? t('tripWizard.selectTrip')
-              : step === 3
-              ? t('tripWizard.overview')
-              : step === 4 //chatbot
-              ? t('tripWizard.chatbot')
-              : null}
+                ? t('tripWizard.selectTransportation')
+                : step === 2
+                  ? t('tripWizard.selectTrip')
+                  : step === 3
+                    ? t('tripWizard.overview')
+                    : step === 4 //chatbot
+                      ? t('tripWizard.chatbot')
+                      : null}
             {accessToken && (step === 0 || step === 4) ? (
               <IconButton
                 // display={'none'}
@@ -226,7 +243,7 @@ export const ScheduleTripModal = observer(
   }
 );
 
-const First = observer(({ setStep, trip }) => {
+const First = observer(({ setStep, trip, isShuttle = false }) => {
   const {
     isOpen: isSaveFavStartOpen,
     onToggle: onToggleStart,
@@ -239,6 +256,7 @@ const First = observer(({ setStep, trip }) => {
   } = useDisclosure();
   const { locations: favLocations, addLocation } = useStore().favorites;
   const { loggedIn } = useStore().authentication;
+  const { ux } = useStore().uiStore;
 
   const startRef = useRef(null);
   const endRef = useRef(null);
@@ -303,12 +321,19 @@ const First = observer(({ setStep, trip }) => {
 
     console.log({ locations });
 
-    trip.updateOrigin(locations.start);
-    trip.updateDestination(locations.end);
-    trip.updateWhenAction('asap'); //TODO add leave, arrive
-    trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
-    trip.updateWhenAction(data.get('when'));
-    setStep(current => current + 1);
+    if (trip.isShuttle) {
+      trip.updateDestination(locations.end);
+      setStep(2);
+    }
+    else {
+      trip.updateOrigin(locations.start);
+      trip.updateDestination(locations.end);
+      trip.updateWhenAction('asap'); //TODO add leave, arrive
+      trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+      trip.updateWhenAction(data.get('when'));
+      setStep(current => current + 1);
+    }
+
   };
 
   const saveFavorite = async alias => {
@@ -367,130 +392,134 @@ const First = observer(({ setStep, trip }) => {
       margin={'0 auto'}
       textAlign={'left'}
     >
-      <FormControl isInvalid={startError}>
-        <AddressSearchForm
-          center={{ lng: -78.878738, lat: 42.88023 }}
-          defaultAddress={
-            locations?.start?.id &&
-            favLocations.find(f => f.id === locations.start.id)
-              ? locations?.start?.alias || locations?.start?.text
-              : locations?.start?.text || ''
-          }
-          setGeocoderResult={setStart}
-          name="startAddress"
-          label={t('tripWizard.searchFrom')}
-          required={true}
-          clearResult={true}
-          inputName="startAddress"
-        />
-        {/* TODO convert to mini component */}
-        <Stack spacing={4} direction="row" alignItems={'center'}>
-          {favLocations.find(f => f.id === locations?.start?.id) ? (
-            <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
-              <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
-              <Text fontWeight={'bold'}>
-                {t('settingsFavorites.locations')}
-              </Text>
-            </Flex>
-          ) : null}
-          <Popover
-            isOpen={isSaveFavStartOpen}
-            onClose={() => {
-              //TODO actually save the address
-              //TODO replace the location start name with the saved address name
-              setSavedAddresses(current => ({ ...current, start: 0 }));
-              onClose();
-              setAliasEditor(false);
-              startRef.current.value = '';
-            }}
-            placement="bottom"
-            closeOnBlur={false}
-            tabIndex={0}
-          >
-            <PopoverTrigger>
-              <Checkbox
-                display={
-                  favLocations.find(f => f.id === locations?.start?.id)
-                    ? 'none'
-                    : 'inline-flex'
-                }
-                onChange={e => {
-                  if (e.target.checked) {
-                    onToggleStart();
-                    setSavedAddresses(current => ({
-                      ...current,
-                      start: 1,
-                    }));
-                    setActiveFavorite('start');
-                    setAliasEditor(true);
-                  }
+      {!trip.isShuttle &&
+        <FormControl isInvalid={startError}>
+          <AddressSearchForm
+            center={{ lng: -78.878738, lat: 42.88023 }}
+            defaultAddress={
+              locations?.start?.id &&
+                favLocations.find(f => f.id === locations.start.id)
+                ? locations?.start?.alias || locations?.start?.text
+                : locations?.start?.text || ''
+            }
+            setGeocoderResult={setStart}
+            name="startAddress"
+            label={t('tripWizard.searchFrom')}
+            required={true}
+            clearResult={true}
+            inputName="startAddress"
+          />
+          {/* TODO convert to mini component */}
+          {ux === 'webapp' &&
+            <Stack spacing={4} direction="row" alignItems={'center'}>
+              {favLocations.find(f => f.id === locations?.start?.id) ? (
+                <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
+                  <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
+                  <Text fontWeight={'bold'}>
+                    {t('settingsFavorites.locations')}
+                  </Text>
+                </Flex>
+              ) : null}
+              <Popover
+                isOpen={isSaveFavStartOpen}
+                onClose={() => {
+                  //TODO actually save the address
+                  //TODO replace the location start name with the saved address name
+                  setSavedAddresses(current => ({ ...current, start: 0 }));
+                  onClose();
+                  setAliasEditor(false);
+                  startRef.current.value = '';
                 }}
-                disabled={!loggedIn ? true : !locations?.start?.text}
-                value={
-                  favLocations.find(f => f.id === locations?.start?.id)?.id ||
-                  ''
-                }
-                isChecked={!!savedAddresses.start || isSaveFavStartOpen}
-                mt={2}
-                ml={2}
+                placement="bottom"
+                closeOnBlur={false}
+                tabIndex={0}
               >
-                {t('tripWizard.saveAddress')}
-              </Checkbox>
-            </PopoverTrigger>
-            <PopoverContent ml={4} mt={2}>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
-              {/* <FocusLock returnFocus persistentFocus={false}> */}
-              <PopoverBody>
-                <Input
-                  type="text"
-                  ref={startRef}
-                  placeholder={t('tripWizard.addressName')}
-                />
-                <HStack mt={2}>
-                  <Button
-                    variant={'solid'}
-                    colorScheme="facebook"
-                    onClick={() => saveFavorite(startRef.current.value)}
-                    w="50%"
-                  >
-                    {t('global.save')}
-                  </Button>
-                  <Button
-                    variant={'outline'}
-                    onClick={() => {
-                      setSavedAddresses(current => ({
-                        ...current,
-                        start: null,
-                      }));
-                      onClose();
-                      setAliasEditor(false);
-                      startRef.current.value = '';
+                <PopoverTrigger>
+                  <Checkbox
+                    display={
+                      favLocations.find(f => f.id === locations?.start?.id)
+                        ? 'none'
+                        : 'inline-flex'
+                    }
+                    onChange={e => {
+                      if (e.target.checked) {
+                        onToggleStart();
+                        setSavedAddresses(current => ({
+                          ...current,
+                          start: 1,
+                        }));
+                        setActiveFavorite('start');
+                        setAliasEditor(true);
+                      }
                     }}
-                    w="50%"
+                    disabled={!loggedIn ? true : !locations?.start?.text}
+                    value={
+                      favLocations.find(f => f.id === locations?.start?.id)?.id ||
+                      ''
+                    }
+                    isChecked={!!savedAddresses.start || isSaveFavStartOpen}
+                    mt={2}
+                    ml={2}
                   >
-                    {t('global.cancel')}
-                  </Button>
-                </HStack>
-              </PopoverBody>
-              {/* </FocusLock> */}
-            </PopoverContent>
-          </Popover>
-        </Stack>
+                    {t('tripWizard.saveAddress')}
+                  </Checkbox>
+                </PopoverTrigger>
+                <PopoverContent ml={4} mt={2}>
+                  <PopoverArrow />
+                  <PopoverCloseButton />
+                  <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
+                  {/* <FocusLock returnFocus persistentFocus={false}> */}
+                  <PopoverBody>
+                    <Input
+                      type="text"
+                      ref={startRef}
+                      placeholder={t('tripWizard.addressName')}
+                    />
+                    <HStack mt={2}>
+                      <Button
+                        variant={'solid'}
+                        colorScheme="facebook"
+                        onClick={() => saveFavorite(startRef.current.value)}
+                        w="50%"
+                      >
+                        {t('global.save')}
+                      </Button>
+                      <Button
+                        variant={'outline'}
+                        onClick={() => {
+                          setSavedAddresses(current => ({
+                            ...current,
+                            start: null,
+                          }));
+                          onClose();
+                          setAliasEditor(false);
+                          startRef.current.value = '';
+                        }}
+                        w="50%"
+                      >
+                        {t('global.cancel')}
+                      </Button>
+                    </HStack>
+                  </PopoverBody>
+                  {/* </FocusLock> */}
+                </PopoverContent>
+              </Popover>
+            </Stack>
+          }
 
-        <FormErrorMessage>
-          Please select a location from the result list.
-        </FormErrorMessage>
-      </FormControl>
+          <FormErrorMessage>
+            Please select a location from the result list.
+          </FormErrorMessage>
+        </FormControl>
+      }
 
       <FormControl isInvalid={endError}>
         <AddressSearchForm
-          saveAddress={() => {}}
+          saveAddress={() => { }}
           center={{ lng: -78.878738, lat: 42.88023 }}
           defaultAddress={
             locations?.end?.id &&
-            favLocations.find(f => f.id === locations.end.id)
+              favLocations.find(f => f.id === locations.end.id)
               ? locations?.end?.alias || locations?.end?.text
               : locations?.end?.text || ''
           }
@@ -502,118 +531,124 @@ const First = observer(({ setStep, trip }) => {
           inputName="endAddress"
         />
 
-        <Stack spacing={4} direction="row" alignItems={'center'}>
-          {favLocations.find(f => f.id === locations?.end?.id) ? (
-            <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
-              <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
-              <Text fontWeight={'bold'}>{t('tripWizard.favorite')}</Text>
-            </Flex>
-          ) : null}
-          <Popover
-            isOpen={isSaveFavEndOpen}
-            onClose={() => {
-              //TODO actually save the address
-              //TODO replace the location start name with the saved address name
-              setSavedAddresses(current => ({ ...current, end: null }));
-              closeSaveFavEnd();
-              setAliasEditor(false);
-              endRef.current.value = '';
-            }}
-            placement="bottom"
-            closeOnBlur={false}
-            tabIndex={0}
-          >
-            <PopoverTrigger>
-              <Checkbox
-                display={
-                  favLocations.find(f => f.id === locations?.end?.id)
-                    ? 'none'
-                    : 'inline-flex'
-                }
-                onChange={e => {
-                  if (e.target.checked) {
-                    onToggleEnd();
-                    setSavedAddresses(current => ({
-                      ...current,
-                      end: 1,
-                    }));
-                    setActiveFavorite('end');
-                    setAliasEditor(true);
+        {ux === 'webapp' &&
+          <Stack spacing={4} direction="row" alignItems={'center'}>
+            {favLocations.find(f => f.id === locations?.end?.id) ? (
+              <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
+                <Icon as={FaStar} mr={2} boxSize={5} color={'brand'} />{' '}
+                <Text fontWeight={'bold'}>{t('tripWizard.favorite')}</Text>
+              </Flex>
+            ) : null}
+            <Popover
+              isOpen={isSaveFavEndOpen}
+              onClose={() => {
+                //TODO actually save the address
+                //TODO replace the location start name with the saved address name
+                setSavedAddresses(current => ({ ...current, end: null }));
+                closeSaveFavEnd();
+                setAliasEditor(false);
+                endRef.current.value = '';
+              }}
+              placement="bottom"
+              closeOnBlur={false}
+              tabIndex={0}
+            >
+              <PopoverTrigger>
+                <Checkbox
+                  display={
+                    favLocations.find(f => f.id === locations?.end?.id)
+                      ? 'none'
+                      : 'inline-flex'
                   }
-                }}
-                disabled={!loggedIn ? true : !locations?.end?.text}
-                isChecked={!!savedAddresses.end || isSaveFavEndOpen}
-                value={locations?.end?.id || ''}
-                mt={2}
-                ml={2}
-              >
-                {t('tripWizard.saveAddress')}
-              </Checkbox>
-            </PopoverTrigger>
-            <PopoverContent ml={4} mt={2}>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
-              {/* <FocusLock returnFocus persistentFocus={false}> */}
-              <PopoverBody>
-                <Input type="text" ref={endRef} />
-                <HStack mt={2}>
-                  <Button
-                    variant={'solid'}
-                    colorScheme="facebook"
-                    onClick={() => saveFavorite(endRef.current.value)}
-                    w="50%"
-                  >
-                    {t('global.save')}
-                  </Button>
-                  <Button
-                    variant={'outline'}
-                    onClick={() => {
-                      setSavedAddresses(current => ({ ...current, end: 0 }));
-                      closeSaveFavEnd();
-                      setAliasEditor(false);
-                      endRef.current.value = '';
-                    }}
-                    w="50%"
-                  >
-                    {t('global.cancel')}
-                  </Button>
-                </HStack>
-              </PopoverBody>
-              {/* </FocusLock> */}
-            </PopoverContent>
-          </Popover>
-        </Stack>
+                  onChange={e => {
+                    if (e.target.checked) {
+                      onToggleEnd();
+                      setSavedAddresses(current => ({
+                        ...current,
+                        end: 1,
+                      }));
+                      setActiveFavorite('end');
+                      setAliasEditor(true);
+                    }
+                  }}
+                  disabled={!loggedIn ? true : !locations?.end?.text}
+                  isChecked={!!savedAddresses.end || isSaveFavEndOpen}
+                  value={locations?.end?.id || ''}
+                  mt={2}
+                  ml={2}
+                >
+                  {t('tripWizard.saveAddress')}
+                </Checkbox>
+              </PopoverTrigger>
+              <PopoverContent ml={4} mt={2}>
+                <PopoverArrow />
+                <PopoverCloseButton />
+                <PopoverHeader>{t('tripWizard.addressName')}</PopoverHeader>
+                {/* <FocusLock returnFocus persistentFocus={false}> */}
+                <PopoverBody>
+                  <Input type="text" ref={endRef} />
+                  <HStack mt={2}>
+                    <Button
+                      variant={'solid'}
+                      colorScheme="facebook"
+                      onClick={() => saveFavorite(endRef.current.value)}
+                      w="50%"
+                    >
+                      {t('global.save')}
+                    </Button>
+                    <Button
+                      variant={'outline'}
+                      onClick={() => {
+                        setSavedAddresses(current => ({ ...current, end: 0 }));
+                        closeSaveFavEnd();
+                        setAliasEditor(false);
+                        endRef.current.value = '';
+                      }}
+                      w="50%"
+                    >
+                      {t('global.cancel')}
+                    </Button>
+                  </HStack>
+                </PopoverBody>
+                {/* </FocusLock> */}
+              </PopoverContent>
+            </Popover>
+          </Stack>
+        }
 
         <FormErrorMessage>{t('errors.pleaseSelectLocation')}</FormErrorMessage>
       </FormControl>
 
-      <FormControl isRequired>
-        <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
-        <Input
-          type="date"
-          defaultValue={parseDate(trip?.request?.whenTime)}
-          name="date"
-        ></Input>
-      </FormControl>
+      {!trip.isShuttle &&
+        <FormControl isRequired>
+          <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
+          <Input
+            type="date"
+            defaultValue={parseDate(trip?.request?.whenTime)}
+            name="date"
+          ></Input>
+        </FormControl>
+      }
 
-      <FormControl isRequired>
-        <FormLabel>{t('tripWizard.time')}</FormLabel>
-        <Select
-          name="when"
-          mb={6}
-          defaultValue={trip?.request?.whenAction || 'asap'}
-        >
-          <option value="asap">{t('tripWizard.now')}</option>
-          <option value="leave">{t('tripWizard.leaveBy')}</option>
-          <option value="arrive">{t('tripWizard.arriveBy')}</option>
-        </Select>
-        <Input
-          type="time"
-          defaultValue={parseTime(trip?.request?.whenTime)}
-          name="time"
-        ></Input>
-      </FormControl>
+      {!trip.isShuttle &&
+        <FormControl isRequired>
+          <FormLabel>{t('tripWizard.time')}</FormLabel>
+          <Select
+            name="when"
+            mb={6}
+            defaultValue={trip?.request?.whenAction || 'asap'}
+          >
+            <option value="asap">{t('tripWizard.now')}</option>
+            <option value="leave">{t('tripWizard.leaveBy')}</option>
+            <option value="arrive">{t('tripWizard.arriveBy')}</option>
+          </Select>
+          <Input
+            type="time"
+            defaultValue={parseTime(trip?.request?.whenTime)}
+            name="time"
+          ></Input>
+        </FormControl>
+      }
 
       <Button width="100%" variant="brand" type="submit">
         {t('global.next')}
@@ -744,7 +779,9 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   const { t } = useTranslation();
   console.log('[schedule trip modal] Third\n', { trip });
   useEffect(() => {
+    console.log('KEYS', !Object.keys(selectedTrip).length);
     if (!Object.keys(selectedTrip).length) {
+      console.log('Generating Plans');
       trip.generatePlans();
     }
     //eslint-disable-next-line
@@ -774,6 +811,7 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
           </>
         ) : (
           <TripResults
+            trip={trip}
             setStep={setStep}
             trips={trip?.plans || []}
             setSelectedTrip={setSelectedTrip}
@@ -786,7 +824,7 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
       >
         {t('global.next')}
       </Button> */}
-      <Button onClick={() => setStep(current => current - 1)}>
+      <Button onClick={() => setStep(current => (current - (trip.isShuttle ? 2 : 1)))}>
         {t('global.prev')}
       </Button>
     </Stack>
@@ -861,6 +899,7 @@ const Fourth = ({
             setStep(current => current - 1);
           }
         }}
+
       ></VerticalTripPlan>
     </Stack>
   );
@@ -970,7 +1009,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
                       mode === 'WALK' && wheelchair
                         ? config.WHEELCHAIR.webIcon
                         : config.MODES.find(m => m.id === mode.toLowerCase())
-                            .webIcon
+                          .webIcon
                     }
                     boxSize={6}
                   />
