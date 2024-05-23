@@ -54,6 +54,7 @@ import { toJS } from 'mobx';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import moment from 'moment';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -724,6 +725,8 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         <VStack alignItems={'flex-start'}>
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
+              const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
+              if (mode.id === 'hail' && !inTimeframe) return '';
               if (mode.id === 'walk') return '';
               return (
                 <Checkbox key={mode.id} value={mode.mode}>

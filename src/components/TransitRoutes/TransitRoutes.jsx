@@ -122,8 +122,12 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           });
       }
       else if (service.mode === 'shuttle') {
-        if (onShuttlePress) {
+        const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
+        if (onShuttlePress && inTimeframe) {
           onShuttlePress(service);
+        }
+        if (!inTimeframe) {
+          alert(t('routeList.shuttleNotAvailableTimeFrame'));
         }
       }
     } catch (error) {
