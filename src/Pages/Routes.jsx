@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import useNotifications from '../hooks/useNotifications';
 import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
+import MobileHelp from './MobileHelp.jsx';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -166,6 +167,13 @@ export const Routes = observer(() => {
          Go to caregiver
         </Route>
       */}
+
+      <Route
+        path={'/mobilehelp'}
+        element={
+          <MobileHelp />
+        }
+      />
 
       {/* Profile */}
       {loggedIn ? (
