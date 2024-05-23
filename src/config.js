@@ -342,6 +342,11 @@ const FEEDBACK = {
   categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
 }
 
+const HDS_HOURS = {
+  start: 8,
+  end: 12
+}
+
 const defaults = {
   ENV: ENV,
   DEBUG: false,
@@ -375,7 +380,8 @@ const defaults = {
   NOTIFICATION_TYPES,
   LANAGUAGES,
   NOTIFY_METHODS,
-  FEEDBACK
+  FEEDBACK,
+  HDS_HOURS
 };
 const config = { ...defaults };
 
