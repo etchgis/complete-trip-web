@@ -1,4 +1,4 @@
-import { Flex, Grid, useColorMode, useDisclosure } from '@chakra-ui/react';
+import { Center, Flex, Grid, Image, Stack, Text, useColorMode, useDisclosure } from '@chakra-ui/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import CustomModal from '../components/Modal';
@@ -93,99 +93,124 @@ const Layout = observer(({ showMap, isHome, children }) => {
   } = useDisclosure();
 
   return (
-    <Flex
-      id="app"
-      backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
-      flexDir="column"
-      display={{ base: 'none', sm: 'flex' }}
-    >
-      {/* ERROR TOAST MESSAGE */}
-      <ErrorToastMessage></ErrorToastMessage>
+    <>
+      <Flex
+        id="app"
+        backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
+        flexDir="column"
+        display={{ base: 'none', sm: 'flex' }}
+      >
+        {/* ERROR TOAST MESSAGE */}
+        <ErrorToastMessage></ErrorToastMessage>
 
-      {/* NAV */}
-      <Navbar
-        isOpen={isOpen}
-        onOpen={onOpen}
-        onToggle={onToggle}
-        onClose={onClose}
-        action1={showLogin}
-        openTripWizard={openTripWizard}
-      ></Navbar>
-
-      {/* MAIN SHELL */}
-      <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex={1}>
-        {/* SIDEBAR */}
-        <ResponsiveSidebar
+        {/* NAV */}
+        <Navbar
           isOpen={isOpen}
+          onOpen={onOpen}
+          onToggle={onToggle}
           onClose={onClose}
-        ></ResponsiveSidebar>
-        {/* MAP */}
-        {/* NOTE the map is always loaded so we dont have to re-load it each time we navigate to the map route */}
-        <Map
-          showMap={showMap}
-          isTripWizardOpen={isTripWizardOpen}
-          closeTripWizard={closeTripWizard}
+          action1={showLogin}
           openTripWizard={openTripWizard}
-        ></Map>
-        {isHome && (
-          <Home
+        ></Navbar>
+
+        {/* MAIN SHELL */}
+        <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex={1}>
+          {/* SIDEBAR */}
+          <ResponsiveSidebar
+            isOpen={isOpen}
+            onClose={onClose}
+          ></ResponsiveSidebar>
+          {/* MAP */}
+          {/* NOTE the map is always loaded so we dont have to re-load it each time we navigate to the map route */}
+          <Map
+            showMap={showMap}
             isTripWizardOpen={isTripWizardOpen}
             closeTripWizard={closeTripWizard}
             openTripWizard={openTripWizard}
-          ></Home>
-        )}
-        {children}
-        {/* KEYBOARD */}
-      </Grid>
+          ></Map>
+          {isHome && (
+            <Home
+              isTripWizardOpen={isTripWizardOpen}
+              closeTripWizard={closeTripWizard}
+              openTripWizard={openTripWizard}
+            ></Home>
+          )}
+          {children}
+          {/* KEYBOARD */}
+        </Grid>
 
-      {ux === 'kiosk' && <Keyboard />}
+        {ux === 'kiosk' && <Keyboard />}
 
-      {/* MODALS */}
+        {/* MODALS */}
 
-      {/* LOGIN/REGISTER MODAL */}
-      <CustomModal
-        isOpen={loginIsOpen}
-        onOpen={showLogin}
-        onClose={hideLogin}
-        size="lg"
-      >
         {/* LOGIN/REGISTER MODAL */}
-        <LoginRegister hideModal={hideLogin}></LoginRegister>
-      </CustomModal>
+        <CustomModal
+          isOpen={loginIsOpen}
+          onOpen={showLogin}
+          onClose={hideLogin}
+          size="lg"
+        >
+          {/* LOGIN/REGISTER MODAL */}
+          <LoginRegister hideModal={hideLogin}></LoginRegister>
+        </CustomModal>
 
-      {/* ONBOARD WIZARD */}
-      <CustomModal
-        isOpen={
-          (loggedIn && !user?.profile?.onboarded) ||
-          user?.profile?.onboarded === false
-            ? true
-            : false
-        }
-        onOpen={showLogin}
-        onClose={hideLogin}
-        size="lg"
-      >
-        <Wizard hideModal={onClose} />
-      </CustomModal>
-
-      {/* MFA for Login and AuthToken Expire */}
-      <MFAVerify
-        isOpen={requireMFA}
-        onClose={closeMFA}
-        title={t('twoFactor.title')}
-        callbackFn={async () => {
-          try {
-            await auth(); //NOTE any errors should be handled by the auth function - requireMFA are also handled there
-          } catch (error) {
-            console.log('[MFAVerify] error:', error);
-            reset(); //NOTE the auth store should reset but we'll do it here just in case
+        {/* ONBOARD WIZARD */}
+        <CustomModal
+          isOpen={
+            (loggedIn && !user?.profile?.onboarded) ||
+              user?.profile?.onboarded === false
+              ? true
+              : false
           }
-        }}
-      ></MFAVerify>
+          onOpen={showLogin}
+          onClose={hideLogin}
+          size="lg"
+        >
+          <Wizard hideModal={onClose} />
+        </CustomModal>
 
-      {/* LOADER */}
-      <Loader isOpen={inTransaction || isLoading}></Loader>
-    </Flex>
+        {/* MFA for Login and AuthToken Expire */}
+        <MFAVerify
+          isOpen={requireMFA}
+          onClose={closeMFA}
+          title={t('twoFactor.title')}
+          callbackFn={async () => {
+            try {
+              await auth(); //NOTE any errors should be handled by the auth function - requireMFA are also handled there
+            } catch (error) {
+              console.log('[MFAVerify] error:', error);
+              reset(); //NOTE the auth store should reset but we'll do it here just in case
+            }
+          }}
+        ></MFAVerify>
+
+        {/* LOADER */}
+        <Loader isOpen={inTransaction || isLoading}></Loader>
+      </Flex>
+      <Flex
+        id="mobile-app"
+        backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
+        flexDir="column"
+        display={{ base: 'flex', sm: 'none' }}
+      >
+        <Stack
+          spacing={8}
+          w="100%"
+          id="stack"
+          bg={colorMode === 'light' ? 'white' : 'gray.800'}
+        // boxShadow={'lg'}
+        >
+          <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8}>
+            <Image
+              src={'/buffalo_logo_full.png'}
+              h={'200px'}
+              alt="Buffalo Access"
+            />
+          </Center>
+          <a href="completeTrip://">Complete Trip</a>
+        </Stack>
+      </Flex>
+    </>
   );
 });
 
