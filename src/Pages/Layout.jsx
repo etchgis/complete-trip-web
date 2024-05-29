@@ -192,9 +192,11 @@ const Layout = observer(({ showMap, isHome, children }) => {
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
         display={{ base: 'flex', sm: 'none' }}
+        paddingY={20}
+        paddingX={10}
       >
         <Stack
-          spacing={8}
+          
           w="100%"
           id="stack"
           bg={colorMode === 'light' ? 'white' : 'gray.800'}
@@ -207,7 +209,16 @@ const Layout = observer(({ showMap, isHome, children }) => {
               alt="Buffalo Access"
             />
           </Center>
-          <a href="completeTrip://">Complete Trip</a>
+          <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8}>
+            <a href="completeTrip://">
+              <img src="./google_play_download.png" alt="Download at Google Play" />
+            </a>
+          </Center>
+          <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8}>
+            <a href="completeTrip://">
+              <img src="./app_store_download.png" alt="Download at Apple App Store" />
+            </a>
+          </Center>
         </Stack>
       </Flex>
     </>
