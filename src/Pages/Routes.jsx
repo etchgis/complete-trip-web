@@ -17,6 +17,7 @@ import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
 import HelpMobile from './HelpMobile.jsx';
 import Help from './Help.jsx';
+import HelpMobileEs from './HelpMobileEs.jsx';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -180,6 +181,13 @@ export const Routes = observer(() => {
         path={'/helpmobile'}
         element={
           <HelpMobile />
+        }
+      />
+
+      <Route
+        path={'/helpmobile-es'}
+        element={
+          <HelpMobileEs />
         }
       />
 
