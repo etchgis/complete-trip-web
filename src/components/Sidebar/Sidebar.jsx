@@ -1,4 +1,4 @@
-import { BiHomeAlt, BiMapAlt } from 'react-icons/bi';
+import { BiHelpCircle, BiHomeAlt, BiMapAlt } from 'react-icons/bi';
 import {
   Box,
   Button,
@@ -163,6 +163,16 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
           ''
         )}
         <AccessibilityWidget />
+        <NavIconButton
+          label={'Help'}
+          icon={<BiHelpCircle />}
+          navItem={'/help'}
+          onClick={() => {
+            if (onClose) onClose();
+            window.open(`${window.location.origin}/help`, '_blank');
+            // return navigate('/help');
+          }}
+        />
       </Stack>
     </Flex>
   );

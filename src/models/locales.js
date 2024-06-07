@@ -199,6 +199,7 @@ export default function genLocales() {
         profile: 'Profile and Settings',
         accessibility: 'Accessibility',
         feedback: 'Feedback',
+        help: 'Help'
       },
       es: {
         home: 'Página Principal', //✅
@@ -207,6 +208,7 @@ export default function genLocales() {
         profile: 'Perfil y configuración', //✅
         accessibility: 'Accesibilidad',
         feedback: 'Comentario', //✅
+        help: 'Ayuda'
       },
     },
     ariaWidget: {

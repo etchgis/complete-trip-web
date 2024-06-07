@@ -15,7 +15,8 @@ import { useEffect } from 'react';
 import useNotifications from '../hooks/useNotifications';
 import useRiderNotifier from '../hooks/useRiderNotifier';
 import { useStore } from '../context/RootStore';
-import MobileHelp from './MobileHelp.jsx';
+import HelpMobile from './HelpMobile.jsx';
+import Help from './Help.jsx';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -169,9 +170,16 @@ export const Routes = observer(() => {
       */}
 
       <Route
-        path={'/mobilehelp'}
+        path={'/help'}
         element={
-          <MobileHelp />
+          <Help />
+        }
+      />
+
+      <Route
+        path={'/helpmobile'}
+        element={
+          <HelpMobile />
         }
       />
 
