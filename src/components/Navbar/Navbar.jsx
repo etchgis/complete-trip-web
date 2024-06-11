@@ -96,7 +96,7 @@ export const Navbar = observer(
           </>
         )}
 
-        <Flex display={ux === 'webapp' ? 'flex' : 'none'}>
+        <Flex display={(ux === 'webapp' || ux === 'callcenter') ? 'flex' : 'none'}>
           <Stack
             flex={{ base: 1, lg: 0 }}
             justify={'flex-end'}

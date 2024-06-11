@@ -32,7 +32,7 @@ export const ScheduleTripHeader = observer(
     return (
       <>
         {/* HEADER */}
-        {ux === 'webapp' && (
+        {(ux === 'webapp' || ux === 'callcenter') && (
           <Flex
             spacing={4}
             p={4}

@@ -9,7 +9,7 @@ class UIStore {
   toastStatus = '';
   toastTitle = '';
   debug = false;
-  ux = 'webapp'; //kiosk, webapp
+  ux = 'webapp'; //kiosk, webapp, callcenter
   onScreenKeyboardInput = {
     transitSearch: '',
     startAddress: '',

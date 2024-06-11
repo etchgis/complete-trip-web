@@ -411,7 +411,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
             inputName="startAddress"
           />
           {/* TODO convert to mini component */}
-          {ux === 'webapp' &&
+          {(ux === 'webapp' || ux === 'callcenter') &&
             <Stack spacing={4} direction="row" alignItems={'center'}>
               {favLocations.find(f => f.id === locations?.start?.id) ? (
                 <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
@@ -532,7 +532,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
           inputName="endAddress"
         />
 
-        {ux === 'webapp' &&
+        {(ux === 'webapp'  || ux === 'callcenter') &&
           <Stack spacing={4} direction="row" alignItems={'center'}>
             {favLocations.find(f => f.id === locations?.end?.id) ? (
               <Flex alignItems="center" m={2} fontSize={'0.9rem'}>

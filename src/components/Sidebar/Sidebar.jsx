@@ -164,7 +164,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
           ''
         )}
         <AccessibilityWidget />
-        {ux !== 'kiosk' &&
+        {ux === 'webapp' &&
           <NavIconButton
             label={'Help'}
             icon={<BiHelpCircle />}
@@ -172,6 +172,18 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
             onClick={() => {
               if (onClose) onClose();
               window.open(`${window.location.origin}/help`, '_blank');
+              // return navigate('/help');
+            }}
+          />
+        }
+        {ux === 'callcenter' &&
+          <NavIconButton
+            label={'Help'}
+            icon={<BiHelpCircle />}
+            navItem={'/help'}
+            onClick={() => {
+              if (onClose) onClose();
+              window.open(`${window.location.origin}/helpmobile?mode=callcenter`, '_blank');
               // return navigate('/help');
             }}
           />

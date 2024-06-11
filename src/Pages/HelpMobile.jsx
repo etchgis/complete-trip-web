@@ -1,4 +1,5 @@
 import {
+  Box,
   Divider,
   Flex,
   Heading,
@@ -7,8 +8,14 @@ import {
   Text,
   UnorderedList,
 } from "@chakra-ui/react";
+import { useStore } from "zustand";
 
 const HelpMobile = () => {
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlParams.entries());
+  const { mode } = params;
+
   return (
     <Flex direction="column" paddingX={20} paddingY={10}>
       <Flex align="center" justify="center">
@@ -17,6 +24,21 @@ const HelpMobile = () => {
           alt="Buffalo All Access - In and Around BNMC"
           width={200}
         />
+      </Flex>
+      <Divider marginY={10} />
+      <Flex direction="column" align="center" justify="center">
+        <Text>
+          Looking for help for the website? Click{" "}
+          <Link
+            href="/help"
+            color="dodgerblue"
+            role="link"
+            aria-label="Mobile app help"
+          >
+            here
+          </Link>
+          .
+        </Text>
       </Flex>
       <Divider marginY={10} />
       <Flex direction="column" align="center" justify="center">
@@ -37,38 +59,328 @@ const HelpMobile = () => {
       <Divider marginY={10} />
 
       <Flex direction="column">
-        <Link href="#sign-up" color="dodgerblue">
+        {mode === 'callcenter' &&
+          <Link href="#faq" color="dodgerblue" role="link">
+            All Access App Troubleshooting FAQ
+          </Link>
+        }
+        <Link href="#sign-up" color="dodgerblue" role="link">
           Sign Up
         </Link>
-        <Link href="#log-in" color="dodgerblue">
+        <Link href="#log-in" color="dodgerblue" role="link">
           Log In
         </Link>
-        <Link href="#nfta-community-shuttle" color="dodgerblue">
+        {mode === 'callcenter' &&
+          <Link href="#forgot-password" color="dodgerblue" role="link">
+            Forgot Password
+          </Link>
+        }
+        <Link href="#nfta-community-shuttle" color="dodgerblue" role="link">
           NFTA Community Shuttle
         </Link>
-        <Link href="#upcoming-trips" color="dodgerblue">
+        <Link href="#upcoming-trips" color="dodgerblue" role="link">
           Upcoming Trips
         </Link>
-        <Link href="#trip-history" color="dodgerblue">
+        <Link href="#trip-history" color="dodgerblue" role="link">
           Trip History
         </Link>
-        <Link href="#find-nearby-routes" color="dodgerblue">
+        <Link href="#find-nearby-routes" color="dodgerblue" role="link">
           Find Nearby Routes
         </Link>
-        <Link href="#schedule-new-trip" color="dodgerblue">
+        <Link href="#schedule-new-trip" color="dodgerblue" role="link">
           Schedule New Trip
         </Link>
-        <Link href="#schedule-new-trip-assistant" color="dodgerblue">
+        <Link href="#schedule-new-trip-assistant" color="dodgerblue" role="link">
           Schedule New Trip - Assistant
         </Link>
-        <Link href="#profile-and-settings" color="dodgerblue">
+        <Link href="#profile-and-settings" color="dodgerblue" role="link">
           Profile and Settings
         </Link>
+        {mode === 'callcenter' &&
+          <Link href="#accessibility" color="dodgerblue" role="link">
+            Accessibility
+          </Link>
+        }
       </Flex>
 
       <Divider marginY={10} />
 
-      <Flex id="sign-up" direction="column">
+      <Flex id="faq" direction="column" aria-label="FAQ">
+        <Heading as="h4" size="md">
+          All Access App Troubleshooting FAQ
+        </Heading>
+        <Heading as="h5" size="sm">
+          How to I download the app?
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Apple - link will be provided once in app store
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>Android - link will be provided once in play store
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              Advise travelers to allow notifications and location while using the application upon opening the downloaded app.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler needs assistance creating account and coordinator account
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Guide traveler to the <Link href="#sign-up" color="dodgerblue" role="link">Sign Up</Link> help section.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler has a login error
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Determine if it is a password error or user email error.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              Advise the traveler to create new password.  Guide the traveler to the <Link href="#forgot-password" color="dodgerblue" role="link">Forgot Password</Link> help section if it is a password error.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              Verify that the email they are providing is correct.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler cannot find the address or location while searching in the app or website.
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Verify that traveler is typing the address in the correct location in the mobile app or website - the From or To.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              If they cannot see the address, open Google to verify the address exists. If it does not, then direct the traveler to a nearby location with a valid place name or address; if it does, then notify Etch via the Issues Log to add the missing address in the geolocator.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler cannot track his/her location.
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Have the traveler go to location services on the settings of the mobile device.
+              <UnorderedList styleType="none" spacing={3}>
+                <ListItem>
+                  <Text>
+                    Apple: Settings - Location Services (set to ON) - Complete Trip - While Using the App
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text>
+                    Android: Settings - Location - App Permissions (set to ON) - Complete Trip - Allowed Only While in Use
+                  </Text>
+                </ListItem>
+              </UnorderedList>
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              Confirm that the traveler is using cellular data if WiFi is not available - note that cellular data is preferred over WiFi for more precise location.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler cannot hear voice commands.
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Have the traveler confirm that sound is on within the device.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              Have the traveler confirm in the Accessibility settings that the "Voice On" is selected.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              For visually impaired users have the traveler confirm that the Voice Over feature is set within the traveler's device.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler needs to enlarge text on screen.
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              For mobile devices, this is done in the device Settings.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              For the website, guide the traveler to little blue button with the person on it to modify the settings.  Guide the traveler to the <Link href="#accessibility" color="dodgerblue" role="link">Accessibility</Link> help section.
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler is lost
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text>
+              Ask if they set up travel coordinator then direct them to the coordinator.
+            </Text>
+          </ListItem>
+          <ListItem>
+            <Text>
+              If they don’t then do the following:
+              <UnorderedList styleType="none" spacing={3}>
+                <ListItem>
+                  <Text>
+                    Ask the traveler where the closest intersection is that s/he can see.
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text>
+                    View public transit or Community Shuttle stops available near the location.
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text>
+                    Direct the traveler to the closest transit stop with the route and schedule information to continue his/her trip by looking at the "routes near me" feature.
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text>
+                    Direct the traveler, if close, to the Community Shuttle corridor and help book a trip.
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text>
+                    Call <Link href="tel:+17168532222" color="dodgerblue" role="none">716-853-2222</Link>.
+                  </Text>
+                </ListItem>
+              </UnorderedList>
+            </Text>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Traveler has problems with the kiosk
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text fontWeight="bold">Booking Community Shuttle</Text>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>
+                  Verify that the traveler has a user account. If not, guide the traveler to create one.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Ask if the traveler has a phone number and PIN associated with the account.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Make sure the destination is within the service area of the shuttle (click …..).
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Guide the traveler on booking a trip in the <Link href="#nfta-community-shuttle" color="dodgerblue" role="link">Community Shuttle</Link> help section.
+                </Text>
+              </ListItem>
+            </UnorderedList>
+          </ListItem>
+          <ListItem>
+            <Text fontWeight="bold">Traveler cannot book a trip.</Text>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>
+                  Notify traveler that trips can only be planned and not booked unless utilizing the Community Shuttle only.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Notify traveler that trips with Community Shuttle can only be booked by registered users and follow steps for this in the previous section.
+                </Text>
+              </ListItem>
+            </UnorderedList>
+          </ListItem>
+          <ListItem>
+            <Text fontWeight="bold">Traveler cannot see nearby transit information</Text>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>
+                  Have traveler pan around the screen to see if results appear.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Have traveler exit the website and reopen.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  If no results, report to Etch (Issues log) to determine GTFS errors.
+                </Text>
+              </ListItem>
+            </UnorderedList>
+          </ListItem>
+        </UnorderedList>
+        <Heading as="h5" size="sm" mt={10}>
+          Community Shuttle
+        </Heading>
+        <UnorderedList styleType="none" spacing={3}>
+          <ListItem>
+            <Text fontWeight="bold">
+              Traveler cannot use the Community Shuttle.
+            </Text>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>
+                  Verify that the traveler has booked a trip viewing the Community Shuttle software link.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Verify that the origin and destination are within the service area by viewing the Community Shuttle software link at...
+                </Text>
+              </ListItem>
+            </UnorderedList>
+          </ListItem>
+          <ListItem>
+            <Text fontWeight="bold">
+              Traveler thinks s/he missed the Community Shuttle
+            </Text>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>
+                  Verify location of the shuttle by viewing the Community Shuttle software link… and notify the traveler of the shuttle location.
+                </Text>
+              </ListItem>
+            </UnorderedList>
+          </ListItem>
+        </UnorderedList>
+      </Flex>
+
+      <Divider marginY={10} />
+
+      <Flex id="sign-up" direction="column" aria-label="Sign Up">
         <Heading as="h4" size="md">
           Sign Up
         </Heading>
@@ -162,7 +474,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="log-in" direction="column">
+      <Flex id="log-in" direction="column" aria-label="Login">
         <Heading as="h4" size="md">
           Log In
         </Heading>
@@ -189,7 +501,74 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="nfta-community-shuttle" direction="column">
+      {mode === 'callcenter' &&
+        <>
+          <Flex
+            id="forgot-password"
+            direction="column"
+            aria-label="Forgot Password"
+          >
+            <Heading as="h4" size="md">
+              Forgot Password
+            </Heading>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>
+                  If you have forgotten your password when trying to log in, click{" "}
+                  <Text as="span" color="red" fontWeight="bold">
+                    Forgot Password
+                  </Text>
+                  .
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Enter the email address you have created an account with, choose a
+                  method to receive the code, and click{" "}
+                  <Text as="span" color="red" fontWeight="bold">
+                    Send Code
+                  </Text>
+                  .
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Enter the 6-digit code that you received and enter a new password
+                  according to the requirements. Click{" "}
+                  <Text as="span" color="red" fontWeight="bold">
+                    Submit
+                  </Text>
+                  .
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  If you did not receive a message with a code, click{" "}
+                  <Text as="span" color="red" fontWeight="bold">
+                    Send Another Code
+                  </Text>
+                  .
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  If you still did not receive the code, go through the process
+                  again and confirm the information to contact you is correct.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Box>
+                  <img src="./help_images/Picture7.png" alt="Forgot Password" />
+                </Box>
+              </ListItem>
+            </UnorderedList>
+          </Flex>
+
+          <Divider marginY={10} />
+        </>
+      }
+
+      <Flex id="nfta-community-shuttle" direction="column" aria-label="NFTA Community Shuttle">
         <Heading as="h4" size="md">
           NFTA Community Shuttle
         </Heading>
@@ -261,7 +640,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="upcoming-trips" direction="column">
+      <Flex id="upcoming-trips" direction="column" aria-label="Upcoming Trips">
         <Heading as="h4" size="md">
           Upcoming Trips
         </Heading>
@@ -294,7 +673,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="trip-history" direction="column">
+      <Flex id="trip-history" direction="column" aria-label="Trip History">
         <Heading as="h4" size="md">
           Trip History
         </Heading>
@@ -322,7 +701,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="find-nearby-routes" direction="column">
+      <Flex id="find-nearby-routes" direction="column" aria-label="Find Nearby Routes">
         <Heading as="h4" size="md">
           Find Nearby Routes
         </Heading>
@@ -364,7 +743,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="schedule-new-trip" direction="column">
+      <Flex id="schedule-new-trip" direction="column" aria-label="Schedule New Trip">
         <Heading as="h4" size="md">
           Schedule New Trip
         </Heading>
@@ -446,7 +825,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="schedule-new-trip-assistant" direction="column">
+      <Flex id="schedule-new-trip-assistant" direction="column" aria-label="Schedule New Trip Assistant">
         <Heading as="h4" size="md">
           Schedule New Trip - Assistant
         </Heading>
@@ -485,7 +864,7 @@ const HelpMobile = () => {
 
       <Divider marginY={10} />
 
-      <Flex id="profile-and-settings" direction="column">
+      <Flex id="profile-and-settings" direction="column" aria-label="Profile and Settings">
         <Heading as="h4" size="md">
           Profile and Settings
         </Heading>
@@ -735,6 +1114,37 @@ const HelpMobile = () => {
           </ListItem>
         </UnorderedList>
       </Flex>
+
+      {mode === 'callcenter' &&
+        <>
+          <Divider marginY={10} />
+
+          <Flex id="accessibility" direction="column" aria-label="Accessibility">
+            <Heading as="h4" size="md">
+              Accessibility
+            </Heading>
+            <UnorderedList styleType="none" spacing={3}>
+              <ListItem>
+                <Text>Settings</Text>
+                <UnorderedList styleType="none" spacing={3}>
+                  <ListItem>
+                    <Text>
+                      Things like contrast, cursor and font size, letter spacing,
+                      and language can be modified quickly for better usability.
+                    </Text>
+                  </ListItem>
+                </UnorderedList>
+              </ListItem>
+              <ListItem>
+                <Box>
+                  <img src="./help_images/Picture25.png" alt="Accessibility" />
+                </Box>
+              </ListItem>
+            </UnorderedList>
+          </Flex>
+        </>
+      }
+
     </Flex>
   );
 };

@@ -47,7 +47,7 @@ const Map = observer(
         flex={1}
         flexDir={'row'}
         id="map-view"
-        height={ux === 'webapp' ? 'calc(100vh - 60px)' : 'calc(100vh - 315px)'}
+        height={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : 'calc(100vh - 315px)'}
         overflow={'hidden'}
         display={showMap ? 'flex' : 'none'}
       >
@@ -60,7 +60,7 @@ const Map = observer(
           flex="1"
           flexDir={'column'}
           data-name="map-and-schedule-button"
-          width={ux === 'webapp' ? 'calc(100vw - 420px)' : 'calc(100vw - 420px)'}
+          width={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vw - 420px)' : 'calc(100vw - 420px)'}
         >
           {/* HEADER */}
           <ScheduleTripHeader

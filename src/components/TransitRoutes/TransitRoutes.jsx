@@ -266,7 +266,7 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
       <Flex
         flexDir={'column'}
         height="100%"
-        width={ux === 'webapp' ? '420px' : '270px'}
+        width={(ux === 'webapp'  || ux === 'callcenter') ? '420px' : '270px'}
         borderRight={'1px'}
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         p={0}

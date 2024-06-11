@@ -38,7 +38,7 @@ export const Routes = observer(() => {
     const { debug, mode } = params;
     console.log('[routes] queryParams:', { debug, mode });
     if (debug) setDebugMode(debug === 'true' ? true : false);
-    setUX(mode === 'kiosk' ? 'kiosk' : 'webapp');
+    setUX(mode === 'kiosk' ? 'kiosk' : mode === 'callcenter' ? 'callcenter' : 'webapp');
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);

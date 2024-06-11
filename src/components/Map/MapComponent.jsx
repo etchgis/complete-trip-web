@@ -116,7 +116,7 @@ export const MapComponent = observer(({ showMap }) => {
               console.log(mapRef.current.getCenter());
               console.log(mapRef.current.getStyle().layers);
             });
-          if (ux === 'webapp')
+          if (ux === 'webapp' || ux === 'callcenter')
             mapRef.current.addControl(mapControls.locate, 'top-right');
         } catch (error) {
           setMapIsLoaded(true);
