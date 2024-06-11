@@ -113,6 +113,7 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
   const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const { pathname: location } = useLocation();
+  const { ux } = useStore().uiStore;
   return (
     <Flex flexDir={'column'} {...rest}>
       <Stack spacing={2} p={2}>
@@ -163,16 +164,18 @@ const SidebarContentIconsDesktop = observer(({ onClose, rest, testUser }) => {
           ''
         )}
         <AccessibilityWidget />
-        <NavIconButton
-          label={'Help'}
-          icon={<BiHelpCircle />}
-          navItem={'/help'}
-          onClick={() => {
-            if (onClose) onClose();
-            window.open(`${window.location.origin}/help`, '_blank');
-            // return navigate('/help');
-          }}
-        />
+        {ux !== 'kiosk' &&
+          <NavIconButton
+            label={'Help'}
+            icon={<BiHelpCircle />}
+            navItem={'/help'}
+            onClick={() => {
+              if (onClose) onClose();
+              window.open(`${window.location.origin}/help`, '_blank');
+              // return navigate('/help');
+            }}
+          />
+        }
       </Stack>
     </Flex>
   );

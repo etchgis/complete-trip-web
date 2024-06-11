@@ -93,9 +93,28 @@ const Layout = observer(({ showMap, isHome, children }) => {
   } = useDisclosure();
 
   return (
-    <>
+    <Flex
+      direction="column"
+    >
+      {ux === 'kiosk' &&
+        <Flex
+          height="100%"
+          justifyContent="center"
+          borderBottomColor="gray.300"
+          borderBottomWidth={2}
+          >
+          <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8}>
+            <Image
+              src={'/buffalo_logo_full.png'}
+              h={'200px'}
+              alt="Buffalo Access"
+            />
+          </Center>
+        </Flex>
+      }
       <Flex
         id="app"
+        height={ux === 'kiosk' ? '1056px' : 'auto'}
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
         display={{ base: 'none', sm: 'flex' }}
@@ -196,7 +215,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
         paddingX={10}
       >
         <Stack
-          
+
           w="100%"
           id="stack"
           bg={colorMode === 'light' ? 'white' : 'gray.800'}
@@ -221,7 +240,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
           </Center>
         </Stack>
       </Flex>
-    </>
+    </Flex>
   );
 });
 

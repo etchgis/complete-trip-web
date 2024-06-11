@@ -1,5 +1,10 @@
 import { StepsTheme as Steps } from 'chakra-ui-steps';
 import { extendTheme } from '@chakra-ui/react';
+import { useStore } from 'zustand';
+
+const urlParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlParams.entries());
+const { mode } = params;
 
 const customTheme = {
   components: {
@@ -73,6 +78,13 @@ const customTheme = {
         },
       },
     },
+    Modal: {
+      baseStyle: {
+        dialog: {
+          top: mode === 'kiosk' ? '1056px' : '0'
+        }
+      }
+    }
   },
   colors: {
     brand: 'hsl(215, 100%, 35%)', //NOTE PASSES ACCESSIBILITY TESTS
