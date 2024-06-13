@@ -96,7 +96,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
     <Flex
       direction="column"
     >
-      {ux === 'kiosk' &&
+      {/* {ux === 'kiosk' &&
         <Flex
           height="100%"
           justifyContent="center"
@@ -111,10 +111,11 @@ const Layout = observer(({ showMap, isHome, children }) => {
             />
           </Center>
         </Flex>
-      }
+      } */}
       <Flex
         id="app"
-        height={ux === 'kiosk' ? '1056px' : 'auto'}
+        // height={ux === 'kiosk' ? '1056px' : 'auto'}
+        height={'auto'}
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
         display={{ base: 'none', sm: 'flex' }}
