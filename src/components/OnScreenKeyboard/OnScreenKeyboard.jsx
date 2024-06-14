@@ -67,7 +67,8 @@ const OnScreenKeyboard = observer(() => {
   return (
     <Flex
       data-test-id="keyboard"
-      // position="absolute"
+      position="absolute"
+      right="0"
       bottom="0"
       left="0"
       zIndex="1500"

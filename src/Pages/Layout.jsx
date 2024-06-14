@@ -92,17 +92,22 @@ const Layout = observer(({ showMap, isHome, children }) => {
     onClose: closeTripWizard,
   } = useDisclosure();
 
+  const kioskTopHeight = 500;
+  const kioskBottomHeight = 255;
+  const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+  const headerHeight = 60;
+
   return (
     <Flex
       direction="column"
     >
-      {/* {ux === 'kiosk' &&
+      {ux === 'kiosk' &&
         <Flex
-          height="100%"
+          height={`${kioskTopHeight}px`}
           justifyContent="center"
           borderBottomColor="gray.300"
           borderBottomWidth={2}
-          >
+        >
           <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8}>
             <Image
               src={'/buffalo_logo_full.png'}
@@ -111,11 +116,10 @@ const Layout = observer(({ showMap, isHome, children }) => {
             />
           </Center>
         </Flex>
-      } */}
+      }
       <Flex
         id="app"
-        // height={ux === 'kiosk' ? '1056px' : 'auto'}
-        height={'auto'}
+        height={ux === 'kiosk' ? `${kioskMiddleHeight - headerHeight}px` : 'auto'}
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
         display={{ base: 'none', sm: 'flex' }}
@@ -134,7 +138,11 @@ const Layout = observer(({ showMap, isHome, children }) => {
         ></Navbar>
 
         {/* MAIN SHELL */}
-        <Grid gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }} flex={1}>
+        <Grid
+          gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }}
+          flex={1}
+          height={`${kioskMiddleHeight}px`}
+        >
           {/* SIDEBAR */}
           <ResponsiveSidebar
             isOpen={isOpen}

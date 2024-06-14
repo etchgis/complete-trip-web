@@ -78,13 +78,13 @@ const customTheme = {
         },
       },
     },
-    // Modal: {
-    //   baseStyle: {
-    //     dialog: {
-    //       top: mode === 'kiosk' ? '1056px' : '0'
-    //     }
-    //   }
-    // }
+    Modal: {
+      baseStyle: {
+        dialog: {
+          top: mode === 'kiosk' ? '2056px' : '0'
+        }
+      }
+    }
   },
   colors: {
     brand: 'hsl(215, 100%, 35%)', //NOTE PASSES ACCESSIBILITY TESTS
