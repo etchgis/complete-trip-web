@@ -44,16 +44,16 @@ const Map = observer(
 
     const kioskTopHeight = 500;
     const kioskBottomHeight = 255;
-    const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+    // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
     const headerHeight = 60;
-    const mapHeight = kioskMiddleHeight - headerHeight;
+    // const mapHeight = kioskMiddleHeight - headerHeight;
 
     return (
       <Flex
         flex={1}
         flexDir={'row'}
         id="map-view"
-        height={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : `${mapHeight}px`}
+        height={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : `calc(100vh - ${(kioskTopHeight + kioskTopHeight + headerHeight)}px)`}
         overflow={'hidden'}
         display={showMap ? 'flex' : 'none'}
       >

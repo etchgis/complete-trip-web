@@ -94,7 +94,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
 
   const kioskTopHeight = 500;
   const kioskBottomHeight = 255;
-  const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+  // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
   const headerHeight = 60;
 
   return (
@@ -119,7 +119,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
       }
       <Flex
         id="app"
-        height={ux === 'kiosk' ? `${kioskMiddleHeight - headerHeight}px` : 'auto'}
+        height={ux === 'kiosk' ? `calc(100vh - ${(kioskTopHeight + kioskBottomHeight + headerHeight)}px)` : 'auto'}
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
         display={{ base: 'none', sm: 'flex' }}
@@ -141,7 +141,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
         <Grid
           gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }}
           flex={1}
-          height={`${kioskMiddleHeight}px`}
+          height={`calc(100vh - ${(kioskTopHeight + kioskBottomHeight)}px)`}
         >
           {/* SIDEBAR */}
           <ResponsiveSidebar
