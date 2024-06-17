@@ -92,7 +92,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
     onClose: closeTripWizard,
   } = useDisclosure();
 
-  const kioskTopHeight = 500;
+  const kioskTopHeight = 700;
   const kioskBottomHeight = 255;
   // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
   const headerHeight = 60;

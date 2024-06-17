@@ -243,12 +243,41 @@ const CreateAccountOrLogin = ({
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordRequirements, setPasswordRequirements] = useState([false, false, false, false]);
+  const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
     setLoginHasError(false);
     setError(null);
     //eslint-disable-next-line
   }, [firstName, lastName, password, email]);
+
+  useEffect(() => {
+    let pr = [true, true, true, true];
+    if (!validators.hasLengthGreaterThan(password, 7)) {
+      pr[0] = false;
+    }
+    if (!validators.hasUpperCase(password)) {
+      pr[1] = false;
+    }
+    if (!validators.hasLowerCase(password)) {
+      pr[2] = false;
+    }
+    if (!validators.hasNumber(password)) {
+      pr[3] = false;
+    }
+    setPasswordRequirements(pr);
+  }, [password]);
+
+  useEffect(() => {
+    const valid =
+      firstName.length > 0 &&
+      lastName.length > 0 &&
+      validators.isEmail(email) &&
+      passwordRequirements.indexOf(false) === -1 &&
+      shownTerms;
+    setIsValid(valid);
+  }, [firstName, lastName, email, passwordRequirements, shownTerms]);
 
   return (
     <>
@@ -328,9 +357,9 @@ const CreateAccountOrLogin = ({
                 onChange={e => setPassword(e.target.value)}
                 value={password || ''}
                 placeholder={t('settingsPassword.placeholder')}
-                pattern={
-                  '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
-                }
+                // pattern={
+                //   '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
+                // }
               />
               <InputRightElement h={'full'}>
                 <Button
@@ -449,12 +478,13 @@ const CreateAccountOrLogin = ({
             type="submit"
             mt={6}
             isDisabled={
-              showLogin ? false : !showLogin && !shownTerms ? true : false
+              showLogin ? false : !showLogin && !isValid ? true : false
             }
           >
             {showLogin
               ? t('loginWizard.login')
-              : t('loginWizard.createAccount')}
+              : 'CREATE'//t('loginWizard.createAccount')
+              }
           </Button>
           <Center p={6}>
             <Text color={'gray.600'}>
@@ -669,9 +699,9 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
             onChange={e => setPassword(e.target.value)}
             value={password || ''}
             placeholder={t('settingsPassword.placeholder')}
-            pattern={
-              '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
-            }
+            // pattern={
+            //   '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
+            // }
             name="pass1"
           />
           <InputRightElement h={'full'}>

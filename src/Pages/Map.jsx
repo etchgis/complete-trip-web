@@ -42,7 +42,7 @@ const Map = observer(
     //   console.log('useEffect', shuttleTrip);
     // }), [shuttleTrip]
 
-    const kioskTopHeight = 500;
+    const kioskTopHeight = 700;
     const kioskBottomHeight = 255;
     // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
     const headerHeight = 60;
