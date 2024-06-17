@@ -150,6 +150,14 @@ const customTheme = {
     ? localStorage.getItem('chakra-ui-color-mode')
     : 'light',
   useSystemColorMode: false,
+  breakpoints: {
+    base: '0em',
+    sm: '30em',
+    md: '48em',
+    lg: '61em',
+    xl: '80em',
+    '2xl': '96em',
+  }
 };
 
 export const theme = extendTheme(customTheme);
