@@ -154,7 +154,7 @@ const customTheme = {
     base: '0em',
     sm: '30em',
     md: '48em',
-    lg: '58em',
+    lg: '48em',
     xl: '80em',
     '2xl': '96em',
   }
