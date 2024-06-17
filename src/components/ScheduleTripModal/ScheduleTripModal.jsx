@@ -720,7 +720,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
       textAlign={'left'}
       onSubmit={handleSubmit}
     >
-      <FormControl isRequired={!modes.length}>
+      <FormControl>
         <FormLabel>{t('tripWizard.modes')}</FormLabel>
         <VStack alignItems={'flex-start'}>
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
