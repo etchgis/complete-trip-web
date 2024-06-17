@@ -81,7 +81,7 @@ const customTheme = {
     Modal: {
       baseStyle: {
         dialog: {
-          top: mode === 'kiosk' ? '300px' : '0'
+          top: mode === 'kiosk' ? '400px' : '0'
         }
       }
     }
@@ -154,7 +154,7 @@ const customTheme = {
     base: '0em',
     sm: '30em',
     md: '48em',
-    lg: '60em',
+    lg: '58em',
     xl: '80em',
     '2xl': '96em',
   }
