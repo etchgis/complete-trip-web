@@ -53,7 +53,7 @@ const Map = observer(
         flex={1}
         flexDir={'row'}
         id="map-view"
-        height={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : `calc(100vh - ${(kioskTopHeight + kioskTopHeight + headerHeight)}px)`}
+        height={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : `calc(100vh - ${(kioskTopHeight + kioskBottomHeight + headerHeight)}px)`}
         overflow={'hidden'}
         display={showMap ? 'flex' : 'none'}
       >
