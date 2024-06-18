@@ -343,8 +343,8 @@ const FEEDBACK = {
 }
 
 const HDS_HOURS = {
-  start: 8,
-  end: 18
+  start: [8,0],
+  end: [17,0]
 }
 
 const defaults = {

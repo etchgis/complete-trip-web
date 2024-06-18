@@ -122,7 +122,10 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           });
       }
       else if (service.mode === 'shuttle') {
-        const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
+        const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+          hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+        const inTimeframe = moment().isAfter(hdsStart) && moment().isBefore(hdsEnd);
+        // const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
         if (onShuttlePress && inTimeframe) {
           onShuttlePress(service);
         }
@@ -266,7 +269,7 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
       <Flex
         flexDir={'column'}
         height="100%"
-        width={(ux === 'webapp'  || ux === 'callcenter') ? '420px' : '270px'}
+        width={(ux === 'webapp' || ux === 'callcenter') ? '420px' : '270px'}
         borderRight={'1px'}
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         p={0}
@@ -556,6 +559,7 @@ const RouteList = observer(({ routeClickHandler }) => {
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
   const { t } = useTranslation();
+  const { ux } = useStore().uiStore;
 
   const timeToDuration = timestamp => {
     let diff = timestamp - Date.now();
@@ -696,7 +700,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                   </>
                 )}
 
-                {r.mode === 'shuttle' && (
+                {r.mode === 'shuttle' && ux === 'kiosk' && (
                   <Flex flexDirection={'column'} flex={1}>
                     <span style={{ fontSize: 18, textAlign: 'left' }}>
                       {r.name}

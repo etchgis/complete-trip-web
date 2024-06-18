@@ -532,7 +532,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
           inputName="endAddress"
         />
 
-        {(ux === 'webapp'  || ux === 'callcenter') &&
+        {(ux === 'webapp' || ux === 'callcenter') &&
           <Stack spacing={4} direction="row" alignItems={'center'}>
             {favLocations.find(f => f.id === locations?.end?.id) ? (
               <Flex alignItems="center" m={2} fontSize={'0.9rem'}>
@@ -725,7 +725,11 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
         <VStack alignItems={'flex-start'}>
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
-              const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
+              const selectedDateTime = moment(trip.request.whenTime);
+              const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+              const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
+              // const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
               if (mode.id === 'hail' && !inTimeframe) return '';
               if (mode.id === 'walk') return '';
               return (
