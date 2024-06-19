@@ -149,9 +149,9 @@ export const EditPassword = () => {
                 type={showNewPassword ? 'text' : 'password'}
                 name={'new_password'}
                 placeholder={t('settingsPassword.newPassword')}
-                pattern={
-                  '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
-                }
+                // pattern={
+                //   '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
+                // }
                 value={newPassword}
                 onChange={e => {
                   setNewPassword(e.target.value);

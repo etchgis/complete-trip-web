@@ -278,6 +278,8 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
     end: trip?.request?.destination || {},
   });
 
+  const [whenAction, setWhenAction] = useState(trip?.request?.whenAction || 'asap');
+
   useEffect(() => {
     setStartError(false);
   }, [locations?.start?.text, setStartError]);
@@ -330,7 +332,12 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
       trip.updateOrigin(locations.start);
       trip.updateDestination(locations.end);
       trip.updateWhenAction('asap'); //TODO add leave, arrive
-      trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+      if (data.get('date') && data.get('time')) {
+        trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+      }
+      else {
+        trip.updateWhen(new Date());
+      }
       trip.updateWhenAction(data.get('when'));
       setStep(current => current + 1);
     }
@@ -621,6 +628,27 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
       </FormControl>
 
       {!trip.isShuttle &&
+        <FormControl isRequired mt={10}>
+          <Select
+            name="when"
+            mb={6}
+            defaultValue={whenAction}
+            onChange={(e) => {
+              console.log(e.target.value);
+              setWhenAction(e.target.value);
+              if (e.target.value !== 'asap') {
+                trip.removeMode('hail');
+              }
+            }}
+          >
+            <option value="asap">{t('tripWizard.now')}</option>
+            <option value="leave">{t('tripWizard.leaveBy')}</option>
+            <option value="arrive">{t('tripWizard.arriveBy')}</option>
+          </Select>
+        </FormControl>
+      }
+
+      {!trip.isShuttle && whenAction !== 'asap' &&
         <FormControl isRequired>
           <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
           <Input
@@ -628,21 +656,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
             defaultValue={parseDate(trip?.request?.whenTime)}
             name="date"
           ></Input>
-        </FormControl>
-      }
-
-      {!trip.isShuttle &&
-        <FormControl isRequired>
           <FormLabel>{t('tripWizard.time')}</FormLabel>
-          <Select
-            name="when"
-            mb={6}
-            defaultValue={trip?.request?.whenAction || 'asap'}
-          >
-            <option value="asap">{t('tripWizard.now')}</option>
-            <option value="leave">{t('tripWizard.leaveBy')}</option>
-            <option value="arrive">{t('tripWizard.arriveBy')}</option>
-          </Select>
           <Input
             type="time"
             defaultValue={parseTime(trip?.request?.whenTime)}
@@ -729,8 +743,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
               const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
                 hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
               const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-              // const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
-              if (mode.id === 'hail' && !inTimeframe) return '';
+              if (mode.id === 'hail' && (!inTimeframe || trip.request.whenAction !== 'asap')) return '';
               if (mode.id === 'walk') return '';
               return (
                 <Checkbox key={mode.id} value={mode.mode}>
