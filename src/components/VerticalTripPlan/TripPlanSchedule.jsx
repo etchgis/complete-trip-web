@@ -251,6 +251,11 @@ export const TripPlanSchedule = observer(
       }
     }, [activeLegIndex]);
 
+    const kioskTopHeight = 700;
+    const kioskBottomHeight = 255;
+    // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+    const headerHeight = 60;
+
     return (
       <>
         {ux === 'kiosk' && showQR && (
@@ -258,7 +263,7 @@ export const TripPlanSchedule = observer(
             background={'white'}
             position={'absolute'}
             zIndex={2}
-            top="50%"
+            top={`${kioskBottomHeight + headerHeight + 20}px`}
             left="50%"
             transform="translate(-50%, -50%)"
             h="400px"

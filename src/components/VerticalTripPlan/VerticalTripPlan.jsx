@@ -110,6 +110,11 @@ export const VerticalTripPlan = observer(
       }
     }
 
+    const kioskTopHeight = 700;
+    const kioskBottomHeight = 255;
+    // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+    const headerHeight = 60;
+
     return (
       <>
         {ux === 'kiosk' && showSummon &&
@@ -117,7 +122,7 @@ export const VerticalTripPlan = observer(
             background={'white'}
             position={'absolute'}
             zIndex={3}
-            top="50%"
+            top={`${kioskBottomHeight + headerHeight + 20}px`}
             left="50%"
             transform="translate(-50%, -50%)"
             h="500px"
@@ -297,7 +302,7 @@ export const VerticalTripPlan = observer(
           borderTop="solid thin lightgray"
           borderBottom="solid thin lightgray"
           borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-          height={'100%'}
+          // height={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
           overflow={'hidden'}
         >
           <Flex
@@ -306,6 +311,7 @@ export const VerticalTripPlan = observer(
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
             // w={{ base: '100%', md: '380px' }}
             w={{ base: ux === 'kiosk' ? '380px' : '100%', md: '380px' }}
+            h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
             id="vertical-trip-plan-sidebar"
           >
             <Box

@@ -20,6 +20,7 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     setMap: setTripMapStoreMap,
     setData,
   } = useStore().tripMapStore;
+  const { ux } = useStore().uiStore;
 
   /*
   TODO METHOD TO UPDATE COLOR OF TRIP PATH WHEN DATA RECEIVED FROM WEB SOCKET
@@ -150,5 +151,15 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     //eslint-disable-next-line
   }, []);
 
-  return <Box id="trip-plan-map" ref={mapContainer} style={{ flex: 1 }} />;
+  const kioskTopHeight = 700;
+  const kioskBottomHeight = 255;
+  // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+  const headerHeight = 60;
+
+  return <Box
+    id="trip-plan-map"
+    ref={mapContainer}
+    style={{ flex: 1 }}
+    h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
+  />;
 });

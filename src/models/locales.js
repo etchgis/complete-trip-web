@@ -516,7 +516,7 @@ export default function genLocales() {
         showQR: 'Download the App!',
         summonShuttle: 'Summon Shuttle',
         noTrips: 'No trips found.',
-        popUpTitle: "To summon the shuttle you must provide you PIN and Phone number below.",
+        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below.",
         popUpPin: "PIN",
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
