@@ -311,7 +311,7 @@ export const VerticalTripPlan = observer(
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
             // w={{ base: '100%', md: '380px' }}
             w={{ base: ux === 'kiosk' ? '380px' : '100%', md: '380px' }}
-            h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
+            h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
             id="vertical-trip-plan-sidebar"
           >
             <Box

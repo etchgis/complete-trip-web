@@ -160,6 +160,6 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     id="trip-plan-map"
     ref={mapContainer}
     style={{ flex: 1 }}
-    h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
+    h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
   />;
 });
