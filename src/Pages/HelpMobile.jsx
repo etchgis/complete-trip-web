@@ -293,6 +293,13 @@ const HelpMobile = () => {
                 <Text>
                   Ask if the traveler has a phone number and PIN associated with the account.
                 </Text>
+                <UnorderedList styleType="none" spacing={3}>
+                  <ListItem>
+                    <Text>
+                      The PIN can only be set in the website version of the All Access app.  It can be found in the Password section of the Profile and Settings.
+                    </Text>
+                  </ListItem>
+                </UnorderedList>
               </ListItem>
               <ListItem>
                 <Text>
@@ -353,12 +360,12 @@ const HelpMobile = () => {
             <UnorderedList styleType="none" spacing={3}>
               <ListItem>
                 <Text>
-                  Verify that the traveler has booked a trip viewing the Community Shuttle software link.
+                  Verify that the traveler has booked a trip by having them view their scheduled trips.
                 </Text>
               </ListItem>
               <ListItem>
                 <Text>
-                  Verify that the origin and destination are within the service area by viewing the Community Shuttle software link at...
+                  Verify that the origin and destination are within the service area by viewing the Community Shuttle software link at <Link href="#" color="dodgerblue" role="link" aria-label="This will be availabel when the page had been developed.">TO BE DETERMINED</Link>
                 </Text>
               </ListItem>
             </UnorderedList>
