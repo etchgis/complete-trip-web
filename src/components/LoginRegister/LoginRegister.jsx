@@ -3,6 +3,7 @@ import {
   Button,
   Center,
   Checkbox,
+  Divider,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -37,6 +38,7 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
+import { use } from 'chai';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
@@ -221,7 +223,6 @@ const CreateAccountOrLogin = ({
   const [showLogin, setShowLogin] = useState(isLogin);
   const [loginError, setLoginHasError] = useState(false);
   const [hideTerms, setHideTerms] = useState(true);
-  const [shownTerms, setShownTerms] = useState(false);
 
   const { ui } = useStore().uiStore;
   const { auth } = useStore().authentication;
@@ -245,6 +246,8 @@ const CreateAccountOrLogin = ({
   const [password, setPassword] = useState('');
   const [passwordRequirements, setPasswordRequirements] = useState([false, false, false, false]);
   const [isValid, setIsValid] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     setLoginHasError(false);
@@ -275,9 +278,9 @@ const CreateAccountOrLogin = ({
       lastName.length > 0 &&
       validators.isEmail(email) &&
       passwordRequirements.indexOf(false) === -1 &&
-      shownTerms;
+      terms;
     setIsValid(valid);
-  }, [firstName, lastName, email, passwordRequirements, shownTerms]);
+  }, [firstName, lastName, email, passwordRequirements, terms]);
 
   return (
     <>
@@ -301,6 +304,8 @@ const CreateAccountOrLogin = ({
                 email: email,
                 password: password,
                 language: ui?.language || 'en',
+                terms: terms,
+                consent: consent,
               });
               //send verify email to twilio
               const verified = await verifyUser('email', email);
@@ -357,9 +362,9 @@ const CreateAccountOrLogin = ({
                 onChange={e => setPassword(e.target.value)}
                 value={password || ''}
                 placeholder={t('settingsPassword.placeholder')}
-                // pattern={
-                //   '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
-                // }
+              // pattern={
+              //   '(?=[A-Za-z0-9]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,}).*$'
+              // }
               />
               <InputRightElement h={'full'}>
                 <Button
@@ -441,7 +446,7 @@ const CreateAccountOrLogin = ({
           ) : null}
           {!showLogin ? (
             <FormControl isRequired>
-              <Checkbox name="terms" isReadOnly={true} isChecked={shownTerms}>
+              <Checkbox name="terms" isReadOnly={true} isChecked={terms}>
                 {t('loginWizard.terms1')}{' '}
                 <Button
                   variant={'link'}
@@ -484,7 +489,7 @@ const CreateAccountOrLogin = ({
             {showLogin
               ? t('loginWizard.login')
               : 'CREATE'//t('loginWizard.createAccount')
-              }
+            }
           </Button>
           <Center p={6}>
             <Text color={'gray.600'}>
@@ -510,7 +515,17 @@ const CreateAccountOrLogin = ({
         ></SocialLogins> */}
         </Stack>
       ) : (
-        <Terms hideTerms={setHideTerms} agreedToTerms={setShownTerms}></Terms>
+        <Terms
+          hideTerms={setHideTerms}
+          agreedToTerms={terms}
+          termsChanged={(value) => {
+            setTerms(value);
+          }}
+          agreedToConsent={consent}
+          consentChanged={(value) => {
+            setConsent(value);
+          }}
+        ></Terms>
       )}
     </>
   );
@@ -840,9 +855,10 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 //   );
 // };
 
-const Terms = ({ hideTerms, agreedToTerms }) => {
+const Terms = ({ hideTerms, agreedToTerms, termsChanged, agreedToConsent, consentChanged }) => {
   const { colorMode } = useColorMode();
   const { t } = useTranslation();
+
   return (
     <Stack spacing={4}>
       <Heading
@@ -851,40 +867,260 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
         fontWeight="400"
         color={colorMode === 'light' ? 'brandDark' : 'brand'}
       >
-        {t('loginWizard.termsTitle')}
+        {t('loginWizard.header')}
       </Heading>
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        {t('loginWizard.termsText')}
+        {t('loginWizard.headerText')}
       </Text>
       <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         {t('loginWizard.availability')}
       </Text>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
         {t('loginWizard.availabilityText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.liability')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.liabilityText')}
       </Text>
       <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         {t('loginWizard.privacy')}
       </Text>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
         {t('loginWizard.privacyText')}
       </Text>
       <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         {t('loginWizard.changesToApp')}
       </Text>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
         {t('loginWizard.changesToAppText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.ownership')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.ownershipText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.liabilityLimitation')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.liabilityLimitationText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.disclaimer')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.disclaimerText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.indemnification')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.indemnificationText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.miscellaneous')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.miscellaneousText')}
       </Text>
       <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
         {t('loginWizard.changesToTerms')}
       </Text>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
         {t('loginWizard.changesToTermsText')}
       </Text>
-      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
-        {t('loginWizard.termsMessage')}
+      <Divider />
+      <Heading
+        as="h2"
+        size="lg"
+        fontWeight="400"
+        color={colorMode === 'light' ? 'brandDark' : 'brand'}
+      >
+        {t('loginWizard.consent.title')}
+      </Heading>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.header')}
       </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.headerText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.header')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.headerText')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.info1')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.info1Text')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q1')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a1')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q2')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line" paddingStart={4}>
+        {t('loginWizard.consent.a2a')}
+        <br />
+        {t('loginWizard.consent.a2b')}
+        <br />
+        {t('loginWizard.consent.a2c')}
+        <br />
+        {t('loginWizard.consent.a2d')}
+        <br />
+        {t('loginWizard.consent.a2e')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q3')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a3')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q4')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a4')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q5')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a5')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q6')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a6')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q7')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a7')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.info2')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.info2Text')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q8')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a8a')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line" paddingStart={4}>
+        {t('loginWizard.consent.a8b')}
+        <br />
+        {t('loginWizard.consent.a8c')}
+        <br />
+        {t('loginWizard.consent.a8d')}
+        <br />
+        {t('loginWizard.consent.a8e')}
+        <br />
+        {t('loginWizard.consent.a8f')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q9')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a9')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q10')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a10')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q11')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a11')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q12')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a12')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q13')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a13')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q14')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
+        {t('loginWizard.consent.a14')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+        {t('loginWizard.consent.q15')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'} paddingStart={4}>
+        {t('loginWizard.consent.q15q1')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line" paddingStart={4}>
+        {t('loginWizard.consent.q15a1')}
+      </Text>
+      <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'} paddingStart={4}>
+        {t('loginWizard.consent.q15q2')}
+      </Text>
+      <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line" paddingStart={4}>
+        {t('loginWizard.consent.q15a2')}
+      </Text>
+      <Flex direction="column" alignItems="center">
+        <Checkbox
+          name="terms-confirm"
+          marginBottom={5}
+          onChange={(e) => {
+            if (termsChanged) {
+              termsChanged(e.target.checked);
+            }
+          }}
+          isChecked={agreedToTerms}
+        >
+          {t('loginWizard.termsMessage')}
+        </Checkbox>
+        <Checkbox
+          name="consent-confirm"
+          marginBottom={5}
+          alignItems="flex-start"
+          onChange={(e) => {
+            if (termsChanged) {
+              consentChanged(e.target.checked);
+            }
+          }}
+          isChecked={agreedToConsent}
+        >
+          {t('loginWizard.consent.confirm')}
+        </Checkbox>
+      </Flex>
       <Flex justifyContent={'space-between'}>
         <Button
+          variant={'brand'}
+          width={'100%'}
+          onClick={() => {
+            hideTerms(true);
+          }}
+        >
+          {t('global.close')}
+        </Button>
+        {/* <Button
           variant={'brand'}
           onClick={() => {
             agreedToTerms(true);
@@ -901,7 +1137,7 @@ const Terms = ({ hideTerms, agreedToTerms }) => {
           }}
         >
           {t('loginWizard.decline')}
-        </Button>
+        </Button> */}
       </Flex>
     </Stack>
   );

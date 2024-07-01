@@ -98,6 +98,8 @@ class Authentication {
         lastName: user.lastName,
         mfa: false,
         onboarded: false,
+        terms: user.terms,
+        consent: user.consent,
         preferences: {
           language: user?.language || 'en',
         },
