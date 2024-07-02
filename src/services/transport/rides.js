@@ -31,7 +31,7 @@ const rides = {
           headers: {
             // Authorization: `Bearer ${accessToken}`,
             'X-Organization-Id': organizationId,
-            'x-api-key': config.SERVICES.plans.xApiKey,
+            // 'x-api-key': config.SERVICES.plans.xApiKey,
           },
         });
         return json;
