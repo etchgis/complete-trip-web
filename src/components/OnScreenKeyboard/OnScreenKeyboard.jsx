@@ -20,6 +20,7 @@ const OnScreenKeyboard = observer(() => {
   };
 
   const onKeyPress = button => {
+    console.log('onKeyPress', button);
     if (button === '{shift}' || button === '{lock}') handleShift();
   };
 
@@ -27,7 +28,7 @@ const OnScreenKeyboard = observer(() => {
     // console.log(input, layoutType, typeof input);
     // console.log('input', input, layoutType, typeof input, isNaN(input), activeInput);
     // if (layoutType === 'numeric' && !isNaN(input)) {
-    //   console.log('SET NUMERIC', input);
+      console.log('onInputChange', input);
     setKeyboardInputValue(input);
     // if (keyboard.current) keyboard.current.setInput(input);
     // }

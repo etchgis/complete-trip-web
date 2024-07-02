@@ -257,7 +257,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   } = useDisclosure();
   const { locations: favLocations, addLocation } = useStore().favorites;
   const { loggedIn } = useStore().authentication;
-  const { ux } = useStore().uiStore;
+  const { ux, setKeyboardType } = useStore().uiStore;
 
   const startRef = useRef(null);
   const endRef = useRef(null);
@@ -279,6 +279,10 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   });
 
   const [whenAction, setWhenAction] = useState(trip?.request?.whenAction || 'asap');
+
+  useEffect(() => {
+    setKeyboardType(null);
+  }, []);
 
   useEffect(() => {
     setStartError(false);
@@ -675,6 +679,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
   const { user } = useStore().authentication;
+  const { setKeyboardType } = useStore().uiStore;
   // console.log(toJS(trip));
   const allowedModes = config.MODES.reduce(
     (acc, mode) => [...acc, mode.mode],
@@ -692,6 +697,10 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   );
   // const tripModes = toJS(trip.request.modes);
   // console.log('tripModes', tripModes);
+
+  useEffect(() => {
+    setKeyboardType(null);
+  }, []);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -798,6 +807,12 @@ const Third = observer(({ setStep, setSelectedTrip, selectedTrip }) => {
   const { trip } = useStore();
   const { t } = useTranslation();
   console.log('[schedule trip modal] Third\n', { trip });
+  const { setKeyboardType } = useStore().uiStore;
+
+  useEffect(() => {
+    setKeyboardType(null);
+  }, []);
+
   useEffect(() => {
     console.log('KEYS', !Object.keys(selectedTrip).length);
     if (!Object.keys(selectedTrip).length) {
@@ -862,7 +877,12 @@ const Fourth = ({
   const { setToastMessage, setToastStatus, setHasSelectedPlan } =
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
+  const { setKeyboardType } = useStore().uiStore;
   const { t } = useTranslation();
+
+  useEffect(() => {
+    setKeyboardType(null);
+  }, []);
   // //------------------DEBUG------------------//
   // const _selectedTrip = toJS(selectedTrip);
   // const _stagedTrip = toJS(trip);
