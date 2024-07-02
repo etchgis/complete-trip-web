@@ -32,6 +32,7 @@ const rides = {
             // Authorization: `Bearer ${accessToken}`,
             'X-Organization-Id': organizationId,
             // 'x-api-key': config.SERVICES.plans.xApiKey,
+
           },
         });
         return json;
