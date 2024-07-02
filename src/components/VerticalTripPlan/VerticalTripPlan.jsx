@@ -42,7 +42,7 @@ export const VerticalTripPlan = observer(
           setSecondsLeft(secondsLeft - 1)
         } else {
           setTimerStarted(false);
-          window.location.reload();
+          // window.location.reload();
         }
       },
       timerStarted ? 1000 : null
