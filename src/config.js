@@ -18,6 +18,10 @@ const API = {
       url: 'https://staging.lambda.etch.app/rides',
       xApiKey: 'tyVuJdnuFv9y1pMc8Ir7Q8D1pygvpAFGl4C9jzgc',
     },
+    plans: {
+      url: 'https://autoscout.etch.app/plans',
+      xApiKey: '',
+    },
     trips: {
       url: 'https://staging.lambda.etch.app/trips',
       xApiKey: 'tqoXE84kKo26JPXoTVVIY8eti9JQmAg13BvpGa5K',
@@ -69,7 +73,7 @@ const API = {
       xApiKey: 'tyVuJdnuFv9y1pMc8Ir7Q8D1pygvpAFGl4C9jzgc',
     },
     plans: {
-      url: 'https://staging.lambda.etch.app/plans',
+      url: 'https://autoscout.etch.app/plans',
       xApiKey: '',
     },
     plantrip: {
