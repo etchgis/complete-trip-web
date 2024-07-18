@@ -12,7 +12,6 @@ const Map = observer(
     const { trip: shuttleTrip } = useStore();
 
     const handleShuttlePress = (shuttle) => {
-      // console.log('handleShuttlePress', shuttle);
       if (ux === 'kiosk') {
         shuttleTrip.create();
         const queryParams = new URLSearchParams(window.location.search),

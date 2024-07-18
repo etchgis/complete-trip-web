@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Divider,
   Flex,
   Heading,
   Stack,
@@ -22,6 +23,8 @@ import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import { mobility } from '@etchgis/mobility-transport-layer';
+import { geocoder } from '../../services/transport';
 
 export const TransitRoutes = observer(({ onShuttlePress }) => {
   const colorMode = useColorMode();
@@ -556,6 +559,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
 
 const RouteList = observer(({ routeClickHandler }) => {
   const { routes, stoptimes } = useStore().mapStore.mapState;
+  const { updateShuttle } = useStore().mapStore;
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
   const { t } = useTranslation();
@@ -596,6 +600,61 @@ const RouteList = observer(({ routeClickHandler }) => {
     }
   };
 
+  const [shuttleData, setShuttleData] = useState(null);
+
+  useEffect(() => {
+    if (ux === 'callcenter') {
+      const fetchData = () => {
+        try {
+          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', 'COMPLETE_TRIP')
+            .then((result) => {
+              console.log('result', result);
+              let fc = {
+                type: 'FeatureCollection',
+                features: [],
+              };
+              if (result && result.vehicles && result.vehicles.length) {
+                const vehicle = result.vehicles[0];
+                const coordinates = vehicle.location ? vehicle.location.coordinates : vehicle.coordinates;
+                fc.features.push({
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates,
+                  },
+                });
+                geocoder.reverse({ lat: coordinates[1], lng: coordinates[0] })
+                  .then((results) => {
+                    fc.features[0].properties = results.length && results.length > 0 ? results[0] : { title: 'Unknown' };
+                    fc.features[0].properties.icon = 'shuttle-live';
+                    setShuttleData(fc);
+                    updateShuttle(fc);
+                  })
+                  .catch((e) => {
+                    console.log('geocoder error', e);
+                  });
+              }
+              else {
+                setShuttleData(fc);
+                updateShuttle(fc);
+              }
+            })
+            .catch((e) => {
+              console.log('skids trips error', e);
+            });
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData();
+
+      const intervalId = setInterval(fetchData, 10000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, []);
+
   return (
     <>
       {!stoptimes?.features.length && routes.length > 0 ? (
@@ -609,106 +668,140 @@ const RouteList = observer(({ routeClickHandler }) => {
           data-testid="map-route-list"
         >
           {routes.map((r, i) => {
-            console.log('route', r.mode);
-            return (
-              <Button
-                key={i}
-                data-testid="map-route-list-button"
-                onClick={() => routeClickHandler(r)}
-                background={`#${r.color || 'brand'}`}
-                color={`#${r.textColor || 'ffffff'}`}
-                _hover={{
-                  filter: 'brightness(1.1) saturate(1.3)',
-                }}
-                outline={'solid 1px white'}
-                display={'block'}
-                paddingY={'16px'}
-                paddingX={'8px'}
-                fontSize="sm"
-                fontWeight="bold"
-                height={'unset'}
-                margin={0}
-                borderRadius={0}
-                width={'100%'}
-                whiteSpace={'normal'}
-              >
-                {r.mode === 'bus' && (
-                  <>
-                    <Flex
-                      flexDir={'row'}
-                      justifyContent={'space-between'}
-                      width={'100%'}
-                    // whiteSpace={'normal'}
-                    >
-                      <Heading as="h3" className="route-list-heading">
-                        {r?.route?.subRoute}
-                      </Heading>
-                      <Flex flexDir={'column'}>
-                        <Box style={{ textAlign: 'right' }}>
-                          {r?.route?.arrive
-                            ? durationToString(r.route.arrive)
-                            : ''}
-                        </Box>
-                        <Box style={{ textAlign: 'right' }}>
-                          {r?.route?.arriveNext
-                            ? `${t('global.next')} ${moment(
-                              r.route.arriveNext
-                            ).format('h:mm A')}`
-                            : ''}
-                        </Box>
-                      </Flex>
-                    </Flex>
-                    {(r?.route || r?.location) && (
-                      <Flex flexDir={'column'} flex={1}>
-                        {r?.route && (
-                          <Box
-                            as="span"
-                            style={{
-                              fontSize: 14,
-                              textAlign: 'left',
-                              marginBottom: 4,
-                            }}
-                          >
-                            {r.route?.destination}
+            // console.log('route', r);
+            if (r.mode === 'shuttle' && ux === 'callcenter') {
+              return (
+                <Box
+                  key={i}
+                  background={`#${r.color || 'brand'}`}
+                  color={`#${r.textColor || 'ffffff'}`}
+                  outline={'solid 1px white'}
+                  display={'block'}
+                  paddingY={'16px'}
+                  paddingX={'8px'}
+                  fontSize="sm"
+                  fontWeight="bold"
+                  height={'unset'}
+                  margin={0}
+                  borderRadius={0}
+                  width={'100%'}
+                  whiteSpace={'normal'}
+                >
+                  <Text fontSize={18} textAlign={'left'}>
+                    {r.name}
+                  </Text>
+                  <Divider mt={2} mb={2} />
+                  <Text fontSize={16} textAlign={'left'}>Current Location</Text>
+                  {shuttleData && shuttleData.features.length > 0 &&
+                    <Text mt={2} fontSize={16} textAlign={'left'}>{shuttleData.features[0].properties.title}</Text>
+                  }
+                  {shuttleData && shuttleData.features.length === 0 &&
+                    <Text mt={2} fontSize={16} textAlign={'left'}>Unknown</Text>
+                  }
+                </Box>
+              );
+            }
+            else {
+              return (
+                <Button
+                  key={i}
+                  data-testid="map-route-list-button"
+                  onClick={() => routeClickHandler(r)}
+                  background={`#${r.color || 'brand'}`}
+                  color={`#${r.textColor || 'ffffff'}`}
+                  _hover={{
+                    filter: 'brightness(1.1) saturate(1.3)',
+                  }}
+                  outline={'solid 1px white'}
+                  display={'block'}
+                  paddingY={'16px'}
+                  paddingX={'8px'}
+                  fontSize="sm"
+                  fontWeight="bold"
+                  height={'unset'}
+                  margin={0}
+                  borderRadius={0}
+                  width={'100%'}
+                  whiteSpace={'normal'}
+                >
+                  {r.mode === 'bus' && (
+                    <>
+                      <Flex
+                        flexDir={'row'}
+                        justifyContent={'space-between'}
+                        width={'100%'}
+                      // whiteSpace={'normal'}
+                      >
+                        <Heading as="h3" className="route-list-heading">
+                          {r?.route?.subRoute}
+                        </Heading>
+                        <Flex flexDir={'column'}>
+                          <Box style={{ textAlign: 'right' }}>
+                            {r?.route?.arrive
+                              ? durationToString(r.route.arrive)
+                              : ''}
                           </Box>
-                        )}
-                        {r?.location && (
-                          <span style={{ textAlign: 'left' }}>
-                            {t('routeList.stop')}{' '}
-                            <span
+                          <Box style={{ textAlign: 'right' }}>
+                            {r?.route?.arriveNext
+                              ? `${t('global.next')} ${moment(
+                                r.route.arriveNext
+                              ).format('h:mm A')}`
+                              : ''}
+                          </Box>
+                        </Flex>
+                      </Flex>
+                      {(r?.route || r?.location) && (
+                        <Flex flexDir={'column'} flex={1}>
+                          {r?.route && (
+                            <Box
+                              as="span"
                               style={{
-                                color: `#${r.color || '004490'}`,
-                                backgroundColor: `#${r.textColor || 'ffffff'}`,
-                                borderRadius: 4,
-                                padding: '0px 4px',
+                                fontSize: 14,
+                                textAlign: 'left',
+                                marginBottom: 4,
                               }}
                             >
-                              {r.location?.publicCode}
-                            </span>{' '}
-                            {r.location?.name}
-                            {r?.kilometers && (
-                              <span>
-                                {' ('}
-                                {distanceToString(r?.kilometers)}
-                                {') '}
-                              </span>
-                            )}
-                          </span>
-                        )}
-                      </Flex>
-                    )}
-                  </>
-                )}
+                              {r.route?.destination}
+                            </Box>
+                          )}
+                          {r?.location && (
+                            <span style={{ textAlign: 'left' }}>
+                              {t('routeList.stop')}{' '}
+                              <span
+                                style={{
+                                  color: `#${r.color || '004490'}`,
+                                  backgroundColor: `#${r.textColor || 'ffffff'}`,
+                                  borderRadius: 4,
+                                  padding: '0px 4px',
+                                }}
+                              >
+                                {r.location?.publicCode}
+                              </span>{' '}
+                              {r.location?.name}
+                              {r?.kilometers && (
+                                <span>
+                                  {' ('}
+                                  {distanceToString(r?.kilometers)}
+                                  {') '}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </Flex>
+                      )}
+                    </>
+                  )}
 
-                {r.mode === 'shuttle' && ux === 'kiosk' && (
-                  <Flex flexDirection={'column'} flex={1}>
-                    <span style={{ fontSize: 18, textAlign: 'left' }}>
-                      {r.name}
-                    </span>
-                  </Flex>
-                )}
-              </Button>
-            );
+                  {r.mode === 'shuttle' && (ux === 'kiosk' || ux === 'callcenter') && (
+                    <Flex flexDirection={'column'} flex={1}>
+                      <span style={{ fontSize: 18, textAlign: 'left' }}>
+                        {r.name}
+                      </span>
+                    </Flex>
+                  )}
+                </Button>
+              );
+            }
           })}
         </Flex>
       ) : (

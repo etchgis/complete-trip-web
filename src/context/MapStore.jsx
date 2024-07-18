@@ -96,7 +96,7 @@ class MapStore {
           return this.getRoutes(lng, lat, n + 1);
         }
         runInAction(() => {
-          this.mapCache.routes = values.filter(v => (appMode === 'webapp' || appMode === 'callcenter') ? v.mode !== 'shuttle' : v.service !== 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02');
+          this.mapCache.routes = values.filter(v => (appMode === 'webapp') ? v.mode !== 'shuttle' : v.service !== 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02');
           this.mapState.routesLoading = false;
         });
       })
@@ -219,6 +219,13 @@ class MapStore {
       this.mapStyle = style;
     });
   };
+
+  updateShuttle = (featureCollection) => {
+    if (this.map) {
+      const s = this.map.getSource('shuttle-live');
+      this.map.getSource('shuttle-live').setData(featureCollection);
+    }
+  }
 }
 
 export default MapStore;

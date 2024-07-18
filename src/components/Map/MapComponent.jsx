@@ -126,6 +126,7 @@ export const MapComponent = observer(({ showMap }) => {
     })();
 
     function initMap() {
+      console.log('[map] initMap');
       setMap(this);
       // mapControls.locate.trigger();
       setMapIsLoaded(true);
@@ -143,7 +144,7 @@ export const MapComponent = observer(({ showMap }) => {
         style={{ height: '100%', flex: 1 }}
         id="map-container"
       />
-  <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
+      <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
     </>
   );
 });
