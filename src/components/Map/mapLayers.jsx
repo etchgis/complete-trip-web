@@ -1,5 +1,6 @@
 import { featureCollection } from '@turf/helpers';
 import { theme } from '../../theme';
+import { layout } from '@chakra-ui/react';
 
 // import lines from './mapdata/lines.json';
 // import points from './mapdata/stops.json';
@@ -41,6 +42,12 @@ export const mapLayers = e => {
   // }
   if (!map.getSource('routes-highlight')) {
     map.addSource('routes-highlight', {
+      type: 'geojson',
+      data: featureCollection([]),
+    });
+  }
+  if (!map.getSource('nfta-community-shuttle')) {
+    map.addSource('nfta-community-shuttle', {
       type: 'geojson',
       data: featureCollection([]),
     });
@@ -170,6 +177,19 @@ export const mapLayers = e => {
         'icon-ignore-placement': false,
       }
     },
+    {
+      id: 'nfta-community-shuttle',
+      type: 'line',
+      source: 'nfta-community-shuttle',
+      paint: {
+        'line-color': '#5bcb40',
+        'line-width': 6,
+        'line-opacity': 1,
+      },
+      layout: {
+        'line-join': 'round',
+      }
+    },
   ];
 
   // console.log('[map] checking layers');
@@ -181,6 +201,7 @@ export const mapLayers = e => {
       map.addLayer(l, beforeLayer);
     }
   });
+
   // layerInteractions(map);
 };
 

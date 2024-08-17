@@ -5,6 +5,88 @@ import bbox from '@turf/bbox';
 import { featureCollection } from '@turf/helpers';
 import { mobility } from '@etchgis/mobility-transport-layer';
 
+const NftaCommunityShuttle = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "lineColor": "000000",
+        "lineWidth": 6,
+        "lineOpacity": 1,
+        "lineJoin": "round"
+      },
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              -78.85384916648493,
+              42.9124701546819
+            ],
+            [
+              -78.85507903356856,
+              42.9124713448401
+            ],
+            [
+              -78.8550894892179,
+              42.90574191696224
+            ],
+            [
+              -78.86797970146861,
+              42.90587332104661
+            ],
+            [
+              -78.87145056227227,
+              42.89517836825209
+            ],
+            [
+              -78.86746962662272,
+              42.89448984068328
+            ],
+            [
+              -78.8631245362534,
+              42.89378130319588
+            ],
+            [
+              -78.85839764459705,
+              42.895756386003654
+            ],
+            [
+              -78.85600233523127,
+              42.896733924337596
+            ],
+            [
+              -78.85382551869739,
+              42.89780483321695
+            ],
+            [
+              -78.85385354042101,
+              42.909323318170394
+            ],
+            [
+              -78.85204551701361,
+              42.90930139932462
+            ],
+            [
+              -78.85204201453207,
+              42.91022438036715
+            ],
+            [
+              -78.85386277778726,
+              42.91024693365033
+            ],
+            [
+              -78.85384916648493,
+              42.9124701546819
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      }
+    }
+  ]
+};
+
 class MapStore {
   map = null;
   mapStyle = 'DAY';
@@ -48,6 +130,14 @@ class MapStore {
     });
     const { lng, lat } = map.getCenter();
     this.getRoutes(lng, lat);
+
+    const appMode = this.rootStore.uiStore.ux;
+    console.log('appMode', appMode);
+    if (appMode === 'kiosk') {
+      console.log('setting nfta-community-shuttle');
+      console.log(this.map.getSource('nfta-community-shuttle'));
+      this.map.getSource('nfta-community-shuttle').setData(NftaCommunityShuttle);
+    }
   };
 
   setMapState = (key, value) => {
