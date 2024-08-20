@@ -103,7 +103,7 @@ const genLocales = () => {
         second: 'Second',
         third: 'Third',
 
-        caregiver: 'Caregiver',
+        caregiver: 'Coordinator',
 
         error: 'Error',
         success: 'Success',
@@ -139,7 +139,7 @@ const genLocales = () => {
         nextMonth: 'Mes Próximo', //✅
         second: 'Segundo',
         third: 'Tercero',
-        caregiver: 'Cuidador',
+        caregiver: 'Coordinador',
 
         error: 'Error',
         success: 'Éxito', //✅
