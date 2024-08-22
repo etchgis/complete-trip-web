@@ -9,7 +9,11 @@ const rides = {
       passengers: passengers || 1,
       datetime,
       direction,
-      pickup,
+      pickup: {
+        address: 'BGMC Main Entrance',
+        coordinates: [-78.86680135060003, 42.90038260885757],
+      },
+      // pickup,
       dropoff,
       status: 'scheduled',
       phone,
