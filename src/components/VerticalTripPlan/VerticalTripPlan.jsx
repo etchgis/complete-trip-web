@@ -21,6 +21,7 @@ export const VerticalTripPlan = observer(
     backClickHandler,
     cancelClickHandler,
     summonShuttleHandler,
+    scheduleShuttleHandler,
   }) => {
     const { colorMode } = useColorMode();
     const { trip } = useStore();
@@ -352,7 +353,8 @@ export const VerticalTripPlan = observer(
               scheduleTripHandler={scheduleTripHandler}
               backClickHandler={backClickHandler}
               cancelClickHandler={cancelClickHandler}
-              summonShuttleHandler={handleSummonShuttle}
+              summonShuttleHandler={summonShuttleHandler}
+              scheduleShuttleHandler={scheduleShuttleHandler}            
             />
           </Flex>
 
@@ -364,7 +366,7 @@ export const VerticalTripPlan = observer(
 );
 
 const TripPlanScheduleButtons = observer(
-  ({ scheduleTripHandler, backClickHandler, cancelClickHandler, summonShuttleHandler }) => {
+  ({ scheduleTripHandler, backClickHandler, cancelClickHandler, summonShuttleHandler, scheduleShuttleHandler }) => {
     const { loggedIn } = useStore().authentication;
     const { ux } = useStore().uiStore;
     const { trip } = useStore();
@@ -377,7 +379,17 @@ const TripPlanScheduleButtons = observer(
         px={2}
         id="trip-plan-schedule-buttons"
       >
-        {scheduleTripHandler && (ux === 'webapp' || ux === 'callcenter') && (
+        {scheduleShuttleHandler && (ux === 'callcenter') && (
+            <Button
+            onClick={scheduleShuttleHandler}
+            variant={'brand'}
+            isDisabled={!scheduleShuttleHandler}
+            width={'100%'}
+          >
+            {t('tripWizard.scheduleShuttle')}
+          </Button>
+        )}
+        {scheduleTripHandler && (ux === 'webapp') && (
           <Button
             onClick={scheduleTripHandler ? scheduleTripHandler : null}
             variant={'brand'}
