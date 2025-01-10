@@ -39,6 +39,7 @@ export const Routes = observer(() => {
     console.log('[routes] queryParams:', { debug, mode });
     if (debug) setDebugMode(debug === 'true' ? true : false);
     setUX(mode === 'kiosk' ? 'kiosk' : mode === 'callcenter' ? 'callcenter' : 'webapp');
+    // setUX("callcenter")
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
@@ -141,6 +142,16 @@ export const Routes = observer(() => {
   }, [ui]);
   //---------------------ACCESSIBILITY---------------------
 
+  // CUSTOM ROUTE FOR SETTING UX MODE
+
+  const CallCenterRoute = () => {
+    useEffect(() => {
+      setUX("callcenter");
+    }, []);
+  
+    return <Layout showMap={true}></Layout>;
+  };
+
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
@@ -158,6 +169,9 @@ export const Routes = observer(() => {
         path={'/map'}
         element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
       />
+
+      {/* Also map, but sets to callcenter mode */}
+      <Route path="/callcenter" element={<CallCenterRoute />} />
 
       {/* CAREGIVER LINK */}
       <Route
