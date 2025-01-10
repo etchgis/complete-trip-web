@@ -379,7 +379,7 @@ const TripPlanScheduleButtons = observer(
         px={2}
         id="trip-plan-schedule-buttons"
       >
-        {scheduleShuttleHandler && (ux === 'callcenter') && (
+        {ux === 'callcenter' && (
             <Button
             onClick={scheduleShuttleHandler}
             variant={'brand'}

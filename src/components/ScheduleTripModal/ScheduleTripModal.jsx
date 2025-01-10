@@ -918,12 +918,9 @@ const Fourth = ({
     }
   }
 
+  const shuttleLegIndex = trip.plans[0].legs.findIndex(leg => leg.mode === "HAIL")
+
   function scheduleShuttle() {
-
-    console.log(trip)
-
-    const shuttleLegIndex = trip.plans[0].legs.findIndex(leg => leg.mode === "HAIL")
-    if (shuttleLegIndex === -1) return null
 
     const originLat = trip.plans[0].legs[shuttleLegIndex].from.lat;
     const originLng = trip.plans[0].legs[shuttleLegIndex].from.lon;
@@ -941,6 +938,8 @@ const Fourth = ({
     navigate("/map")
   };
 
+  const scheduleShuttleHandler = shuttleLegIndex !== -1 ? scheduleShuttle : null
+
   // console.log(toJS(trip));
   return (
     <Stack
@@ -957,7 +956,7 @@ const Fourth = ({
         tripRequest={trip.request}
         tripPlan={selectedTrip}
         scheduleTripHandler={scheduleTrip}
-        scheduleShuttleHandler={scheduleShuttle}
+        scheduleShuttleHandler={scheduleShuttleHandler}
         backClickHandler={() => {
           if (chatIsActive) {
             trip.create();
