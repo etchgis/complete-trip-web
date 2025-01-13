@@ -929,13 +929,14 @@ const Fourth = ({
     const destLng = trip.plans[0].legs[shuttleLegIndex].to.lon;
     const destTitle = trip.plans[0].legs[shuttleLegIndex].to.name
 
-    const url = `http://nfta.localhost:8089/appointments#origin_title=${originTitle}&origin_lat=${originLat}&origin_lng=${originLng}&dest_title=${destTitle}&dest_lat=${destLat}&dest_lng=${destLng}`;
+    const url = `${config.SERVICES.dispatch}#origin_title=${originTitle}&origin_lat=${originLat}
+    &origin_lng=${originLng}&dest_title=${destTitle}&dest_lat=${destLat}&dest_lng=${destLng}`;
 
     window.open(url);
 
     closeModal();
     setStep(0);
-    navigate("/map")
+    navigate("/callcenter")
   };
 
   const scheduleShuttleHandler = shuttleLegIndex !== -1 ? scheduleShuttle : null
