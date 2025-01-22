@@ -50,7 +50,7 @@ const API = {
       url: 'https://staging.lambda.etch.app/feedback',
       xApiKey: 'hBkiGj26pw1v0h4W3yAc36yFHu8x6dVK9MPRuCPY',
     },
-    dispatch: 'http://nfta.localhost:8089/appointments',
+    dispatch: 'http://nfta.localhost:8089/callcenter',
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
@@ -97,7 +97,7 @@ const API = {
       url: 'https://staging.lambda.etch.app/feedback',
       xApiKey: 'hBkiGj26pw1v0h4W3yAc36yFHu8x6dVK9MPRuCPY',
     },
-    dispatch: ' https://nfta-stage.etch.app/appointments',
+    dispatch: 'https://nfta-stage.etch.app/callcenter',
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging', //'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging?groups=dependent-{dependentId}
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',

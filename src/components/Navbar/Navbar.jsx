@@ -96,25 +96,33 @@ export const Navbar = observer(
           </>
         )}
 
-        {/* Just allow ux === 'webapp' here? Added specific check for 
-        the stack of sign up and login options to disallow callcenter, 
-        but do not see ColorModeSwitcher */}
         <Flex display={(ux === 'webapp' || ux === 'callcenter') ? 'flex' : 'none'}>
-          {ux === 'webapp' && <Stack
+          <Stack
             flex={{ base: 1, lg: 0 }}
             justify={'flex-end'}
             direction={'row'}
             spacing={6}
           >
-            <Button
-              variant={'brand'}
-              minWidth={'135px'}
-              // isLoading={loggingIn}
-              // loadingText={'Logging In'}
-              onClick={e => (loggedIn ? logout() : action1(e))}
-            >
-              {loggedIn ? t('navbar.logout') : t('navbar.loginSignUp')}
-            </Button>
+            {ux === 'webapp' && 
+              <Button
+                variant={'brand'}
+                minWidth={'135px'}
+                // isLoading={loggingIn}
+                // loadingText={'Logging In'}
+                onClick={e => (loggedIn ? logout() : action1(e))}
+              >
+                {loggedIn ? t('navbar.logout') : t('navbar.loginSignUp')}
+              </Button>}
+            {ux === 'callcenter' && 
+              <Button
+                variant={'brand'}
+                minWidth={'135px'}
+                // isLoading={loggingIn}
+                // loadingText={'Logging In'}
+                onClick={e => (action1(e))}
+              >
+                {t('navbar.createAccount')}
+              </Button>}
 
             {/* <Button
             display={{ base: 'none', sm: 'inline-flex' }}
@@ -130,7 +138,7 @@ export const Navbar = observer(
           >
             Sign Up
           </Button> */}
-          </Stack>}
+          </Stack>
           <ColorModeSwitcher />
         </Flex>
       </Flex>
