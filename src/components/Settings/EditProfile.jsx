@@ -120,20 +120,22 @@ export const EditProfile = ({ onClose }) => {
               disabled
             />
           </FormControl>
-          <FormControl>
-            <FormLabel>{t('global.phone')}</FormLabel>
-            <Input
-              type="tel"
-              name="phone"
-              onChange={() => {}}
-              disabled
-              value={
-                user.phone
-                  ? formatters.phone.asDomestic(user.phone.slice(2))
-                  : ''
-              }
-            />
-          </FormControl>
+          {user.phone !== '+15555555555' &&
+            <FormControl>
+              <FormLabel>{t('global.phone')}</FormLabel>
+              <Input
+                type="tel"
+                name="phone"
+                onChange={() => { }}
+                disabled
+                value={
+                  user.phone
+                    ? formatters.phone.asDomestic(user.phone.slice(2))
+                    : ''
+                }
+              />
+            </FormControl>
+          }
           <FormControl isRequired>
             <AddressSearchForm
               saveAddress={setAddress}
