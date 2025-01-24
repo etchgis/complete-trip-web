@@ -53,7 +53,7 @@ export const LoginRegister = observer(({ hideModal, verify }) => {
   } = useStore().authentication;
 
   const [stagedUser, setStagedUser] = useState({});
-  const [activeView, setActiveView] = useState(verify !== undefined ? 'reset' : 'init');
+  const [activeView, setActiveView] = useState(verify && verify.identity !== undefined ? 'reset' : 'init');
   const [loginMessage, setLoginMessage] = useState('');
   const [forgotOptions, setForgotOptions] = useState({});
 
@@ -63,12 +63,10 @@ export const LoginRegister = observer(({ hideModal, verify }) => {
 
   useEffect(() => {
     if (!verify) return
-    console.log(verify)
     // const parsedVerify = JSON.parse(verify)
     // console.log(parsedVerify)
     const forgotOptions = {
       email: verify.identity,
-      destination: verify.identity,
       code: verify.code
     }
     setForgotOptions(forgotOptions)
@@ -650,10 +648,11 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       setInTransaction(true);
 
-      const confirmed = await confirmUser(options.destination, pin);
-      if (!confirmed) throw new Error('verify error');
+      // TODO: So we dont have to do this part?
+      // const confirmed = await confirmUser(options.destination, pin);
+      // if (!confirmed) throw new Error('verify error');
 
-      const updated = await resetPassword(options.email, code, password);
+      const updated = await resetPassword(options.email, options.code, password);
       if (!updated) throw new Error('password error');
 
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
@@ -680,7 +679,6 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
               value={pin}
               onChange={(newPin) => {
                 setPin(newPin.join(''));
-                console.log(newPin)
                 setVerifyError(false);
               }}
             />
@@ -695,7 +693,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           const recovered = await recover(options.email, options.method);
           if (!recovered || !recovered.code || !recovered.concealed)
             console.log('error with recover');
-          setCode(recovered?.code);
+          if (!options.code) setCode(recovered?.code);
           setInTransaction(false);
         }}
       >

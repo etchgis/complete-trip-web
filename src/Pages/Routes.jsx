@@ -21,6 +21,7 @@ import HelpMobileEs from './HelpMobileEs.jsx';
 import { LoginRegister } from '../components/LoginRegister/LoginRegister.jsx';
 import config from '../config.js';
 import { useState } from 'react';
+import { useDisclosure } from '@chakra-ui/react';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -32,6 +33,9 @@ export const Routes = observer(() => {
   }
   const { user, loggedIn, auth, logout } = useStore().authentication;
   const { debug, setDebugMode, ui, setUI, setUX, ux } = useStore().uiStore;
+  const {
+    onClose: hideLogin,
+  } = useDisclosure();
 
   useEffect(() => {
     //NOTE this will always be true in the browser by using useEffect
@@ -165,7 +169,7 @@ export const Routes = observer(() => {
       const data = urlParams.get('data');
   
       if (data) {
-        fetch(`${config.SERVICES.verifications.url}/decoder/${data}`, {
+        fetch(`${config.SERVICES.verifications.url}/decoder/${encodeURIComponent(data)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -174,7 +178,7 @@ export const Routes = observer(() => {
         })
         .then(async response => {
           const json = await response.json();
-          const data = JSON.parse(json)
+          const data = JSON.parse(json.data)
           setVerificationData(data);
         })
         .catch(err => {
@@ -186,7 +190,7 @@ export const Routes = observer(() => {
     if (error) return <div>Error processing verification</div>;
     if (!verificationData) return null;
   
-    return <Layout children={<LoginRegister verify={verificationData} />} />;
+    return <Layout children={<LoginRegister hideModal={hideLogin} verify={verificationData} />} />;
   };
   
   return (
