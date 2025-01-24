@@ -16,6 +16,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../context/RootStore';
 import useTranslation from '../models/useTranslation';
+import config from '../config';
 
 // import { useEffect } from 'react';
 
@@ -49,6 +50,12 @@ const Layout = observer(({ showMap, isHome, children }) => {
     onOpen: showLogin,
     onClose: hideLogin,
   } = useDisclosure();
+
+  // TODO: THIS FUNCTION GOES SOMEWHERE ELSE IDK WHERE THOUGH
+  function createAccount() {
+    const url = `${config.SERVICES.dispatch}?modal=new-user`;
+    window.open(url);
+  };
 
   //////////////////////////
   // SPRINT 7 CAREGIVER LINK
@@ -133,7 +140,7 @@ const Layout = observer(({ showMap, isHome, children }) => {
           onOpen={onOpen}
           onToggle={onToggle}
           onClose={onClose}
-          action1={showLogin}
+          action1={ux === 'webapp' ? showLogin : ux === 'callcenter' ? createAccount : null}
           openTripWizard={openTripWizard}
         ></Navbar>
 

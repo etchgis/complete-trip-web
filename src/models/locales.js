@@ -183,11 +183,13 @@ export default function genLocales() {
       en: {
         logout: 'Logout',
         loginSignUp: 'Login/Sign Up',
+        createAccount: 'Create an Account',
         toggle: 'Toggle Navigation Menu',
       },
       es: {
         logout: 'Cerrar sesión',
         loginSignUp: 'Iniciar sesión/Registrarse',
+        createAccount: 'Crear una cuenta',
         toggle: 'Alternar Menú de Navegación', //✅
       },
     },
@@ -561,6 +563,7 @@ export default function genLocales() {
         searchFrom: 'From',
         searchTo: 'To',
         scheduleTrip: 'Schedule a Trip',
+        scheduleShuttle: 'Schedule Shuttle',
         saveAddress: 'Save Address',
         addressName: 'Address Nickname',
         favorite: 'Favorite Location',
@@ -607,6 +610,7 @@ export default function genLocales() {
         searchFrom: 'De',
         searchTo: 'hacia',
         scheduleTrip: 'Programar un viaje',
+        scheduleShuttle: 'Programar autobús',
         saveAddress: 'Guardar dirección',
         addressName: 'Apodo de la dirección',
         favorite: 'Ubicación favorita',

@@ -30,6 +30,7 @@ import geocoder from '../../services/transport/geocoder';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import { toJS } from 'mobx';
 
 export const Wizard = observer(({ hideModal }) => {
   const { loggedIn, reset } = useStore().authentication;
@@ -52,7 +53,7 @@ export const Wizard = observer(({ hideModal }) => {
         w="100%"
         id="stack"
         bg={useColorModeValue('white', 'gray.700')}
-        // boxShadow={'lg'}
+      // boxShadow={'lg'}
       >
         <Center bg={useColorModeValue('white', 'white')} p={8}>
           <Image
@@ -76,7 +77,8 @@ export const Wizard = observer(({ hideModal }) => {
 const WizardStepThrough = observer(() => {
   const { user, updateUserProfile, updateUserPhone, verifyUser } =
     useStore().authentication;
-  const { setStagedCaregiver } = useStore().caregivers;
+  const { addLocation } = useStore().favorites;
+  const { setStagedCaregiver, stagedCaregiver, invite: inviteCaregiver } = useStore().caregivers;
   const { t } = useTranslation();
   return (
     <WizardStepThroughForm
@@ -97,6 +99,8 @@ const WizardStepThrough = observer(() => {
             }
             return updated;
           },
+          buttonText: t('global.next'),
+          skip: true,
         },
         {
           title: 'address',
@@ -104,25 +108,29 @@ const WizardStepThrough = observer(() => {
           action: async e => {
             const data = new FormData(e.target);
             // if (data.get('changed') === 'false') return true;
-            const profile = Object.assign({}, user?.profile, {
-              address: {
-                description: data.get('description'),
-                distance: null,
-                point: {
-                  lng: +data.get('lng'),
-                  lat: +data.get('lat'),
-                },
-                title: data.get('title'),
-                text: data.get('address'),
+            const address = {
+              description: data.get('description'),
+              distance: null,
+              point: {
+                lng: +data.get('lng'),
+                lat: +data.get('lat'),
               },
-            });
+              title: data.get('title'),
+              text: data.get('address'),
+            };
+            const profile = Object.assign({}, user?.profile, { address });
 
             const updated = await updateUserProfile(profile);
             if (!updated || updated.error) {
               return false;
             }
+            const favorited = await addLocation({ alias: 'HOME', ...address });
+            if (!favorited || favorited.error) {
+              return false;
+            }
             return updated;
           },
+          buttonText: t('global.next'),
           skip: true,
         },
         {
@@ -138,6 +146,7 @@ const WizardStepThrough = observer(() => {
             setStagedCaregiver(caregiver);
             return true;
           },
+          buttonText: t('global.next'),
           skip: true,
         },
         // {
@@ -160,29 +169,59 @@ const WizardStepThrough = observer(() => {
               <Spacer my={10} />
             </>
           ),
+          buttonText: t('global.next'),
           skip: true,
         },
         {
           title: 'verify',
           content: () => <Complete></Complete>,
           skip: false,
-          buttonText: t('loginWizard.verifyPhone'),
+          buttonText: (user?.phone && user?.phone === '+15555555555') ? t('global.save') : t('loginWizard.verifyPhone'),
           action: async () => {
-            const verified = verifyUser('sms', user?.phone);
-            if (!verified || verified.error) {
-              return false;
+            if (user?.phone && user?.phone !== '+15555555555') {
+              const verified = verifyUser('sms', user?.phone);
+              if (!verified || verified.error) {
+                return false;
+              }
+              return true;
             }
-            return true;
+            else {
+              const profile = Object.assign({}, toJS(user?.profile), {
+                onboarded: true,
+              });
+              try {
+                const updated = await updateUserProfile(profile);
+                if (!updated || updated.error) {
+                  return false;
+                }
+                if (
+                  Object.values(stagedCaregiver).filter(v => !!v).length ===
+                  3
+                ) {
+                  await inviteCaregiver(
+                    stagedCaregiver?.email,
+                    stagedCaregiver?.firstName,
+                    stagedCaregiver?.lastName
+                  );
+                }
+
+                return updated;
+              } catch (error) {
+                console.log(error);
+                return false;
+              }
+            }
           },
         },
-        {
+        ...((user?.phone && user?.phone !== '+15555555555') ? [{
           title: 'finalize',
           content: () => <VerifyPin channel="sms"></VerifyPin>,
           hideButton: true,
           action: async () => {
             return;
           },
-        },
+        }] : []
+        ),
         // {
         //   title: 'sms',
         //   content: <Notifications stagedUser={stagedUser}></Notifications>,
@@ -211,8 +250,8 @@ const ContactInfo = observer(() => {
     user?.phone && user.phone === '+15555555555'
       ? ''
       : user?.phone
-      ? formatters.phone.asDomestic(user?.phone.slice(2))
-      : ''
+        ? formatters.phone.asDomestic(user?.phone.slice(2))
+        : ''
   );
   const { t } = useTranslation();
   return (
@@ -237,15 +276,14 @@ const ContactInfo = observer(() => {
           value={email || ''}
         />
       </FormControl>
-      <FormControl isRequired>
+      <FormControl>
         <FormLabel>{t('global.phone')}</FormLabel>
         <Input
           type="tel"
           name="phone"
           pattern="^\d{3}-\d{3}-\d{4}$"
-          placeholder="716-555-5555"
+          placeholder="555-555-5555"
           value={phone || ''}
-          isRequired
           onChange={e => setPhone(formatters.phone.asDomestic(e.target.value))}
         />
       </FormControl>
@@ -654,7 +692,7 @@ const Complete = observer(() => {
         </Heading>
         <Text>{user?.email}</Text>
         <Text>
-          {user?.phone
+          {(user?.phone && user?.phone !== '+15555555555')
             ? formatters.phone.asDomestic(user?.phone?.slice(2))
             : ''}
         </Text>

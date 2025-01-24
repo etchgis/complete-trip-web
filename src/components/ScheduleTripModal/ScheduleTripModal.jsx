@@ -55,6 +55,7 @@ import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -880,6 +881,8 @@ const Fourth = ({
   const { setKeyboardType } = useStore().uiStore;
   const { t } = useTranslation();
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     setKeyboardType(null);
   }, []);
@@ -914,6 +917,30 @@ const Fourth = ({
       setStep(0);
     }
   }
+
+  const shuttleLegIndex = trip.plans[0].legs.findIndex(leg => leg.mode === "HAIL")
+
+  function scheduleShuttle() {
+
+    const originLat = trip.plans[0].legs[shuttleLegIndex].from.lat;
+    const originLng = trip.plans[0].legs[shuttleLegIndex].from.lon;
+    const originTitle = trip.plans[0].legs[shuttleLegIndex].from.name
+    const destLat = trip.plans[0].legs[shuttleLegIndex].to.lat;
+    const destLng = trip.plans[0].legs[shuttleLegIndex].to.lon;
+    const destTitle = trip.plans[0].legs[shuttleLegIndex].to.name
+
+    const url = `${config.SERVICES.dispatch}#origin_title=${originTitle}&origin_lat=${originLat}
+    &origin_lng=${originLng}&dest_title=${destTitle}&dest_lat=${destLat}&dest_lng=${destLng}`;
+
+    window.open(url);
+
+    closeModal();
+    setStep(0);
+    navigate("/callcenter")
+  };
+
+  const scheduleShuttleHandler = shuttleLegIndex !== -1 ? scheduleShuttle : null
+
   // console.log(toJS(trip));
   return (
     <Stack
@@ -930,6 +957,7 @@ const Fourth = ({
         tripRequest={trip.request}
         tripPlan={selectedTrip}
         scheduleTripHandler={scheduleTrip}
+        scheduleShuttleHandler={scheduleShuttleHandler}
         backClickHandler={() => {
           if (chatIsActive) {
             trip.create();

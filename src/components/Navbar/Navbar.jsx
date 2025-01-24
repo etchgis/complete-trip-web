@@ -103,15 +103,26 @@ export const Navbar = observer(
             direction={'row'}
             spacing={6}
           >
-            <Button
-              variant={'brand'}
-              minWidth={'135px'}
-              // isLoading={loggingIn}
-              // loadingText={'Logging In'}
-              onClick={e => (loggedIn ? logout() : action1(e))}
-            >
-              {loggedIn ? t('navbar.logout') : t('navbar.loginSignUp')}
-            </Button>
+            {ux === 'webapp' && 
+              <Button
+                variant={'brand'}
+                minWidth={'135px'}
+                // isLoading={loggingIn}
+                // loadingText={'Logging In'}
+                onClick={e => (loggedIn ? logout() : action1(e))}
+              >
+                {loggedIn ? t('navbar.logout') : t('navbar.loginSignUp')}
+              </Button>}
+            {ux === 'callcenter' && 
+              <Button
+                variant={'brand'}
+                minWidth={'135px'}
+                // isLoading={loggingIn}
+                // loadingText={'Logging In'}
+                onClick={e => (action1(e))}
+              >
+                {t('navbar.createAccount')}
+              </Button>}
 
             {/* <Button
             display={{ base: 'none', sm: 'inline-flex' }}

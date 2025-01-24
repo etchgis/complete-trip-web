@@ -169,11 +169,13 @@ const genLocales = () => {
       en: {
         logout: 'Logout',
         loginSignUp: 'Login/Sign Up',
+        createAccount: 'Create an Account',
         toggle: 'Toggle Navigation Menu',
       },
       es: {
         logout: 'Cerrar sesión',
         loginSignUp: 'Iniciar sesión/Registrarse',
+        createAccount: 'Crear una cuenta',
         toggle: 'Alternar Menú de Navegación', //✅
       },
     },
