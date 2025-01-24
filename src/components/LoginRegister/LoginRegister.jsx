@@ -39,10 +39,11 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 import { use } from 'chai';
+import AlphanumericPinInput from './AlphanumericPinInput';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
-export const LoginRegister = observer(({ hideModal }) => {
+export const LoginRegister = observer(({ hideModal, verify }) => {
   const {
     loggedIn,
     auth: authLogin,
@@ -52,13 +53,26 @@ export const LoginRegister = observer(({ hideModal }) => {
   } = useStore().authentication;
 
   const [stagedUser, setStagedUser] = useState({});
-  const [activeView, setActiveView] = useState('init');
+  const [activeView, setActiveView] = useState(verify !== undefined ? 'reset' : 'init');
   const [loginMessage, setLoginMessage] = useState('');
   const [forgotOptions, setForgotOptions] = useState({});
 
   useEffect(() => {
     if (loggedIn) hideModal();
   }, [loggedIn, hideModal]);
+
+  useEffect(() => {
+    if (!verify) return
+    console.log(verify)
+    // const parsedVerify = JSON.parse(verify)
+    // console.log(parsedVerify)
+    const forgotOptions = {
+      email: verify.identity,
+      destination: verify.identity,
+      code: verify.code
+    }
+    setForgotOptions(forgotOptions)
+  }, [verify])
 
   const views = [
     {
@@ -662,28 +676,14 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       <FormControl isRequired>
         <Center flexDirection={'column'}>
           <HStack mb={2}>
-            <PinInput
-              otp
+            <AlphanumericPinInput
               value={pin}
-              onChange={e => {
-                setPin(e);
+              onChange={(newPin) => {
+                setPin(newPin.join(''));
+                console.log(newPin)
                 setVerifyError(false);
               }}
-              onComplete={e => {
-                setPin(e);
-                console.log('onComplete', e);
-                setVerifyError(false);
-              }}
-              size="lg"
-              name="pin"
-            >
-              <PinInputField />
-              <PinInputField />
-              <PinInputField />
-              <PinInputField />
-              <PinInputField />
-              <PinInputField />
-            </PinInput>
+            />
           </HStack>
         </Center>
       </FormControl>
@@ -702,7 +702,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         {t('resetPassword.resendCode')}
       </Button>
       {verifyError ? (
-        <Text color="red.500">{t('resetPassword.invalid')}</Text>
+        <Text color="red.500">{t('resetPassword.invalidCode')}</Text>
       ) : (
         ''
       )}

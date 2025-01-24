@@ -1,4 +1,4 @@
-import { Navigate, Routes as ReactRoutes, Route } from 'react-router-dom';
+import { Navigate, Routes as ReactRoutes, Route, useSearchParams } from 'react-router-dom';
 import { toJS, trace } from 'mobx';
 
 import CaregiverLink from './CaregiverLink';
@@ -18,6 +18,9 @@ import { useStore } from '../context/RootStore';
 import HelpMobile from './HelpMobile.jsx';
 import Help from './Help.jsx';
 import HelpMobileEs from './HelpMobileEs.jsx';
+import { LoginRegister } from '../components/LoginRegister/LoginRegister.jsx';
+import config from '../config.js';
+import { useState } from 'react';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -152,6 +155,40 @@ export const Routes = observer(() => {
     return <Layout showMap={true}></Layout>;
   };
 
+  // CUSTOM ROUTE FOR SETTING NEW USER PASSWORD FROM CALL CENTER
+  const VerificationRoute = () => {
+    const [verificationData, setVerificationData] = useState(null);
+    const [error, setError] = useState(null);
+  
+    useEffect(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const data = urlParams.get('data');
+  
+      if (data) {
+        fetch(`${config.SERVICES.verifications.url}/decoder/${data}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': config.SERVICES.verifications.xApiKey,
+          },
+        })
+        .then(async response => {
+          const json = await response.json();
+          const data = JSON.parse(json)
+          setVerificationData(data);
+        })
+        .catch(err => {
+          setError(err);
+        });
+      }
+    }, []);
+  
+    if (error) return <div>Error processing verification</div>;
+    if (!verificationData) return null;
+  
+    return <Layout children={<LoginRegister verify={verificationData} />} />;
+  };
+  
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
@@ -204,6 +241,8 @@ export const Routes = observer(() => {
           <HelpMobileEs />
         }
       />
+
+      <Route path="/verify" element={ <VerificationRoute/> } />
 
       {/* Profile */}
       {loggedIn ? (
