@@ -606,7 +606,7 @@ const RouteList = observer(({ routeClickHandler }) => {
     if (ux === 'callcenter') {
       const fetchData = () => {
         try {
-          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', 'COMPLETE_TRIP')
+          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
             .then((result) => {
               console.log('result', result);
               let fc = {
