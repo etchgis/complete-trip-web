@@ -20,6 +20,8 @@ test:
   phases:
     preTest:
       commands:
+        - nvm install 20
+        - nvm use 20
         - yarn install
         - yarn add mocha mochawesome mochawesome-merge mochawesome-report-generator
         # - npm ci
