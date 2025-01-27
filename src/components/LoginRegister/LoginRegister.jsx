@@ -40,6 +40,7 @@ import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 import { use } from 'chai';
 import AlphanumericPinInput from './AlphanumericPinInput';
+import { useNavigate } from 'react-router-dom';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
@@ -634,6 +635,8 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const [code, setCode] = useState(options?.code);
   const { t } = useTranslation();
 
+  const navigate = useNavigate()
+
   // console.log({ options });
   // console.log({ pin });
 
@@ -652,7 +655,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       const updated = await resetPassword(options.email, options.code, password);
       if (!updated) throw new Error('password error');
-
+      navigate('/map')
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
       await auth(options.email, password, true);
     } catch (error) {
