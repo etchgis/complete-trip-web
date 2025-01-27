@@ -29,7 +29,6 @@ import { theme } from '../../theme';
 // import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { useNavigate } from 'react-router-dom';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
 
@@ -451,8 +450,6 @@ export const TripPlanSchedule = observer(
                   const dur = formatters.datetime.asDuration(leg.duration);
                   intermediateStopsLabel = `${lbl}, ${dur}`;
                 }
-                console.log({ mode });
-                console.log(ux)
                 const accentColor =
                   mode.mode === 'walk' ? 'gray.400' : mode.color;
                 return (

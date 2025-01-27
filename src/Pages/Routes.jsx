@@ -32,21 +32,17 @@ export const Routes = observer(() => {
     trace(false);
   }
   const { user, loggedIn, auth, logout } = useStore().authentication;
-  const { debug, setDebugMode, ui, setUI, setUX, ux } = useStore().uiStore;
+  const { debug, setDebugMode, ui, setUI, setUX } = useStore().uiStore;
   const {
     onClose: hideLogin,
   } = useDisclosure();
 
   useEffect(() => {
-    //NOTE this will always be true in the browser by using useEffect
-    // if (window && window.location) {
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
     const { debug, mode } = params;
-    console.log('[routes] queryParams:', { debug, mode });
     if (debug) setDebugMode(debug === 'true' ? true : false);
     setUX(mode === 'kiosk' ? 'kiosk' : mode === 'callcenter' ? 'callcenter' : 'webapp');
-    // setUX("callcenter")
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
@@ -149,8 +145,7 @@ export const Routes = observer(() => {
   }, [ui]);
   //---------------------ACCESSIBILITY---------------------
 
-  // CUSTOM ROUTE FOR SETTING UX MODE
-
+  // This route is just a shortcut for "/map?mode=callcenter"
   const CallCenterRoute = () => {
     useEffect(() => {
       setUX("callcenter");
@@ -159,7 +154,7 @@ export const Routes = observer(() => {
     return <Layout showMap={true}></Layout>;
   };
 
-  // CUSTOM ROUTE FOR SETTING NEW USER PASSWORD FROM CALL CENTER
+  // Verify a new user that was sent an email invite
   const VerificationRoute = () => {
     const [verificationData, setVerificationData] = useState(null);
     const [error, setError] = useState(null);
@@ -211,7 +206,7 @@ export const Routes = observer(() => {
         element={<Layout isLoggedIn={loggedIn} showMap={true}></Layout>}
       />
 
-      {/* Also map, but sets to callcenter mode */}
+      {/* Callcenter shortcut */}
       <Route path="/callcenter" element={<CallCenterRoute />} />
 
       {/* CAREGIVER LINK */}

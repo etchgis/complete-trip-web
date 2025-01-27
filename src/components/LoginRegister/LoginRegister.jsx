@@ -63,8 +63,6 @@ export const LoginRegister = observer(({ hideModal, verify }) => {
 
   useEffect(() => {
     if (!verify) return
-    // const parsedVerify = JSON.parse(verify)
-    // console.log(parsedVerify)
     const forgotOptions = {
       email: verify.identity,
       code: verify.code
@@ -648,7 +646,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       setInTransaction(true);
 
-      // TODO: So we dont have to do this part?
+      // TODO: Update API to remove need for /confirm endpoint
       // const confirmed = await confirmUser(options.destination, pin);
       // if (!confirmed) throw new Error('verify error');
 

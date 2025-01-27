@@ -51,7 +51,6 @@ const Layout = observer(({ showMap, isHome, children }) => {
     onClose: hideLogin,
   } = useDisclosure();
 
-  // TODO: THIS FUNCTION GOES SOMEWHERE ELSE IDK WHERE THOUGH
   function createAccount() {
     const url = `${config.SERVICES.dispatch}?modal=new-user`;
     window.open(url);
