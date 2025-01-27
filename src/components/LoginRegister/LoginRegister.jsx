@@ -40,11 +40,10 @@ import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 import { use } from 'chai';
 import AlphanumericPinInput from './AlphanumericPinInput';
-// import { useNavigate } from 'react-router-dom';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
-export const LoginRegister = observer(({ hideModal, verify }) => {
+export const LoginRegister = observer(({ hideModal, verify, onVerificationComplete }) => {
   const {
     loggedIn,
     auth: authLogin,
@@ -635,8 +634,6 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const [code, setCode] = useState(options?.code);
   const { t } = useTranslation();
 
-  // const navigate = useNavigate()
-
   // console.log({ options });
   // console.log({ pin });
 
@@ -655,9 +652,9 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       const updated = await resetPassword(options.email, options.code, password);
       if (!updated) throw new Error('password error');
-      // navigate('/map')
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
       await auth(options.email, password, true);
+      onVerificationComplete()
     } catch (error) {
       setVerifyError(true);
       setPassword('');
@@ -676,13 +673,28 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       <FormControl isRequired>
         <Center flexDirection={'column'}>
           <HStack mb={2}>
-            <AlphanumericPinInput
+            <PinInput
+              otp
               value={pin}
-              onChange={(newPin) => {
-                setPin(newPin.join(''));
+              onChange={e => {
+                setPin(e)
                 setVerifyError(false);
               }}
-            />
+              onComplete={e => {
+                setPin(e);
+                console.log('onComplete', e);
+                setVerifyError(false);
+              }}
+              size="lg"
+              name="pin"
+            >
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+              <PinInputField />
+            </PinInput>
           </HStack>
         </Center>
       </FormControl>

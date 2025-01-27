@@ -185,7 +185,7 @@ export const Routes = observer(() => {
     if (error) return <div>Error processing verification</div>;
     if (!verificationData) return null;
   
-    return <Layout children={<LoginRegister hideModal={hideLogin} verify={verificationData} />} />;
+    return <Layout isLoggedin={loggedIn} showMap={true} verify={verificationData} />;
   };
   
   return (

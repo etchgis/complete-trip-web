@@ -13,14 +13,14 @@ import Navbar from '../components/Navbar';
 import ResponsiveSidebar from '../components/Sidebar';
 import Wizard from '../components/Wizard';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../context/RootStore';
 import useTranslation from '../models/useTranslation';
 import config from '../config';
 
 // import { useEffect } from 'react';
 
-const Layout = observer(({ showMap, isHome, children }) => {
+const Layout = observer(({ showMap, isHome, children, verify }) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const { t } = useTranslation();
@@ -49,7 +49,17 @@ const Layout = observer(({ showMap, isHome, children }) => {
     isOpen: loginIsOpen,
     onOpen: showLogin,
     onClose: hideLogin,
-  } = useDisclosure();
+  } = useDisclosure({
+    defaultIsOpen: !!verify
+  })
+
+  const [showVerification, setShowVerification] = useState(!!verify);
+
+  useEffect(() => {
+    if (verify && !showVerification) {
+      hideLogin();
+    }
+  }, [verify, showVerification, hideLogin]);
 
   function createAccount() {
     const url = `${config.SERVICES.dispatch}?modal=new-user`;
@@ -179,13 +189,23 @@ const Layout = observer(({ showMap, isHome, children }) => {
 
         {/* LOGIN/REGISTER MODAL */}
         <CustomModal
-          isOpen={loginIsOpen}
+          isOpen={loginIsOpen || showVerification}
           onOpen={showLogin}
-          onClose={hideLogin}
+          onClose={() => {
+            hideLogin();
+            setShowVerification(false);
+          }}
           size="lg"
         >
           {/* LOGIN/REGISTER MODAL */}
-          <LoginRegister hideModal={hideLogin}></LoginRegister>
+          <LoginRegister 
+            hideModal={() => {
+              hideLogin();
+              setShowVerification(false);
+            }}  
+            verify={verify}
+            // onVerificationComplete={() => setShowVerification(false)}
+          />
         </CustomModal>
 
         {/* ONBOARD WIZARD */}
