@@ -82,16 +82,17 @@ export const WizardStepThroughForm = ({ content }) => {
                 {!s.hideButton ? (
                   <Button
                     variant="brand"
-                    bg={i === steps.length - 1 ? 'ariaGreen' : 'brand'}
+                    bg={'brand'}
                     color="white"
                     w="100%"
                     type="submit"
                   >
-                    {i < steps.length - 1 && s.buttonText
+                    {s.buttonText}
+                    {/* {i < steps.length - 1 && s.buttonText
                       ? s.buttonText
                       : i < steps.length - 1
                       ? t('global.next')
-                      : t('loginWizard.verifyPhone')}
+                      : t('loginWizard.verifyPhone')} */}
                   </Button>
                 ) : null}
                 {i > 0 && !s.hideButton ? (
