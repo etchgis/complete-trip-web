@@ -32,7 +32,7 @@ export const Routes = observer(() => {
     trace(false);
   }
   const { user, loggedIn, auth, logout } = useStore().authentication;
-  const { debug, setDebugMode, ui, setUI, setUX } = useStore().uiStore;
+  const { debug, setDebugMode, ui, setUI, setUX, ux } = useStore().uiStore;
   const {
     onClose: hideLogin,
   } = useDisclosure();
