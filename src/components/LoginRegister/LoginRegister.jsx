@@ -39,7 +39,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 import { use } from 'chai';
-import AlphanumericPinInput from './AlphanumericPinInput';
+// import PinInput from './PinInput';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
