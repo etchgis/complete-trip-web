@@ -9,6 +9,7 @@ const rides = {
       passengers: passengers || 1,
       datetime,
       direction,
+      // TODO: get proper pickup coordinates from the URL
       pickup: {
         address: 'BGMC Main Entrance',
         coordinates: [-78.86680135060003, 42.90038260885757],

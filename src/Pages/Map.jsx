@@ -32,14 +32,9 @@ const Map = observer(
         shuttleTrip.addMode('walk');
         shuttleTrip.updateWhenAction('asap');
         shuttleTrip.updateWhen(new Date());
-        console.log('shuttleTrip', shuttleTrip);
         shuttleTrip.toggleShuttle(true);
       }
     }
-
-    // useEffect(() => {
-    //   console.log('useEffect', shuttleTrip);
-    // }), [shuttleTrip]
 
     const kioskTopHeight = 700;
     const kioskBottomHeight = 255;

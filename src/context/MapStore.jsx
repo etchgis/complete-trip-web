@@ -133,13 +133,6 @@ class MapStore {
     const { lng, lat } = map.getCenter();
     this.getRoutes(lng, lat);
 
-    const appMode = this.rootStore.uiStore.ux;
-    console.log('appMode', appMode);
-    // if (appMode === 'kiosk') {
-    //   console.log('setting nfta-community-shuttle');
-    //   console.log(this.map.getSource('nfta-community-shuttle'));
-    //   this.map.getSource('nfta-community-shuttle').setData(NftaCommunityShuttle);
-    // }
     this.map.getSource('nfta-community-shuttle').setData(NftaCommunityShuttle);
   };
 
