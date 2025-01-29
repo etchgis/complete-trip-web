@@ -599,7 +599,7 @@ export default function genLocales() {
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
         popUpUnknownError: "An unknown error occurred. Please try again.",
-        popUpSuccess: "Success! Your shuttle has been summoned.",
+        popUpSuccess: "Success! Your shuttle will arrive at the front door to pick you up in about 5 minutes.",
         timeRemaining: {
           zero: "Refreshing now...",
           one: "Refreshing in 1 second",
@@ -646,7 +646,7 @@ export default function genLocales() {
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
-        popUpSuccess: "¡Éxito! Su lanzadera ha sido convocada.",
+        popUpSuccess: "¡Éxito! Tu shuttle llegará a la puerta de tu casa para recogerte en aproximadamente 5 minutos.",
         timeRemaining: {
           zero: "Refrescándose ahora...",
           one: "Refrescante en 1 segundo",
