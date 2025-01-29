@@ -5,21 +5,18 @@ const rides = {
   request(organizationId, datetime, direction, pickup, dropoff, driverId, passengers, phone, pin) {
     const body = {
       organization: organizationId,
-      driver: driverId,
       passengers: passengers || 1,
       datetime,
       direction,
-      // TODO: get proper pickup coordinates from the URL
-      pickup: {
-        address: 'BGMC Main Entrance',
-        coordinates: [-78.86680135060003, 42.90038260885757],
-      },
-      // pickup,
+      pickup,
       dropoff,
       status: 'scheduled',
       phone,
       pin
     };
+    if (driverId) {
+      body.driver = driverId;
+    }
     return fetch(`${config.SERVICES.rides.url}/request`, {
       method: 'POST',
       body: JSON.stringify(body),

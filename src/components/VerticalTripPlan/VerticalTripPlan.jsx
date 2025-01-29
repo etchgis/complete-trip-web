@@ -76,15 +76,31 @@ export const VerticalTripPlan = observer(
       else {
         setError('');
         const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
-          driverId = 'd95c52b6-ee0d-44f1-9148-7c77971a4653',
+          driverId = null,
+          // driverId = 'd95c52b6-ee0d-44f1-9148-7c77971a4653',
           datetime = Date.now(),
           passengers = 1;
+        // const pickup = trip.request.origin;
+        // TODO: get proper pickup coordinates from the URL
+        const pickup = {
+          title: 'BGMC Main Entrance',
+          address: '100 High St, Buffalo, NY 14203',
+          coordinates: [-78.86680135060003, 42.90038260885757],
+        };
+        const dropoff = {
+          title: trip.request.destination.title,
+          address: trip.request.destination.address,
+          coordinates: [
+            trip.request.destination.point.lng,
+            trip.request.destination.point.lat
+          ]
+        };
         rides.request(
           organizationId,
           datetime,
           'leave',
-          trip.request.origin,
-          trip.request.destination,
+          pickup,
+          dropoff,
           driverId,
           passengers,
           `+1${areaCode}${phone1}${phone2}`,
@@ -335,6 +351,7 @@ export const VerticalTripPlan = observer(
                     position: 'absolute',
                     top: '35%',
                     width: '380px',
+                    padding: '0 15px',
                     textAlign: 'center',
                   }}
                 >
@@ -353,7 +370,7 @@ export const VerticalTripPlan = observer(
               scheduleTripHandler={scheduleTripHandler}
               backClickHandler={backClickHandler}
               cancelClickHandler={cancelClickHandler}
-              summonShuttleHandler={summonShuttleHandler}
+              summonShuttleHandler={handleSummonShuttle}
               scheduleShuttleHandler={scheduleShuttleHandler}            
             />
           </Flex>
