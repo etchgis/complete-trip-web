@@ -5,7 +5,6 @@ const rides = {
   request(organizationId, datetime, direction, pickup, dropoff, driverId, passengers, phone, pin) {
     const body = {
       organization: organizationId,
-      driver: driverId,
       passengers: passengers || 1,
       datetime,
       direction,
@@ -15,6 +14,9 @@ const rides = {
       phone,
       pin
     };
+    if (driverId) {
+      body.driver = driverId;
+    }
     return fetch(`${config.SERVICES.rides.url}/request`, {
       method: 'POST',
       body: JSON.stringify(body),

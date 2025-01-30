@@ -39,10 +39,11 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { validators } from '../../utils/validators';
 import { use } from 'chai';
+// import PinInput from './PinInput';
 
 const { hasLowerCase, hasNumber, hasUpperCase } = validators;
 
-export const LoginRegister = observer(({ hideModal }) => {
+export const LoginRegister = observer(({ hideModal, verify, onVerificationComplete }) => {
   const {
     loggedIn,
     auth: authLogin,
@@ -52,13 +53,22 @@ export const LoginRegister = observer(({ hideModal }) => {
   } = useStore().authentication;
 
   const [stagedUser, setStagedUser] = useState({});
-  const [activeView, setActiveView] = useState('init');
+  const [activeView, setActiveView] = useState(verify && verify.identity !== undefined ? 'reset' : 'init');
   const [loginMessage, setLoginMessage] = useState('');
   const [forgotOptions, setForgotOptions] = useState({});
 
   useEffect(() => {
     if (loggedIn) hideModal();
   }, [loggedIn, hideModal]);
+
+  useEffect(() => {
+    if (!verify) return
+    const forgotOptions = {
+      email: verify.identity,
+      code: verify.code
+    }
+    setForgotOptions(forgotOptions)
+  }, [verify])
 
   const views = [
     {
@@ -636,14 +646,15 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       setInTransaction(true);
 
-      const confirmed = await confirmUser(options.destination, pin);
-      if (!confirmed) throw new Error('verify error');
+      // TODO: Update API to remove need for /confirm endpoint
+      // const confirmed = await confirmUser(options.destination, pin);
+      // if (!confirmed) throw new Error('verify error');
 
-      const updated = await resetPassword(options.email, code, password);
+      const updated = await resetPassword(options.email, options.code, password);
       if (!updated) throw new Error('password error');
-
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
       await auth(options.email, password, true);
+      onVerificationComplete()
     } catch (error) {
       setVerifyError(true);
       setPassword('');
@@ -666,7 +677,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
               otp
               value={pin}
               onChange={e => {
-                setPin(e);
+                setPin(e)
                 setVerifyError(false);
               }}
               onComplete={e => {
@@ -695,14 +706,14 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
           const recovered = await recover(options.email, options.method);
           if (!recovered || !recovered.code || !recovered.concealed)
             console.log('error with recover');
-          setCode(recovered?.code);
+          if (!options.code) setCode(recovered?.code);
           setInTransaction(false);
         }}
       >
         {t('resetPassword.resendCode')}
       </Button>
       {verifyError ? (
-        <Text color="red.500">{t('resetPassword.invalid')}</Text>
+        <Text color="red.500">{t('resetPassword.invalidCode')}</Text>
       ) : (
         ''
       )}

@@ -96,7 +96,7 @@ const module = {
       const hrs = Math.floor(mins / 60);
       mins %= 60;
       return (
-        (hrs ? `${hrs} ${hrs > 1 ? 's' : ''}` : '') +
+        (hrs ? `${hrs} hr${hrs > 1 ? 's' : ''}` : '') +
         (mins ? `${(hrs ? ' ' : '') + mins} min${mins > 1 ? 's' : ''}` : '') +
         (includeSeconds && hrs === 0 && mins === 0
           ? `${seconds} sec${seconds > 1 ? 's' : ''}`

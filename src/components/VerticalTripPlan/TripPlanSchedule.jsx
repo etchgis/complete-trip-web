@@ -450,7 +450,6 @@ export const TripPlanSchedule = observer(
                   const dur = formatters.datetime.asDuration(leg.duration);
                   intermediateStopsLabel = `${lbl}, ${dur}`;
                 }
-                // console.log({ mode });
                 const accentColor =
                   mode.mode === 'walk' ? 'gray.400' : mode.color;
                 return (
@@ -474,7 +473,7 @@ export const TripPlanSchedule = observer(
                           : 'opacity(0.5)'
                     }
                   >
-                    <Flex alignItems={'center'} mt={2}>
+                    <Flex alignItems={'center'} mt={2} width="100%">
                       {mode?.svg
                         ? CreateCircleIcon({
                           svg: mode.svg,

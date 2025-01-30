@@ -184,7 +184,7 @@ const traveler = {
           if (response.status === 200) {
             return true;
           }
-          throw { message: 'Error deleting caregiver' };
+          throw { message: 'Error deleting coordinator' };
         })
         .catch(err => {
           throw err;
