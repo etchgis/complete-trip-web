@@ -654,7 +654,6 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       if (!updated) throw new Error('password error');
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
       await auth(options.email, password, true);
-      onVerificationComplete()
     } catch (error) {
       setVerifyError(true);
       setPassword('');

@@ -82,6 +82,7 @@ const genLocales = () => {
         emailAddress: 'Email Address',
         phone: 'Phone',
         save: 'Save',
+        finish: 'Finish',
         submit: 'Submit',
         cancel: 'Cancel',
         close: 'Close',
@@ -120,6 +121,7 @@ const genLocales = () => {
         emailAddress: 'Correo Electrónico', //✅
         phone: 'Número de Teléfono', //✅
         save: 'Guardar',
+        finish: 'Finalizar',
         submit: 'Enviar',
         cancel: 'Cancelar',
         close: 'Cerrar',
