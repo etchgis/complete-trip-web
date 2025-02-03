@@ -21,8 +21,6 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { useNavigate } from 'react-router-dom';
 
-const navigate = useNavigate()
-
 // import logo from '../../assets/images/logo.png';
 
 export const Navbar = observer(
@@ -31,6 +29,8 @@ export const Navbar = observer(
     const { ux, clearKeyboardInputValues, setKeyboardActiveInput } =
       useStore().uiStore;
     const { t } = useTranslation();
+
+    const navigate = useNavigate()
 
     useEffect(() => {
       console.log('[navbar] ux mode:', ux);
@@ -43,6 +43,11 @@ export const Navbar = observer(
         user?.profile?.preferences?.language.toString()
       );
     }, [user?.profile?.preferences]);
+
+    const logoutWithNav = () => {
+      logout()
+      navigate('/map')
+    }
 
     return (
       <Flex
@@ -112,10 +117,7 @@ export const Navbar = observer(
                 minWidth={'135px'}
                 // isLoading={loggingIn}
                 // loadingText={'Logging In'}
-                onClick={e => (loggedIn ? () => {
-                  logout()
-                  navigate('/map')
-                } : action1(e))}
+                onClick={e => (loggedIn ? logoutWithNav() : action1(e))}
               >
                 {loggedIn ? t('navbar.logout') : t('navbar.loginSignUp')}
               </Button>}
