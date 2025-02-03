@@ -65,7 +65,8 @@ export const LoginRegister = observer(({ hideModal, verify, onVerificationComple
     if (!verify) return
     const forgotOptions = {
       email: verify.identity,
-      code: verify.code
+      code: verify.code,
+      method: 'email',
     }
     setForgotOptions(forgotOptions)
   }, [verify])
