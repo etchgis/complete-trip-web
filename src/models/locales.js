@@ -599,11 +599,14 @@ export default function genLocales() {
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
         popUpUnknownError: "An unknown error occurred. Please try again.",
-        popUpSuccess: "Success! Your shuttle will arrive at the front door to pick you up in about 5 minutes.",
+        popUpSuccess: "Success! Your shuttle will arrive in about 5 minutes.",
+        popUpDirectionsTitle: "Pickup Location:",
+        popUpDirectionsImage: "Pickup location photo:",
+        popUpSuccessModalTitle: "Shuttle Requested Successfully",
         timeRemaining: {
-          zero: "Refreshing now...",
-          one: "Refreshing in 1 second",
-          other: "Refreshing in %{count} seconds",
+          zero: "Exiting now...",
+          one: "Exiting in 1 second",
+          other: "Exiting in %{count} seconds",
         }
       },
       es: {
@@ -646,11 +649,14 @@ export default function genLocales() {
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
-        popUpSuccess: "¡Éxito! Tu shuttle llegará a la puerta de tu casa para recogerte en aproximadamente 5 minutos.",
+        popUpSuccess: "¡Éxito! Tu transporte llegará en aproximadamente 5 minutos.",
+        popUpDirectionsTitle: "Ubicación de recogida:",
+        popUpDirectionsImage: "Foto de la ubicación de recogida:",
+        popUpSuccessModalTitle: "Transporte Solicitado Exitosamente",
         timeRemaining: {
-          zero: "Refrescándose ahora...",
-          one: "Refrescante en 1 segundo",
-          other: "Refrescante en %{count} segundos",
+          zero: "Saliendo ahora...",
+          one: "Saliendo en 1 segundo",
+          other: "Saliendo en %{count} segundos",
         }
       },
     },

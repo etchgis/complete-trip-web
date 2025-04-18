@@ -25,6 +25,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { mobility } from '@etchgis/mobility-transport-layer';
 import { geocoder } from '../../services/transport';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 export const TransitRoutes = observer(({ onShuttlePress }) => {
   const colorMode = useColorMode();
@@ -564,6 +565,7 @@ const RouteList = observer(({ routeClickHandler }) => {
   if (routes.length && debug) console.log(toJS(routes));
   const { t } = useTranslation();
   const { ux } = useStore().uiStore;
+  const kioskConfig = ux === 'kiosk' ? getCurrentKioskConfig() : null;
 
   const timeToDuration = timestamp => {
     let diff = timestamp - Date.now();
@@ -668,6 +670,12 @@ const RouteList = observer(({ routeClickHandler }) => {
           data-testid="map-route-list"
         >
           {routes.map((r, i) => {
+            if (ux === 'kiosk' && 
+                r.mode !== 'shuttle' && 
+                kioskConfig && kioskConfig.showPublicTransit === false) {
+              return null;
+            }
+
             // console.log('route', r);
             if (r.mode === 'shuttle' && ux === 'callcenter') {
               return (
@@ -792,7 +800,8 @@ const RouteList = observer(({ routeClickHandler }) => {
                     </>
                   )}
 
-                  {r.mode === 'shuttle' && (ux === 'kiosk' || ux === 'callcenter') && (
+                  {r.mode === 'shuttle' && 
+                   ((ux === 'kiosk' && (!kioskConfig || kioskConfig.showShuttle !== false)) || ux === 'callcenter') && (
                     <Flex flexDirection={'column'} flex={1}>
                       <span style={{ fontSize: 18, textAlign: 'left' }}>
                         {r.name}

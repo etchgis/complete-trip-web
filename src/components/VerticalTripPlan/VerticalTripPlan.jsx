@@ -1,4 +1,5 @@
-import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, Input, PinInput, PinInputField, Stack, Text, VStack, useColorMode } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, Input, Stack, Text, VStack, useColorMode, useDisclosure } from '@chakra-ui/react';
+import ShuttleSuccessModal from './ShuttleSuccessModal';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
@@ -11,6 +12,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import rides from '../../services/transport/rides';
 import { result, set } from 'lodash';
 import useIntervalHook from '../../hooks/useIntervalHook';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 export const VerticalTripPlan = observer(
   ({
@@ -35,7 +37,9 @@ export const VerticalTripPlan = observer(
     const [shuttleSuccess, setShuttleSuccess] = useState(false);
     const [showSummon, setShowSummon] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
-    const [secondsLeft, setSecondsLeft] = useState(10);
+    const [secondsLeft, setSecondsLeft] = useState(20);
+    const [kioskInfo, setKioskInfo] = useState(null);
+    const { isOpen: isSuccessModalOpen, onOpen: openSuccessModal, onClose: closeSuccessModal } = useDisclosure();
 
     useIntervalHook(
       () => {
@@ -68,6 +72,14 @@ export const VerticalTripPlan = observer(
     useEffect(() => {
       setKeyboardType('numeric')
     }, []);
+
+    // Get kiosk configuration when in kiosk mode
+    useEffect(() => {
+      if (ux === 'kiosk') {
+        const config = getCurrentKioskConfig();
+        setKioskInfo(config);
+      }
+    }, [ux]);
 
     const handleSummonPress = () => {
       if (pin.length !== 4 || areaCode.length !== 3 || phone1.length !== 3 || phone2.length !== 4) {
@@ -115,6 +127,7 @@ export const VerticalTripPlan = observer(
             setPhone2('');
             setShowSummon(false);
             setTimerStarted(true);
+            openSuccessModal();
           })
           .catch((e) => {
             if (e === 'invalid pin' || e === 'user not found for this phone number') {
@@ -134,6 +147,15 @@ export const VerticalTripPlan = observer(
 
     return (
       <>
+        <ShuttleSuccessModal
+          isOpen={isSuccessModalOpen}
+          onClose={closeSuccessModal}
+          successMessage={shuttleSuccess}
+          kioskInfo={kioskInfo}
+          timerStarted={timerStarted}
+          secondsLeft={secondsLeft}
+        />
+
         {ux === 'kiosk' && showSummon &&
           <Flex
             background={'white'}
@@ -345,26 +367,6 @@ export const VerticalTripPlan = observer(
                 tripRequest={tripRequest}
                 rider={rider}
               />
-              {ux === 'kiosk' && trip.isShuttle &&
-                <Box
-                  style={{
-                    position: 'absolute',
-                    top: '35%',
-                    width: '380px',
-                    padding: '0 15px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Text
-                    colorScheme='green'
-                    fontSize={'2xl'}
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >{shuttleSuccess}</Text>
-                  <Text>{timerStarted ? t('tripWizard.timeRemaining', { count: secondsLeft }) : ''}</Text>
-                </Box>
-              }
             </Box>
             <TripPlanScheduleButtons
               scheduleTripHandler={scheduleTripHandler}
