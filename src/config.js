@@ -362,6 +362,7 @@ const defaults = {
     MAPBOX_TOKEN:
       'pk.eyJ1IjoiZXRjaGpvbiIsImEiOiJjamk3dmVwcjcwZm13M2twYTFjbm11OHM4In0.WLemp1TfP09gg0DRl_q0hg',
     ZOOM: 13,
+    KIOSK_ZOOM: 16,
     CENTER: [42.8962389, -78.8644423],
     // -78.8767,42.8853
     VIEWBOX: [-74.3878, 43.0283, -74.2989, 43.0755],
