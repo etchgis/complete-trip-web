@@ -1,4 +1,5 @@
-import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, Input, PinInput, PinInputField, Stack, Text, VStack, useColorMode } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, Input, Stack, Text, VStack, useColorMode, useDisclosure } from '@chakra-ui/react';
+import ShuttleSuccessModal from './ShuttleSuccessModal';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
@@ -11,6 +12,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import rides from '../../services/transport/rides';
 import { result, set } from 'lodash';
 import useIntervalHook from '../../hooks/useIntervalHook';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 export const VerticalTripPlan = observer(
   ({
@@ -35,7 +37,13 @@ export const VerticalTripPlan = observer(
     const [shuttleSuccess, setShuttleSuccess] = useState(false);
     const [showSummon, setShowSummon] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
-    const [secondsLeft, setSecondsLeft] = useState(10);
+    const [secondsLeft, setSecondsLeft] = useState(20);
+    const [kioskInfo, setKioskInfo] = useState(null);
+    const { isOpen: isSuccessModalOpen, onOpen: openSuccessModal, onClose: closeSuccessModal } = useDisclosure();
+    const pinInputRef = useRef(null);
+    const areaCodeRef = useRef(null);
+    const phone1Ref = useRef(null);
+    const phone2Ref = useRef(null);
 
     useIntervalHook(
       () => {
@@ -51,23 +59,67 @@ export const VerticalTripPlan = observer(
 
     const handleSummonShuttle = () => {
       setShowSummon(true);
+      // Clear fields and set PIN as the active input when modal opens
+      setPin('');
+      setAreaCode('');
+      setPhone1('');
+      setPhone2('');
+      setError('');
+      setKeyboardActiveInput('pin');
+
+      if (pinInputRef.current) {
+        // Focus the PIN field after a brief delay to ensure the modal is fully rendered
+        setTimeout(() => {
+          pinInputRef.current.focus();
+        }, 200);
+      }
     }
 
     useEffect(() => {
       if (ux !== 'kiosk') return;
-      console.log('[PIN] setting pin');
-      if ('pin' !== activeInput && 'areaCode' !== activeInput && 'phone1' !== activeInput && 'phone2' !== activeInput) return;
-      if ('pin' === activeInput) setPin(getKeyboardInputValue('pin'));
-      if ('areaCode' === activeInput) setAreaCode(getKeyboardInputValue('areaCode'));
-      if ('phone1' === activeInput) setPhone1(getKeyboardInputValue('phone1'));
-      if ('phone2' === activeInput) setPhone2(getKeyboardInputValue('phone2'));
-      // if ('pin' !== activeInput && 'phone' !== activeInput) return;
-      setPin(getKeyboardInputValue('pin'));
+
+      // Update local state based on keyboard input changes
+      const pinValue = getKeyboardInputValue('pin');
+      const areaCodeValue = getKeyboardInputValue('areaCode');
+      const phone1Value = getKeyboardInputValue('phone1');
+      const phone2Value = getKeyboardInputValue('phone2');
+
+      // Update all fields with their current values
+      setPin(pinValue || '');
+      setAreaCode(areaCodeValue || '');
+      setPhone1(phone1Value || '');
+      setPhone2(phone2Value || '');
+
     }, [onScreenKeyboardInput, ux]);
+    
+    // Listen for active input changes and focus the appropriate field
+    useEffect(() => {
+      if (ux !== 'kiosk' || !showSummon) return;
+      // Focus the appropriate field based on the active input
+      setTimeout(() => {
+        if (activeInput === 'pin' && pinInputRef.current) {
+          pinInputRef.current.focus();
+        } else if (activeInput === 'areaCode' && areaCodeRef.current) {
+          areaCodeRef.current.focus();
+        } else if (activeInput === 'phone1' && phone1Ref.current) {
+          phone1Ref.current.focus();
+        } else if (activeInput === 'phone2' && phone2Ref.current) {
+          phone2Ref.current.focus();
+        }
+      }, 50);
+    }, [activeInput, ux, showSummon]);
 
     useEffect(() => {
       setKeyboardType('numeric')
     }, []);
+
+    // Get kiosk configuration when in kiosk mode
+    useEffect(() => {
+      if (ux === 'kiosk') {
+        const config = getCurrentKioskConfig();
+        setKioskInfo(config);
+      }
+    }, [ux]);
 
     const handleSummonPress = () => {
       if (pin.length !== 4 || areaCode.length !== 3 || phone1.length !== 3 || phone2.length !== 4) {
@@ -115,6 +167,7 @@ export const VerticalTripPlan = observer(
             setPhone2('');
             setShowSummon(false);
             setTimerStarted(true);
+            openSuccessModal();
           })
           .catch((e) => {
             if (e === 'invalid pin' || e === 'user not found for this phone number') {
@@ -134,6 +187,15 @@ export const VerticalTripPlan = observer(
 
     return (
       <>
+        <ShuttleSuccessModal
+          isOpen={isSuccessModalOpen}
+          onClose={closeSuccessModal}
+          successMessage={shuttleSuccess}
+          kioskInfo={kioskInfo}
+          timerStarted={timerStarted}
+          secondsLeft={secondsLeft}
+        />
+
         {ux === 'kiosk' && showSummon &&
           <Flex
             background={'white'}
@@ -185,13 +247,11 @@ export const VerticalTripPlan = observer(
                       type="number"
                       w={'100px'}
                       letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'pin'}
+                      name="pin"
+                      inputName="pin"
+                      ref={pinInputRef}
                       onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('pin')
+                        setKeyboardActiveInput('pin');
                       }}
                       value={pin}
                       maxLength={4}
@@ -230,13 +290,11 @@ export const VerticalTripPlan = observer(
                       type="number"
                       w={'82px'}
                       letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'areaCode'}
+                      name="areaCode"
+                      inputName="areaCode"
+                      ref={areaCodeRef}
                       onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('areaCode')
+                        setKeyboardActiveInput('areaCode');
                       }}
                       value={areaCode}
                       maxLength={3}
@@ -247,13 +305,11 @@ export const VerticalTripPlan = observer(
                       type="number"
                       w={'82px'}
                       letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'phone1'}
+                      name="phone1"
+                      inputName="phone1"
+                      ref={phone1Ref}
                       onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('phone1')
+                        setKeyboardActiveInput('phone1');
                       }}
                       value={phone1}
                       maxLength={3}
@@ -264,13 +320,11 @@ export const VerticalTripPlan = observer(
                       type="number"
                       w={'100px'}
                       letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'phone2'}
+                      name="phone2"
+                      inputName="phone2"
+                      ref={phone2Ref}
                       onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('phone2')
+                        setKeyboardActiveInput('phone2');
                       }}
                       value={phone2}
                       maxLength={4}
@@ -345,26 +399,6 @@ export const VerticalTripPlan = observer(
                 tripRequest={tripRequest}
                 rider={rider}
               />
-              {ux === 'kiosk' && trip.isShuttle &&
-                <Box
-                  style={{
-                    position: 'absolute',
-                    top: '35%',
-                    width: '380px',
-                    padding: '0 15px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Text
-                    colorScheme='green'
-                    fontSize={'2xl'}
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >{shuttleSuccess}</Text>
-                  <Text>{timerStarted ? t('tripWizard.timeRemaining', { count: secondsLeft }) : ''}</Text>
-                </Box>
-              }
             </Box>
             <TripPlanScheduleButtons
               scheduleTripHandler={scheduleTripHandler}
