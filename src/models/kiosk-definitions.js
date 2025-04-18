@@ -77,13 +77,14 @@ const kioskDefinitions = {
 export const getCurrentKioskConfig = () => {
   const queryParams = new URLSearchParams(window.location.search);
   const mode = queryParams.get('mode');
-  
+
   // Only provide kiosk config if in kiosk mode
   if (mode !== 'kiosk') {
     return null;
   }
 
-  const kioskId = queryParams.get('kiosk');
+  // TEMP: until the summerbest kiosk is configured, default to summerbest
+  const kioskId = queryParams.get('kiosk') ?? 'summerbest';
   const urlLocation = queryParams.get('location');
   const urlPickup = queryParams.get('pickup');
   const urlDisplayName = queryParams.get('displayName');

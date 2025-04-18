@@ -364,7 +364,6 @@ const defaults = {
     ZOOM: 13,
     KIOSK_ZOOM: 16,
     CENTER: [42.8962389, -78.8644423],
-    // -78.8767,42.8853
     VIEWBOX: [-74.3878, 43.0283, -74.2989, 43.0755],
   },
   ORGANIZATION: '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',

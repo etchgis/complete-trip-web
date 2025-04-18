@@ -10,8 +10,9 @@ import { useStore } from '../../context/RootStore';
 const OnScreenKeyboard = observer(() => {
   const [layout, setLayout] = useState('default');
   const [layoutType, setLayoutType] = useState('default');
-  const { onScreenKeyboardInput, setKeyboardInputValue, activeInput, keyBoardType } =
-    useStore().uiStore;
+  const store = useStore();
+  const { onScreenKeyboardInput, setKeyboardInputValue, activeInput, keyBoardType, setKeyboardActiveInput } =
+    store.uiStore;
   const keyboard = useRef();
 
   const handleShift = () => {
@@ -20,35 +21,58 @@ const OnScreenKeyboard = observer(() => {
   };
 
   const onKeyPress = button => {
-    console.log('onKeyPress', button);
-    if (button === '{shift}' || button === '{lock}') handleShift();
+    if (button === '{shift}' || button === '{lock}') {
+      handleShift();
+      return;
+    }
+
+    // Check if we should replace the entire input on this keystroke
+    if (keyboard.current && keyboard.current.replaceEntireInputOnNextKeystroke) {
+      if (button.length === 1 || /^\d$/.test(button)) {
+        setKeyboardInputValue(button);
+        keyboard.current.setInput(button);
+        keyboard.current.replaceEntireInputOnNextKeystroke = false;
+        return;
+      }
+    }
   };
 
   const onInputChange = input => {
-    // console.log(input, layoutType, typeof input);
-    // console.log('input', input, layoutType, typeof input, isNaN(input), activeInput);
-    // if (layoutType === 'numeric' && !isNaN(input)) {
-      console.log('onInputChange', input);
     setKeyboardInputValue(input);
-    // if (keyboard.current) keyboard.current.setInput(input);
-    // }
-    // else if (layoutType === 'default') {
-    //   console.log('SET ALPHA', input);
-    //   setKeyboardInputValue(input);
-    //   // if (keyboard.current) keyboard.current.setInput(input);
-    // }
+
     if (keyboard.current) keyboard.current.setInput(input);
+
+    // Auto-advance to next field when maximum length is reached
+    const maxLength = getMaxLength();
+    if (maxLength && input.length >= maxLength) {
+      const fieldSequence = ['pin', 'areaCode', 'phone1', 'phone2'];
+      const currentIndex = fieldSequence.indexOf(activeInput);
+      if (currentIndex >= 0 && currentIndex < fieldSequence.length - 1) {
+        const nextField = fieldSequence[currentIndex + 1];
+        // Use a small delay to ensure the current input is processed first
+        setTimeout(() => {
+          setKeyboardActiveInput(nextField);
+        }, 100);
+      }
+    }
   };
 
   useEffect(() => {
     if (keyboard.current) {
-      console.log('onScreenKeyboardInput', onScreenKeyboardInput[activeInput]);
       keyboard.current.setInput(onScreenKeyboardInput[activeInput] || '');
     }
-  }, [onScreenKeyboardInput]);
+  }, [onScreenKeyboardInput, activeInput]);
 
   useEffect(() => {
-    if (keyboard.current) keyboard.current.setInput('');
+    if (keyboard.current) {
+      // If we've returned to a field that already has a value, set a flag to check next input
+      const oldValue = onScreenKeyboardInput[activeInput] || '';
+      if (oldValue.length > 0) {
+        keyboard.current.replaceEntireInputOnNextKeystroke = true;
+      } else {
+        keyboard.current.replaceEntireInputOnNextKeystroke = false;
+      }
+    }
   }, [activeInput]);
 
   useEffect(() => {

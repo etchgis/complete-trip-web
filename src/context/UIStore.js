@@ -15,7 +15,9 @@ class UIStore {
     startAddress: '',
     endAddress: '',
     pin: '',
-    phone: ''
+    areaCode: '',
+    phone1: '',
+    phone2: ''
   };
   activeInput = 'transitSearch';
   keyBoardType = 'default';
@@ -46,12 +48,8 @@ class UIStore {
   }
 
   setKeyboardActiveInput = value => {
-    //NOTE this would reset the state of the keyboard input for the active input
-    // const newState = { ...this.onScreenKeyboardInput };
-    // newState[value] = '';
     runInAction(() => {
       this.activeInput = value;
-      // this.onScreenKeyboardInput = { ...newState };
     });
   };
 
@@ -64,6 +62,10 @@ class UIStore {
       transitSearch: '',
       startAddress: '',
       endAddress: '',
+      pin: '',
+      areaCode: '',
+      phone1: '',
+      phone2: ''
     };
     runInAction(() => {
       this.onScreenKeyboardInput = { ...emptyState };
