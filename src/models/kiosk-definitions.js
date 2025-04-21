@@ -21,7 +21,7 @@ const kioskDefinitions = {
       en: "Exit the building and look for the NFTA paratransit stop located at the light pole to the right of the building exit on High Street.",
       es: "Salga del edificio y busque la parada de paratránsito de NFTA ubicada en el poste de luz a la derecha de la salida del edificio en High Street."
     },
-    pickupImagePath: "/stops/bgmc-pickup.jpeg",
+    pickupImagePath: "/stops/bgmc-pickup.jpg",
     // defaultDestinations: [
     //   {
     //     name: "Oishei Children's Hospital",
@@ -53,7 +53,7 @@ const kioskDefinitions = {
       en: "The shuttle will arrive directly outside the front doors of the Summer-Best Station on Best Street. Wait near the station entrance.",
       es: "El transporte llegará directamente afuera de las puertas principales de la estación Summer-Best en Best Street. Espere cerca de la entrada de la estación."
     },
-    pickupImagePath: "/stops/summer-best-station-pickup.jpeg",
+    pickupImagePath: "/stops/summer-best-station-pickup.jpg",
     // defaultDestinations: [
     //   {
     //     name: "Buffalo General Medical Center",
