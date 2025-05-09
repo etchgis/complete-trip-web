@@ -17,7 +17,9 @@ class UIStore {
     pin: '',
     areaCode: '',
     phone1: '',
-    phone2: ''
+    phone2: '',
+    date: '',
+    time: ''
   };
   activeInput = 'transitSearch';
   keyBoardType = 'default';
@@ -65,7 +67,9 @@ class UIStore {
       pin: '',
       areaCode: '',
       phone1: '',
-      phone2: ''
+      phone2: '',
+      date: '',
+      time: ''
     };
     runInAction(() => {
       this.onScreenKeyboardInput = { ...emptyState };
@@ -75,9 +79,10 @@ class UIStore {
 
   setKeyboardInputValue = value => {
     runInAction(() => {
-      const newInput = { ...this.onScreenKeyboardInput };
-      newInput[this.activeInput] = value;
-      this.onScreenKeyboardInput = { ...newInput };
+      this.onScreenKeyboardInput = {
+        ...this.onScreenKeyboardInput,
+        [this.activeInput]: value
+      };
     });
   };
 

@@ -47,6 +47,14 @@ export const Autocomplete = observer(props => {
   );
 
   /*KEYBOARD*/
+  // Auto-focus effect for kiosk mode
+  React.useEffect(() => {
+    if (props.autoFocus && inputRef.current) {
+      inputRef.current.focus();
+      ui.setKeyboardActiveInput(props.inputName);
+    }
+  }, [props.autoFocus, props.inputName, ui]);
+
   React.useEffect(() => {
     // console.log('--------------------');
     // console.log('[autocomplete] useEffect for onScreenKeyboardInput');
@@ -69,7 +77,7 @@ export const Autocomplete = observer(props => {
     } else if (!inputRef?.current?.value || !props?.items?.length) {
       state.close();
     }
-  }, [props.showResults, state, inputRef, props.items]);
+  }, [props.showResults, state, inputRef, props.items, props.inputName, props.activeInput]);
 
   //METHOD TO CLEAR INPUT
   const clearInput = () => {
@@ -99,6 +107,7 @@ export const Autocomplete = observer(props => {
           data-testid="address-search-input"
           aria-label={'address search input'}
           type="text"
+          autoFocus={props.autoFocus}
         />
         <InputRightElement aria-hidden={true}>
           {props.loadingState === 'loading' ||
@@ -131,6 +140,12 @@ export const Autocomplete = observer(props => {
             loadingState={props.loadingState}
             onLoadMore={props.onLoadMore}
             width="100%"
+            onKeyDown={(e) => {
+              // Maintain keyboard focus on the input while the listbox is open (for kiosk mode)
+              if (ui.ux === 'kiosk' && props.inputName) {
+                ui.setKeyboardActiveInput(props.inputName);
+              }
+            }}
           />
         </Popover>
       )}

@@ -548,7 +548,7 @@ export default function genLocales() {
         back: 'Back',
         servicing: 'Servicing',
         stop: 'Stop',
-        shuttleNotAvailableTimeFrame: 'Sorry but this shuttle is not available during this time.'
+        shuttleNotAvailableTimeFrame: 'Sorry, but this shuttle is not available during this time.'
       },
       es: {
         next: 'Próximo',
