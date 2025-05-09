@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
+import AlertModal from '../AlertModal';
 import Loader from '../Loader';
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import config from '../../config';
@@ -38,6 +39,8 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
   );
   const [defaultAddress, setDefaultAddress] = useState('');
   const [searchResult, setSearchResult] = useState(false);
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   const { pathname } = useLocation();
 
   const intervalRef = useRef();
@@ -134,7 +137,8 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           onShuttlePress(service);
         }
         if (!inTimeframe) {
-          alert(t('routeList.shuttleNotAvailableTimeFrame'));
+          setAlertMessage(t('routeList.shuttleNotAvailableTimeFrame'));
+          setAlertModalOpen(true);
         }
       }
     } catch (error) {
@@ -311,6 +315,11 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
       </Flex>
       {/* NOTE only show loader when map is actually open */}
       <Loader isOpen={showLoader && pathname === '/map'}></Loader>
+      <AlertModal 
+        isOpen={alertModalOpen}
+        onClose={() => setAlertModalOpen(false)}
+        message={alertMessage}
+      />
       {/* ----------------------- */}
       {/* ----------------------- */}
     </>
