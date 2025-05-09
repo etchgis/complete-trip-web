@@ -41,27 +41,152 @@ const OnScreenKeyboard = observer(() => {
 
     let currentValue = inputAccumulator[activeInput] || '';
 
-    // Check if we should replace the entire input on the first keystroke
-    if (shouldReplaceInput && button.length === 1) {
-      // For character keys when shouldReplaceInput is true, replace the entire input
-      currentValue = button;
-      setShouldReplaceInput(false);
-    } else {
+    // Special handling for date input
+    if (activeInput === 'date') {
       if (button === '{bksp}') {
         // Remove the last character
         currentValue = currentValue.slice(0, -1);
-      } else if (button === '{space}') {
-        // Add a space
-        currentValue += ' ';
-      } else if (button === '{enter}') {
-        // No special handling for enter
-        return;
       } else if (button === '{clear}') {
         // Clear the field
         currentValue = '';
-      } else if (button.length === 1 || /^\d$/.test(button)) {
-        // For regular characters, just append
-        currentValue += button;
+      } else if (/^\d$/.test(button)) {
+        // For date input, handle auto-formatting and validation (YYYY-MM-DD)
+        if (shouldReplaceInput) {
+          currentValue = button;
+          setShouldReplaceInput(false);
+        } else {
+          // Initialize with current date if empty
+          if (currentValue.length === 0) {
+            const today = new Date();
+            const year = today.getFullYear();
+            // Set first digit of year and continue
+            currentValue = year.toString().substring(0, 3) + button;
+          } else if (currentValue.length === 4) {
+            // After year, add dash and first digit of month
+            // Ensure month starts with 0 or 1
+            if (button > 1) {
+              currentValue += '-0' + button;
+            } else {
+              currentValue += '-' + button;
+            }
+          } else if (currentValue.length === 6 && currentValue[5] === '1') {
+            // Second digit of month when first digit is 1
+            // Ensure month is 10, 11, or 12
+            if (button > 2) {
+              currentValue = currentValue.slice(0, 5) + '0-0' + button;
+            } else {
+              currentValue += button + '-';
+            }
+          } else if (currentValue.length === 6 && currentValue[5] === '0') {
+            // Second digit of month when first digit is 0
+            // Ensure month is 01-09
+            if (button === '0') {
+              currentValue = currentValue.slice(0, 5) + '1-01';
+            } else {
+              currentValue += button + '-';
+            }
+          } else if (currentValue.length === 8) {
+            // First digit of day
+            // Ensure day starts with 0, 1, 2, or 3
+            if (button > 3) {
+              currentValue += '0' + button;
+            } else {
+              currentValue += button;
+            }
+          } else if (currentValue.length === 9 && currentValue[8] === '3') {
+            // Second digit of day when first digit is 3
+            // Ensure day is 30 or 31
+            if (button > 1) {
+              currentValue = currentValue.slice(0, 8) + '0' + button;
+            } else {
+              currentValue += button;
+            }
+          } else if (currentValue.length === 9 && currentValue[8] === '0') {
+            // Second digit of day when first digit is 0
+            // Ensure day is not 00
+            if (button === '0') {
+              currentValue = currentValue.slice(0, 8) + '01';
+            } else {
+              currentValue += button;
+            }
+          } else {
+            currentValue += button;
+          }
+        }
+      }
+    }
+    // Special handling for time input
+    else if (activeInput === 'time') {
+      if (button === '{bksp}') {
+        // Remove the last character
+        currentValue = currentValue.slice(0, -1);
+      } else if (button === '{clear}') {
+        // Clear the field
+        currentValue = '';
+      } else if (/^\d$/.test(button)) {
+        // For time input, handle auto-formatting and validation (HH:MM)
+        if (shouldReplaceInput) {
+          // For first input, validate hour range
+          if (button > 2) {
+            currentValue = '0' + button;
+          } else {
+            currentValue = button;
+          }
+          setShouldReplaceInput(false);
+        } else {
+          if (currentValue.length === 0) {
+            // First digit of hour
+            if (button > 2) {
+              currentValue = '0' + button;
+            } else {
+              currentValue = button;
+            }
+          } else if (currentValue.length === 1) {
+            // Second digit of hour
+            if (currentValue === '2' && button > 3) {
+              // If first digit is 2, second can only be 0-3 (max 23 hours)
+              currentValue = '0' + currentValue + ':0' + button;
+            } else {
+              currentValue += button;
+            }
+          } else if (currentValue.length === 2) {
+            // After hour, add colon and ensure minute starts with valid digit
+            if (button > 5) {
+              currentValue += ':0' + button;
+            } else {
+              currentValue += ':' + button;
+            }
+          } else if (currentValue.length === 4) {
+            // Last digit of minutes
+            currentValue += button;
+          }
+        }
+      }
+    }
+    // Default handling for other inputs
+    else {
+      // Check if we should replace the entire input on the first keystroke
+      if (shouldReplaceInput && button.length === 1) {
+        // For character keys when shouldReplaceInput is true, replace the entire input
+        currentValue = button;
+        setShouldReplaceInput(false);
+      } else {
+        if (button === '{bksp}') {
+          // Remove the last character
+          currentValue = currentValue.slice(0, -1);
+        } else if (button === '{space}') {
+          // Add a space
+          currentValue += ' ';
+        } else if (button === '{enter}') {
+          // No special handling for enter
+          return;
+        } else if (button === '{clear}') {
+          // Clear the field
+          currentValue = '';
+        } else if (button.length === 1 || /^\d$/.test(button)) {
+          // For regular characters, just append
+          currentValue += button;
+        }
       }
     }
 
@@ -76,7 +201,15 @@ const OnScreenKeyboard = observer(() => {
     // Auto-advance to next field when maximum length is reached
     const maxLength = getMaxLength();
     if (maxLength && currentValue.length >= maxLength) {
-      const fieldSequence = ['pin', 'areaCode', 'phone1', 'phone2'];
+      const getFieldSequence = () => {
+        // Different field sequences for different contexts
+        if (activeInput === 'date' || activeInput === 'time') {
+          return ['date', 'time'];
+        }
+        return ['pin', 'areaCode', 'phone1', 'phone2'];
+      };
+
+      const fieldSequence = getFieldSequence();
       const currentIndex = fieldSequence.indexOf(activeInput);
       if (currentIndex >= 0 && currentIndex < fieldSequence.length - 1) {
         const nextField = fieldSequence[currentIndex + 1];
@@ -112,6 +245,12 @@ const OnScreenKeyboard = observer(() => {
     }
     else if (activeInput === 'areaCode' || activeInput === 'phone1') {
       return 3;
+    }
+    else if (activeInput === 'date') {
+      return 10; // YYYY-MM-DD format has 10 characters
+    }
+    else if (activeInput === 'time') {
+      return 5; // HH:MM format has 5 characters
     }
     return null;
   }

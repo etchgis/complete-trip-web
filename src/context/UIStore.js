@@ -17,7 +17,9 @@ class UIStore {
     pin: '',
     areaCode: '',
     phone1: '',
-    phone2: ''
+    phone2: '',
+    date: '',
+    time: ''
   };
   activeInput = 'transitSearch';
   keyBoardType = 'default';
@@ -65,7 +67,9 @@ class UIStore {
       pin: '',
       areaCode: '',
       phone1: '',
-      phone2: ''
+      phone2: '',
+      date: '',
+      time: ''
     };
     runInAction(() => {
       this.onScreenKeyboardInput = { ...emptyState };

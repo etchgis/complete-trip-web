@@ -258,7 +258,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   } = useDisclosure();
   const { locations: favLocations, addLocation } = useStore().favorites;
   const { loggedIn } = useStore().authentication;
-  const { ux, setKeyboardType } = useStore().uiStore;
+  const { ux } = useStore().uiStore;
 
   const startRef = useRef(null);
   const endRef = useRef(null);
@@ -280,6 +280,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   });
 
   const [whenAction, setWhenAction] = useState(trip?.request?.whenAction || 'asap');
+  const { onScreenKeyboardInput, setKeyboardType, setKeyboardActiveInput, setKeyboardInputValue } = useStore().uiStore;
 
   useEffect(() => {
     setKeyboardType(null);
@@ -338,7 +339,15 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
       trip.updateDestination(locations.end);
       trip.updateWhenAction('asap'); //TODO add leave, arrive
       if (data.get('date') && data.get('time')) {
-        trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+        // When in kiosk mode, we might have the input values from the on-screen keyboard
+        const dateValue = ux === 'kiosk' && onScreenKeyboardInput.date
+          ? onScreenKeyboardInput.date
+          : data.get('date');
+        const timeValue = ux === 'kiosk' && onScreenKeyboardInput.time
+          ? onScreenKeyboardInput.time
+          : data.get('time');
+
+        trip.updateWhen(new Date(dateValue + ' ' + timeValue));
       }
       else {
         trip.updateWhen(new Date());
@@ -657,17 +666,57 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
       {!trip.isShuttle && whenAction !== 'asap' &&
         <FormControl isRequired>
           <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
-          <Input
-            type="date"
-            defaultValue={parseDate(trip?.request?.whenTime)}
-            name="date"
-          ></Input>
+          {ux === 'kiosk' ? (
+            <Input
+              type="text"
+              pattern="\d{4}-\d{2}-\d{2}"
+              placeholder="YYYY-MM-DD"
+              defaultValue={parseDate(trip?.request?.whenTime)}
+              name="date"
+              value={onScreenKeyboardInput.date || parseDate(trip?.request?.whenTime)}
+              onChange={(e) => {
+                setKeyboardInputValue(e.target.value);
+              }}
+              onFocus={() => {
+                setKeyboardActiveInput('date');
+                setKeyboardType('numeric');
+              }}
+              data-testid="schedule-trip-date-input"
+            />
+          ) : (
+            <Input
+              type="date"
+              defaultValue={parseDate(trip?.request?.whenTime)}
+              name="date"
+              data-testid="schedule-trip-date-input"
+            />
+          )}
           <FormLabel>{t('tripWizard.time')}</FormLabel>
-          <Input
-            type="time"
-            defaultValue={parseTime(trip?.request?.whenTime)}
-            name="time"
-          ></Input>
+          {ux === 'kiosk' ? (
+            <Input
+              type="text"
+              pattern="[0-2][0-9]:[0-5][0-9]"
+              placeholder="HH:MM"
+              defaultValue={parseTime(trip?.request?.whenTime)}
+              name="time"
+              value={onScreenKeyboardInput.time || parseTime(trip?.request?.whenTime)}
+              onChange={(e) => {
+                setKeyboardInputValue(e.target.value);
+              }}
+              onFocus={() => {
+                setKeyboardActiveInput('time');
+                setKeyboardType('numeric');
+              }}
+              data-testid="schedule-trip-time-input"
+            />
+          ) : (
+            <Input
+              type="time"
+              defaultValue={parseTime(trip?.request?.whenTime)}
+              name="time"
+              data-testid="schedule-trip-time-input"
+            />
+          )}
         </FormControl>
       }
 
@@ -876,10 +925,9 @@ const Fourth = ({
   setSelectedTrip,
   chatIsActive,
 }) => {
-  const { setToastMessage, setToastStatus, setHasSelectedPlan } =
+  const { setToastMessage, setToastStatus, setHasSelectedPlan, setKeyboardType } =
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
-  const { setKeyboardType } = useStore().uiStore;
   const { t } = useTranslation();
 
   const navigate = useNavigate()
