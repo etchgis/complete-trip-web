@@ -208,3 +208,54 @@ body.fontsize-lg h3.route-list-heading {
   font-weight: bold;
   margin-bottom: 0;
 }
+
+/** ------------------------ **/
+/** ---- FOCUS STYLES ---- **/
+/** ------------------------ **/
+
+/* Enhanced focus outline for all interactive elements */
+:focus {
+  outline: 3px solid #2465b1 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 3px rgba(36, 101, 177, 0.5) !important;
+  transition: outline-offset 0.1s ease !important;
+  border-radius: 2px !important;
+  z-index: 9 !important;
+}
+
+/* Special focus styles for form elements */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus,
+a:focus,
+.chakra-checkbox:focus,
+.chakra-radio:focus,
+.chakra-switch:focus {
+  outline: 3px solid #2465b1 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 3px rgba(36, 101, 177, 0.8) !important;
+  transition: outline-offset 0.1s ease !important;
+  z-index: 9 !important;
+  position: relative;
+}
+
+/* High contrast focus styles */
+body.contrast :focus {
+  outline: 4px solid #0000ff !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 6px #0000ff !important;
+  transition: outline-offset 0.1s ease !important;
+  z-index: 9 !important;
+}
+
+/* Visible focus animation for better visibility */
+@keyframes focusPulse {
+  0% { outline-width: 3px; }
+  50% { outline-width: 4px; }
+  100% { outline-width: 3px; }
+}
+
+:focus:not(:active) {
+  animation: focusPulse 2s infinite;
+}
