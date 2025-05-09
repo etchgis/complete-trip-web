@@ -7,13 +7,26 @@ import Keyboard from 'react-simple-keyboard';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
+let inputAccumulator = {};
+
 const OnScreenKeyboard = observer(() => {
   const [layout, setLayout] = useState('default');
   const [layoutType, setLayoutType] = useState('default');
+  const [shouldReplaceInput, setShouldReplaceInput] = useState(false);
   const store = useStore();
   const { onScreenKeyboardInput, setKeyboardInputValue, activeInput, keyBoardType, setKeyboardActiveInput } =
     store.uiStore;
   const keyboard = useRef();
+
+  useEffect(() => {
+    Object.keys(onScreenKeyboardInput).forEach(key => {
+      if (inputAccumulator[key] === undefined) {
+        inputAccumulator[key] = onScreenKeyboardInput[key] || '';
+      }
+    });
+
+    inputAccumulator[activeInput] = onScreenKeyboardInput[activeInput] || '';
+  }, [onScreenKeyboardInput, activeInput]);
 
   const handleShift = () => {
     const newLayoutName = layout === 'default' ? 'shift' : 'default';
@@ -26,25 +39,43 @@ const OnScreenKeyboard = observer(() => {
       return;
     }
 
-    // Check if we should replace the entire input on this keystroke
-    if (keyboard.current && keyboard.current.replaceEntireInputOnNextKeystroke) {
-      if (button.length === 1 || /^\d$/.test(button)) {
-        setKeyboardInputValue(button);
-        keyboard.current.setInput(button);
-        keyboard.current.replaceEntireInputOnNextKeystroke = false;
+    let currentValue = inputAccumulator[activeInput] || '';
+
+    // Check if we should replace the entire input on the first keystroke
+    if (shouldReplaceInput && button.length === 1) {
+      // For character keys when shouldReplaceInput is true, replace the entire input
+      currentValue = button;
+      setShouldReplaceInput(false);
+    } else {
+      if (button === '{bksp}') {
+        // Remove the last character
+        currentValue = currentValue.slice(0, -1);
+      } else if (button === '{space}') {
+        // Add a space
+        currentValue += ' ';
+      } else if (button === '{enter}') {
+        // No special handling for enter
         return;
+      } else if (button === '{clear}') {
+        // Clear the field
+        currentValue = '';
+      } else if (button.length === 1 || /^\d$/.test(button)) {
+        // For regular characters, just append
+        currentValue += button;
       }
     }
-  };
 
-  const onInputChange = input => {
-    setKeyboardInputValue(input);
+    inputAccumulator[activeInput] = currentValue;
 
-    if (keyboard.current) keyboard.current.setInput(input);
+    setKeyboardInputValue(currentValue);
+
+    if (keyboard.current) {
+      keyboard.current.setInput(currentValue);
+    }
 
     // Auto-advance to next field when maximum length is reached
     const maxLength = getMaxLength();
-    if (maxLength && input.length >= maxLength) {
+    if (maxLength && currentValue.length >= maxLength) {
       const fieldSequence = ['pin', 'areaCode', 'phone1', 'phone2'];
       const currentIndex = fieldSequence.indexOf(activeInput);
       if (currentIndex >= 0 && currentIndex < fieldSequence.length - 1) {
@@ -59,18 +90,14 @@ const OnScreenKeyboard = observer(() => {
 
   useEffect(() => {
     if (keyboard.current) {
-      keyboard.current.setInput(onScreenKeyboardInput[activeInput] || '');
-    }
-  }, [onScreenKeyboardInput, activeInput]);
+      const currentValue = inputAccumulator[activeInput] || '';
+      keyboard.current.setInput(currentValue);
 
-  useEffect(() => {
-    if (keyboard.current) {
-      // If we've returned to a field that already has a value, set a flag to check next input
-      const oldValue = onScreenKeyboardInput[activeInput] || '';
-      if (oldValue.length > 0) {
-        keyboard.current.replaceEntireInputOnNextKeystroke = true;
+      // If the field already has a value, set the flag to replace it on first keystroke
+      if (currentValue.length > 0) {
+        setShouldReplaceInput(true);
       } else {
-        keyboard.current.replaceEntireInputOnNextKeystroke = false;
+        setShouldReplaceInput(false);
       }
     }
   }, [activeInput]);
@@ -109,9 +136,21 @@ const OnScreenKeyboard = observer(() => {
       <Box w="100%" maxW="800px">
         <Keyboard
           keyboardRef={r => (keyboard.current = r)}
+          // default or shift
           layoutName={layout}
-          onChange={onInputChange}
           onKeyPress={onKeyPress}
+          // Disable highlighting of keys
+          physicalKeyboardHighlight={false}
+          // Prevent the keyboard from trying to sync with other keyboard instances
+          syncInstanceInputs={false}
+          // Prevent the keyboard from attempting to position the cursor in the input
+          disableCaretPositioning={true}
+          // Prevent default mouse behavior on keyboard buttons
+          preventMouseDownDefault={true}
+          // Use HTML button elements instead of divs for better accessibility
+          useButtonTag={true}
+          // Merge display of multiple layouts (important for handling special keys consistently)
+          mergeDisplay={true}
           inputName={activeInput}
           inputPattern={keyBoardType === 'numeric' ? /^[0-9]*$/ : null}
           maxLength={getMaxLength()}
