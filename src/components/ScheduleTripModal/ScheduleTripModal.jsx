@@ -542,6 +542,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
           required={true}
           clearResult={true}
           inputName="endAddress"
+          autoFocus={ux === 'kiosk'}
         />
 
         {(ux === 'webapp' || ux === 'callcenter') &&

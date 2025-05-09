@@ -75,9 +75,10 @@ class UIStore {
 
   setKeyboardInputValue = value => {
     runInAction(() => {
-      const newInput = { ...this.onScreenKeyboardInput };
-      newInput[this.activeInput] = value;
-      this.onScreenKeyboardInput = { ...newInput };
+      this.onScreenKeyboardInput = {
+        ...this.onScreenKeyboardInput,
+        [this.activeInput]: value
+      };
     });
   };
 
