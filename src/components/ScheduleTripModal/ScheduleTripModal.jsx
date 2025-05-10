@@ -176,6 +176,7 @@ export const ScheduleTripModal = observer(
           pt={0}
           pb={ux === 'kiosk' ? '180px' : '0'}
           data-testid="schedule-trip-modal--content"
+          position="fixed"
         >
           <ModalHeader as="h3">
             {step === 0
@@ -212,7 +213,14 @@ export const ScheduleTripModal = observer(
             ) : (
               ''
             )}
-            <ModalCloseButton p={6} />
+            <ModalCloseButton
+              p={6}
+              sx={{
+                "&:focus": {
+                  position: "absolute", // Keep the absolute positioning on focus
+                }
+              }}
+            />
           </ModalHeader>
           <ModalBody
             width="auto"
