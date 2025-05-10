@@ -512,12 +512,12 @@ export default function genLocales() {
     // },
     home: {
       en: {
-        tripButton: 'Schedule a Trip',
+        tripButton: 'Plan a Trip',
         tripName: 'Trip Name',
         saveFavorite: 'Save as Favorite',
       },
       es: {
-        tripButton: 'Programar un Viaje',
+        tripButton: 'Planificar un Viaje',
         tripName: 'Nombre del Viaje',
         saveFavorite: 'Guardar como Favorito',
       },
@@ -562,7 +562,7 @@ export default function genLocales() {
       en: {
         searchFrom: 'From',
         searchTo: 'To',
-        scheduleTrip: 'Schedule a Trip',
+        scheduleTrip: 'Plan a Trip',
         scheduleShuttle: 'Schedule Shuttle',
         saveAddress: 'Save Address',
         addressName: 'Address Nickname',
@@ -573,7 +573,7 @@ export default function genLocales() {
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
         modes: 'Modes of Transportation',
-        selectTransportation: 'Schedule a Trip',
+        selectTransportation: 'Plan a Trip',
         chatbot: 'Where To?',
         selectTrip: 'Select a Trip',
         leave: 'Leave',
@@ -612,7 +612,7 @@ export default function genLocales() {
       es: {
         searchFrom: 'De',
         searchTo: 'hacia',
-        scheduleTrip: 'Programar un viaje',
+        scheduleTrip: 'Planificar un viaje',
         scheduleShuttle: 'Programar autobús',
         saveAddress: 'Guardar dirección',
         addressName: 'Apodo de la dirección',
@@ -623,7 +623,7 @@ export default function genLocales() {
         leaveBy: 'Salir A', //✅
         arriveBy: 'Llegar antes de', //✅
         modes: 'Modos de Transporte', //✅
-        selectTransportation: 'Programar un Viaje',
+        selectTransportation: 'Planificar un Viaje',
         chatbot: '¿A dónde?', //✅
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
@@ -633,7 +633,7 @@ export default function genLocales() {
         includesStops: 'Incluye paradas',
         mode: 'Modo',
         generatingPlans: 'Generando Planes...', //✅
-        schedule: 'Programar viaje',
+        schedule: 'Planificar viaje',
         overview: 'Descripción General del Plan de Viaje', //✅
         transfer: 'transferencia', //✅
         roll: 'Rollo', //✅
