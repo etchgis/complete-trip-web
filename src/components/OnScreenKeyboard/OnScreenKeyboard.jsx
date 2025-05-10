@@ -315,33 +315,35 @@ const OnScreenKeyboard = observer(() => {
       background={'#ececec'}
       alignContent={'center'}
       justifyContent={'center'}
-      flexDirection={'column'}
       boxShadow={'0 -5px 5px -5px #999'}
       borderRadius={0}
     >
       {/* Toggle Button for Checkboxes - Only shows when a checkbox is focused */}
       {store.uiStore.focusedCheckbox && (
-        <Flex justify="center" mb={2} px={4} width="100%">
-          <Button
-            onClick={handleToggleCheckbox}
-            colorScheme="blue"
-            size="lg"
-            borderRadius="full"
-            boxShadow="md"
-            maxW="800px"
-            width="100%"
-            fontWeight="bold"
-            aria-label="Toggle Checkbox"
-            data-test-id="toggle-checkbox-button"
-            height="50px"
-          >
-            Toggle Selection
-          </Button>
-        </Flex>
+        <Button
+          onClick={handleToggleCheckbox}
+          colorScheme="blue"
+          size="lg"
+          borderRadius="full"
+          boxShadow="md"
+          position="absolute"
+          top="-55px"
+          left="50%"
+          transform="translateX(-50%)"
+          width="80%"
+          maxW="800px"
+          fontWeight="bold"
+          aria-label="Toggle Checkbox"
+          data-test-id="toggle-checkbox-button"
+          height="50px"
+          zIndex="1501"
+        >
+          Toggle Selection
+        </Button>
       )}
 
       {/* Keyboard */}
-      <Box w="100%" maxW="800px" alignSelf="center">
+      <Box w="100%" maxW="800px">
         <Keyboard
           keyboardRef={r => (keyboard.current = r)}
           // default or shift
