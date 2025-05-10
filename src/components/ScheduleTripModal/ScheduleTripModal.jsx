@@ -213,14 +213,7 @@ export const ScheduleTripModal = observer(
             ) : (
               ''
             )}
-            <ModalCloseButton
-              p={6}
-              sx={{
-                "&:focus": {
-                  position: "absolute", // Keep the absolute positioning on focus
-                }
-              }}
-            />
+            <ModalCloseButton p={6} />
           </ModalHeader>
           <ModalBody
             width="auto"
