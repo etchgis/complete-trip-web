@@ -729,8 +729,9 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
 const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
-  const { user } = useStore().authentication;
-  const { setKeyboardType } = useStore().uiStore;
+  const store = useStore();
+  const { user } = store.authentication;
+  const { setKeyboardType } = store.uiStore;
   // console.log(toJS(trip));
   const allowedModes = config.MODES.reduce(
     (acc, mode) => [...acc, mode.mode],
@@ -806,7 +807,15 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
               if (mode.id === 'hail' && (!inTimeframe || trip.request.whenAction !== 'asap')) return '';
               if (mode.id === 'walk') return '';
               return (
-                <Checkbox key={mode.id} value={mode.mode}>
+                <Checkbox
+                  key={mode.id}
+                  value={mode.mode}
+                  id={`mode-checkbox-${mode.id}`}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
+                  }}
+                  tabIndex={0} // Make sure checkbox is focusable
+                >
                   {t(`settingsPreferences.${mode.id}`)}
                 </Checkbox>
               );

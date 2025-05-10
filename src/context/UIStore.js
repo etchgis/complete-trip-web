@@ -23,6 +23,7 @@ class UIStore {
   };
   activeInput = 'transitSearch';
   keyBoardType = 'default';
+  focusedCheckbox = null;
   ui = {
     contrast: false,
     letterSpacing: 'normal',
@@ -144,6 +145,28 @@ class UIStore {
     runInAction(() => {
       this.hasSelectedPlan = value;
     });
+  };
+
+  setFocusedCheckbox = value => {
+    runInAction(() => {
+      this.focusedCheckbox = value;
+    });
+  };
+
+  toggleFocusedCheckbox = () => {
+    if (this.focusedCheckbox) {
+      // Find the checkbox element and toggle it
+      const checkbox = document.getElementById(this.focusedCheckbox);
+      if (checkbox) {
+        // Simulate a click on the checkbox
+        checkbox.click();
+
+        // Re-focus the checkbox after toggling
+        setTimeout(() => {
+          checkbox.focus();
+        }, 50);
+      }
+    }
   };
 }
 export default UIStore;
