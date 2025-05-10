@@ -4,13 +4,11 @@ import ShuttleSuccessModal from './ShuttleSuccessModal';
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { useEffect, useRef, useState } from 'react';
 import { CloseIcon } from '@chakra-ui/icons';
 import rides from '../../services/transport/rides';
-import { result, set } from 'lodash';
 import useIntervalHook from '../../hooks/useIntervalHook';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
@@ -22,7 +20,6 @@ export const VerticalTripPlan = observer(
     scheduleTripHandler,
     backClickHandler,
     cancelClickHandler,
-    summonShuttleHandler,
     scheduleShuttleHandler,
   }) => {
     const { colorMode } = useColorMode();
@@ -129,10 +126,8 @@ export const VerticalTripPlan = observer(
         setError('');
         const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
           driverId = null,
-          // driverId = 'd95c52b6-ee0d-44f1-9148-7c77971a4653',
           datetime = Date.now(),
           passengers = 1;
-        // const pickup = trip.request.origin;
         // TODO: get proper pickup coordinates from the URL
         const pickup = {
           title: 'BGMC Main Entrance',
@@ -182,7 +177,6 @@ export const VerticalTripPlan = observer(
 
     const kioskTopHeight = 700;
     const kioskBottomHeight = 255;
-    // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
     const headerHeight = 60;
 
     return (
@@ -257,29 +251,6 @@ export const VerticalTripPlan = observer(
                       maxLength={4}
                       autoComplete='off'
                     />
-                    {/* <PinInput
-                      otp
-                      // onChange={(e) => {
-                      //   // setPin(e);
-                      // }}
-                      // name={'pin'}
-                      size="lg"
-                    >
-                      <PinInputField
-                      name='pin'
-                        mx={2}
-                        onFocus={(e) => {
-                          e.target.select();
-                          setKeyboardActiveInput('pin');
-                        }}
-                        onChange={(e) => {
-                          setPin(e.target.value);
-                        }}
-                        value={pin} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                    </PinInput> */}
                   </Center>
                 </FormControl>
 
@@ -330,27 +301,6 @@ export const VerticalTripPlan = observer(
                       maxLength={4}
                       autoComplete='off'
                     />
-                    {/* <PinInput
-                      otp
-                      onChange={(e) => {
-                        setPhone(e);
-                      }}
-                      name={'pin'}
-                      size="lg"
-                    >
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <Text>-</Text>
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <Text>-</Text>
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                    </PinInput> */}
                   </Center>
                 </FormControl>
 
@@ -373,14 +323,12 @@ export const VerticalTripPlan = observer(
           borderTop="solid thin lightgray"
           borderBottom="solid thin lightgray"
           borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-          // height={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
           overflow={'hidden'}
         >
           <Flex
             flexDir={'column'}
             borderRight="solid thin lightgray"
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-            // w={{ base: '100%', md: '380px' }}
             w={{ base: ux === 'kiosk' ? '380px' : '100%', md: '380px' }}
             h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
             id="vertical-trip-plan-sidebar"
