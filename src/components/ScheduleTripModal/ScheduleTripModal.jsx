@@ -176,6 +176,7 @@ export const ScheduleTripModal = observer(
           pt={0}
           pb={ux === 'kiosk' ? '180px' : '0'}
           data-testid="schedule-trip-modal--content"
+          position="fixed"
         >
           <ModalHeader as="h3">
             {step === 0
@@ -212,7 +213,14 @@ export const ScheduleTripModal = observer(
             ) : (
               ''
             )}
-            <ModalCloseButton p={6} />
+            <ModalCloseButton
+              p={6}
+              sx={{
+                "&:focus": {
+                  position: "absolute", // Keep the absolute positioning on focus
+                }
+              }}
+            />
           </ModalHeader>
           <ModalBody
             width="auto"
@@ -729,8 +737,9 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
 const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
-  const { user } = useStore().authentication;
-  const { setKeyboardType } = useStore().uiStore;
+  const store = useStore();
+  const { user } = store.authentication;
+  const { setKeyboardType } = store.uiStore;
   // console.log(toJS(trip));
   const allowedModes = config.MODES.reduce(
     (acc, mode) => [...acc, mode.mode],
@@ -806,7 +815,15 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
               if (mode.id === 'hail' && (!inTimeframe || trip.request.whenAction !== 'asap')) return '';
               if (mode.id === 'walk') return '';
               return (
-                <Checkbox key={mode.id} value={mode.mode}>
+                <Checkbox
+                  key={mode.id}
+                  value={mode.mode}
+                  id={`mode-checkbox-${mode.id}`}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
+                  }}
+                  tabIndex={0} // Make sure checkbox is focusable
+                >
                   {t(`settingsPreferences.${mode.id}`)}
                 </Checkbox>
               );

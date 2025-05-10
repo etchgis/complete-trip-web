@@ -1,6 +1,6 @@
 import 'react-simple-keyboard/build/css/index.css';
 
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, Button } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
 import Keyboard from 'react-simple-keyboard';
@@ -17,6 +17,36 @@ const OnScreenKeyboard = observer(() => {
   const { onScreenKeyboardInput, setKeyboardInputValue, activeInput, keyBoardType, setKeyboardActiveInput } =
     store.uiStore;
   const keyboard = useRef();
+  
+  // Track toggle button interaction to prevent hiding when clicking
+  const [isTogglingCheckbox, setIsTogglingCheckbox] = useState(false);
+
+  // Handle global focus changes to track when focus leaves a checkbox
+  useEffect(() => {
+    const handleFocusChange = () => {
+      // Don't clear focus during a toggle operation
+      if (isTogglingCheckbox) {
+        return;
+      }
+
+      // Check if new focused element is a checkbox or the toggle button
+      const activeElement = document.activeElement;
+      const isCheckbox = activeElement?.id?.startsWith('mode-checkbox-');
+      const isToggleButton = activeElement?.closest?.('[data-test-id="toggle-checkbox-button"]');
+      if (!isCheckbox && !isToggleButton && store.uiStore.focusedCheckbox) {
+        setTimeout(() => {
+          store.uiStore.setFocusedCheckbox(null);
+        }, 0);
+      }
+    };
+
+    // Listen for focus changes throughout the document
+    document.addEventListener('focusin', handleFocusChange);
+
+    return () => {
+      document.removeEventListener('focusin', handleFocusChange);
+    };
+  }, [store.uiStore, isTogglingCheckbox]);
 
   useEffect(() => {
     Object.keys(onScreenKeyboardInput).forEach(key => {
@@ -36,6 +66,11 @@ const OnScreenKeyboard = observer(() => {
   const onKeyPress = button => {
     if (button === '{shift}' || button === '{lock}') {
       handleShift();
+      return;
+    }
+
+    if (button === '{space}' && store.uiStore.focusedCheckbox) {
+      handleToggleCheckbox();
       return;
     }
 
@@ -255,6 +290,17 @@ const OnScreenKeyboard = observer(() => {
     return null;
   }
 
+  const handleToggleCheckbox = () => {
+    setIsTogglingCheckbox(true);
+    
+    store.uiStore.toggleFocusedCheckbox();
+    
+    // Reset the toggling flag after a delay
+    setTimeout(() => {
+      setIsTogglingCheckbox(false);
+    }, 500);
+  }
+
   return (
     <Flex
       data-test-id="keyboard"
@@ -272,6 +318,31 @@ const OnScreenKeyboard = observer(() => {
       boxShadow={'0 -5px 5px -5px #999'}
       borderRadius={0}
     >
+      {/* Toggle Button for Checkboxes - Only shows when a checkbox is focused */}
+      {store.uiStore.focusedCheckbox && (
+        <Button
+          onClick={handleToggleCheckbox}
+          colorScheme="blue"
+          size="lg"
+          borderRadius="full"
+          boxShadow="md"
+          position="absolute"
+          top="-55px"
+          left="50%"
+          transform="translateX(-50%)"
+          width="80%"
+          maxW="800px"
+          fontWeight="bold"
+          aria-label="Toggle Checkbox"
+          data-test-id="toggle-checkbox-button"
+          height="50px"
+          zIndex="1501"
+        >
+          Toggle Selection
+        </Button>
+      )}
+
+      {/* Keyboard */}
       <Box w="100%" maxW="800px">
         <Keyboard
           keyboardRef={r => (keyboard.current = r)}
