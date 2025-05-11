@@ -156,6 +156,64 @@ const ShuttleSummonModal = observer(({
     }
   }, [isOpen, ux]);
 
+  // Create a focus trap to prevent tabbing outside the modal
+  useEffect(() => {
+    if (!isOpen || ux !== 'kiosk') return;
+
+    // Handler for keyboard events to trap focus
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault(); // Prevent default tab behavior
+
+        // Define the focusable elements
+        const focusableElements = [
+          pinInputRef.current,
+          areaCodeRef.current,
+          phone1Ref.current,
+          phone2Ref.current
+        ].filter(Boolean);
+
+        // Add the submit button to focusable elements
+        const submitButton = document.querySelector('[data-test-id="summon-shuttle-button"]');
+        if (submitButton) {
+          focusableElements.push(submitButton);
+        }
+
+        // Add the close button to focusable elements
+        const closeButton = document.querySelector('[data-test-id="shuttle-modal-close"]');
+        if (closeButton) {
+          focusableElements.push(closeButton);
+        }
+
+        if (focusableElements.length === 0) return;
+
+        // Find the current focus index
+        const currentIndex = focusableElements.indexOf(document.activeElement);
+
+        // Calculate the next index based on shift key
+        let nextIndex;
+        if (e.shiftKey) {
+          // If shift+tab, go to previous element or wrap to last
+          nextIndex = currentIndex <= 0 ? focusableElements.length - 1 : currentIndex - 1;
+        } else {
+          // If tab, go to next element or wrap to first
+          nextIndex = (currentIndex >= focusableElements.length - 1) ? 0 : currentIndex + 1;
+        }
+
+        // Focus the next element
+        focusableElements[nextIndex].focus();
+      }
+    };
+
+    // Add event listener for key presses
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Clean up
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, ux]);
+
   if (!isOpen) return null;
 
   return (
@@ -184,6 +242,7 @@ const ShuttleSummonModal = observer(({
         top={4}
         right={4}
         variant={'ghost'}
+        data-test-id="shuttle-modal-close"
       />
       <Box>
         <Text
@@ -277,6 +336,7 @@ const ShuttleSummonModal = observer(({
             width={'100%'}
             type='button'
             onClick={handleSummonPress}
+            data-test-id="summon-shuttle-button"
           >
             {t('tripWizard.summonShuttle')}
           </Button>
