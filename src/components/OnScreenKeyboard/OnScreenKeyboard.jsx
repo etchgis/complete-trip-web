@@ -7,6 +7,16 @@ import Keyboard from 'react-simple-keyboard';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 
+// Define only the custom numeric layout
+const numericLayout = {
+  default: [
+    '1 2 3',
+    '4 5 6',
+    '7 8 9',
+    '{clear} 0 {bksp}'
+  ]
+};
+
 let inputAccumulator = {};
 
 const OnScreenKeyboard = observer(() => {
@@ -59,8 +69,11 @@ const OnScreenKeyboard = observer(() => {
   }, [onScreenKeyboardInput, activeInput]);
 
   const handleShift = () => {
-    const newLayoutName = layout === 'default' ? 'shift' : 'default';
-    setLayout(newLayoutName);
+    // Only toggle shift in default keyboard mode
+    if (layoutType === 'default') {
+      const newLayoutName = layout === 'default' ? 'shift' : 'default';
+      setLayout(newLayoutName);
+    }
   };
 
   const onKeyPress = button => {
@@ -272,6 +285,11 @@ const OnScreenKeyboard = observer(() => {
 
   useEffect(() => {
     setLayoutType(keyBoardType);
+
+    // Reset to default layout when switching keyboard types
+    if (keyBoardType === 'numeric') {
+      setLayout('default');
+    }
   }, [keyBoardType]);
 
   const getMaxLength = () => {
@@ -346,6 +364,8 @@ const OnScreenKeyboard = observer(() => {
       <Box w="100%" maxW="800px">
         <Keyboard
           keyboardRef={r => (keyboard.current = r)}
+          // Only provide a custom layout for numeric mode
+          layout={layoutType === 'numeric' ? numericLayout : null}
           // default or shift
           layoutName={layout}
           onKeyPress={onKeyPress}

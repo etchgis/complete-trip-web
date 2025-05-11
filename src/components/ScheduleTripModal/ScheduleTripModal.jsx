@@ -39,7 +39,7 @@ import {
   VStack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FaArrowRight, FaCaretRight, FaCircle, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaCaretRight, FaCircle, FaStar, FaExchangeAlt } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
@@ -56,6 +56,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { getKioskOrigin } from '../../models/kiosk-definitions';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -213,14 +214,7 @@ export const ScheduleTripModal = observer(
             ) : (
               ''
             )}
-            <ModalCloseButton
-              p={6}
-              sx={{
-                "&:focus": {
-                  position: "absolute", // Keep the absolute positioning on focus
-                }
-              }}
-            />
+            <ModalCloseButton p={6} />
           </ModalHeader>
           <ModalBody
             width="auto"
@@ -292,6 +286,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
   useEffect(() => {
     setKeyboardType(null);
+    setOriginExplicitlyCleared(false);
   }, []);
 
   useEffect(() => {
@@ -304,13 +299,27 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
   const setStart = result => {
     trip.updateProperty('id', null);
-    setLocations(current => {
-      return {
-        ...current,
-        start: result,
-      };
-    });
+
+    setOriginExplicitlyCleared(!result?.text);
+
+    setLocations(current => ({
+      ...current,
+      start: result,
+    }));
   };
+
+  const [originExplicitlyCleared, setOriginExplicitlyCleared] = useState(false);
+
+  // Use the kiosk location as the starting point when in kiosk mode
+  useEffect(() => {
+    if (ux === 'kiosk' && !locations?.start?.text && !originExplicitlyCleared) {
+      const kioskOrigin = getKioskOrigin();
+      if (kioskOrigin) {
+        setStart(kioskOrigin);
+        trip.updateOrigin(kioskOrigin);
+      }
+    }
+  }, [ux, trip, locations?.start?.text, setStart, originExplicitlyCleared]);
 
   const setEnd = result => {
     trip.updateProperty('id', null);
@@ -543,6 +552,40 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
         </FormControl>
       }
 
+      {/* Swap between from/to fields */}
+      {!trip.isShuttle &&
+        <Flex justifyContent="center" my={2}>
+          <IconButton
+            aria-label="Swap origin and destination"
+            icon={<Icon as={FaExchangeAlt} />}
+            variant="ghost"
+            colorScheme="blue"
+            size="lg"
+            isRound
+            onClick={() => {
+              // When swapping to an empty origin, mark it as explicitly cleared
+              if (!locations?.end?.text && locations?.start?.text) {
+                setOriginExplicitlyCleared(true);
+              }
+
+              const startLocation = locations?.start || {};
+              const endLocation = locations?.end || {};
+
+              trip.updateOrigin(endLocation);
+              trip.updateDestination(startLocation);
+              setStart(endLocation);
+              setEnd(startLocation);
+            }}
+            data-test-id="swap-locations-button"
+            id="swap-locations-button"
+            tabIndex={0}
+            onFocus={() => {
+              store.uiStore.setFocusedCheckbox('swap-locations-button');
+            }}
+          />
+        </Flex>
+      }
+
       <FormControl isInvalid={endError}>
         <AddressSearchForm
           saveAddress={() => { }}
@@ -652,26 +695,86 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
       {!trip.isShuttle &&
         <FormControl isRequired mt={10}>
-          <Select
-            name="when"
-            mb={6}
-            defaultValue={whenAction}
-            onChange={(e) => {
-              console.log(e.target.value);
-              setWhenAction(e.target.value);
-              if (e.target.value !== 'asap') {
-                trip.removeMode('hail');
-              }
-            }}
-          >
-            <option value="asap">{t('tripWizard.now')}</option>
-            <option value="leave">{t('tripWizard.leaveBy')}</option>
-            <option value="arrive">{t('tripWizard.arriveBy')}</option>
-          </Select>
+          {ux === 'kiosk' ? (
+            <Box mb={6}>
+              <FormLabel>{t('tripWizard.when')}</FormLabel>
+              <Flex direction="column" gap={2}>
+                <Button
+                  variant={whenAction === 'asap' ? 'brand' : 'outline'}
+                  size="lg"
+                  height="50px"
+                  onClick={() => {
+                    setWhenAction('asap');
+                  }}
+                  data-test-id="when-now-button"
+                  id="when-button-asap"
+                  tabIndex={0}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox('when-button-asap');
+                  }}
+                >
+                  {t('tripWizard.now')}
+                </Button>
+                <Button
+                  variant={whenAction === 'leave' ? 'brand' : 'outline'}
+                  size="lg"
+                  height="50px"
+                  onClick={() => {
+                    setWhenAction('leave');
+                    trip.removeMode('hail');
+                  }}
+                  data-test-id="when-leave-button"
+                  id="when-button-leave"
+                  tabIndex={0}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox('when-button-leave');
+                  }}
+                >
+                  {t('tripWizard.leaveBy')}
+                </Button>
+                <Button
+                  variant={whenAction === 'arrive' ? 'brand' : 'outline'}
+                  size="lg"
+                  height="50px"
+                  onClick={() => {
+                    setWhenAction('arrive');
+                    trip.removeMode('hail');
+                  }}
+                  data-test-id="when-arrive-button"
+                  id="when-button-arrive"
+                  tabIndex={0}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox('when-button-arrive');
+                  }}
+                >
+                  {t('tripWizard.arriveBy')}
+                </Button>
+              </Flex>
+              {/* Hidden select to maintain form compatibility */}
+              <Input type="hidden" name="when" value={whenAction} />
+            </Box>
+          ) : (
+            <Select
+              name="when"
+              mb={6}
+              defaultValue={whenAction}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setWhenAction(e.target.value);
+                if (e.target.value !== 'asap') {
+                  trip.removeMode('hail');
+                }
+              }}
+            >
+              <option value="asap">{t('tripWizard.now')}</option>
+              <option value="leave">{t('tripWizard.leaveBy')}</option>
+              <option value="arrive">{t('tripWizard.arriveBy')}</option>
+            </Select>
+          )}
         </FormControl>
       }
 
-      {!trip.isShuttle && whenAction !== 'asap' &&
+      {!trip.isShuttle && whenAction !== 'asap' ? (
         <FormControl isRequired>
           <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
           {ux === 'kiosk' ? (
@@ -687,7 +790,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
               }}
               onFocus={() => {
                 setKeyboardActiveInput('date');
-                setKeyboardType('numeric');
+                // setKeyboardType('numeric'); // Disabled to prevent keyboard switching
               }}
               data-testid="schedule-trip-date-input"
             />
@@ -713,7 +816,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
               }}
               onFocus={() => {
                 setKeyboardActiveInput('time');
-                setKeyboardType('numeric');
+                // setKeyboardType('numeric'); // Disabled to prevent keyboard switching
               }}
               data-testid="schedule-trip-time-input"
             />
@@ -726,7 +829,15 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
             />
           )}
         </FormControl>
-      }
+      ) : (
+        // Add hidden inputs with default values when not visible
+        whenAction !== 'asap' && (
+          <>
+            <Input type="hidden" name="date" value={parseDate(new Date())} />
+            <Input type="hidden" name="time" value={parseTime(new Date())} />
+          </>
+        )
+      )}
 
       <Button width="100%" variant="brand" type="submit">
         {t('global.next')}
