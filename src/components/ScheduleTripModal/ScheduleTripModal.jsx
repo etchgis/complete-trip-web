@@ -56,6 +56,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { getKioskOrigin } from '../../models/kiosk-definitions';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -304,6 +305,17 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
       };
     });
   };
+
+  // Use the kiosk location as the starting point when in kiosk mode
+  useEffect(() => {
+    if (ux === 'kiosk' && !locations?.start?.text) {
+      const kioskOrigin = getKioskOrigin();
+      if (kioskOrigin) {
+        setStart(kioskOrigin);
+        trip.updateOrigin(kioskOrigin);
+      }
+    }
+  }, [ux, trip, locations?.start?.text, setStart]);
 
   const setEnd = result => {
     trip.updateProperty('id', null);
