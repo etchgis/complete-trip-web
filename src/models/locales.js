@@ -569,6 +569,7 @@ export default function genLocales() {
         favorite: 'Favorite Location',
         selectDate: 'Select a Date',
         time: 'Time',
+        when: 'When',
         now: 'Leave Now (ASAP)',
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
@@ -619,6 +620,7 @@ export default function genLocales() {
         favorite: 'Ubicación favorita',
         selectDate: 'Seleccionar una Fecha', //✅
         time: 'Tiempo',
+        when: 'Cuándo',
         now: 'Salir Ahora', //✅
         leaveBy: 'Salir A', //✅
         arriveBy: 'Llegar antes de', //✅
