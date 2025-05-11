@@ -54,10 +54,6 @@ export const VerticalTripPlan = observer(
     }
 
 
-    useEffect(() => {
-      setKeyboardType('numeric')
-    }, []);
-
     // Get kiosk configuration when in kiosk mode
     useEffect(() => {
       if (ux === 'kiosk') {

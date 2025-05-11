@@ -29,7 +29,7 @@ const ShuttleSummonModal = observer(({
   error,
   setError
 }) => {
-  const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput } = useStore().uiStore;
+  const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
   const { trip } = useStore();
   const { t } = useTranslation();
   
@@ -81,6 +81,9 @@ const ShuttleSummonModal = observer(({
     setPhone2('');
     setError('');
     setKeyboardActiveInput('pin');
+
+    // TODO: make the keyboard type dynamic based on the input
+    setKeyboardType('numeric');
 
     if (pinInputRef.current) {
       // Focus the PIN field after a brief delay to ensure the modal is fully rendered
@@ -145,6 +148,13 @@ const ShuttleSummonModal = observer(({
         });
     }
   };
+
+  // Reset keyboard type to default when modal is closed
+  useEffect(() => {
+    if (!isOpen && ux === 'kiosk') {
+      setKeyboardType('default');
+    }
+  }, [isOpen, ux]);
 
   if (!isOpen) return null;
 
