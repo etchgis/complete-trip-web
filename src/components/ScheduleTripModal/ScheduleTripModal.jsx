@@ -39,7 +39,7 @@ import {
   VStack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FaArrowRight, FaCaretRight, FaCircle, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaCaretRight, FaCircle, FaStar, FaExchangeAlt } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
@@ -286,6 +286,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
   useEffect(() => {
     setKeyboardType(null);
+    setOriginExplicitlyCleared(false);
   }, []);
 
   useEffect(() => {
@@ -298,24 +299,27 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
   const setStart = result => {
     trip.updateProperty('id', null);
-    setLocations(current => {
-      return {
-        ...current,
-        start: result,
-      };
-    });
+
+    setOriginExplicitlyCleared(!result?.text);
+
+    setLocations(current => ({
+      ...current,
+      start: result,
+    }));
   };
+
+  const [originExplicitlyCleared, setOriginExplicitlyCleared] = useState(false);
 
   // Use the kiosk location as the starting point when in kiosk mode
   useEffect(() => {
-    if (ux === 'kiosk' && !locations?.start?.text) {
+    if (ux === 'kiosk' && !locations?.start?.text && !originExplicitlyCleared) {
       const kioskOrigin = getKioskOrigin();
       if (kioskOrigin) {
         setStart(kioskOrigin);
         trip.updateOrigin(kioskOrigin);
       }
     }
-  }, [ux, trip, locations?.start?.text, setStart]);
+  }, [ux, trip, locations?.start?.text, setStart, originExplicitlyCleared]);
 
   const setEnd = result => {
     trip.updateProperty('id', null);
@@ -546,6 +550,40 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
             Please select a location from the result list.
           </FormErrorMessage>
         </FormControl>
+      }
+
+      {/* Swap between from/to fields */}
+      {!trip.isShuttle &&
+        <Flex justifyContent="center" my={2}>
+          <IconButton
+            aria-label="Swap origin and destination"
+            icon={<Icon as={FaExchangeAlt} />}
+            variant="ghost"
+            colorScheme="blue"
+            size="lg"
+            isRound
+            onClick={() => {
+              // When swapping to an empty origin, mark it as explicitly cleared
+              if (!locations?.end?.text && locations?.start?.text) {
+                setOriginExplicitlyCleared(true);
+              }
+
+              const startLocation = locations?.start || {};
+              const endLocation = locations?.end || {};
+
+              trip.updateOrigin(endLocation);
+              trip.updateDestination(startLocation);
+              setStart(endLocation);
+              setEnd(startLocation);
+            }}
+            data-test-id="swap-locations-button"
+            id="swap-locations-button"
+            tabIndex={0}
+            onFocus={() => {
+              store.uiStore.setFocusedCheckbox('swap-locations-button');
+            }}
+          />
+        </Flex>
       }
 
       <FormControl isInvalid={endError}>
