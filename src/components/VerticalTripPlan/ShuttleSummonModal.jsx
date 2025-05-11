@@ -1,5 +1,5 @@
-import { 
-  Box, Button, Center, Flex, FormControl, FormLabel, 
+import {
+  Box, Button, Center, Flex, FormControl, FormLabel,
   IconButton, Input, Text, VStack
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
@@ -8,6 +8,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { useEffect, useRef } from 'react';
 import rides from '../../services/transport/rides';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 /**
  * Modal component for summoning a shuttle with PIN and phone verification
@@ -109,11 +110,14 @@ const ShuttleSummonModal = observer(({
         driverId = null,
         datetime = Date.now(),
         passengers = 1;
-      // TODO: get proper pickup coordinates from the URL
+
+      const kioskConfig = getCurrentKioskConfig();
       const pickup = {
-        title: 'BGMC Main Entrance',
-        address: '100 High St, Buffalo, NY 14203',
-        coordinates: [-78.86680135060003, 42.90038260885757],
+        title: kioskConfig?.displayName || 'Kiosk Location',
+        address: kioskConfig?.pickupAddress || '',
+        coordinates: kioskConfig?.pickupPoint ?
+          [kioskConfig.pickupPoint.lng, kioskConfig.pickupPoint.lat] :
+          [kioskConfig?.location.lng, kioskConfig?.location.lat],
       };
       const dropoff = {
         title: trip.request.destination.title,

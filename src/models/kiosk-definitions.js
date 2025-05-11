@@ -9,7 +9,7 @@ const kioskDefinitions = {
     displayName: "Buffalo General Medical Center Lobby",
     description: "Main lobby kiosk at Buffalo General Medical Center",
     location: {
-      lng: -78.8664400, 
+      lng: -78.8664400,
       lat: 42.9005780
     },
     pickupPoint: {
@@ -17,6 +17,7 @@ const kioskDefinitions = {
       lat: 42.900396
     },
     pickupDescription: "NFTA paratransit stop at the High Street entrance",
+    pickupAddress: "100 High St, Buffalo, NY 14203",
     kioskDirections: {
       en: "Exit the building and look for the NFTA paratransit stop located at the light pole to the right of the building exit on High Street.",
       es: "Salga del edificio y busque la parada de paratránsito de NFTA ubicada en el poste de luz a la derecha de la salida del edificio en High Street."
@@ -49,6 +50,7 @@ const kioskDefinitions = {
       lat: 42.904554
     },
     pickupDescription: "Summer-Best Station main entrance",
+    pickupAddress: "22 Best St, Buffalo, NY 14209",
     kioskDirections: {
       en: "The shuttle will arrive directly outside the front doors of the Summer-Best Station on Best Street. Wait near the station entrance.",
       es: "El transporte llegará directamente afuera de las puertas principales de la estación Summer-Best en Best Street. Espere cerca de la entrada de la estación."
@@ -90,6 +92,7 @@ export const getCurrentKioskConfig = () => {
   const urlDisplayName = queryParams.get('displayName');
   const urlDescription = queryParams.get('description');
   const urlPickupDescription = queryParams.get('pickupDescription');
+  const urlPickupAddress = queryParams.get('pickupAddress');
   const urlShowShuttle = queryParams.get('showShuttle');
   const urlShowPublicTransit = queryParams.get('showPublicTransit');
 
@@ -100,6 +103,7 @@ export const getCurrentKioskConfig = () => {
     location: { lng: 0, lat: 0 },
     pickupPoint: { lng: 0, lat: 0 },
     pickupDescription: "",
+    pickupAddress: "",
     showShuttle: true,
     showPublicTransit: true
   };
@@ -140,6 +144,7 @@ export const getCurrentKioskConfig = () => {
   if (urlDisplayName) config.displayName = urlDisplayName;
   if (urlDescription) config.description = urlDescription;
   if (urlPickupDescription) config.pickupDescription = urlPickupDescription;
+  if (urlPickupAddress) config.pickupAddress = urlPickupAddress;
   if (urlShowShuttle !== null) {
     config.showShuttle = urlShowShuttle === 'true';
   }
