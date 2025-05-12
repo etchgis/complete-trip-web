@@ -31,7 +31,7 @@ const OnScreenKeyboard = observer(() => {
   // Track toggle button interaction to prevent hiding when clicking
   const [isTogglingCheckbox, setIsTogglingCheckbox] = useState(false);
 
-  // Handle global focus changes to track when focus leaves a checkbox
+  // Handle global focus changes to track when focus leaves a checkbox or interactive element
   useEffect(() => {
     const handleFocusChange = () => {
       // Don't clear focus during a toggle operation
@@ -39,11 +39,15 @@ const OnScreenKeyboard = observer(() => {
         return;
       }
 
-      // Check if new focused element is a checkbox or the toggle button
+      // Check if new focused element is a checkbox, the swap button, or the toggle button
       const activeElement = document.activeElement;
       const isCheckbox = activeElement?.id?.startsWith('mode-checkbox-');
+      const isSwapButton = activeElement?.id === 'swap-locations-button';
       const isToggleButton = activeElement?.closest?.('[data-test-id="toggle-checkbox-button"]');
-      if (!isCheckbox && !isToggleButton && store.uiStore.focusedCheckbox) {
+
+      if (isSwapButton && !store.uiStore.focusedCheckbox) {
+        store.uiStore.setFocusedCheckbox('swap-locations-button');
+      } else if (!isCheckbox && !isSwapButton && !isToggleButton && store.uiStore.focusedCheckbox) {
         setTimeout(() => {
           store.uiStore.setFocusedCheckbox(null);
         }, 0);
@@ -82,6 +86,7 @@ const OnScreenKeyboard = observer(() => {
       return;
     }
 
+    // Handle spacebar for checkboxes or other interactive elements like the swap button
     if (button === '{space}' && store.uiStore.focusedCheckbox) {
       handleToggleCheckbox();
       return;
@@ -310,9 +315,9 @@ const OnScreenKeyboard = observer(() => {
 
   const handleToggleCheckbox = () => {
     setIsTogglingCheckbox(true);
-    
+
     store.uiStore.toggleFocusedCheckbox();
-    
+
     // Reset the toggling flag after a delay
     setTimeout(() => {
       setIsTogglingCheckbox(false);
@@ -336,7 +341,7 @@ const OnScreenKeyboard = observer(() => {
       boxShadow={'0 -5px 5px -5px #999'}
       borderRadius={0}
     >
-      {/* Toggle Button for Checkboxes - Only shows when a checkbox is focused */}
+      {/* Toggle Button for Checkboxes/Buttons - Only shows when a focusable element is focused */}
       {store.uiStore.focusedCheckbox && (
         <Button
           onClick={handleToggleCheckbox}
@@ -351,12 +356,12 @@ const OnScreenKeyboard = observer(() => {
           width="80%"
           maxW="800px"
           fontWeight="bold"
-          aria-label="Toggle Checkbox"
+          aria-label="Toggle Selection"
           data-test-id="toggle-checkbox-button"
           height="50px"
           zIndex="1501"
         >
-          Toggle Selection
+          {store.uiStore.focusedCheckbox === 'swap-locations-button' ? 'Swap Locations' : 'Toggle Selection'}
         </Button>
       )}
 
