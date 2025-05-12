@@ -111,8 +111,8 @@ function Option({ item, state, index }) {
         }
       }}
       onKeyDown={(e) => {
-        // Handle Enter key to select this option
-        if (e.key === 'Enter') {
+        // Handle Enter or Space key to select this option
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           state.selectionManager.select(item.key);
         }
