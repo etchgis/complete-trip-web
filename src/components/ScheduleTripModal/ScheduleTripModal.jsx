@@ -580,7 +580,9 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
             id="swap-locations-button"
             tabIndex={0}
             onFocus={() => {
-              store.uiStore.setFocusedCheckbox('swap-locations-button');
+              const { uiStore } = useStore();
+              uiStore.setFocusedCheckbox('swap-locations-button');
+              setKeyboardType(null);
             }}
           />
         </Flex>
