@@ -155,15 +155,15 @@ class UIStore {
 
   toggleFocusedCheckbox = () => {
     if (this.focusedCheckbox) {
-      // Find the checkbox element and toggle it
-      const checkbox = document.getElementById(this.focusedCheckbox);
-      if (checkbox) {
-        // Simulate a click on the checkbox
-        checkbox.click();
+      // Find the element and toggle it
+      const element = document.getElementById(this.focusedCheckbox);
+      if (element) {
+        // Simulate a click on the element
+        element.click();
 
-        // Re-focus the checkbox after toggling
+        // Re-focus the element after toggling
         setTimeout(() => {
-          checkbox.focus();
+          element.focus();
         }, 50);
       }
     }
