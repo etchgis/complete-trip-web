@@ -269,7 +269,7 @@ const ShuttleSummonModal = observer(({
             <FormLabel textAlign={'center'}>{t('tripWizard.popUpPin')}</FormLabel>
             <Center w={'100%'}>
               <Input
-                type="number"
+                type="password"
                 w={'100px'}
                 letterSpacing={'10px'}
                 name="pin"
