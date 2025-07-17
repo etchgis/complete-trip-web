@@ -1,16 +1,15 @@
-import { Box, Button, Center, Flex, FormControl, FormLabel, IconButton, Input, PinInput, PinInputField, Stack, Text, VStack, useColorMode } from '@chakra-ui/react';
+import { Box, Button, Flex, Stack, Text, useColorMode, useDisclosure } from '@chakra-ui/react';
+import ShuttleSuccessModal from './ShuttleSuccessModal';
+import ShuttleSummonModal from './ShuttleSummonModal';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { useEffect, useRef, useState } from 'react';
-import { CloseIcon } from '@chakra-ui/icons';
-import rides from '../../services/transport/rides';
-import { result, set } from 'lodash';
+import { useEffect, useState } from 'react';
 import useIntervalHook from '../../hooks/useIntervalHook';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 export const VerticalTripPlan = observer(
   ({
@@ -20,12 +19,11 @@ export const VerticalTripPlan = observer(
     scheduleTripHandler,
     backClickHandler,
     cancelClickHandler,
-    summonShuttleHandler,
     scheduleShuttleHandler,
   }) => {
     const { colorMode } = useColorMode();
     const { trip } = useStore();
-    const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
+    const { ux, setKeyboardType } = useStore().uiStore;
     const { t } = useTranslation();
     const [pin, setPin] = useState('');
     const [areaCode, setAreaCode] = useState('');
@@ -35,7 +33,9 @@ export const VerticalTripPlan = observer(
     const [shuttleSuccess, setShuttleSuccess] = useState(false);
     const [showSummon, setShowSummon] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
-    const [secondsLeft, setSecondsLeft] = useState(10);
+    const [secondsLeft, setSecondsLeft] = useState(20);
+    const [kioskInfo, setKioskInfo] = useState(null);
+    const { isOpen: isSuccessModalOpen, onOpen: openSuccessModal, onClose: closeSuccessModal } = useDisclosure();
 
     useIntervalHook(
       () => {
@@ -53,264 +53,60 @@ export const VerticalTripPlan = observer(
       setShowSummon(true);
     }
 
-    useEffect(() => {
-      if (ux !== 'kiosk') return;
-      console.log('[PIN] setting pin');
-      if ('pin' !== activeInput && 'areaCode' !== activeInput && 'phone1' !== activeInput && 'phone2' !== activeInput) return;
-      if ('pin' === activeInput) setPin(getKeyboardInputValue('pin'));
-      if ('areaCode' === activeInput) setAreaCode(getKeyboardInputValue('areaCode'));
-      if ('phone1' === activeInput) setPhone1(getKeyboardInputValue('phone1'));
-      if ('phone2' === activeInput) setPhone2(getKeyboardInputValue('phone2'));
-      // if ('pin' !== activeInput && 'phone' !== activeInput) return;
-      setPin(getKeyboardInputValue('pin'));
-    }, [onScreenKeyboardInput, ux]);
 
+    // Get kiosk configuration when in kiosk mode
     useEffect(() => {
-      setKeyboardType('numeric')
-    }, []);
+      if (ux === 'kiosk') {
+        const config = getCurrentKioskConfig();
+        setKioskInfo(config);
+      }
+    }, [ux]);
 
-    const handleSummonPress = () => {
-      if (pin.length !== 4 || areaCode.length !== 3 || phone1.length !== 3 || phone2.length !== 4) {
-        setError(t('tripWizard.popUpError'));
-      }
-      else {
-        setError('');
-        const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
-          driverId = null,
-          // driverId = 'd95c52b6-ee0d-44f1-9148-7c77971a4653',
-          datetime = Date.now(),
-          passengers = 1;
-        // const pickup = trip.request.origin;
-        // TODO: get proper pickup coordinates from the URL
-        const pickup = {
-          title: 'BGMC Main Entrance',
-          address: '100 High St, Buffalo, NY 14203',
-          coordinates: [-78.86680135060003, 42.90038260885757],
-        };
-        const dropoff = {
-          title: trip.request.destination.title,
-          address: trip.request.destination.address,
-          coordinates: [
-            trip.request.destination.point.lng,
-            trip.request.destination.point.lat
-          ]
-        };
-        rides.request(
-          organizationId,
-          datetime,
-          'leave',
-          pickup,
-          dropoff,
-          driverId,
-          passengers,
-          `+1${areaCode}${phone1}${phone2}`,
-          pin
-        )
-          .then((result) => {
-            console.log('SUMMONED RESULT:', result);
-            setShuttleSuccess(t('tripWizard.popUpSuccess'));
-            setPin('');
-            setAreaCode('');
-            setPhone1('');
-            setPhone2('');
-            setShowSummon(false);
-            setTimerStarted(true);
-          })
-          .catch((e) => {
-            if (e === 'invalid pin' || e === 'user not found for this phone number') {
-              setError(t('tripWizard.popUpError'));
-            }
-            else {
-              setError(t('tripWizard.popUpUnknownError'));
-            }
-          })
-      }
+    // Handle successful shuttle summon
+    const handleShuttleSummonSuccess = () => {
+      setShuttleSuccess(t('tripWizard.popUpSuccess'));
+      setPin('');
+      setAreaCode('');
+      setPhone1('');
+      setPhone2('');
+      setShowSummon(false);
+      setTimerStarted(true);
+      openSuccessModal();
     }
 
     const kioskTopHeight = 700;
     const kioskBottomHeight = 255;
-    // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
     const headerHeight = 60;
 
     return (
       <>
-        {ux === 'kiosk' && showSummon &&
-          <Flex
-            background={'white'}
-            position={'absolute'}
-            zIndex={3}
-            top={`${kioskBottomHeight + headerHeight + 20}px`}
-            left="50%"
-            transform="translate(-50%, -50%)"
-            h="500px"
-            w="700px"
-            paddingX={'40px'}
-            paddingTop={'110px'}
-            paddingBottom={'60px'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            borderRadius={'md'}
-            boxShadow={'md'}
-          >
-            <IconButton
-              onClick={() => setShowSummon(false)}
-              aria-label={t('global.close')}
-              icon={<CloseIcon />}
-              pos={'absolute'}
-              top={4}
-              right={4}
-              variant={'ghost'}
-            />
-            <Box>
-              <Text
-                style={{
-                  position: 'absolute',
-                  top: '40px',
-                  left: '70px',
-                  right: '70px',
-                  textAlign: 'center',
-                  color: 'red',
-                }}
-              >{error}</Text>
-              <VStack>
-                <Text
-                  fontSize={'xl'}
-                  mb={'10px'}
-                >{t('tripWizard.popUpTitle')}</Text>
+        <ShuttleSuccessModal
+          isOpen={isSuccessModalOpen}
+          onClose={closeSuccessModal}
+          successMessage={shuttleSuccess}
+          kioskInfo={kioskInfo}
+          timerStarted={timerStarted}
+          secondsLeft={secondsLeft}
+        />
 
-                <FormControl mb={'20px'}>
-                  <FormLabel textAlign={'center'}>{t('tripWizard.popUpPin')}</FormLabel>
-                  <Center w={'100%'}>
-                    <Input
-                      type="number"
-                      w={'100px'}
-                      letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'pin'}
-                      onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('pin')
-                      }}
-                      value={pin}
-                      maxLength={4}
-                      autoComplete='off'
-                    />
-                    {/* <PinInput
-                      otp
-                      // onChange={(e) => {
-                      //   // setPin(e);
-                      // }}
-                      // name={'pin'}
-                      size="lg"
-                    >
-                      <PinInputField
-                      name='pin'
-                        mx={2}
-                        onFocus={(e) => {
-                          e.target.select();
-                          setKeyboardActiveInput('pin');
-                        }}
-                        onChange={(e) => {
-                          setPin(e.target.value);
-                        }}
-                        value={pin} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                    </PinInput> */}
-                  </Center>
-                </FormControl>
-
-                <FormControl mb={'40px'}>
-                  <FormLabel textAlign={'center'}>{t('tripWizard.popUpPhone')}</FormLabel>
-                  <Center w={'100%'}>
-                    <Input
-                      type="number"
-                      w={'82px'}
-                      letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'areaCode'}
-                      onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('areaCode')
-                      }}
-                      value={areaCode}
-                      maxLength={3}
-                      autoComplete='off'
-                    />
-                    <Text mx={'10px'} fontSize={'28px'}>-</Text>
-                    <Input
-                      type="number"
-                      w={'82px'}
-                      letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'phone1'}
-                      onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('phone1')
-                      }}
-                      value={phone1}
-                      maxLength={3}
-                      autoComplete='off'
-                    />
-                    <Text mx={'10px'} fontSize={'28px'}>-</Text>
-                    <Input
-                      type="number"
-                      w={'100px'}
-                      letterSpacing={'10px'}
-                      onChange={(e) => {
-                        console.log('e:', e);
-                      }}
-                      inputName={'phone2'}
-                      onFocus={(e) => {
-                        e.target.select();
-                        setKeyboardActiveInput('phone2')
-                      }}
-                      value={phone2}
-                      maxLength={4}
-                      autoComplete='off'
-                    />
-                    {/* <PinInput
-                      otp
-                      onChange={(e) => {
-                        setPhone(e);
-                      }}
-                      name={'pin'}
-                      size="lg"
-                    >
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <Text>-</Text>
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <Text>-</Text>
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                      <PinInputField mx={2} onFocus={(e) => { e.target.select() }} />
-                    </PinInput> */}
-                  </Center>
-                </FormControl>
-
-                <Button
-                  variant={'brand'}
-                  width={'100%'}
-                  type='button'
-                  onClick={handleSummonPress}
-                >
-                  {t('tripWizard.summonShuttle')}
-                </Button>
-              </VStack>
-            </Box>
-          </Flex >
+        {ux === 'kiosk' &&
+          <ShuttleSummonModal
+            isOpen={showSummon}
+            onClose={() => setShowSummon(false)}
+            onSuccess={handleShuttleSummonSuccess}
+            kioskBottomHeight={kioskBottomHeight}
+            headerHeight={headerHeight}
+            pin={pin}
+            setPin={setPin}
+            areaCode={areaCode}
+            setAreaCode={setAreaCode}
+            phone1={phone1}
+            setPhone1={setPhone1}
+            phone2={phone2}
+            setPhone2={setPhone2}
+            error={error}
+            setError={setError}
+          />
         }
         <Flex
           id="vertical-trip-plan"
@@ -319,14 +115,12 @@ export const VerticalTripPlan = observer(
           borderTop="solid thin lightgray"
           borderBottom="solid thin lightgray"
           borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-          // height={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : '100%'}
           overflow={'hidden'}
         >
           <Flex
             flexDir={'column'}
             borderRight="solid thin lightgray"
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-            // w={{ base: '100%', md: '380px' }}
             w={{ base: ux === 'kiosk' ? '380px' : '100%', md: '380px' }}
             h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
             id="vertical-trip-plan-sidebar"
@@ -345,26 +139,6 @@ export const VerticalTripPlan = observer(
                 tripRequest={tripRequest}
                 rider={rider}
               />
-              {ux === 'kiosk' && trip.isShuttle &&
-                <Box
-                  style={{
-                    position: 'absolute',
-                    top: '35%',
-                    width: '380px',
-                    padding: '0 15px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Text
-                    colorScheme='green'
-                    fontSize={'2xl'}
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >{shuttleSuccess}</Text>
-                  <Text>{timerStarted ? t('tripWizard.timeRemaining', { count: secondsLeft }) : ''}</Text>
-                </Box>
-              }
             </Box>
             <TripPlanScheduleButtons
               scheduleTripHandler={scheduleTripHandler}

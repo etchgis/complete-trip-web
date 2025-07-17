@@ -19,6 +19,7 @@ export const SearchForm = observer(
     clearResult,
     resultsMaxWidth,
     inputName,
+    autoFocus,
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
@@ -145,6 +146,7 @@ export const SearchForm = observer(
         onFocus={() => setKeyboardActiveInput(inputName)}
         inputName={inputName}
         activeInput={activeInput}
+        autoFocus={autoFocus}
         //END KEYBOARD
         required={required || false}
         placeholder={t('map.searchPlaceholder')}
