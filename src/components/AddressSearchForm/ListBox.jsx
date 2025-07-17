@@ -10,6 +10,16 @@ export function ListBox(props) {
   let { listBoxRef = ref, state } = props;
   let { listBoxProps } = useListBox(props, state, listBoxRef);
 
+  // Focus first item when results appear
+  React.useEffect(() => {
+    if (state.isOpen && state.collection.size > 0) {
+      const firstKey = state.collection.getFirstKey();
+      if (firstKey && !state.selectionManager.focusedKey) {
+        state.selectionManager.setFocusedKey(firstKey);
+      }
+    }
+  }, [state.isOpen, state.collection, state.selectionManager]);
+
   let onScroll = e => {
     let scrollOffset =
       e.currentTarget.scrollHeight - e.currentTarget.clientHeight * 2;
@@ -31,11 +41,12 @@ export function ListBox(props) {
       onScroll={onScroll}
       data-testid="address-search-results"
     >
-      {[...state.collection].map(item => (
+      {[...state.collection].map((item, index) => (
         <Option
           key={item.key}
           item={item}
           state={state}
+          index={index}
           data-testid="address-search-result"
           aria-label={item?.name}
         />
@@ -52,7 +63,7 @@ export function ListBox(props) {
   );
 }
 
-function Option({ item, state }) {
+function Option({ item, state, index }) {
   let ref = React.useRef(null);
   let { optionProps, isSelected, isFocused } = useOption(
     {
@@ -61,6 +72,14 @@ function Option({ item, state }) {
     state,
     ref
   );
+
+  // Scroll into view when focused
+  React.useEffect(() => {
+    if (isFocused && ref.current) {
+      ref.current.focus();
+      ref.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [isFocused]);
 
   return (
     <ListItem
@@ -72,11 +91,51 @@ function Option({ item, state }) {
       background={isFocused ? 'blue.50' : 'white'}
       color={isFocused ? 'blue.700' : 'gray.700'}
       fontWeight={item?.props?.favorite || isSelected ? 'bold' : 'normal'}
-      cursor="default"
+      cursor="pointer"
       display="flex"
       alignItems="center"
       justifyContent="space-between"
       aria-label={item?.name}
+      tabIndex="0"
+      _focus={{
+        outline: '2px solid #3182ce',
+        outlineOffset: '-2px',
+        background: 'blue.50',
+        color: 'blue.700'
+      }}
+      role="option"
+      aria-selected={isSelected}
+      onFocus={() => {
+        if (!isFocused) {
+          state.selectionManager.setFocusedKey(item.key);
+        }
+      }}
+      onKeyDown={(e) => {
+        // Handle Enter or Space key to select this option
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          state.selectionManager.select(item.key);
+        }
+
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          e.stopPropagation();
+
+          // Find the next/previous item
+          const options = [...state.collection];
+          let nextIndex;
+
+          if (!e.shiftKey) {
+            nextIndex = (index + 1) % options.length;
+          } else {
+            nextIndex = (index - 1 + options.length) % options.length;
+          }
+
+          const nextKey = options[nextIndex].key;
+          state.selectionManager.setFocusedKey(nextKey);
+          return false;
+        }
+      }}
     >
       {item.rendered}
       {isSelected && <CheckIcon />}

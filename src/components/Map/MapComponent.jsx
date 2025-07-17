@@ -15,6 +15,7 @@ import { observer } from 'mobx-react-lite';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation.js';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 // import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
@@ -75,9 +76,28 @@ export const MapComponent = observer(({ showMap }) => {
       const queryParams = new URLSearchParams(window.location.search);
       const location = queryParams.get('location');
       console.log('[map] location:', location);
-      const userLocation = location
-        ? { center: location.split(',').map(l => +l) }
-        : await getLocation();
+
+      let zoom = config.MAP.ZOOM;
+
+      // In kiosk mode, always use the location from URL or kiosk definition
+      // Don't try to get user location as the kiosk is stationary
+      let userLocation;
+      if (ux === 'kiosk') {
+        zoom = config.MAP.KIOSK_ZOOM;
+        const kioskConfig = getCurrentKioskConfig();
+        const { location } = kioskConfig;
+        if (location) {
+          userLocation = {
+            center: [location.lng, location.lat],
+          };
+        }
+      } else {
+        // For non-kiosk modes, try to get user location if no location in URL
+        userLocation = location
+          ? { center: location.split(',').map(l => +l) }
+          : await getLocation();
+      }
+
       console.log('[map] userLocation:', userLocation);
       const center = userLocation?.center || [
         config.MAP.CENTER[1],
@@ -97,8 +117,8 @@ export const MapComponent = observer(({ showMap }) => {
           mapRef.current = new mapboxgl.Map({
             container: mapContainer.current,
             style: config.MAP.BASEMAPS[mapStyle], //change to style from store
-            center: center,
-            zoom: config.MAP.ZOOM,
+            center,
+            zoom,
           })
             .addControl(mapControls.nav, 'top-right')
             // .addControl(mapControls.bookmarks, 'top-right')

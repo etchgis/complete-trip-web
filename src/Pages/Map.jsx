@@ -4,7 +4,7 @@ import ScheduleTripHeader from '../components/ScheduleTripHeader';
 import TransitRoutes from '../components/TransitRoutes';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
-import { useEffect, useState } from 'react';
+import { getKioskOrigin } from '../models/kiosk-definitions';
 
 const Map = observer(
   ({ showMap, isTripWizardOpen, openTripWizard, closeTripWizard }) => {
@@ -14,25 +14,15 @@ const Map = observer(
     const handleShuttlePress = (shuttle) => {
       if (ux === 'kiosk') {
         shuttleTrip.create();
-        const queryParams = new URLSearchParams(window.location.search),
-          location = queryParams.get('location'),
-          coordinates = location.split(',');
-        let origin = {
-          description: "",
-          distance: 0,
-          point: {
-            lat: +coordinates[1],
-            lng: +coordinates[0]
-          },
-          text: "Kiosk",
-          title: "Kiosk"
+        const origin = getKioskOrigin();
+        if (origin) {
+          shuttleTrip.updateOrigin(origin);
+          shuttleTrip.addMode('hail');
+          shuttleTrip.addMode('walk');
+          shuttleTrip.updateWhenAction('asap');
+          shuttleTrip.updateWhen(new Date());
+          shuttleTrip.toggleShuttle(true);
         }
-        shuttleTrip.updateOrigin(origin);
-        shuttleTrip.addMode('hail');
-        shuttleTrip.addMode('walk');
-        shuttleTrip.updateWhenAction('asap');
-        shuttleTrip.updateWhen(new Date());
-        shuttleTrip.toggleShuttle(true);
       }
     }
 

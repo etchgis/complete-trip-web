@@ -80,6 +80,7 @@ const WizardStepThrough = observer(() => {
   const { addLocation } = useStore().favorites;
   const { setStagedCaregiver, stagedCaregiver, invite: inviteCaregiver } = useStore().caregivers;
   const { t } = useTranslation();
+
   return (
     <WizardStepThroughForm
       content={[
@@ -176,7 +177,7 @@ const WizardStepThrough = observer(() => {
           title: 'verify',
           content: () => <Complete></Complete>,
           skip: false,
-          buttonText: (user?.phone && user?.phone === '+15555555555') ? t('global.save') : t('loginWizard.verifyPhone'),
+          buttonText: (user?.phone && user?.phone === '+15555555555' || !user?.phone) ? t('global.finish') : t('loginWizard.verifyPhone'),
           action: async () => {
             if (user?.phone && user?.phone !== '+15555555555') {
               const verified = verifyUser('sms', user?.phone);

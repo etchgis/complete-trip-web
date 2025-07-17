@@ -54,6 +54,7 @@ const API = {
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
+    otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
   },
   stage: {
@@ -101,6 +102,7 @@ const API = {
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging', //'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging?groups=dependent-{dependentId}
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
+    otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
   },
 };
@@ -362,8 +364,8 @@ const defaults = {
     MAPBOX_TOKEN:
       'pk.eyJ1IjoiZXRjaGpvbiIsImEiOiJjamk3dmVwcjcwZm13M2twYTFjbm11OHM4In0.WLemp1TfP09gg0DRl_q0hg',
     ZOOM: 13,
+    KIOSK_ZOOM: 16,
     CENTER: [42.8962389, -78.8644423],
-    // -78.8767,42.8853
     VIEWBOX: [-74.3878, 43.0283, -74.2989, 43.0755],
   },
   ORGANIZATION: '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
