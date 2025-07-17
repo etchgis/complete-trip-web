@@ -550,14 +550,14 @@ export default function genLocales() {
         back: 'Back',
         servicing: 'Servicing',
         stop: 'Stop',
-        shuttleNotAvailableTimeFrame: 'Sorry, but this shuttle is not available during this time.'
+        shuttleNotAvailableTimeFrame: 'Sorry, but this shuttle is not available at this time.'
       },
       es: {
         next: 'Próximo',
         back: 'Atrás',
         servicing: 'Servicio',
         stop: 'Parada',
-        shuttleNotAvailableTimeFrame: 'Lo sentimos, pero este servicio de traslado no está disponible durante este tiempo.'
+        shuttleNotAvailableTimeFrame: 'Lo sentimos, pero este autobús no está disponible en este momento.'
       },
     },
     tripWizard: {
