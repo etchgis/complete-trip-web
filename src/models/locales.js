@@ -94,6 +94,7 @@ export default function genLocales() {
         emailAddress: 'Email Address',
         phone: 'Phone',
         save: 'Save',
+        finish: 'Finish',
         submit: 'Submit',
         cancel: 'Cancel',
         close: 'Close',
@@ -133,6 +134,7 @@ export default function genLocales() {
         emailAddress: 'Correo Electrónico', //✅
         phone: 'Número de Teléfono', //✅
         save: 'Guardar',
+        finish: 'Finalizar',
         submit: 'Enviar',
         cancel: 'Cancelar',
         close: 'Cerrar',
