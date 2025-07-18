@@ -80,7 +80,12 @@ export const Autocomplete = observer(props => {
   }, [props.showResults, state, inputRef, props.items, props.inputName, props.activeInput]);
 
   //METHOD TO CLEAR INPUT
-  const clearInput = () => {
+  const clearInput = (e) => {
+    // Prevent event propagation to ensure the click/touch is handled
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     console.log('[autocomplete] clearing input with setKeyboardInputValue');
     ui.setKeyboardActiveInput(props.inputName);
     ui.setKeyboardInputValue('');
@@ -117,9 +122,21 @@ export const Autocomplete = observer(props => {
             <IconButton
               aria-label="clear input"
               onClick={clearInput}
+              onTouchStart={clearInput}
+              onPointerDown={(e) => {
+                // Handle pointer events for better touch support
+                if (e.pointerType === 'touch') {
+                  clearInput(e);
+                }
+              }}
               icon={<CloseIcon />}
-              size="xs"
+              size="sm"
               variant={'ghost'}
+              zIndex={10}
+              minW="32px"
+              minH="32px"
+              _hover={{ bg: 'gray.100' }}
+              _active={{ bg: 'gray.200' }}
             />
           ) : null}
         </InputRightElement>
