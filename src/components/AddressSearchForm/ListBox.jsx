@@ -4,21 +4,23 @@ import { Box, List, ListItem, Spinner } from '@chakra-ui/react';
 import { useListBox, useOption } from 'react-aria';
 
 import { CheckIcon } from '@chakra-ui/icons';
+import { useStore } from '../../context/RootStore';
 
 export function ListBox(props) {
+  const { ux } = useStore().uiStore;
   let ref = React.useRef(null);
   let { listBoxRef = ref, state } = props;
   let { listBoxProps } = useListBox(props, state, listBoxRef);
 
-  // Focus first item when results appear
+  // Focus first item when results appear (only in kiosk mode)
   React.useEffect(() => {
-    if (state.isOpen && state.collection.size > 0) {
+    if (ux === 'kiosk' && state.isOpen && state.collection.size > 0) {
       const firstKey = state.collection.getFirstKey();
       if (firstKey && !state.selectionManager.focusedKey) {
         state.selectionManager.setFocusedKey(firstKey);
       }
     }
-  }, [state.isOpen, state.collection, state.selectionManager]);
+  }, [ux, state.isOpen, state.collection, state.selectionManager]);
 
   let onScroll = e => {
     let scrollOffset =
