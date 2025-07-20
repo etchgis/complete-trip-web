@@ -114,7 +114,7 @@ export const Autocomplete = observer(props => {
           type="text"
           autoFocus={props.autoFocus}
         />
-        <InputRightElement aria-hidden={true}>
+        <InputRightElement aria-hidden={true} zIndex={10}>
           {props.loadingState === 'loading' ||
           props.loadingState === 'filtering' ? (
             <Spinner color="blue.400" size="sm" />
@@ -122,13 +122,6 @@ export const Autocomplete = observer(props => {
             <IconButton
               aria-label="clear input"
               onClick={clearInput}
-              onTouchStart={clearInput}
-              onPointerDown={(e) => {
-                // Handle pointer events for better touch support
-                if (e.pointerType === 'touch') {
-                  clearInput(e);
-                }
-              }}
               icon={<CloseIcon />}
               size="sm"
               variant={'ghost'}
