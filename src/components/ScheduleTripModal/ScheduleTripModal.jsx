@@ -1099,16 +1099,17 @@ const Fourth = ({
     }
   }
 
-  const shuttleLegIndex = trip.plans[0].legs.findIndex(leg => leg.mode === "HAIL")
+  const shuttleLegIndex = selectedTrip?.legs?.findIndex(leg => leg.mode === "HAIL") ?? -1
 
   function scheduleShuttle() {
+    if (shuttleLegIndex === -1 || !selectedTrip?.legs?.[shuttleLegIndex]) return;
 
-    const originLat = trip.plans[0].legs[shuttleLegIndex].from.lat;
-    const originLng = trip.plans[0].legs[shuttleLegIndex].from.lon;
-    const originTitle = trip.plans[0].legs[shuttleLegIndex].from.name
-    const destLat = trip.plans[0].legs[shuttleLegIndex].to.lat;
-    const destLng = trip.plans[0].legs[shuttleLegIndex].to.lon;
-    const destTitle = trip.plans[0].legs[shuttleLegIndex].to.name
+    const originLat = selectedTrip.legs[shuttleLegIndex].from.lat;
+    const originLng = selectedTrip.legs[shuttleLegIndex].from.lon;
+    const originTitle = selectedTrip.legs[shuttleLegIndex].from.name
+    const destLat = selectedTrip.legs[shuttleLegIndex].to.lat;
+    const destLng = selectedTrip.legs[shuttleLegIndex].to.lon;
+    const destTitle = selectedTrip.legs[shuttleLegIndex].to.name
 
     const url = `${config.SERVICES.dispatch}#origin_title=${originTitle}&origin_lat=${originLat}
     &origin_lng=${originLng}&dest_title=${destTitle}&dest_lat=${destLat}&dest_lng=${destLng}`;
