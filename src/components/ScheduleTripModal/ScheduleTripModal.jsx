@@ -441,6 +441,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
                 ? locations?.start?.alias || locations?.start?.text
                 : locations?.start?.text || ''
             }
+            defaultGeocoderResult={locations?.start}
             setGeocoderResult={setStart}
             name="startAddress"
             label={t('tripWizard.searchFrom')}
@@ -598,6 +599,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
               ? locations?.end?.alias || locations?.end?.text
               : locations?.end?.text || ''
           }
+          defaultGeocoderResult={locations?.end}
           setGeocoderResult={setEnd}
           name="endAddress"
           label={t('tripWizard.searchTo')}
@@ -922,10 +924,10 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
               const selectedDateTime = moment(trip.request.whenTime);
-              const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+              const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
               const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-              if (mode.id === 'hail' && (!inTimeframe || trip.request.whenAction !== 'asap')) return '';
+              if (mode.id === 'hail' && !inTimeframe) return '';
               if (mode.id === 'walk') return '';
               return (
                 <Checkbox
