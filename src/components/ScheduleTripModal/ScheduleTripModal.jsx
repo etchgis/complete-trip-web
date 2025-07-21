@@ -441,6 +441,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
                 ? locations?.start?.alias || locations?.start?.text
                 : locations?.start?.text || ''
             }
+            defaultGeocoderResult={locations?.start}
             setGeocoderResult={setStart}
             name="startAddress"
             label={t('tripWizard.searchFrom')}
@@ -598,6 +599,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
               ? locations?.end?.alias || locations?.end?.text
               : locations?.end?.text || ''
           }
+          defaultGeocoderResult={locations?.end}
           setGeocoderResult={setEnd}
           name="endAddress"
           label={t('tripWizard.searchTo')}
@@ -922,10 +924,10 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
               const selectedDateTime = moment(trip.request.whenTime);
-              const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+              const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
               const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-              if (mode.id === 'hail' && (!inTimeframe || trip.request.whenAction !== 'asap')) return '';
+              if (mode.id === 'hail' && !inTimeframe) return '';
               if (mode.id === 'walk') return '';
               return (
                 <Checkbox
@@ -1097,16 +1099,17 @@ const Fourth = ({
     }
   }
 
-  const shuttleLegIndex = trip.plans[0].legs.findIndex(leg => leg.mode === "HAIL")
+  const shuttleLegIndex = selectedTrip?.legs?.findIndex(leg => leg.mode === "HAIL") ?? -1
 
   function scheduleShuttle() {
+    if (shuttleLegIndex === -1 || !selectedTrip?.legs?.[shuttleLegIndex]) return;
 
-    const originLat = trip.plans[0].legs[shuttleLegIndex].from.lat;
-    const originLng = trip.plans[0].legs[shuttleLegIndex].from.lon;
-    const originTitle = trip.plans[0].legs[shuttleLegIndex].from.name
-    const destLat = trip.plans[0].legs[shuttleLegIndex].to.lat;
-    const destLng = trip.plans[0].legs[shuttleLegIndex].to.lon;
-    const destTitle = trip.plans[0].legs[shuttleLegIndex].to.name
+    const originLat = selectedTrip.legs[shuttleLegIndex].from.lat;
+    const originLng = selectedTrip.legs[shuttleLegIndex].from.lon;
+    const originTitle = selectedTrip.legs[shuttleLegIndex].from.name
+    const destLat = selectedTrip.legs[shuttleLegIndex].to.lat;
+    const destLng = selectedTrip.legs[shuttleLegIndex].to.lon;
+    const destTitle = selectedTrip.legs[shuttleLegIndex].to.name
 
     const url = `${config.SERVICES.dispatch}#origin_title=${originTitle}&origin_lat=${originLat}
     &origin_lng=${originLng}&dest_title=${destTitle}&dest_lat=${destLat}&dest_lng=${destLng}`;

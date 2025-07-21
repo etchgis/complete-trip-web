@@ -301,10 +301,10 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
       }
     }
     else if (routeType === 'hail' || routeType === 'hailToTransit') {
-      if (tripRequest.sortBy === 'fastest') {
-        // For flex routing, lower walk reluctance for fastest routes
-        variables.walkReluctance = 1.0;
-      }
+      // if (tripRequest.sortBy === 'fastest') {
+      //   // For flex routing, lower walk reluctance for fastest routes
+      //   variables.walkReluctance = 1.0;
+      // }
       // Add maxPreTransitTime equivalent through other parameters
       variables.transferPenalty = 0; // Reduce transfer penalty for hail routes
     }

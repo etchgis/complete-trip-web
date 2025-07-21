@@ -12,6 +12,7 @@ export const SearchForm = observer(
     saveAddress,
     center,
     defaultAddress,
+    defaultGeocoderResult,
     setGeocoderResult,
     name,
     label,
@@ -39,8 +40,12 @@ export const SearchForm = observer(
 
     useEffect(() => {
       setAddress(defaultAddress);
+      // If we have a default geocoder result, set it immediately
+      if (defaultGeocoderResult && defaultGeocoderResult.text) {
+        setGeocoderResult(defaultGeocoderResult);
+      }
       // eslint-disable-next-line
-    }, [defaultAddress]);
+    }, [defaultAddress, defaultGeocoderResult]);
 
     let list = useAsyncList({
       async load({ signal, cursor, filterText }) {
