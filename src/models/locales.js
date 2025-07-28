@@ -276,8 +276,8 @@ export default function genLocales() {
         title: 'Comentario', //✅
         categories: {
           scheduling: "Programación de viajes",
-          hds: "NFTA Community Shuttle",
-          sds: "UB Autonomous Bus",
+          hds: "Transporte Comunitario NFTA",
+          sds: "Autobús Autónomo UB",
           intersections: "Intersecciones inteligentes",
           transit: "Tránsito (autobús, ferrocarril)",
           outdoorNavigation: "Navegación al aire libre",
@@ -287,7 +287,7 @@ export default function genLocales() {
           mapping: "Mapeo general",
           other: "Otro"
         },
-        checkbox: "Include my email address for follow-up if needed",
+        checkbox: "Incluya mi dirección de correo electrónico para seguimiento si es necesario.",
       }
     },
     loginWizard: {
@@ -488,7 +488,11 @@ export default function genLocales() {
         resendCode: 'Send Another Code',
         invalidCode: 'Invalid Code',
       },
-      es: {},
+      es: {
+        message: `Escriba el código de 6 dígitos. El código también se puede pegar en el primer cuadro.`,
+        resendCode: 'Enviar otro código',
+        invalidCode: 'Código inválido',
+      },
     },
 
     terms: {
@@ -642,7 +646,7 @@ export default function genLocales() {
         transfer: 'transferencia', //✅
         roll: 'Rollo', //✅
         walk: 'camine',
-        drive: 'Drive', //✅
+        drive: 'Conducir', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
         showQR: '¡Descarga la aplicación!', //✅
@@ -759,7 +763,7 @@ export default function genLocales() {
         dependents: 'Viajeros', //✅
         favorites: 'Favoritos',
         tripPreferences: 'Preferencias de Viaje',
-        palsDirect: 'NFTA PAL Direct Users',
+        palsDirect: 'Usuarios de NFTA PAL Direct',
         settings: 'CONFIGURACIÓN', //✅
         password: 'Contraseña/PIN',
         accessibility: 'Accesibilidad',
