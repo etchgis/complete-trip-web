@@ -351,8 +351,8 @@ const FEEDBACK = {
 }
 
 const HDS_HOURS = {
-  start: [8,0],
-  end: [17,0]
+  start: [8, 0],
+  end: [17, 0]
 }
 
 const defaults = {
@@ -372,7 +372,7 @@ const defaults = {
   VERIFY: {
     SID: 'VA716caeea7edda3401dc5f4e9a2e4bc99',
     CHANNEL_CONFIGURATION: {
-      template_id: 'd-731f00a0bfbd472fa144d863869d145d',
+      template_id: 'complete-trip-verification-code',
       from: 'team@etchgis.com',
       from_name: 'Etch',
     },
