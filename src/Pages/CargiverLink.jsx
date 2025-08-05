@@ -83,9 +83,12 @@ const CargiverLink = observer(() => {
     } catch (error) {
       console.log({ error });
       setToastStatus('Error');
-      if (error?.message === 'invalid') {
+      if (error?.message?.startsWith('wrong-email:')) {
+        const invitedEmail = error.message.split(':')[1];
         setInviteCode(null);
-        setToastMessage('Invalid caregiver.');
+        setToastMessage(
+          `This invitation was sent to ${invitedEmail}. Please log in with that email address to accept this invitation.`
+        );
         navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
         setToastMessage('An error occurred with the request.');

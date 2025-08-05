@@ -306,6 +306,7 @@ class Authentication {
                 phone: user.phone,
               };
               this.refreshToken = user.refreshToken;
+              this.user = { refreshToken: user.refreshToken };
               this.inTransaction = false;
             });
             return Promise.resolve(null);

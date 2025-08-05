@@ -74,10 +74,15 @@ class Caregivers {
       );
       console.log('{caregivers-store} - caregiver', result, userEmail);
       if (!result?.email) throw new Error('Caregiver not found!');
-      if (result.email !== userEmail) throw new Error('Invalid caregiver!');
+      if (result.email !== userEmail) {
+        throw new Error(`wrong-email:${result.email}`);
+      }
       return Promise.resolve(true);
     } catch (error) {
       console.log('{caregivers-store} error', error);
+      if (error.message?.startsWith('wrong-email:')) {
+        throw error;
+      }
       return Promise.resolve(false);
     }
   };
