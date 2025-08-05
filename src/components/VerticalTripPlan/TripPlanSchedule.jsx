@@ -1,27 +1,56 @@
 import {
   Box,
+  Button,
   Center,
   Divider,
   Flex,
   Grid,
   Heading,
   Icon,
+  IconButton,
+  Image,
   Text,
   VStack,
+  createIcon,
   useColorMode,
 } from '@chakra-ui/react';
-import { FaArrowRight, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
+import { CloseIcon } from '@chakra-ui/icons';
+import QRCODE from '../../assets/qr_code.png';
+import QRCODE_ES from '../../assets/qr_code_es.png';
 import { RxDotFilled } from 'react-icons/rx';
 import config from '../../config';
 import { fillGaps } from '../../utils/tripplan';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { theme } from '../../theme';
+// import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 // import sampleTrip from '../ScheduleTrip/sample-trip.json';
+
+const Circle = createIcon({
+  displayName: 'Circle',
+  viewBox: '0 0 512 512',
+  path: [
+    <path
+      d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm80 248c0 44.112-35.888 80-80 80s-80-35.888-80-80 35.888-80 80-80 80 35.888 80 80z"
+      transform="matrix(1, 0, 0, 1, -7.105427357601002e-15, 0)"
+      fill="currentColor"
+    />,
+    <ellipse
+      fill="white"
+      cx="254.018"
+      cy="256.512"
+      rx="81.83"
+      ry="81.83"
+      transform="matrix(1, 0, 0, 1, -7.105427357601002e-15, 0)"
+    />,
+  ],
+});
 
 const TimelineStep = ({ start, label, steps }) => {
   const { colorMode } = useColorMode();
@@ -30,8 +59,8 @@ const TimelineStep = ({ start, label, steps }) => {
     !steps || !steps.length
       ? []
       : showDetails
-      ? [{ name: start }, ...steps]
-      : [{ name: start }, { name: label }, steps[steps.length - 1]];
+        ? [{ name: start }, ...steps]
+        : [{ name: start }, { name: label }, steps[steps.length - 1]];
   const accentColor = colorMode === 'light' ? '#00205b' : 'gray.400';
 
   return (
@@ -78,23 +107,32 @@ const TimelineStep = ({ start, label, steps }) => {
             {details.length === 3 && i === 1 && !showDetails ? (
               <Box ml={6}>
                 {/* TODO convert this to a button for accessibility */}
-                <Text
+                <Button
+                  variant={'link'}
                   fontWeight="bold"
                   fontSize="sm"
                   onClick={() => setShowDetails(!showDetails)}
                   textDecoration={'underline'}
-                  color={
-                    colorMode === 'light' ? 'theme.primary' : 'theme.light'
-                  }
+                  color={colorMode === 'light' ? 'brand' : 'theme.light'}
                   cursor={'pointer'}
                   data-name="step-name"
                 >
                   {step.name}
-                </Text>
+                </Button>
               </Box>
             ) : (
               <>
-                <Box
+                <Icon
+                  as={i === details.length - 1 ? FaCircle : Circle}
+                  color={accentColor}
+                  style={{
+                    marginLeft: i === details.length - 1 ? '-4px' : '-5px',
+                    marginRight: '10px',
+                    zIndex: 2,
+                  }}
+                  fontSize={i === details.length - 1 ? '18px' : '20px'}
+                />
+                {/* <Box
                   borderRadius="full"
                   bg={
                     i === details.length - 1
@@ -112,7 +150,7 @@ const TimelineStep = ({ start, label, steps }) => {
                   justifyContent="center"
                   mr={'10px'}
                   zIndex={1}
-                ></Box>
+                ></Box> */}
                 <Box>
                   <Text
                     fontWeight="bold"
@@ -139,17 +177,18 @@ const TimelineStep = ({ start, label, steps }) => {
               borderLeft="solid 4px #00205b"
               borderColor={accentColor}
             ></Box>
-            <Text
+            <Button
+              variant="link"
               fontWeight="bold"
               fontSize="sm"
               onClick={() => setShowDetails(!showDetails)}
               textDecoration={'underline'}
-              color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
+              color={colorMode === 'light' ? 'brand' : 'theme.light'}
               cursor={'pointer'}
               pl={'24px'}
             >
               Hide Details
-            </Text>
+            </Button>
           </>
         ) : null}
       </VStack>
@@ -171,7 +210,7 @@ const CreateCircleIcon = ({ svg, backgroundColor }) => {
     >
       <Icon viewBox={svg?.viewBox || '0 0 512 512'} boxSize={'5'}>
         <path
-          fill={'white'}
+          fill={backgroundColor === 'gray.400' ? 'black' : 'white'}
           d={
             svg?.path ||
             'M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0'
@@ -187,17 +226,23 @@ export const TripPlanSchedule = observer(
     const { colorMode } = useColorMode();
     const { user } = useStore().authentication;
     const { activeLegIndex } = useStore().tripMapStore;
+    const { ux, ui } = useStore().uiStore;
     const [legIndex, setL] = useState(-1);
     const riderProfile = rider?.profile ? JSON.parse(rider.profile) : false;
     const wheelchair =
       riderProfile?.preferences?.wheelchair ||
       user?.profile?.preferences?.wheelchair ||
       false;
-
-    const planLegs = fillGaps(plan.legs);
-
-    // console.log(toJS(request));
     // console.log(toJS(plan));
+    // console.log(toJS(request));
+    const planLegs = plan?.legs?.length ? fillGaps(plan.legs) : [];
+    const { t } = useTranslation();
+    const qrImages = {
+      en: QRCODE,
+      es: QRCODE_ES,
+    };
+
+    const [showQR, setShowQR] = useState(false);
 
     useEffect(() => {
       // console.log('activeLegIndex', activeLegIndex);
@@ -206,267 +251,343 @@ export const TripPlanSchedule = observer(
       }
     }, [activeLegIndex]);
 
+    const kioskTopHeight = 700;
+    const kioskBottomHeight = 255;
+    // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+    const headerHeight = 60;
+
     return (
-      <Box
-        px={4}
-        flex={1}
-        id="trip-plan-schedule"
-        data-testid="trip-plan-schedule"
-      >
-        <Grid
-          gridTemplateColumns={'1fr 1fr 1fr'}
-          width="80%"
-          margin="10px auto 20px auto"
-          py={2}
-          fontWeight={'bold'}
-          border="solid thin lightgray"
-          borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-          borderRadius="md"
-        >
-          <Box textAlign="center">
-            <Text fontSize={'sm'}>Leave</Text>
-            <Box>
-              {formatters.datetime
-                .asHMA(new Date(plan?.startTime))
-                .replace('am', '')
-                .replace('pm', '')}
-              <sub style={{ textTransform: 'uppercase' }}>
-                {' '}
-                {formatters.datetime.asHMA(new Date(plan?.startTime)).slice(-2)}
-              </sub>
-            </Box>
-          </Box>
-
-          <Flex alignItems={'center'} justifyContent={'center'}>
-            <Center h={10} w={10} borderRadius="lg">
-              <Icon
-                as={FaArrowRight}
-                color={colorMode === 'light' ? 'theme.primary' : 'theme.light'}
-              />
-            </Center>
+      <>
+        {ux === 'kiosk' && showQR && (
+          <Flex
+            background={'white'}
+            position={'absolute'}
+            zIndex={2}
+            top={`${kioskBottomHeight + headerHeight + 20}px`}
+            left="50%"
+            transform="translate(-50%, -50%)"
+            h="400px"
+            w="400px"
+            alignItems={'center'}
+            justifyContent={'center'}
+            borderRadius={'md'}
+            boxShadow={'md'}
+            data-testid="trip-plan-schedule-qr"
+          >
+            <IconButton
+              onClick={() => setShowQR(false)}
+              aria-label={t('global.close')}
+              icon={<CloseIcon />}
+              pos={'absolute'}
+              top={4}
+              right={4}
+              variant={'ghost'}
+            />
+            <Image
+              src={qrImages[ui.language]}
+              alt="QR Code"
+              width="200px"
+              height="auto"
+            />
           </Flex>
-
-          <Box textAlign="center" mx={2}>
-            <Text fontSize={'sm'}>Arrive</Text>
-            <Box>
-              {formatters.datetime
-                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                .replace('am', '')
-                .replace('pm', '')}
-              <sub style={{ textTransform: 'uppercase' }}>
-                {' '}
-                {formatters.datetime
-                  .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                  .slice(-2)}
-              </sub>
-            </Box>
-          </Box>
-        </Grid>
-
-        <Text textAlign={'left'} data-name="to">
-          To{' '}
-          <strong>
-            {request?.destination?.title} {request?.destination?.description}
-          </strong>
-        </Text>
-
-        <Flex alignItems={'center'} mx={0} data-name="transfers">
-          <Text mr={1} fontSize={'sm'}>
-            {formatters.datetime.asDuration(plan.duration)} (
-            {formatters.distance.asMiles(
-              plan.legs.reduce((acc, leg) => {
-                return acc + leg.distance;
-              }, 0)
+        )}
+        {plan && plan?.legs?.length ? (
+          <Box
+            px={4}
+            flex={1}
+            id="trip-plan-schedule"
+            data-testid="trip-plan-schedule"
+          >
+            {ux === 'kiosk' && (
+              <Box textAlign={'center'}>
+                <Divider aria-hidden={true} my={2} />
+                <Button
+                  size="md"
+                  variant="brand"
+                  onClick={() => setShowQR(true)}
+                  data-testid="show-qr"
+                >
+                  {t('tripWizard.showQR')}
+                </Button>
+                <Divider aria-hidden={true} my={2} />
+              </Box>
             )}
-            )
-          </Text>
-          <Icon as={RxDotFilled} fontSize={'lg'} />
-          <Text fontSize={'sm'}>
-            {plan.transfers +
-              (plan.transfers === 1 ? ' transfer' : ' transfers')}
-          </Text>
-        </Flex>
-
-        <Box pt={4} pb={0} mb={-2}>
-          <Divider
-            borderColor={
-              colorMode === 'light' ? 'theme.primary' : 'theme.light'
-            }
-            borderWidth={2}
-          />
-        </Box>
-
-        <Box py={2}>
-          <Divider />
-        </Box>
-
-        <Box>
-          {plan.legs.map((leg, i) => {
-            let title = formatLegTitle(leg, wheelchair);
-            let name = getLegModeName(leg, wheelchair);
-            const mode =
-              title === 'WAIT'
-                ? config.WAIT
-                : name.toLowerCase() === 'roll'
-                ? config.WHEELCHAIR
-                : config.MODES.find(m => m.id === name);
-            // console.log(name, title, mode);
-            if (name === 'scooter') {
-              // later
-            } else if (name === 'bus') {
-              title += ' (' + leg.mode.toLowerCase() + ')';
-            }
-
-            let route, headsign;
-            if (leg.agencyName && leg.route) {
-              route = leg.route;
-              headsign = leg.headsign;
-            }
-
-            let fillColor = getLegColor(leg);
-            if (fillColor === '#FFFFFF') {
-              fillColor = theme.colors.primary1;
-            }
-
-            let intermediateStopsLabel;
-
-            if (leg.intermediateStops && leg.intermediateStops.length > 0) {
-              const lbl =
-                leg.intermediateStops.length +
-                ' stop' +
-                (leg.intermediateStops.length === 1 ? '' : 's');
-              const dur = formatters.datetime.asDuration(leg.duration);
-              intermediateStopsLabel = `${lbl}, ${dur}`;
-            }
-            const accentColor = mode.mode === 'walk' ? 'gray.400' : mode.color;
-            return (
-              <VStack
-                pos={'relative'}
-                key={i.toString()}
-                alignItems={'flex-start'}
-                spacing={1}
-                borderBottom={
-                  i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
-                }
-                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-                filter={
-                  legIndex !== -1 && legIndex === i
-                    ? 'opacity(1)'
-                    : legIndex === -1
-                    ? 'unset'
-                    : 'opacity(0.5)'
-                }
-              >
-                <Flex alignItems={'center'} mt={2}>
-                  {mode?.svg
-                    ? CreateCircleIcon({
-                        svg: mode.svg,
-                        backgroundColor: accentColor,
-                      })
-                    : null}
-                  <Heading
-                    as="h3"
-                    size="md"
-                    m={0}
-                    fontWeight={'extrabold'}
-                    data-name="route-or-title"
-                  >
-                    {route || title}
-                  </Heading>
-                </Flex>
+            <Grid
+              gridTemplateColumns={'1fr 1fr 1fr'}
+              width="80%"
+              margin="10px auto 20px auto"
+              py={2}
+              fontWeight={'bold'}
+              border="solid thin lightgray"
+              borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+              borderRadius="md"
+            >
+              <Box textAlign="center">
+                <Text fontSize={'sm'}>{t('tripWizard.leave')}</Text>
                 <Box>
-                  {route ? (
-                    <>
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        pos={'absolute'}
-                        left={'13px'}
-                        top={'36px'}
-                        height={'80px'}
-                        borderLeft="solid 4px #00205b"
-                        borderStyle={mode.mode === 'walk' ? 'dashed' : 'solid'}
-                        borderColor={accentColor}
-                      ></Box>
-                      <Box ml={'36px'}>
-                        <Text
-                          fontWeight={'semibold'}
-                          fontSize={'xs'}
-                          data-name="headsign"
-                          textAlign={'left'}
-                        >
-                          To {headsign}
-                        </Text>
-                        <Text
-                          fontWeight={'black'}
-                          fontSize={'sm'}
-                          textTransform={'uppercase'}
-                          color={
-                            colorMode === 'light'
-                              ? 'theme.primary'
-                              : 'theme.light'
-                          }
-                          data-name="leg-to-name"
-                          textAlign={'left'}
-                        >
-                          {leg?.to?.name}
-                        </Text>
-                      </Box>
-                    </>
-                  ) : (
-                    <>
-                      {i < plan.legs.length - 1 && (
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          pos={'absolute'}
-                          left={'13px'}
-                          top={'36px'}
-                          height={'20px'}
-                          borderLeft="solid 4px #00205b"
-                          borderStyle={
-                            mode.mode === 'walk' ? 'dashed' : 'solid'
-                          }
-                          borderColor={accentColor}
-                        ></Box>
-                      )}
-                    </>
-                  )}
+                  {formatters.datetime
+                    .asHMA(new Date(plan?.startTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(plan?.startTime))
+                      .slice(-2)}
+                  </sub>
                 </Box>
-                {leg.intermediateStops ? (
-                  <>
-                    <TimelineStep
-                      start={leg.from.name}
-                      label={intermediateStopsLabel}
-                      steps={leg.intermediateStops}
-                    />
-                  </>
-                ) : null}
-                <Box>
-                  <Divider />
-                </Box>
-              </VStack>
-            );
-          })}
+              </Box>
 
-          <Flex alignItems={'center'} my={4}>
-            <Icon as={FaStar} mr={2} />
-            <Text fontWeight={'bold'}>
-              Arrive at {request?.destination?.title}{' '}
-              {formatters.datetime
-                .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                .replace('am', '')
-                .replace('pm', '')}
-              <sub style={{ textTransform: 'uppercase' }}>
-                {' '}
-                {formatters.datetime
-                  .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
-                  .slice(-2)}
-              </sub>
+              <Flex alignItems={'center'} justifyContent={'center'}>
+                <Center h={10} w={10} borderRadius="lg">
+                  <Icon
+                    as={FaArrowRight}
+                    color={colorMode === 'light' ? 'brand' : 'theme.light'}
+                  />
+                </Center>
+              </Flex>
+
+              <Box textAlign="center" mx={2}>
+                <Text fontSize={'sm'}>{t('tripWizard.arrive')}</Text>
+                <Box>
+                  {formatters.datetime
+                    .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                      .slice(-2)}
+                  </sub>
+                </Box>
+              </Box>
+            </Grid>
+            <Text textAlign={'left'} data-name="to">
+              {t('global.to')}{' '}
+              <strong>
+                {request?.destination?.title}{' '}
+                {request?.destination?.description}
+              </strong>
             </Text>
-          </Flex>
-        </Box>
-      </Box>
+            <Flex alignItems={'center'} mx={0} data-name="transfers">
+              <Text mr={1} fontSize={'sm'}>
+                {formatters.datetime.asDuration(plan.duration)} (
+                {formatters.distance.asMiles(
+                  plan.legs.reduce((acc, leg) => {
+                    return acc + leg.distance;
+                  }, 0)
+                )}
+                )
+              </Text>
+              <Icon as={RxDotFilled} fontSize={'lg'} />
+              <Text fontSize={'sm'}>
+                {plan.transfers +
+                  ' ' +
+                  (plan.transfers === 1
+                    ? t('tripWizard.transfer')
+                    : t('tripWizard.transfer') + 's')}
+              </Text>
+            </Flex>
+            <Box pt={4} pb={0} mb={-2}>
+              <Divider
+                borderColor={colorMode === 'light' ? 'brand' : 'theme.light'}
+                borderWidth={2}
+                aria-hidden={true}
+              />
+            </Box>
+            <Box py={2}>
+              <Divider aria-hidden={true} />
+            </Box>
+            <Box data-testid="trip-plan-schedule-leg-container" tabIndex={0}>
+              {plan.legs.map((leg, i) => {
+                let title = '';
+                if (leg.agencyId || leg.providerId) {
+                  title = leg.agencyId || leg.providerId;
+                } else if (leg.mode === 'WALK' || leg.mode === 'CAR') {
+                  title = t(`tripWizard.${formatModeTitle(leg, wheelchair)}`);
+                }
+                if (leg?.duration) {
+                  title += ' ' + formatters.datetime.asDuration(leg.duration);
+                }
+                let name = getLegModeName(leg, wheelchair);
+                const mode =
+                  name.toLowerCase() === 'indoor' && wheelchair
+                    ? config.WHEELCHAIR
+                    : name.toLowerCase() === 'indoor'
+                      ? config.MODES.find(m => m.id === 'walk')
+                      : title === 'WAIT'
+                        ? config.WAIT
+                        : name.toLowerCase() === 'roll'
+                          ? config.WHEELCHAIR
+                          : config.MODES.find(m => m.id === name);
+                console.log(mode.name, { leg });
+                if (name === 'scooter') {
+                  // later
+                } else if (name === 'bus') {
+                  title += ' (' + leg.mode.toLowerCase() + ')';
+                }
+
+                let route, headsign;
+                if (leg.agencyName && leg.route) {
+                  route = leg.route;
+                  headsign = leg.headsign;
+                }
+
+                let fillColor = getLegColor(leg);
+                if (fillColor === '#FFFFFF') {
+                  fillColor = theme.colors.brand;
+                }
+
+                let intermediateStopsLabel;
+
+                if (leg.intermediateStops && leg.intermediateStops.length > 0) {
+                  const lbl =
+                    leg.intermediateStops.length +
+                    ' ' +
+                    t('routeList.stop').toLowerCase() +
+                    (leg.intermediateStops.length === 1 ? '' : 's');
+                  const dur = formatters.datetime.asDuration(leg.duration);
+                  intermediateStopsLabel = `${lbl}, ${dur}`;
+                }
+                const accentColor =
+                  mode.mode === 'walk' ? 'gray.400' : mode.color;
+                return (
+                  <VStack
+                    data-testid="trip-plan-schedule-leg"
+                    pos={'relative'}
+                    key={i.toString()}
+                    alignItems={'flex-start'}
+                    spacing={1}
+                    borderBottom={
+                      i === planLegs.length - 1 ? 'none' : '1px solid #ddd'
+                    }
+                    borderColor={
+                      colorMode === 'light' ? 'gray.200' : 'gray.600'
+                    }
+                    filter={
+                      legIndex !== -1 && legIndex === i
+                        ? 'opacity(1)'
+                        : legIndex === -1
+                          ? 'unset'
+                          : 'opacity(0.5)'
+                    }
+                  >
+                    <Flex alignItems={'center'} mt={2} width="100%">
+                      {mode?.svg
+                        ? CreateCircleIcon({
+                          svg: mode.svg,
+                          backgroundColor: accentColor,
+                        })
+                        : null}
+                      <Heading
+                        as="h3"
+                        size="md"
+                        m={0}
+                        fontWeight={'extrabold'}
+                        data-name="route-or-title"
+                        tabIndex={0}
+                      >
+                        {route || title}
+                      </Heading>
+                    </Flex>
+                    <Box>
+                      {route ? (
+                        <>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            pos={'absolute'}
+                            left={'13px'}
+                            top={'36px'}
+                            height={'calc(100% - 26px)'}
+                            borderLeft="solid 4px #00205b"
+                            borderStyle={
+                              mode.mode === 'walk' ? 'dashed' : 'solid'
+                            }
+                            borderColor={accentColor}
+                          ></Box>
+                          <Box ml={'36px'}>
+                            <Text
+                              fontWeight={'semibold'}
+                              fontSize={'xs'}
+                              data-name="headsign"
+                              textAlign={'left'}
+                            >
+                              <span>{t('global.to')}</span> {headsign}
+                            </Text>
+                            <Text
+                              fontWeight={'black'}
+                              fontSize={'sm'}
+                              textTransform={'uppercase'}
+                              color={
+                                colorMode === 'light' ? 'brand' : 'theme.light'
+                              }
+                              data-name="leg-to-name"
+                              textAlign={'left'}
+                            >
+                              {leg?.to?.name}
+                            </Text>
+                          </Box>
+                        </>
+                      ) : (
+                        <>
+                          {i < plan.legs.length - 1 && (
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              pos={'absolute'}
+                              left={'13px'}
+                              top={'36px'}
+                              height={'20px'}
+                              borderLeft="solid 4px #00205b"
+                              borderStyle={
+                                mode.mode === 'walk' ? 'dashed' : 'solid'
+                              }
+                              borderColor={accentColor}
+                            ></Box>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                    {leg.intermediateStops ? (
+                      <>
+                        <TimelineStep
+                          start={leg.from.name}
+                          label={intermediateStopsLabel}
+                          steps={leg.intermediateStops}
+                        />
+                      </>
+                    ) : null}
+                    <Box>
+                      <Divider aria-hidden={true} />
+                    </Box>
+                  </VStack>
+                );
+              })}
+
+              <Flex alignItems={'center'} my={4} tabIndex={0}>
+                <Icon as={FaStar} mr={2} />
+                <Text fontWeight={'bold'}>
+                  {t('tripWizard.arriveAt')} {request?.destination?.title}{' '}
+                  {formatters.datetime
+                    .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                    .replace('am', '')
+                    .replace('pm', '')}
+                  <sub style={{ textTransform: 'uppercase' }}>
+                    {' '}
+                    {formatters.datetime
+                      .asHMA(new Date(planLegs[planLegs.length - 1].endTime))
+                      .slice(-2)}
+                  </sub>
+                </Text>
+              </Flex>
+            </Box>
+          </Box>
+        ) : (
+          ''
+        )}
+      </>
     );
   }
 );
@@ -595,19 +716,16 @@ export const TripPlanSchedule = observer(
 //   return text.substr(0, threshold).concat('...');
 // }
 
-const formatLegTitle = (leg, wheelchair) => {
-  if (leg.agencyId || leg.providerId) {
-    return leg.agencyId || leg.providerId;
-  }
+const formatModeTitle = (leg, wheelchair) => {
   if (leg.mode === 'WALK' || leg.mode === 'CAR') {
-    const duration = formatters.datetime.asDuration(leg.duration);
-    let title = leg.mode === 'WALK' ? (wheelchair ? 'Roll' : 'Walk') : 'Drive';
-    if (duration) {
-      title += ' ' + duration;
-    }
+    // const duration = formatters.datetime.asDuration(leg.duration);
+    let title = leg.mode === 'WALK' ? (wheelchair ? 'roll' : 'walk') : 'drive';
+    // if (duration) {
+    //   title += ' ' + duration;
+    // }
     return title;
   }
-  return leg.mode;
+  return null;
 };
 
 const getLegModeName = (leg, wheelchair) => {

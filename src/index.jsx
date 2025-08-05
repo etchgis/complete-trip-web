@@ -1,5 +1,6 @@
 import '@fontsource/open-sans';
 import './style.css';
+import './accessibility.css';
 
 import * as ReactDOM from 'react-dom/client';
 

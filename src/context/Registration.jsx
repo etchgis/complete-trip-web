@@ -9,6 +9,7 @@ class Registration {
   address = null;
   caretakers = [];
   terms = false;
+  consent = false;
   organization = '';
   registeredUser = {};
   error = null;
@@ -35,6 +36,7 @@ class Registration {
       this.address = null;
       this.caretakers = [];
       this.terms = false;
+      this.consent = false;
       this.organization = '';
       this.registeredUser = {};
       this.error = null;
@@ -56,6 +58,8 @@ class Registration {
           lastName: this.lastName,
           address: this.address,
           caretakers: this.caretakers,
+          terms: this.terms,
+          consent: this.consent,
         },
       )
         .then((result) => {

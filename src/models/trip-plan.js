@@ -1,8 +1,153 @@
 import TripRequest from './trip-request';
 import formatters from '../utils/formatters';
 import { otp } from '../services/transport';
-/* eslint-disable no-unused-vars */
-import { v5 as uuidv5 } from 'uuid';
+
+const TRIP_QUERY = `
+query plan(
+  $from: InputCoordinates!,
+  $to: InputCoordinates!,
+  $date: String,
+  $time: String,
+  $arriveBy: Boolean,
+  $wheelchair: Boolean,
+  $numItineraries: Int,
+  $transportModes: [TransportMode],
+  $walkReluctance: Float,
+  $waitReluctance: Float,
+  $transferPenalty: Int,
+  $walkSpeed: Float,
+  $bikeSpeed: Float,
+  $maxWalkDistance: Float,
+  $allowedVehicleRentalNetworks: [String],
+  $bannedVehicleRentalNetworks: [String],
+  $allowKeepingRentedBicycleAtDestination: Boolean
+) {
+  plan(
+    from: $from
+    to: $to
+    date: $date
+    time: $time
+    arriveBy: $arriveBy
+    wheelchair: $wheelchair
+    numItineraries: $numItineraries
+    transportModes: $transportModes
+    walkReluctance: $walkReluctance
+    waitReluctance: $waitReluctance
+    transferPenalty: $transferPenalty
+    walkSpeed: $walkSpeed
+    bikeSpeed: $bikeSpeed
+    maxWalkDistance: $maxWalkDistance
+    allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks
+    bannedVehicleRentalNetworks: $bannedVehicleRentalNetworks
+    allowKeepingRentedBicycleAtDestination: $allowKeepingRentedBicycleAtDestination
+  ) {
+    itineraries {
+      start
+      end
+      duration
+      walkTime
+      waitingTime
+      walkDistance
+      generalizedCost
+      numberOfTransfers
+      legs {
+        start {
+          scheduledTime
+          estimated {
+            time
+          }
+        }
+        end {
+          scheduledTime
+          estimated {
+            time
+          }
+        }
+        mode
+        duration
+        realTime
+        distance
+        transitLeg
+        from {
+          name
+          lat
+          lon
+          stop {
+            gtfsId
+            name
+            code
+          }
+          vehicleRentalStation {
+            stationId
+            name
+            rentalNetwork {
+              networkId
+            }
+          }
+        }
+        to {
+          name
+          lat
+          lon
+          stop {
+            gtfsId
+            name
+            code
+          }
+          vehicleRentalStation {
+            stationId
+            name
+            rentalNetwork {
+              networkId
+            }
+          }
+        }
+        route {
+          gtfsId
+          shortName
+          longName
+          type
+          color
+          textColor
+          agency {
+            gtfsId
+            name
+          }
+        }
+        trip {
+          gtfsId
+          tripHeadsign
+        }
+        intermediateStops {
+          name
+          gtfsId
+          lat
+          lon
+        }
+        legGeometry {
+          points
+        }
+        steps {
+          distance
+          relativeDirection
+          streetName
+          absoluteDirection
+          stayOn
+          area
+          bogusName
+          lon
+          lat
+          walkingBike
+        }
+        rentedBike
+      }
+    }
+    routingErrors {
+      code
+      description
+    }
+  }
+}`;
 
 export default class TripPlan {
   /**
@@ -20,7 +165,66 @@ export default class TripPlan {
 }
 
 /**
- *
+ * Convert TransportMode array format for GraphQL
+ * @param {string[]} modes
+ * @returns {object[]}
+ */
+const convertModesToTransportModes = (modes) => {
+  const transportModes = [];
+
+  modes.forEach(mode => {
+    switch(mode) {
+      case 'WALK':
+        transportModes.push({ mode: 'WALK' });
+        break;
+      case 'BICYCLE':
+        transportModes.push({ mode: 'BICYCLE' });
+        break;
+      case 'BICYCLE_PARK':
+        transportModes.push({ mode: 'BICYCLE', qualifier: 'PARK' });
+        break;
+      case 'MICROMOBILITY_RENT':
+        transportModes.push({ mode: 'SCOOTER', qualifier: 'RENT' });
+        transportModes.push({ mode: 'BICYCLE', qualifier: 'RENT' });
+        break;
+      case 'CAR':
+        transportModes.push({ mode: 'CAR' });
+        break;
+      case 'CAR_PARK':
+        transportModes.push({ mode: 'CAR', qualifier: 'PARK' });
+        break;
+      case 'CAR_HAIL':
+        transportModes.push({ mode: 'CAR', qualifier: 'HAIL' });
+        break;
+      case 'TRANSIT':
+        transportModes.push({ mode: 'BUS' });
+        transportModes.push({ mode: 'TRAM' });
+        transportModes.push({ mode: 'RAIL' });
+        transportModes.push({ mode: 'SUBWAY' });
+        transportModes.push({ mode: 'FERRY' });
+        break;
+      case 'FLEXIBLE':
+        transportModes.push({ mode: 'FLEX', qualifier: 'DIRECT' });
+        transportModes.push({ mode: 'FLEX', qualifier: 'ACCESS' });
+        transportModes.push({ mode: 'FLEX', qualifier: 'EGRESS' });
+        break;
+    }
+  });
+
+  return transportModes;
+};
+
+/**
+ * Execute GraphQL query
+ * @param {object} variables
+ * @returns {Promise}
+ */
+const executeGraphQLQuery = async (variables) => {
+  return otp.graphql(TRIP_QUERY, variables);
+};
+
+/**
+ * Query the planner with GraphQL
  * @param {TripRequest} tripRequest
  * @param {Date} tripRequest.whenTime
  * @param {object} preferences
@@ -29,177 +233,371 @@ export default class TripPlan {
  * @param {any} resolve
  * @param {any} reject
  */
-const queryPlanner = (tripRequest, preferences, queryId, resolve, reject) => {
+const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) => {
   const whenTime = tripRequest.whenTime || new Date();
-  const walkLimit = preferences.maxWalk;
   let doExtraBikeQuery = false;
 
   const routeTypes = pickRouteTypes(tripRequest);
 
   const queries = routeTypes.map(routeType => {
-    let params = {
-      fromPlace: `${tripRequest.origin.point.lat},${tripRequest.origin.point.lng}`,
-      toPlace: `${tripRequest.destination.point.lat},${tripRequest.destination.point.lng}`,
-      time: formatters.datetime.asHMA(whenTime),
-      date: formatters.datetime.asMDYYYY(whenTime),
-      arriveBy: tripRequest.whenAction === 'arrive' ? true : false,
-      showIntermediateStops: true,
-      wheelchair: tripRequest.hasRequirement('wheelchair') ? 'true' : 'false',
-      locale: preferences.language,
+    const date = formatters.datetime.asMDYYYY(whenTime);
+    const time = formatters.datetime.asHMA(whenTime);
+
+    const variables = {
+      from: {
+        lat: tripRequest.origin.point.lat,
+        lon: tripRequest.origin.point.lng,
+      },
+      to: {
+        lat: tripRequest.destination.point.lat,
+        lon: tripRequest.destination.point.lng,
+      },
+      date,
+      time,
+      arriveBy: tripRequest.whenAction === 'arrive',
+      wheelchair: tripRequest.hasRequirement('wheelchair') || false,
+      numItineraries: 5,
       walkSpeed: 1.25,
-      maxHours: 5,
-      useRequestedDateTimeInMaxHours: true,
-      waitAtBeginningFactor: 0.6,
       walkReluctance: preferences.minimizeWalking ? 15 : 75,
+      waitReluctance: 0.6,
+      transferPenalty: 300,
     };
 
-    const modes = RouteTypes[routeType].join(',');
-    params.mode = modes;
+    // Convert modes to TransportMode format
+    const modes = RouteTypes[routeType];
+    variables.transportModes = convertModesToTransportModes(modes);
 
-    if (walkLimit) {
-      if (modes.indexOf('BICYCLE') === -1) {
-        // temporary
-        params.maxWalkDistance = walkLimit;
-      }
-    }
-    if (modes.indexOf('BICYCLE') !== -1) {
-      // temporary
-      params.maxWalkDistance = 3218; // 2 mi
+    // Add flex modes if needed
+    if (modes.includes('FLEXIBLE') || tripRequest.hasMode('flex')) {
+      variables.transportModes.push({ mode: 'FLEX', qualifier: 'DIRECT' });
+      variables.transportModes.push({ mode: 'FLEX', qualifier: 'ACCESS' });
+      variables.transportModes.push({ mode: 'FLEX', qualifier: 'EGRESS' });
     }
 
-    if (tripRequest.bannedProviders.length > 0) {
-      const bannedProviders = tripRequest.bannedProviders
-        .join(',')
-        .toLowerCase();
-      params.bannedProviders = bannedProviders;
+    // Walk distance limits
+    if (preferences.maxWalk && modes.indexOf('BICYCLE') === -1) {
+      variables.maxWalkDistance = preferences.maxWalk;
+    }
+    if (modes.includes('BICYCLE') || modes.includes('MICROMOBILITY_RENT')) {
+      variables.maxWalkDistance = 3218.69; // 2 miles
+      variables.bikeSpeed = 4.0; // ~9 mph
     }
 
+    // Handle banned providers
+    if (tripRequest.bannedProviders && tripRequest.bannedProviders.length > 0) {
+      variables.bannedVehicleRentalNetworks = tripRequest.bannedProviders.map(p => p.toLowerCase());
+    }
+
+    // Route-specific settings
     if (routeType === 'rentBike' || routeType === 'rentBikeToTransit') {
       if (!tripRequest.hasMode('bike_rental')) {
-        params.bannedVehicles = 'bike';
-      } else if (!tripRequest.hasMode('scooter')) {
-        params.bannedVehicles = 'scooter';
-      } else {
-        doExtraBikeQuery = modes; // both are on
+        variables.bannedVehicleRentalNetworks = ['bike'];
       }
-    } else if (routeType === 'hail' || routeType === 'hailToTransit') {
-      if (tripRequest.sortBy === 'fastest') {
-        params.driveDistanceReluctance = 0;
-        params.driveTimeReluctance = 0;
+      else if (!tripRequest.hasMode('scooter')) {
+        variables.bannedVehicleRentalNetworks = ['scooter'];
       }
-      params.maxPreTransitTime = 120 * 60;
+      else {
+        doExtraBikeQuery = modes.join(','); // Store as string like REST version
+      }
+    }
+    else if (routeType === 'hail' || routeType === 'hailToTransit') {
+      // if (tripRequest.sortBy === 'fastest') {
+      //   // For flex routing, lower walk reluctance for fastest routes
+      //   variables.walkReluctance = 1.0;
+      // }
+      // Add maxPreTransitTime equivalent through other parameters
+      variables.transferPenalty = 0; // Reduce transfer penalty for hail routes
     }
 
-    return otp.query(params);
+    return executeGraphQLQuery(variables);
   });
 
+  // Add extra bike query if needed
   if (doExtraBikeQuery) {
-    let params = {
-      fromPlace: `${tripRequest.origin.point.lat},${tripRequest.origin.point.lng}`,
-      toPlace: `${tripRequest.destination.point.lat},${tripRequest.destination.point.lng}`,
-      time: formatters.datetime.asHMA(whenTime),
-      date: formatters.datetime.asMDYYYY(whenTime),
-      arriveBy: tripRequest.whenAction === 'arrive' ? true : false,
-      showIntermediateStops: true,
-      wheelchair: tripRequest.hasRequirement('wheelchair') ? 'true' : 'false',
-      locale: preferences.language,
-      mode: doExtraBikeQuery,
-      maxWalkDistance: 3218, // 2mi
-      walkSpeed: 1.25, // meters/sec
-      maxHours: 5,
-      waitAtBeginningFactor: 0.6,
+    const date = formatters.datetime.asMDYYYY(whenTime);
+    const time = formatters.datetime.asHMA(whenTime);
+
+    const variables = {
+      from: {
+        lat: tripRequest.origin.point.lat,
+        lon: tripRequest.origin.point.lng,
+      },
+      to: {
+        lat: tripRequest.destination.point.lat,
+        lon: tripRequest.destination.point.lng,
+      },
+      date,
+      time,
+      arriveBy: tripRequest.whenAction === 'arrive',
+      wheelchair: tripRequest.hasRequirement('wheelchair') || false,
+      numItineraries: 5,
+      walkSpeed: 1.25,
       walkReluctance: preferences.minimizeWalking ? 15 : 75,
-      bannedVehicles: 'scooter',
+      maxWalkDistance: 3218.69, // 2 miles
+      transportModes: convertModesToTransportModes(doExtraBikeQuery.split(',')),
+      bannedVehicleRentalNetworks: ['scooter'],
+      waitReluctance: 0.6,
+      transferPenalty: 300,
     };
 
-    if (tripRequest.bannedProviders.length > 0) {
-      const bannedProviders = tripRequest.bannedProviders
-        .join(',')
-        .toLowerCase();
-      params.bannedProviders = bannedProviders;
+    if (tripRequest.bannedProviders && tripRequest.bannedProviders.length > 0) {
+      variables.bannedVehicleRentalNetworks = tripRequest.bannedProviders.map(p => p.toLowerCase());
     }
 
-    queries.push(otp.query(params));
+    queries.push(executeGraphQLQuery(variables));
   }
 
-  Promise.all(queries)
-    .then(otpResults => {
-      const validRouteTypes = [];
+  try {
+    const results = await Promise.all(queries);
 
-      Promise.all(
-        otpResults.map((p, i) => furtherDetails(p, routeTypes[i]))
-      ).then(responses => {
-        resolve({
-          plans: removeDuplicates(
-            responses.reduce((results, otpPlan) => {
-              // it's possible to have a .error response, for instance
-              // if no path exists.
-              if (otpPlan.plan) {
-                otpPlan.plan.itineraries.forEach(plan => {
-                  plan = createPlan(plan, tripRequest);
-                  plan.id = Date.now(); //uuidv5(`app.etch-${Date.now}`, uuidv5.DNS);
-                  if (filterPlan(plan, preferences, tripRequest.modes)) {
-                    results.push(plan);
-                  }
-                });
-              }
-              return results;
-            }, [])
-          ),
-          id: queryId,
+    const allPlans = [];
+    results.forEach((result, i) => {
+      if (result.plan && result.plan.itineraries) {
+        result.plan.itineraries.forEach((itinerary) => {
+          const plan = convertGraphQLItinerary(itinerary, tripRequest, routeTypes[i]);
+          plan.id = queryId; // Match REST behavior - use queryId directly
+          
+          if (filterPlan(plan, preferences, tripRequest.modes)) {
+            allPlans.push(plan);
+          }
         });
-      });
-    })
-    .catch(err => {
-      console.error(err);
+      }
     });
+
+    resolve({
+      plans: removeDuplicates(allPlans),
+      id: queryId,
+    });
+  } catch (err) {
+    console.error('GraphQL query error:', err);
+    reject(err);
+  }
+};
+
+/**
+ * Convert GraphQL itinerary to OTP-style plan
+ * @param {object} itinerary
+ * @param {TripRequest} request
+ * @param {string} routeType
+ * @returns {object}
+ */
+const convertGraphQLItinerary = (itinerary, request, routeType) => {
+  // Start with the original itinerary and modify it like the REST version
+  const plan = { ...itinerary };
+
+  // Convert GraphQL fields to match REST API format
+  plan.startTime = new Date(itinerary.start).getTime();
+  plan.endTime = new Date(itinerary.end).getTime();
+  plan.routeType = routeType;
+
+  // Remove GraphQL-specific fields that aren't in REST format
+  delete plan.start;
+  delete plan.end;
+
+  // Map GraphQL field names to REST field names
+  if (itinerary.numberOfTransfers !== undefined) {
+    plan.transfers = itinerary.numberOfTransfers;
+  }
+
+  // Reset legs array for conversion
+  plan.legs = [];
+
+  // Note: This OTP instance doesn't provide fare data
+  // Set default fare structure to maintain compatibility
+  plan.fare = {
+    details: {
+      regular: [],
+    },
+  };
+
+  // Initialize fields that scorePlan expects
+  plan.price = 0;
+  plan.displayPrice = 0;
+
+  // Convert legs
+  itinerary.legs.forEach(leg => {
+    const convertedLeg = {
+      startTime: new Date(leg.start.scheduledTime).getTime(),
+      endTime: new Date(leg.end.scheduledTime).getTime(),
+      duration: leg.duration,
+      distance: leg.distance,
+      mode: leg.mode.toUpperCase(),
+      transitLeg: leg.transitLeg,
+      realtime: leg.realTime,
+      from: {
+        name: leg.from.name,
+        lon: leg.from.lon,
+        lat: leg.from.lat,
+        stopId: leg.from.stop?.gtfsId,
+        stopCode: leg.from.stop?.code,
+        vertexType: leg.from.stop ? 'TRANSIT' : 'NORMAL',
+        departure: new Date(leg.start.scheduledTime).getTime(),
+      },
+      to: {
+        name: leg.to.name,
+        lon: leg.to.lon,
+        lat: leg.to.lat,
+        stopId: leg.to.stop?.gtfsId,
+        stopCode: leg.to.stop?.code,
+        vertexType: leg.to.stop ? 'TRANSIT' : 'NORMAL',
+        arrival: new Date(leg.end.scheduledTime).getTime(),
+      },
+    };
+
+    // Handle vehicle rental
+    if (leg.from.vehicleRentalStation) {
+      convertedLeg.from.bikeShareId = leg.from.vehicleRentalStation.stationId;
+      convertedLeg.rentedBike = true;
+
+      // Determine vehicle type from network name
+      const rentalNetwork = leg.from.vehicleRentalStation.rentalNetwork;
+      if (rentalNetwork && rentalNetwork.networkId) {
+        const network = rentalNetwork.networkId.toLowerCase();
+        if (network.includes('scooter')) {
+          convertedLeg.vehicleType = 'scooter';
+          convertedLeg.mode = 'SCOOTER';
+        } else {
+          convertedLeg.vehicleType = 'bike';
+          convertedLeg.mode = 'BICYCLE';
+        }
+        convertedLeg.providerId = network;
+      }
+    }
+    if (leg.to.vehicleRentalStation) {
+      convertedLeg.to.bikeShareId = leg.to.vehicleRentalStation.stationId;
+    }
+
+    // Handle transit leg details
+    if (leg.transitLeg && leg.route) {
+      convertedLeg.routeId = leg.route.gtfsId;
+      convertedLeg.routeShortName = leg.route.shortName;
+      convertedLeg.routeLongName = leg.route.longName;
+      convertedLeg.routeType = leg.route.type;
+      convertedLeg.routeColor = leg.route.color;
+      convertedLeg.routeTextColor = leg.route.textColor;
+      convertedLeg.agencyId = leg.route.agency?.gtfsId;
+      convertedLeg.agencyName = leg.route.agency?.name;
+      convertedLeg.tripId = leg.trip?.gtfsId;
+      convertedLeg.headsign = leg.trip?.tripHeadsign;
+    }
+
+    // Handle intermediate stops
+    if (leg.intermediateStops && leg.intermediateStops.length > 0) {
+      convertedLeg.intermediateStops = leg.intermediateStops.map(stop => ({
+        name: stop.name,
+        stopId: stop.gtfsId,
+        lat: stop.lat,
+        lon: stop.lon,
+      }));
+    }
+
+    // Convert geometry
+    if (leg.legGeometry && leg.legGeometry.points) {
+      convertedLeg.legGeometry = {
+        points: leg.legGeometry.points,
+        length: leg.legGeometry.points.length,
+      };
+    }
+
+    // Add steps if available
+    if (leg.steps && Array.isArray(leg.steps)) {
+      convertedLeg.steps = leg.steps;
+    } else {
+      convertedLeg.steps = [];
+    }
+
+    // Handle campus shuttle and demand-response services
+    // Route type 715 is "Demand and Response Bus" in GTFS
+    // GraphQL returns these as BUS mode, but they need to be HAIL for the app
+    if (leg.transitLeg && leg.route &&
+        (leg.route.type === 715 ||
+         leg.route.gtfsId?.includes('campus_shuttle') ||
+         leg.route.longName?.toLowerCase().includes('shuttle'))) {
+      // This is a flex/shuttle service that needs to be hailed
+      convertedLeg.mode = 'HAIL';
+      convertedLeg.hailedCar = true;
+      convertedLeg.flexibleTransit = true;
+      convertedLeg.tripId = 'HDS:A1'; // Human-Driven Shuttle identifier
+      convertedLeg.providerId = 'campus_shuttle';
+    }
+
+    // Handle actual car hail (ride-sharing services)
+    if (leg.mode === 'CAR' && (routeType === 'hailToTransit' || routeType === 'hail')) {
+      convertedLeg.mode = 'HAIL';
+      convertedLeg.hailedCar = true;
+      convertedLeg.tripId = 'HDS:A1';
+    }
+
+    plan.legs.push(convertedLeg);
+  });
+
+  // Apply route color processing like REST version
+  plan.legs.forEach(leg => {
+    if (leg.routeColor && !leg.routeColor.startsWith('#')) {
+      leg.routeColor = '#' + leg.routeColor;
+    }
+    if (leg.routeTextColor && !leg.routeTextColor.startsWith('#')) {
+      leg.routeTextColor = '#' + leg.routeTextColor;
+    }
+  });
+
+  // calcCost(plan);
+  scorePlan(plan, request);
+
+  return plan;
 };
 
 const RouteTypes = {
   walk: ['WALK'],
   bike: ['BICYCLE'],
   rentBike: ['WALK', 'MICROMOBILITY_RENT'],
-  drive: ['CAR'], // personal vehicle
+  drive: ['CAR'],
   carParkAndRide: ['CAR_PARK', 'WALK', 'TRANSIT'],
   bikeParkAndRide: ['BICYCLE_PARK', 'WALK', 'TRANSIT'],
-  hail: ['CAR_HAIL'], // dropoff / rideshare -- note that with WALK this drops the rider on the street corner!
-  hailToTransit: ['CAR_HAIL', 'WALK', 'TRANSIT'], // TNC
+  // For backwards compatibility: hail now uses FLEXIBLE for shuttle service
+  hail: ['FLEXIBLE', 'WALK'],
+  hailToTransit: ['FLEXIBLE', 'WALK', 'TRANSIT'],
   walkToTransit: ['TRANSIT', 'WALK'],
   bikeToTransit: ['TRANSIT', 'BICYCLE'],
   rentBikeToTransit: ['TRANSIT', 'WALK', 'MICROMOBILITY_RENT'],
+  flexToTransit: ['TRANSIT', 'WALK', 'FLEXIBLE'],
+  flexDirect: ['WALK', 'FLEXIBLE'],
 };
 
 /**
- *
- * @param {TripRequest} tripRequest
+ * Pick route types based on selected modes
+ * @param {TripRequest} trip
  * @returns {string[]}
  */
-const pickRouteTypes = trip => {
+const pickRouteTypes = (trip) => {
   const modeSets = [];
 
+  // Check for flex service
+  const hasFlexService = trip.hasMode('flex') || trip.hasMode('flexible');
+
   if (trip.hasMode('bus') || trip.hasMode('tram')) {
+    if (hasFlexService) {
+      modeSets.push('flexToTransit');
+    }
     if (trip.hasMode('car')) {
       modeSets.push('carParkAndRide');
-      modeSets.push('drive'); // temp? pass sort mode to server + make server smarter
+      modeSets.push('drive');
     }
     if (trip.hasMode('hail')) {
       modeSets.push('hailToTransit');
-      modeSets.push('hail'); // temp?
+      modeSets.push('hail');
     }
-
     if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bikeToTransit');
     }
-
     if (trip.hasMode('scooter') || trip.hasMode('bike_rental')) {
       modeSets.push('rentBikeToTransit');
     }
-    // TODO: use the below "else if" once we make OTP smarter.
-    // scooter/bike rental/tnc can already do a straight walk option.
-    // only add straight walk if none of those options are selected
-    //else if (!trip.hasMode('hail'))
     modeSets.push('walkToTransit');
   } else {
+    if (hasFlexService) {
+      modeSets.push('flexDirect');
+    }
     if (trip.hasMode('car')) {
       modeSets.push('drive');
     }
@@ -219,81 +617,11 @@ const pickRouteTypes = trip => {
 };
 
 /**
- *
- * @param {obj} otpPlan
- * @param {string} routeType
- * @returns {Promise}
+ * Remove duplicate plans
+ * @param {object[]} planList
+ * @returns {object[]}
  */
-const furtherDetails = (otpPlan, routeType) => {
-  // it's possible to have a .error response with no .plan, for instance
-  // if no reachable path exists.
-  let promise;
-  if (otpPlan.plan) {
-    const promises = [];
-    otpPlan.plan.itineraries.forEach(plan => {
-      plan.routeType = routeType;
-      plan.legs.forEach(leg => {
-        // TEMP until users upgrade to new version of app and we can change server.
-        if (leg.providerId === 'may') {
-          leg.agencyId = 'SHUTTLE';
-          leg.providerId = 'shuttle';
-        }
-        if (leg.routeColor) {
-          leg.routeColor = '#' + leg.routeColor;
-        }
-        if (leg.vehicleType === 'bike') {
-          leg.mode = 'BICYCLE';
-        }
-        if (leg.vehicleType === 'scooter') {
-          leg.mode = 'SCOOTER';
-        }
-        //if (leg.hailedCar) {
-        if (
-          leg.mode === 'CAR' &&
-          (routeType === 'hailToTransit' || routeType === 'hail')
-        ) {
-          promises.push(convertToHail(leg));
-        }
-      });
-    });
-    if (promises.length) {
-      promise = Promise.all(promises).then(() => {
-        return otpPlan;
-      });
-    }
-  }
-  if (!promise) {
-    promise = Promise.resolve(otpPlan);
-  }
-  return promise;
-};
-
-/**
- *
- * @param {object} leg
- * @returns {Promise}
- */
-const convertToHail = leg => {
-  leg.mode = 'HAIL';
-  // leg.providerId = 'yc';
-  // const miles = leg.distance * 0.000621371;
-  // let minutes = leg.duration / 60;
-  // if (minutes > 15) {
-  //   minutes -= 15;
-  // } // TEMP: Stop including wait time in leg's duration
-  // leg.price = 300 + (miles * 241 + minutes * 16) || 0;
-  return Promise.resolve(leg);
-};
-
-/**
- *
- * @param {object} planList
- * @returns {object}
- */
-const removeDuplicates = planList => {
-  // TEMP: this function is only needed because we have to run a lot of
-  // parallel OTP queries. You can end up with the same trip when using
-  // hail+transit, walk+transit, and micromobility rental + transit, for example.
+const removeDuplicates = (planList) => {
   for (var i = 0; i < planList.length; i++) {
     var planI = planList[i];
     for (var j = planList.length - 1; j > i; j--) {
@@ -301,10 +629,6 @@ const removeDuplicates = planList => {
       if (plansEqual(planI, planJ)) {
         planList.splice(j, 1);
       } else if (plansSimilar(planI, planJ)) {
-        // hailToTransit/bikeToTransit/rentToTransit and walkToTransit can be duplicates of each other, but
-        // will be slightly different at the first or last walk leg because of
-        // https://github.com/opentripplanner/OpenTripPlanner/issues/2808.
-        // For example the hailToTransit version will end at the nearest car-traversible edge. Let's delete the non-walk one.
         if (planI.routeType !== 'walkToTransit') {
           planList.splice(i, 1);
           --i;
@@ -319,45 +643,39 @@ const removeDuplicates = planList => {
 };
 
 /**
- *
+ * Check if two plans are equal
  * @param {object} a
  * @param {object} b
  * @returns {boolean}
  */
 const plansEqual = (a, b) => {
-  if (
-    a.startTime !== b.startTime ||
-    a.endTime !== b.endTime ||
-    a.legs.length !== b.legs.length
-  ) {
+  if (a.startTime !== b.startTime || a.endTime !== b.endTime || a.legs.length !== b.legs.length) {
     return false;
   }
-  for (var i = a.legs.length; i--; ) {
-    if (
-      a.legs[i].mode !== b.legs[i].mode ||
-      a.legs[i].providerId !== b.legs[i].providerId
-    ) {
+  for (var i = a.legs.length; i--;) {
+    if (a.legs[i].mode !== b.legs[i].mode || a.legs[i].providerId !== b.legs[i].providerId) {
       return false;
     }
   }
   return true;
 };
 
+/**
+ * Check if two plans are similar
+ * @param {object} a
+ * @param {object} b
+ * @returns {boolean}
+ */
 const plansSimilar = (a, b) => {
   if (a.legs.length !== b.legs.length) {
     return false;
   }
-  for (var i = a.legs.length; i--; ) {
-    const al = a.legs[i],
-      bl = b.legs[i];
+  for (var i = a.legs.length; i--;) {
+    const al = a.legs[i], bl = b.legs[i];
     if (al.mode !== bl.mode || al.providerId !== bl.providerId) {
       return false;
     }
-    if (
-      al.mode !== 'WALK' &&
-      (Math.abs(al.startTime - bl.startTime) > 15000 ||
-        Math.abs(al.endTime - bl.endTime) > 15000)
-    ) {
+    if (al.mode !== 'WALK' && (Math.abs(al.startTime - bl.startTime) > 15000 || Math.abs(al.endTime - bl.endTime) > 15000)) {
       return false;
     }
   }
@@ -365,79 +683,60 @@ const plansSimilar = (a, b) => {
 };
 
 /**
- *
- * @param {object} itinerary
- * @param {TripRequest} request
- * @returns
+ * Calculate cost for a plan - currently unused but kept for future implementation
+ * @param {object} plan
  */
-const createPlan = (itinerary, request) => {
-  const plan = itinerary; // we just modify OTP plan
-
-  // calcCost(plan);
-  scorePlan(plan, request);
-
-  return plan;
-};
-
-/**
- *
- * @param {TripPlan} plan
- */
-const calcCost = plan => {
-  let firstFare = plan.fare
-    ? plan.fare.details.regular
-      ? plan.fare.details.regular[0].price.cents
-      : 0
-    : 0;
-  let cents = (plan.price = firstFare);
+// eslint-disable-next-line no-unused-vars
+const calcCost = (plan) => {
+  let firstFare = plan.fare && plan.fare.details?.regular && plan.fare.details.regular.length > 0 ? plan.fare.details.regular[0].price.cents : 0;
+  let cents = plan.price = firstFare;
   let displayCents = cents;
   let busAdded = false;
   let didUseCogo = false;
-  //let onScooterBikeLeg = null;
+
   plan.legs.forEach(leg => {
-    //if (onScooterBikeLeg && leg.mode !== onScooterBikeLeg.mode && leg.mode !== 'WALK') {
-    //  onScooterBikeLeg = null;
-    //}
     if (leg.mode === 'CAR') {
-      leg.price = (leg.distance * 3.28084 * 60) / 5280;
+      leg.price = leg.distance * 3.28084 * 60 / 5280;
       cents += leg.price;
-    } else if (leg.mode === 'HAIL') {
-      cents += leg.price;
-      displayCents += leg.price;
-    } else if (leg.mode === 'SCOOTER') {
-      leg.price = (leg.duration * 15) / 60; // 15 cents per minute
-      //if (!onScooterBikeLeg) {
+    }
+    else if (leg.mode === 'HAIL') {
+      cents += leg.price || 0;
+      displayCents += leg.price || 0;
+    }
+    else if (leg.mode === 'SCOOTER') {
+      leg.price = leg.duration * 15 / 60; // 15 cents per minute
       leg.price += 100; // scooter start fee
-      //  onScooterBikeLeg = leg;
-      //}
       cents += leg.price;
       displayCents += leg.price;
-    } else if (leg.mode === 'BICYCLE') {
+    }
+    else if (leg.mode === 'BICYCLE') {
       leg.price = 0;
       if (leg.providerId === 'cogo') {
         if (!didUseCogo) {
           leg.price = 800; // COGO start fee
           didUseCogo = true;
         }
-        if (leg.duration > 1800) {
-          // Cadd $3 every 30 minutes after the first
+        if (leg.duration > 1800) { // Add $3 every 30 minutes after the first
           const blocks = Math.ceil((leg.duration - 1800) / 1800);
           leg.price += blocks * 300;
         }
       }
       cents += leg.price;
       displayCents += leg.price;
-    } else if (leg.mode === 'WALK') {
+    }
+    else if (leg.mode === 'WALK') {
       leg.price = 0;
-    } else if (leg.mode === 'BUS') {
+    }
+    else if (leg.mode === 'BUS') {
       if (!busAdded) {
         leg.price = firstFare;
         busAdded = true;
-      } else if (busAdded && plan.fare) {
-        var found = plan.fare.details.regular.find((f, i) => {
-          return f.routes.indexOf(leg.routeId) > -1;
+      }
+      else if (busAdded && plan.fare && plan.fare.details?.regular) {
+        var found = plan.fare.details.regular.find((f) => {
+          return f.routes && f.routes.indexOf(leg.routeId) > -1;
         });
-        if (found && found.price.cents > firstFare) {
+        if (found && found.price && found.price.cents > firstFare) {
           leg.price = found.price.cents - firstFare;
           cents += found.price.cents - firstFare;
           displayCents += found.price.cents - firstFare;
@@ -450,13 +749,12 @@ const calcCost = plan => {
 };
 
 /**
- *
- * Scores plan based on user preferences.
- * @param {TripPlan} plan
+ * Score plan based on user preferences
+ * @param {object} plan
  * @param {TripRequest} request
  */
 const scorePlan = (plan, request) => {
-  // factor wait time before or after trip into the total trip time.
+  // Factor wait time before or after trip into the total trip time
   let delay = 0;
   var requestTime;
   if (isNaN(request.whenTime)) {
@@ -470,45 +768,48 @@ const scorePlan = (plan, request) => {
   } else {
     delay = plan.startTime - requestTime;
   }
-  // penalize delay at some relative cost to trip time
+
+  // Penalize delay at some relative cost to trip time
   plan.delay = Math.round(delay / 1000);
   plan.timeScore = plan.duration + plan.delay / 3;
 
-  // penalize $1 for every 10 mins
+  // Penalize $1 for every 10 mins
   plan.score = plan.price + plan.timeScore / 60 / 10;
 
+  // Calculate eco harm
   plan.ecoHarm = 0;
   plan.legs.forEach(leg => {
     if (leg.mode === 'CAR' || leg.mode === 'HAIL') {
-      // 10 points per minute
-      // todo: give hail penalty for the predicted wait preceding this too.
-      plan.ecoHarm += (leg.duration * 10) / 60;
+      plan.ecoHarm += leg.duration * 10 / 60;
     } else if (leg.mode === 'BUS') {
-      // 1 point per minute
-      plan.ecoHarm += (leg.duration * 1) / 60;
+      plan.ecoHarm += leg.duration * 1 / 60;
     }
   });
 };
 
 /**
- *
- * @param {TripPlan} plan
+ * Filter plans based on preferences
+ * @param {object} plan
  * @param {object} preferences
- * @returns
+ * @param {string[]} modes
+ * @returns {boolean}
  */
 const filterPlan = (plan, preferences, modes) => {
-  for (var i = plan.legs.length; i--; ) {
-    if (plan.legs[i].providerDown) {
-      return false;
-    }
-    if (modes.indexOf(plan.legs[i].mode.toLowerCase()) === -1) {
-      return false;
-    }
+  for (var i = plan.legs.length; i--;) {
+    if (plan.legs[i].providerDown) { return false; }
+    if (modes.indexOf(plan.legs[i].mode.toLowerCase()) === -1) { return false; }
   }
   if (plan.displayPrice > preferences.maxCost) {
     return false;
   }
+  if (plan.legs.length === 1 && plan.legs[0].mode.toLowerCase() === 'bicycle') {
+    return true;
+  }
+  if (
+    preferences.minimizeWalking
+    && plan.walkDistance > 804.672
+  ) {
+    return false;
+  }
   return true;
-
-  //TODO ad condtion for specific mode preferences (ex. TRAM and BUS are both under TRANSIT)
 };

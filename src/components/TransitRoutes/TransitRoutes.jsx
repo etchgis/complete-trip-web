@@ -1,9 +1,20 @@
-import { Box, Button, Flex, Stack, Text, useColorMode } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Heading,
+  Stack,
+  Text,
+  useColorMode,
+} from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
+import AddressSearchForm from '../AddressSearchForm';
+import AlertModal from '../AlertModal';
 import Loader from '../Loader';
-import SearchForm from '../AddressSearchForm';
 import { WarningTwoIcon } from '@chakra-ui/icons';
+import config from '../../config';
 import debounce from '../../utils/debounce';
 import { featureCollection } from '@turf/helpers';
 import formatters from '../../utils/formatters';
@@ -12,25 +23,32 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
+import { mobility } from '@etchgis/mobility-transport-layer';
+import { geocoder } from '../../services/transport';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
-export const TransitRoutes = observer(({}) => {
+export const TransitRoutes = observer(({ onShuttlePress }) => {
   const colorMode = useColorMode();
   const { map, mapState, setMapState, mapCache, getRoutes, getStops } =
     useStore().mapStore;
-  const { debug } = useStore().uiStore;
+  const { debug, setKeyboardInputValue, ux } = useStore().uiStore;
   // const [routesAreLoaded, setRoutesAreLoaded] = useState(false);
   const [showLoader, setShowLoader] = useState(
     mapState.routesLoading || mapState.stopsLoading
   );
   const [defaultAddress, setDefaultAddress] = useState('');
   const [searchResult, setSearchResult] = useState(false);
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   const { pathname } = useLocation();
 
   const intervalRef = useRef();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (debug) console.log('mapState.geolocation', mapState.geolocation.length);
-    //NOTE this fires on map moveend and on map GPS button
+    //NOTE this is supposed to fire on map moveend and on map GPS button
     if (mapState.geolocation.length) {
       debounce(
         getRouteList(mapState.geolocation[0], mapState.geolocation[1]),
@@ -49,12 +67,18 @@ export const TransitRoutes = observer(({}) => {
 
   const getRouteList = (x, y) => {
     const exists = mapState?.stoptimes?.features.length; //NOTE this disables the map from updating when the user pans if the stops are already loaded)
-    if (exists) return;
+    if (exists) {
+      console.log(
+        '[transit-routes] stops already loaded - exting getRouteList'
+      );
+      return;
+    }
     const { lng, lat } = map ? map.getCenter() : { lng: x, lat: y };
     //latlng of buffalo
-    const buffalo = [-78.8784, 42.8864];
+    const buffalo = [config.MAP.CENTER[1], config.MAP.CENTER[0]];
     getRoutes(x || lng || buffalo[0], y || lat || buffalo[1]);
-    setMapState('center', [lng, lat]);
+
+    // setMapState('center', [lng, lat]);
     if (map) setMapState('zoom', map.getZoom());
   };
 
@@ -71,6 +95,7 @@ export const TransitRoutes = observer(({}) => {
     console.log('[map-view] route click handler');
     try {
       setDefaultAddress('');
+      setKeyboardInputValue(''); //NOTE this is supposed to clear the keyboard input (not working)
       setMapState('activeRoute', service);
       if (service.service && service.route) {
         getStops(service, true)
@@ -102,6 +127,19 @@ export const TransitRoutes = observer(({}) => {
           .catch(e => {
             console.error('getRoutesAndStops', e);
           });
+      }
+      else if (service.mode === 'shuttle') {
+        const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+          hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+        const inTimeframe = moment().isAfter(hdsStart) && moment().isBefore(hdsEnd);
+        // const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
+        if (onShuttlePress && inTimeframe) {
+          onShuttlePress(service);
+        }
+        if (!inTimeframe) {
+          setAlertMessage(t('routeList.shuttleNotAvailableTimeFrame'));
+          setAlertModalOpen(true);
+        }
       }
     } catch (error) {
       setMapState('activeRoute', '');
@@ -185,21 +223,28 @@ export const TransitRoutes = observer(({}) => {
     setMapState('stoptimes', featureCollection([])); //NOTE this clears the stoptimes list and allows the route list to be displayed
     setMapState('activeRoute', ''); //Clear the active route
     if (mapState.marker) mapState.marker.remove();
-    
-    //BUG sometimes these are not defined so it causes an error - cannot reproduce
-    if (map.getSource('routes-highlight')) map.getSource('routes-highlight').setData(featureCollection([]));
-    if (map.getSource('stops')) map.getSource('stops').setData(featureCollection([]));
-    if (map.getSource('buses-live')) map.getSource('buses-live').setData(featureCollection([]));
 
-    if (!map.getSource('routes-highlight')) console.log({error: 'TransitRoutes: missing map sources to reset'});
+    //BUG sometimes these are not defined so it causes an error - cannot reproduce
+    if (map.getSource('routes-highlight'))
+      map.getSource('routes-highlight').setData(featureCollection([]));
+    if (map.getSource('stops'))
+      map.getSource('stops').setData(featureCollection([]));
+    if (map.getSource('buses-live'))
+      map.getSource('buses-live').setData(featureCollection([]));
+
+    if (!map.getSource('routes-highlight'))
+      console.log({ error: 'TransitRoutes: missing map sources to reset' });
 
     //RESET TO THE PREVIOUS LOCATION AND CALL THE ROUTE LIST FUNCTION
     //BUG on the first load, sometimes the mapState.center is not defined but yet there are routes in the mapState.routes
     if (mapState?.center?.length) {
       map.flyTo({ center: mapState.center, zoom: map.getZoom() });
     } else {
-      console.log({error: 'TransitRoutes: no center found in mapState'})
-      map.flyTo({center: [-78.8964921,42.8915053], zoom: map.getZoom()})
+      console.log({ error: 'TransitRoutes: no center found in mapState' });
+      map.flyTo({
+        center: [config.MAP.CENTER[1], config.MAP.CENTER[0]],
+        zoom: map.getZoom(),
+      });
     }
   };
 
@@ -232,7 +277,7 @@ export const TransitRoutes = observer(({}) => {
       <Flex
         flexDir={'column'}
         height="100%"
-        width="420px"
+        width={(ux === 'webapp' || ux === 'callcenter') ? '420px' : '270px'}
         borderRight={'1px'}
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         p={0}
@@ -241,8 +286,8 @@ export const TransitRoutes = observer(({}) => {
         <Box>
           {/* TODO find a way to clear to search result */}
           <Box p={2}>
-            <SearchForm
-              saveAddress={() => {}}
+            <AddressSearchForm
+              saveAddress={() => { }}
               setGeocoderResult={e => {
                 if (map) {
                   //TODO change this to a function
@@ -257,8 +302,9 @@ export const TransitRoutes = observer(({}) => {
                 }
               }}
               defaultAddress={defaultAddress}
-              label="Find Nearby Routes"
+              label={t('map.searchTitle')}
               resultsMaxWidth="402px"
+              inputName="transitSearch"
             />
           </Box>
           <BackButton backClickHandler={backClickHandler} />
@@ -269,6 +315,11 @@ export const TransitRoutes = observer(({}) => {
       </Flex>
       {/* NOTE only show loader when map is actually open */}
       <Loader isOpen={showLoader && pathname === '/map'}></Loader>
+      <AlertModal 
+        isOpen={alertModalOpen}
+        onClose={() => setAlertModalOpen(false)}
+        message={alertMessage}
+      />
       {/* ----------------------- */}
       {/* ----------------------- */}
     </>
@@ -277,6 +328,7 @@ export const TransitRoutes = observer(({}) => {
 
 const BackButton = observer(({ backClickHandler }) => {
   const { stoptimes } = useStore().mapStore.mapState;
+  const { t } = useTranslation();
   return (
     <>
       {stoptimes?.features.length ? (
@@ -291,7 +343,7 @@ const BackButton = observer(({ backClickHandler }) => {
           fontWeight="bold"
           minH={'40px'}
         >
-          Back
+          {t('global.prev')}
         </Button>
       ) : (
         ''
@@ -333,7 +385,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                   }}
                   justifyContent={'flex-start'}
                   fontSize="sm"
-                  minH={'90px'}
+                  // minH={'90px'}
                   height={'auto'}
                   margin={0}
                   paddingX={'15px'}
@@ -344,6 +396,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                   borderLeft={'none'}
                   borderRight={'none'}
                   width="100%"
+                  whiteSpace={'normal'}
                 >
                   <Flex flexDirection={'row'} width={'100%'}>
                     <Flex flexDirection={'column'} flex={1} width={'300px'}>
@@ -361,9 +414,8 @@ const StopTimesList = observer(({ stopClickHandler }) => {
                         {s.properties.publicCode}
                       </span>
                       {s.properties?.routes && (
-                        <span>{`Servicing Route${
-                          s.properties.routes.length !== 0 ? 's' : ''
-                        } ${s.properties.routes.join(',')}`}</span>
+                        <span>{`Servicing Route${s.properties.routes.length !== 0 ? 's' : ''
+                          } ${s.properties.routes.join(',')}`}</span>
                       )}
                     </Flex>
                     <Flex
@@ -517,8 +569,12 @@ const StopTimesList = observer(({ stopClickHandler }) => {
 
 const RouteList = observer(({ routeClickHandler }) => {
   const { routes, stoptimes } = useStore().mapStore.mapState;
+  const { updateShuttle } = useStore().mapStore;
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
+  const { t } = useTranslation();
+  const { ux } = useStore().uiStore;
+  const kioskConfig = ux === 'kiosk' ? getCurrentKioskConfig() : null;
 
   const timeToDuration = timestamp => {
     let diff = timestamp - Date.now();
@@ -555,6 +611,61 @@ const RouteList = observer(({ routeClickHandler }) => {
     }
   };
 
+  const [shuttleData, setShuttleData] = useState(null);
+
+  useEffect(() => {
+    if (ux === 'callcenter') {
+      const fetchData = () => {
+        try {
+          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
+            .then((result) => {
+              console.log('result', result);
+              let fc = {
+                type: 'FeatureCollection',
+                features: [],
+              };
+              if (result && result.vehicles && result.vehicles.length) {
+                const vehicle = result.vehicles[0];
+                const coordinates = vehicle.location ? vehicle.location.coordinates : vehicle.coordinates;
+                fc.features.push({
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates,
+                  },
+                });
+                geocoder.reverse({ lat: coordinates[1], lng: coordinates[0] })
+                  .then((results) => {
+                    fc.features[0].properties = results.length && results.length > 0 ? results[0] : { title: 'Unknown' };
+                    fc.features[0].properties.icon = 'shuttle-live';
+                    setShuttleData(fc);
+                    updateShuttle(fc);
+                  })
+                  .catch((e) => {
+                    console.log('geocoder error', e);
+                  });
+              }
+              else {
+                setShuttleData(fc);
+                updateShuttle(fc);
+              }
+            })
+            .catch((e) => {
+              console.log('skids trips error', e);
+            });
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData();
+
+      const intervalId = setInterval(fetchData, 10000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, []);
+
   return (
     <>
       {!stoptimes?.features.length && routes.length > 0 ? (
@@ -562,113 +673,153 @@ const RouteList = observer(({ routeClickHandler }) => {
           position={'relative'}
           mt={2}
           flexDir={'column'}
-          flex={1}
-          overflowY={'auto'}
+          overflowX={'auto'}
+          // flexWrap={'wrap'}
           id="map-route-list"
           data-testid="map-route-list"
         >
           {routes.map((r, i) => {
-            return (
-              <Button
-                data-testid="map-route-list-button"
-                display="flex"
-                justifyContent={'center'}
-                key={i}
-                background={`#${r.color || '004490'}`}
-                color={`#${r.textColor || 'ffffff'}`}
-                _hover={{
-                  filter: 'brightness(1.1) saturate(1.3)',
-                }}
-                paddingX={'15px'}
-                paddingY={'8px'}
-                fontSize="sm"
-                fontWeight="bold"
-                minH={'90px'}
-                margin={0}
-                borderRadius={0}
-                outline={'solid 1px white'}
-                onClick={() => routeClickHandler(r)}
-              >
-                {r.mode === 'bus' && (
-                  <Flex flexDirection={'column'} flex={1}>
-                    <Flex
-                      flexDir={'row'}
-                      justifyContent={'space-between'}
-                      width={'100%'}
-                    >
-                      <span
-                        style={{
-                          fontSize: 32,
-                          fontWeight: 'bold',
-                          marginBottom: 0,
-                        }}
+            if (ux === 'kiosk' && 
+                r.mode !== 'shuttle' && 
+                kioskConfig && kioskConfig.showPublicTransit === false) {
+              return null;
+            }
+
+            // console.log('route', r);
+            if (r.mode === 'shuttle' && ux === 'callcenter') {
+              return (
+                <Box
+                  key={i}
+                  background={`#${r.color || 'brand'}`}
+                  color={`#${r.textColor || 'ffffff'}`}
+                  outline={'solid 1px white'}
+                  display={'block'}
+                  paddingY={'16px'}
+                  paddingX={'8px'}
+                  fontSize="sm"
+                  fontWeight="bold"
+                  height={'unset'}
+                  margin={0}
+                  borderRadius={0}
+                  width={'100%'}
+                  whiteSpace={'normal'}
+                >
+                  <Text fontSize={18} textAlign={'left'}>
+                    {r.name}
+                  </Text>
+                  <Divider mt={2} mb={2} />
+                  <Text fontSize={16} textAlign={'left'}>Current Location</Text>
+                  {shuttleData && shuttleData.features.length > 0 &&
+                    <Text mt={2} fontSize={16} textAlign={'left'}>{shuttleData.features[0].properties.title}</Text>
+                  }
+                  {shuttleData && shuttleData.features.length === 0 &&
+                    <Text mt={2} fontSize={16} textAlign={'left'}>Unknown</Text>
+                  }
+                </Box>
+              );
+            }
+            else {
+              return (
+                <Button
+                  key={i}
+                  data-testid="map-route-list-button"
+                  onClick={() => routeClickHandler(r)}
+                  background={`#${r.color || 'brand'}`}
+                  color={`#${r.textColor || 'ffffff'}`}
+                  _hover={{
+                    filter: 'brightness(1.1) saturate(1.3)',
+                  }}
+                  outline={'solid 1px white'}
+                  display={'block'}
+                  paddingY={'16px'}
+                  paddingX={'8px'}
+                  fontSize="sm"
+                  fontWeight="bold"
+                  height={'unset'}
+                  margin={0}
+                  borderRadius={0}
+                  width={'100%'}
+                  whiteSpace={'normal'}
+                >
+                  {r.mode === 'bus' && (
+                    <>
+                      <Flex
+                        flexDir={'row'}
+                        justifyContent={'space-between'}
+                        width={'100%'}
+                      // whiteSpace={'normal'}
                       >
-                        {r?.route?.subRoute}
-                      </span>
-                      <Flex flexDir={'column'}>
-                        <span style={{ textAlign: 'right' }}>
-                          {r?.route?.arrive
-                            ? durationToString(r.route.arrive)
-                            : ''}
-                        </span>
-                        <span style={{ textAlign: 'right' }}>
-                          {r?.route?.arriveNext
-                            ? `Next ${moment(r.route.arriveNext).format(
-                                'h:mm A'
-                              )}`
-                            : ''}
-                        </span>
+                        <Heading as="h3" className="route-list-heading">
+                          {r?.route?.subRoute}
+                        </Heading>
+                        <Flex flexDir={'column'}>
+                          <Box style={{ textAlign: 'right' }}>
+                            {r?.route?.arrive
+                              ? durationToString(r.route.arrive)
+                              : ''}
+                          </Box>
+                          <Box style={{ textAlign: 'right' }}>
+                            {r?.route?.arriveNext
+                              ? `${t('global.next')} ${moment(
+                                r.route.arriveNext
+                              ).format('h:mm A')}`
+                              : ''}
+                          </Box>
+                        </Flex>
                       </Flex>
-                    </Flex>
-                    {(r?.route || r?.location) && (
-                      <Flex flexDir={'column'} flex={1}>
-                        {r?.route && (
-                          <span
-                            style={{
-                              fontSize: 14,
-                              textAlign: 'left',
-                              marginBottom: 4,
-                            }}
-                          >
-                            {r.route?.destination}
-                          </span>
-                        )}
-                        {r?.location && (
-                          <span style={{ textAlign: 'left' }}>
-                            Stop{' '}
-                            <span
+                      {(r?.route || r?.location) && (
+                        <Flex flexDir={'column'} flex={1}>
+                          {r?.route && (
+                            <Box
+                              as="span"
                               style={{
-                                color: `#${r.color || '004490'}`,
-                                backgroundColor: `#${r.textColor || 'ffffff'}`,
-                                borderRadius: 4,
-                                padding: '0px 4px',
+                                fontSize: 14,
+                                textAlign: 'left',
+                                marginBottom: 4,
                               }}
                             >
-                              {r.location?.publicCode}
-                            </span>{' '}
-                            {r.location?.name}
-                            {r?.kilometers && (
-                              <span>
-                                {' ('}
-                                {distanceToString(r?.kilometers)}
-                                {') '}
-                              </span>
-                            )}
-                          </span>
-                        )}
-                      </Flex>
-                    )}
-                  </Flex>
-                )}
-                {r.mode === 'shuttle' && (
-                  <Flex flexDirection={'column'} flex={1}>
-                    <span style={{ fontSize: 18, textAlign: 'left' }}>
-                      {r.name}
-                    </span>
-                  </Flex>
-                )}
-              </Button>
-            );
+                              {r.route?.destination}
+                            </Box>
+                          )}
+                          {r?.location && (
+                            <span style={{ textAlign: 'left' }}>
+                              {t('routeList.stop')}{' '}
+                              <span
+                                style={{
+                                  color: `#${r.color || '004490'}`,
+                                  backgroundColor: `#${r.textColor || 'ffffff'}`,
+                                  borderRadius: 4,
+                                  padding: '0px 4px',
+                                }}
+                              >
+                                {r.location?.publicCode}
+                              </span>{' '}
+                              {r.location?.name}
+                              {r?.kilometers && (
+                                <span>
+                                  {' ('}
+                                  {distanceToString(r?.kilometers)}
+                                  {') '}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </Flex>
+                      )}
+                    </>
+                  )}
+
+                  {r.mode === 'shuttle' && 
+                   ((ux === 'kiosk' && (!kioskConfig || kioskConfig.showShuttle !== false)) || ux === 'callcenter') && (
+                    <Flex flexDirection={'column'} flex={1}>
+                      <span style={{ fontSize: 18, textAlign: 'left' }}>
+                        {r.name}
+                      </span>
+                    </Flex>
+                  )}
+                </Button>
+              );
+            }
           })}
         </Flex>
       ) : (
@@ -676,181 +827,12 @@ const RouteList = observer(({ routeClickHandler }) => {
       )}
     </>
   );
-  // return (
-  //   <>
-  //     {stoptimes?.features.length ? (
-  //       ''
-  //     ) : (
-  //       <Flex
-  //         position={'relative'}
-  //         mt={2}
-  //         flexDir={'column'}
-  //         flex={1}
-  //         overflowY={'auto'}
-  //         id="map-route-list"
-  //         data-testid="map-route-list"
-  //       >
-  //         {routes.length
-  //           ? routes.map((r, i) => (
-  //               <Button
-  //                 data-testid="map-route-list-button"
-  //                 display="flex"
-  //                 justifyContent={'flex-start'}
-  //                 key={i.toString()}
-  //                 background={
-  //                   r?.color ? `#${r.color.replace('#', '')}` : 'nfta'
-  //                 }
-  //                 color={r?.outlineColor || 'white'}
-  //                 p={'2'}
-  //                 _hover={{
-  //                   filter: 'brightness(1.1) saturate(1.3)',
-  //                 }}
-  //                 fontSize="sm"
-  //                 fontWeight="bold"
-  //                 minH={'40px'}
-  //                 margin={0}
-  //                 borderRadius={0}
-  //                 outline={'solid 1px white'}
-  //                 onClick={() => routeClickHandler(r)}
-  //               >
-  //                 <span style={{ width: '40px', textAlign: 'left' }}>
-  //                   {r?.mode === 'TRAM' ? 'RAIL' : r?.shortName || ''}
-  //                 </span>{' '}
-  //                 {r?.mode} {r?.longName ? r.longName.slice(0, 25) : ''}
-  //               </Button>
-  //             ))
-  //           : ''}
-  //       </Flex>
-  //     )}
-  //   </>
-  // );
 });
 
-function formatStopTime(time) {
-  const now = Date.now();
-  const date = new Date(time);
-  return Number((date - now) / 1000 / 60).toFixed(0) > 1
-    ? [Number((date - now) / 1000 / 60).toFixed(0), 'minutes']
-    : ['< 1', 'minute'];
-}
-
-/*
-old
-
-         <Stack spacing={0}>
-            {stoptimes.features.length
-              ? stoptimes.features.map((s, i) => {
-                  // const stop = stoptimes.features.find(st => st.properties.stopId === s);
-                  // const times = stoptimes.features.filter(st => st.properties.stop_id === s);
-                  return (
-                    <Box key={i.toString()}>
-                      {!s.properties?.arrival || s.properties.arrival === 0 ? (
-                        <Text>N/A</Text>
-                      ) : (
-                        ''
-                      )}
-                      {s.properties?.stoptimes.length
-                        ? s.properties?.stoptimes.map((trip, idx0) => {
-                            return (
-                              <Button
-                                key={idx0.toString()}
-                                display="block"
-                                flexWrap={'wrap'}
-                                textAlign={'left'}
-                                background={
-                                  colorMode === 'light' ? 'white' : 'gray.800'
-                                }
-                                justifyContent={'flex-start'}
-                                fontSize="sm"
-                                fontWeight="bold"
-                                minH={'40px'}
-                                height={'auto'}
-                                margin={0}
-                                px={2}
-                                py={2}
-                                borderRadius={0}
-                                onClick={() => stopClickHandler(s)}
-                                borderBottom={'solid 1px lightgray'}
-                                borderLeft={'none'}
-                                borderRight={'none'}
-                                width="100%"
-                              >
-                                <Box data-id="stoptime-el">
-                                  {trip.pattern?.routeId === activeRoute &&
-                                  trip?.times?.length ? (
-                                    <Flex
-                                      justifyContent={'start'}
-                                      alignItems={'center'}
-                                      opacity={0.8}
-                                      my={1}
-                                      // key={idx.toString()}
-                                    >
-                                      <Flex
-                                        flexDir={'column'}
-                                        color="nfta"
-                                        width="50px"
-                                        alignItems={'center'}
-                                        pr={2}
-                                      >
-                                        <Text fontSize="xl">
-                                          {!trip?.times[0].arrival
-                                            ? ''
-                                            : formatStopTime(
-                                                trip.times[0].arrival
-                                              )[0]}
-                                        </Text>
-                                        <Text fontSize="xs">
-                                          {!trip?.times[0].arrival
-                                            ? ''
-                                            : formatStopTime(
-                                                trip.times[0].arrival
-                                              )[1]}
-                                        </Text>
-                                      </Flex>
-                                      <Box flex={1}>
-                                        <Text fontSize={'sm'} fontWeight="bold">
-                                          {trip?.times[0]?.headsign ||
-                                            'No Stop Times Available'}
-                                        </Text>
-                                        <Text
-                                          fontSize={'sm'}
-                                          opacity={0.7}
-                                          mt={1}
-                                        >
-                                          {s?.properties?.name}
-                                        </Text>
-                                      </Box>
-                                      <Flex
-                                        flexDir={'column'}
-                                        justifyContent={'center'}
-                                        alignItems={'center'}
-                                        color="red.600"
-                                      >
-                                        {trip?.times[0]?.delayed ? (
-                                          <>
-                                            <WarningTwoIcon
-                                            // color
-                                            />
-                                            <Box as="span" fontSize={'xs'}>
-                                              {trip?.times[0]?.delay}
-                                            </Box>
-                                          </>
-                                        ) : (
-                                          ''
-                                        )}
-                                      </Flex>
-                                    </Flex>
-                                  ) : (
-                                    ''
-                                  )}
-                                </Box>
-                              </Button>
-                            );
-                          })
-                        : ''}
-                    </Box>
-                  );
-                })
-              : ''}
-          </Stack>
-          */
+// function formatStopTime(time) {
+//   const now = Date.now();
+//   const date = new Date(time);
+//   return Number((date - now) / 1000 / 60).toFixed(0) > 1
+//     ? [Number((date - now) / 1000 / 60).toFixed(0), 'minutes']
+//     : ['< 1', 'minute'];
+// }

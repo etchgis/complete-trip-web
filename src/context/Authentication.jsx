@@ -98,6 +98,11 @@ class Authentication {
         lastName: user.lastName,
         mfa: false,
         onboarded: false,
+        terms: user.terms,
+        consent: user.consent,
+        preferences: {
+          language: user?.language || 'en',
+        },
       };
       console.log({ user });
       console.log({ profile });
@@ -536,7 +541,7 @@ class Authentication {
           console.log(e);
           runInAction(() => {
             this.reset();
-            this.errorToastMessage = 'Your session has expired. Please login.';
+            this.errorToastMessage = t('errors.expired');
           });
           throw e;
         });

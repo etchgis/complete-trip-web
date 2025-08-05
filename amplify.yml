@@ -3,6 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
+        - nvm install 22
+        - nvm use 22
         - yarn install
     build:
       commands:
@@ -18,6 +20,8 @@ test:
   phases:
     preTest:
       commands:
+        - nvm install 22
+        - nvm use 22
         - yarn install
         - yarn add mocha mochawesome mochawesome-merge mochawesome-report-generator
         # - npm ci

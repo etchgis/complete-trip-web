@@ -26,6 +26,7 @@ import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 function trimText(text) {
   if (!text) return text;
@@ -38,6 +39,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [tripId, setTripId] = useState(null);
   const { trips: allTrips } = useStore().schedule;
+  const { t } = useTranslation();
   const {
     trips: favoriteTrips,
     locations,
@@ -53,7 +55,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
     <>
       <Box>
         <Text textTransform={'uppercase'} fontSize={'14px'} mb={4}>
-          Upcoming
+          {t('tripLog.upcoming')}
         </Text>
         <TableContainer borderRadius="md" boxShadow="md" maxW="1000px">
           <Table variant="simple" size="sm">
@@ -67,13 +69,15 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                   locations.find(
                     l => l.id === trip.plan.request.destination?.id
                   )?.alias || null;
+                const tripMonth =
+                  new Date(trip.plan.startTime)
+                    .toLocaleString('en-US', { month: 'short' })
+                    .match(/\b\w{3}\b/)[0]
+                    .toLowerCase() + 'Abr';
                 return (
-                  <Tr key={trip.id}>
+                  <Tr key={trip.id} tabIndex={0}>
                     <Td fontWeight="bold">
-                      {new Date(trip.plan.startTime)
-                        .toLocaleString('en-US', { month: 'short' })
-                        .match(/\b\w{3}\b/)[0]
-                        .toUpperCase()}{' '}
+                      {t(`time.${tripMonth}`)}{' '}
                       {new Date(trip.plan.startTime).getDate()}
                     </Td>
                     <Td>
@@ -121,6 +125,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                           }}
                           colorScheme="red"
                           fontSize={'xl'}
+                          aria-label={t('settingFavorites.delete')}
                         />
                       ) : (
                         <IconButton
@@ -132,6 +137,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                           }}
                           colorScheme="gray"
                           fontSize={'xl'}
+                          aria-label={t('home.saveFavorite')}
                         />
                       )}
                     </Td>
@@ -144,6 +150,7 @@ export const TripTable = observer(({ openModal, setSelectedTrip }) => {
                           setSelectedTrip(trip);
                           openModal();
                         }}
+                        aria-label={t('tripLog.viewDetails')}
                       />
                     </Td>
                   </Tr>

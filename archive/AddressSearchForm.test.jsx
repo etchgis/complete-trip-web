@@ -35,6 +35,7 @@ test('Address Search Form Accepts Input', async () => {
           center={{ lng: 0, lat: 0 }}
           defaultAddress={''}
           setGeocoderResult={() => {}}
+          label="searchTitle"
         ></SearchForm>
       </TestWrapper>
     )

@@ -5,6 +5,7 @@ import config from '../config';
 class Preferences {
   language = 'en';
   wheelchair = false;
+  serviceAnimal = false;
   maxCost = 10;
   maxTransfers = 4;
   minimizeWalking = false;
@@ -12,7 +13,8 @@ class Preferences {
   notifications = [];
   notificationTypes = [];
   shareWithConcierge = false;
-  navigationDirections = 'Voice On';
+  navigationDirections = 'voiceOn';
+  pin = '';
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -105,6 +107,7 @@ class Preferences {
     return {
       language: this.language,
       wheelchair: this.wheelchair,
+      serviceAnimal: this.serviceAnimal,
       maxCost: this.maxCost,
       maxTransfers: this.maxTransfers,
       minimizeWalking: this.minimizeWalking,
@@ -174,16 +177,16 @@ class Preferences {
       runInAction(() => {
         this.language = profile.preferences.language || 'en';
         this.wheelchair = profile.preferences.wheelchair || false;
+        this.serviceAnimal = profile.preferences.serviceAnimal || false;
         this.maxCost = profile.preferences.maxCost || 10;
         this.maxTransfers = profile.preferences.maxTransfers || 4;
         this.minimizeWalking = profile.preferences.minimizeWalking || false;
         this.modes = profile.preferences.modes || [];
         this.notifications = profile.preferences.notifications || [];
         this.notificationTypes = profile.preferences.notificationTypes || [];
-        this.shareWithConcierge =
-          profile.preferences.shareWithConcierge || false;
-        this.navigationDirections =
-          profile.preferences.navigationDirections || 'Voice On';
+        this.shareWithConcierge = profile.preferences.shareWithConcierge || false;
+        this.navigationDirections = profile.preferences.navigationDirections || 'voiceOn';
+        this.pin = profile.preferences.pin || '';
       });
     }
   };

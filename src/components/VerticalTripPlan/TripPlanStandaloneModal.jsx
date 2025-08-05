@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 
 import { VerticalTripPlan } from './VerticalTripPlan';
+import useTranslation from '../../models/useTranslation';
 
 export const TripPlanStandaloneModal = ({
   plan,
@@ -21,6 +22,7 @@ export const TripPlanStandaloneModal = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   return (
     <Modal
       isOpen={isOpen}
@@ -53,13 +55,12 @@ export const TripPlanStandaloneModal = ({
             cancelClickHandler={cancelClickHandler}
           />
         </ModalBody>
-        <ModalFooter>
-          <Button
-            colorScheme="blue"
-            variant={'ghost'}
-            onClick={backClickHandler}
-          >
-            Close
+        <ModalFooter
+          justifyContent={'flex-start'}
+          id="TripPlanStandaloneModalFooter"
+        >
+          <Button color="brand" variant={'ghost'} onClick={backClickHandler}>
+            {t('global.close')}
           </Button>
         </ModalFooter>
       </ModalContent>

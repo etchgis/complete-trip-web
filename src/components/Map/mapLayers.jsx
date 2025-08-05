@@ -1,5 +1,6 @@
 import { featureCollection } from '@turf/helpers';
 import { theme } from '../../theme';
+import { layout } from '@chakra-ui/react';
 
 // import lines from './mapdata/lines.json';
 // import points from './mapdata/stops.json';
@@ -9,6 +10,12 @@ import { theme } from '../../theme';
 export const mapLayers = e => {
   const map = e.target ? e.target : e;
   // console.log('[map] checking sources');
+  if (!map.getSource('shuttle-live')) {
+    map.addSource('shuttle-live', {
+      type: 'geojson',
+      data: featureCollection([]),
+    });
+  }
   if (!map.getSource('buses-live')) {
     map.addSource('buses-live', {
       type: 'geojson',
@@ -35,6 +42,12 @@ export const mapLayers = e => {
   // }
   if (!map.getSource('routes-highlight')) {
     map.addSource('routes-highlight', {
+      type: 'geojson',
+      data: featureCollection([]),
+    });
+  }
+  if (!map.getSource('nfta-community-shuttle')) {
+    map.addSource('nfta-community-shuttle', {
       type: 'geojson',
       data: featureCollection([]),
     });
@@ -153,6 +166,30 @@ export const mapLayers = e => {
         'icon-ignore-placement': true,
       },
     },
+    {
+      id: 'shuttle-live',
+      type: 'symbol',
+      source: 'shuttle-live',
+      layout: {
+        'icon-image': ['get', 'icon'],
+        'icon-size': 0.8,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': false,
+      }
+    },
+    {
+      id: 'nfta-community-shuttle',
+      type: 'line',
+      source: 'nfta-community-shuttle',
+      paint: {
+        'line-color': '#5bcb40',
+        'line-width': 6,
+        'line-opacity': 1,
+      },
+      layout: {
+        'line-join': 'round',
+      }
+    },
   ];
 
   // console.log('[map] checking layers');
@@ -160,10 +197,11 @@ export const mapLayers = e => {
     if (!map.getLayer(l.id)) {
       // console.log('[map] adding layer', l.id);
       const beforeLayer =
-        l.id === 'stops' || l.id === 'buses-live' ? '' : 'road-label-simple';
+        (l.id === 'stops' || l.id === 'buses-live' || l.id === 'shuttle-live') ? '' : 'road-label-simple';
       map.addLayer(l, beforeLayer);
     }
   });
+
   // layerInteractions(map);
 };
 

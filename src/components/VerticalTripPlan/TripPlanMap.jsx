@@ -20,6 +20,7 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     setMap: setTripMapStoreMap,
     setData,
   } = useStore().tripMapStore;
+  const { ux } = useStore().uiStore;
 
   /*
   TODO METHOD TO UPDATE COLOR OF TRIP PATH WHEN DATA RECEIVED FROM WEB SOCKET
@@ -34,14 +35,14 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
       return;
     }
 
-    //TODO move this all to the TripMapStore?
+    console.log({ tripPlan });
     const __data = setData(tripPlan);
     // console.log(toJS(__data.stops));
     // console.log(toJS(__data.modeIcons));
     // console.log(toJS(__data.route));
 
     // const popup = new mapboxgl.Popup();
-    const fs = new mapboxgl.FullscreenControl();
+    // const fs = new mapboxgl.FullscreenControl();
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -50,9 +51,9 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
       zoom: 10,
     })
       .addControl(mapControls.nav, 'bottom-right')
-      .addControl(mapControls.locate, 'bottom-right')
+      // .addControl(mapControls.locate, 'bottom-right')
       // .addControl(mapControls.fullscreen, 'bottom-right')
-      .addControl(fs, 'bottom-right')
+      // .addControl(fs, 'bottom-right')
       .on('load', initMap)
       .on('style.load', () => {
         console.log('[trip-map] style loaded');
@@ -150,5 +151,15 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     //eslint-disable-next-line
   }, []);
 
-  return <Box id="trip-plan-map" ref={mapContainer} style={{ flex: 1 }} />;
+  const kioskTopHeight = 700;
+  const kioskBottomHeight = 255;
+  // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
+  const headerHeight = 60;
+
+  return <Box
+    id="trip-plan-map"
+    ref={mapContainer}
+    style={{ flex: 1 }}
+    h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
+  />;
 });

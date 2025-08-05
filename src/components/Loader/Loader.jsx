@@ -7,7 +7,10 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 
+import useTranslation from '../../models/useTranslation';
+
 export const Loader = ({ isOpen }) => {
+  const { t } = useTranslation();
   return (
     <Modal isOpen={isOpen} size="full">
       <ModalOverlay />
@@ -26,6 +29,7 @@ export const Loader = ({ isOpen }) => {
               color="brand"
               height="60px"
               width="60px"
+              aria-label={t('global.loading')}
             />
           </Flex>
         </ModalBody>

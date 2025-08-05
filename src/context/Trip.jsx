@@ -13,6 +13,8 @@ class Trip {
   generatingPlans = false;
   queryId = -1;
 
+  isShuttle = false;
+
   constructor(rootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
@@ -64,11 +66,18 @@ class Trip {
     });
   }
 
+  toggleShuttle(isShuttle) {
+    runInAction(() => {
+      this.isShuttle = isShuttle;
+    });
+  }
+
   generatePlans() {
     runInAction(() => {
       this.generatingPlans = true;
       this.queryId = Date.now();
     });
+    console.log('TRIP GENERATE PLANS');
     return new Promise((resolve, reject) => {
       TripPlan.generate(this.request, this.rootStore.preferences, this.queryId)
         .then(tripPlanResults => {
@@ -97,6 +106,7 @@ class Trip {
       this.request = new TripRequest();
       this.plans = [];
       this.selected = false;
+      this.isShuttle = false;
     });
   }
 }

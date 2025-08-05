@@ -66,6 +66,27 @@ const module = {
 
   datetime: {
     /**
+     * Takes a moment object and format and returns it
+     * formatted for the given locale, if any.
+     * @param {moment} datetime
+     * @param {String} format
+     * @param {String} locale
+     */
+    format: (datetime, format, locale = 'en') => {
+      datetime.locale(locale);
+      return datetime.format(format);
+    },
+
+    /**
+     *
+     * @param {*} seconds
+     * @param {*} locale
+     */
+    duration: (seconds, locale = 'en') => {
+      return moment.duration(seconds, 'seconds').locale(locale).get('minutes');
+    },
+
+    /**
      * Format the trip duration as X hr(s) Y min(s) Z sec(s)
      * @param {int} tripDuration: total duration of a trip in seconds
      * @param {bool} includeSeconds: whether or not to show the seconds value
@@ -79,6 +100,29 @@ const module = {
         (mins ? `${(hrs ? ' ' : '') + mins} min${mins > 1 ? 's' : ''}` : '') +
         (includeSeconds && hrs === 0 && mins === 0
           ? `${seconds} sec${seconds > 1 ? 's' : ''}`
+          : '')
+      );
+    },
+
+    /**
+     * Format the trip duration as X hour(s) Y minutes(s) Z seconds(s)
+     * @param {int} tripDuration: total duration of a trip in seconds
+     * @param {bool} includeSeconds: whether or not to show the seconds value
+     * @param {string} locale: the locale to use for translating the duration
+     */
+    asDurationLong: (seconds, includeSeconds) => {
+      let mins = Math.round(seconds / 60);
+      const hrs = Math.floor(mins / 60);
+      mins %= 60;
+      return (
+        (hrs ? `${hrs} ${translator.t('global.hour', { count: hrs })}` : '') +
+        (mins
+          ? `${(hrs ? ' ' : '') + mins} ${translator.t('global.minute', {
+              count: mins,
+            })}`
+          : '') +
+        (includeSeconds && hrs === 0 && mins === 0
+          ? `${seconds} ${translator.t('global.second', { count: seconds })}`
           : '')
       );
     },

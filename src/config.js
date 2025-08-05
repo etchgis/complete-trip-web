@@ -18,6 +18,10 @@ const API = {
       url: 'https://staging.lambda.etch.app/rides',
       xApiKey: 'tyVuJdnuFv9y1pMc8Ir7Q8D1pygvpAFGl4C9jzgc',
     },
+    plans: {
+      url: 'https://autoscout.etch.app/plans',
+      xApiKey: '',
+    },
     trips: {
       url: 'https://staging.lambda.etch.app/trips',
       xApiKey: 'tqoXE84kKo26JPXoTVVIY8eti9JQmAg13BvpGa5K',
@@ -42,10 +46,16 @@ const API = {
       url: 'https://staging.lambda.etch.app/notifications',
       xApiKey: 'qzefkF03af3epdSSiN0Jz8IwSTQBamVD8R4xcfAv',
     },
+    feedback: {
+      url: 'https://staging.lambda.etch.app/feedback',
+      xApiKey: 'hBkiGj26pw1v0h4W3yAc36yFHu8x6dVK9MPRuCPY',
+    },
+    dispatch: 'http://nfta.localhost:8089/callcenter',
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
-    geocode: 'https://511ny.etch.app/geocode',
+    otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
+    geocode: 'https://mmapi.etch.app/geocode',
   },
   stage: {
     admin: {
@@ -65,7 +75,7 @@ const API = {
       xApiKey: 'tyVuJdnuFv9y1pMc8Ir7Q8D1pygvpAFGl4C9jzgc',
     },
     plans: {
-      url: 'https://staging.lambda.etch.app/plans',
+      url: 'https://autoscout.etch.app/plans',
       xApiKey: '',
     },
     plantrip: {
@@ -84,10 +94,16 @@ const API = {
       url: 'https://staging.lambda.etch.app/caregivers',
       xApiKey: 'SjjkKa9IJC1iS4Sq0pEZr21W6NaFXiNT2AE5D3CE',
     },
+    feedback: {
+      url: 'https://staging.lambda.etch.app/feedback',
+      xApiKey: 'hBkiGj26pw1v0h4W3yAc36yFHu8x6dVK9MPRuCPY',
+    },
+    dispatch: 'https://nfta-stage.etch.app/callcenter',
     websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging', //'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/staging?groups=dependent-{dependentId}
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
-    geocode: 'https://511ny.etch.app/geocode',
+    otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
+    geocode: 'https://mmapi.etch.app/geocode',
   },
 };
 
@@ -330,6 +346,15 @@ const LANAGUAGES = {
   es: 'Spanish',
 };
 
+const FEEDBACK = {
+  categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
+}
+
+const HDS_HOURS = {
+  start: [8, 0],
+  end: [17, 0]
+}
+
 const defaults = {
   ENV: ENV,
   DEBUG: false,
@@ -338,7 +363,8 @@ const defaults = {
     BASEMAPS,
     MAPBOX_TOKEN:
       'pk.eyJ1IjoiZXRjaGpvbiIsImEiOiJjamk3dmVwcjcwZm13M2twYTFjbm11OHM4In0.WLemp1TfP09gg0DRl_q0hg',
-    ZOOM: 11,
+    ZOOM: 13,
+    KIOSK_ZOOM: 16,
     CENTER: [42.8962389, -78.8644423],
     VIEWBOX: [-74.3878, 43.0283, -74.2989, 43.0755],
   },
@@ -346,7 +372,7 @@ const defaults = {
   VERIFY: {
     SID: 'VA716caeea7edda3401dc5f4e9a2e4bc99',
     CHANNEL_CONFIGURATION: {
-      template_id: 'd-731f00a0bfbd472fa144d863869d145d',
+      template_id: 'complete-trip-verification-code',
       from: 'team@etchgis.com',
       from_name: 'Etch',
     },
@@ -362,6 +388,8 @@ const defaults = {
   NOTIFICATION_TYPES,
   LANAGUAGES,
   NOTIFY_METHODS,
+  FEEDBACK,
+  HDS_HOURS
 };
 const config = { ...defaults };
 

@@ -1,0 +1,18 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "63CCKDT595.app.etch.completeTrip",
+        "paths": [
+          "*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "63CCKDT595.app.etch.completeTrip"
+    ]
+  }
+}

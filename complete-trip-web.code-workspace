@@ -11,6 +11,7 @@
     "editor.formatOnSave": true,
     "prettier.printWidth": 180,
     "html.format.wrapLineLength": 160,
-    "prettier.trailingComma": "none"
+    "prettier.trailingComma": "none",
+    "marquee.widgets.npm-stats.packageNames": ["complete-trip-web"]
   }
 }

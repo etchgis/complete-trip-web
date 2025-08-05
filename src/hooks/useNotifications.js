@@ -14,7 +14,7 @@ const useNotifications = () => {
     console.log(preferences?.notificationTypes, trip.type);
     if (preferences?.notificationTypes.includes(trip.type)) {
       toast({
-        title: 'Trip Notificaiton',
+        title: 'Trip Notification',
         description: trip.message,
         status: 'info',
         duration: null,

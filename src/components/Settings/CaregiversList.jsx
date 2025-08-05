@@ -16,6 +16,7 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const CaregiversList = observer(({ action }) => {
   const { caregivers, hydrate } = useStore().caregivers;
@@ -26,6 +27,8 @@ export const CaregiversList = observer(({ action }) => {
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  const { t } = useTranslation();
 
   return (
     <>
@@ -52,7 +55,7 @@ export const CaregiversList = observer(({ action }) => {
         leftIcon={<AddIcon />}
         onClick={() => action(null)}
       >
-        Invite Caregiver
+        {t('settingsCaregivers.inviteCaregiver')}
       </Button>
     </>
   );
@@ -61,7 +64,7 @@ export const CaregiversList = observer(({ action }) => {
 export const CaregiverCard = ({ caregiver }) => {
   const { removeCaregiver: remove } = useStore().caregivers;
   const { setToastMessage, setToastStatus } = useStore().uiStore;
-
+  const { t } = useTranslation();
   const removeCaregiver = async id => {
     console.log({ id });
     try {
@@ -79,19 +82,24 @@ export const CaregiverCard = ({ caregiver }) => {
       <CardBody>
         <Stack spacing="3">
           <Heading size="md" display={'flex'} alignItems={'center'}>
-            {caregiver?.firstName} {caregiver?.lastName} {caregiver?.status === 'approved' ? <CheckCircleIcon color='green.400' ml={2}/> : ''}
+            {caregiver?.firstName} {caregiver?.lastName}{' '}
+            {caregiver?.status === 'approved' ? (
+              <CheckCircleIcon color="ariaGreen" ml={2} />
+            ) : (
+              ''
+            )}
           </Heading>
           {/* <Text>{formatters.phone.asDomestic(caregiver?.phone.slice(2))}</Text> */}
           <Text>{caregiver?.email}</Text>
         </Stack>
       </CardBody>
-      <Divider />
+      <Divider aria-hidden={true} />
       <CardFooter p={2} justifyContent={'space-between'} alignItems={'center'}>
         <ConfirmDialog
-          title="Remove Caregiver"
-          confirmText={'Remove'}
-          buttonText={'Remove Caregiver'}
-          message={"Are you sure? You can't undo this action."}
+          title={t('settingsCaregivers.removeCaregiver')}
+          confirmText={t('settingsCaregivers.remove')}
+          buttonText={t('settingsCaregivers.removeCaregiver')}
+          message={t('settingsCaregivers.confirmRemove')}
           confirmFn={() => removeCaregiver(caregiver?.id)}
         />
 
@@ -108,7 +116,7 @@ export const CaregiverCard = ({ caregiver }) => {
                 : 'green'
             }
           >
-            {caregiver?.status.toUpperCase()}
+            {t(`settingsCaregivers.${caregiver?.status.toLowerCase()}`)}
           </Badge>
         ) : (
           ''

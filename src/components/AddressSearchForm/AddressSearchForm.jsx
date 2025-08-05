@@ -1,35 +1,51 @@
 import { Autocomplete, Item } from './Autocomplete';
+import { useEffect, useRef, useState } from 'react';
 
+import config from '../../config';
 import { observer } from 'mobx-react-lite';
 import { useAsyncList } from 'react-stately';
-import { useEffect } from 'react';
-import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const SearchForm = observer(
   ({
     saveAddress,
     center,
     defaultAddress,
+    defaultGeocoderResult,
     setGeocoderResult,
     name,
     label,
     required,
     clearResult,
     resultsMaxWidth,
+    inputName,
+    autoFocus,
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
+    const {
+      onScreenKeyboardInput,
+      setKeyboardInputValue,
+      ux,
+      activeInput,
+      setKeyboardActiveInput,
+      getKeyboardInputValue,
+    } = useStore().uiStore;
+    const { t } = useTranslation();
 
-    // console.log({ address });
     useEffect(() => {
       if (saveAddress) saveAddress(address);
     }, [address, saveAddress]);
 
     useEffect(() => {
       setAddress(defaultAddress);
+      // If we have a default geocoder result, set it immediately
+      if (defaultGeocoderResult && defaultGeocoderResult.text) {
+        setGeocoderResult(defaultGeocoderResult);
+      }
       // eslint-disable-next-line
-    }, [defaultAddress]);
+    }, [defaultAddress, defaultGeocoderResult]);
 
     let list = useAsyncList({
       async load({ signal, cursor, filterText }) {
@@ -39,9 +55,9 @@ export const SearchForm = observer(
           cursor = cursor.replace(/^http:\/\//i, 'https://');
         }
 
-        let uri = `https://511ny.etch.app/geocode?query=${encodeURIComponent(
+        let uri = `${config.SERVICES.geocode}/?query=${encodeURIComponent(
           filterText
-        )}&limit=10`;
+        )}&limit=10&org=${config.ORGANIZATION}`;
 
         if (center?.lng) {
           uri += `&center=${(center.lng * 1000 || 0) / 1000},${
@@ -49,9 +65,14 @@ export const SearchForm = observer(
           }`;
         }
         // console.log(uri);
-        let items = await fetch(cursor || uri, { signal }).then(res =>
+        const Items = await fetch(cursor || uri, { signal }).then(res =>
           res.json()
         );
+        // console.log({ Items });
+        let items = [];
+        if (Items.length) {
+          items = Items.filter(item => !item.venueId);
+        }
         // console.log({ items });
         const keys = [];
 
@@ -67,6 +88,11 @@ export const SearchForm = observer(
           : [];
 
         items.forEach(item => {
+          if (item?.description && item?.locality) {
+            item.description += ', ' + item.locality;
+          }
+          if (!item.description && item?.locality)
+            item.description = item.locality;
           if (
             !item.childKey ||
             !item.title ||
@@ -81,9 +107,9 @@ export const SearchForm = observer(
         });
 
         if (unique.length > 0) {
-          console.log(unique[0]);
+          // console.log(unique[0]);
           console.log('geocoder result');
-          console.log(unique[0]?.title);
+          // console.log(unique[0]?.title);
         }
 
         return {
@@ -93,26 +119,61 @@ export const SearchForm = observer(
       },
     });
 
+    /*KEYBOARD*/
+
+    const [showResults, setShowResults] = useState(false);
+
+    useEffect(() => {
+      if (ux !== 'kiosk') return;
+      console.log('[addressSearchForm] setting address');
+      if (inputName !== activeInput) return;
+      setShowResults(true);
+      setAddress(getKeyboardInputValue(inputName));
+    }, [onScreenKeyboardInput, ux]);
+
+    useEffect(() => {
+      if (ux !== 'kiosk') return;
+      if (!address) {
+        list.setFilterText('');
+        setShowResults(false);
+        if (defaultAddress && clearResult) {
+          setGeocoderResult({});
+        }
+        return;
+      }
+      list.setFilterText(address);
+    }, [address]);
+
     return (
       <Autocomplete
+        // KEYBOARD
+        showResults={showResults}
+        onFocus={() => setKeyboardActiveInput(inputName)}
+        inputName={inputName}
+        activeInput={activeInput}
+        autoFocus={autoFocus}
+        //END KEYBOARD
         required={required || false}
+        placeholder={t('map.searchPlaceholder')}
         label={label}
         aria-label={label}
-        placeholder="Start typing an address..."
         items={list.items}
         inputValue={address}
         data-testid="address-search"
         onInputChange={e => {
-          console.log('onchange');
+          console.log('[addressSearchForm] onInputChange');
           list.setFilterText(e);
           if (!list.selectedKeys.size) {
+            setShowResults(false);
             //NOTE needed so that when we come back we clear out the result if the user changes the input value
             //NOTE not sure how this will affect the other places where the input is so adding a check here
             if (defaultAddress && clearResult) {
               setGeocoderResult({});
             }
+            setShowResults(true);
             setAddress(e);
           } else {
+            setShowResults(false);
             setAddress('');
           }
         }}
@@ -121,9 +182,15 @@ export const SearchForm = observer(
           if (!item) {
             return;
           }
-
-          setAddress(list.items.filter(e => e.childKey === item)[0].name);
-          setGeocoderResult(list.items.find(e => e.childKey === item));
+          document.activeElement.blur();
+          const selected = list.items.find(e => e.childKey === item);
+          console.log({ selected });
+          if (selected?.name) {
+            setAddress(selected?.name);
+            setShowResults(false);
+            setGeocoderResult(list.items.find(e => e.childKey === item));
+            return;
+          }
         }}
         loadingState={list.loadingState}
         onLoadMore={list.loadMore}

@@ -1,5 +1,6 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
+import { set } from 'lodash';
 
 class UIStore {
   mode = 'light';
@@ -8,6 +9,30 @@ class UIStore {
   toastStatus = '';
   toastTitle = '';
   debug = false;
+  ux = 'webapp'; //kiosk, webapp, callcenter
+  onScreenKeyboardInput = {
+    transitSearch: '',
+    startAddress: '',
+    endAddress: '',
+    pin: '',
+    areaCode: '',
+    phone1: '',
+    phone2: '',
+    date: '',
+    time: ''
+  };
+  activeInput = 'transitSearch';
+  keyBoardType = 'default';
+  focusedCheckbox = null;
+  ui = {
+    contrast: false,
+    letterSpacing: 'normal',
+    fontSize: 'normal',
+    hideImages: false,
+    cursor: 'default',
+    language: 'en',
+  };
+  hasSelectedPlan = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -20,10 +45,65 @@ class UIStore {
     )
       makePersistable(this, {
         name: 'UIStore',
-        properties: ['mode', 'debug'],
+        properties: ['mode', 'debug', 'ui', 'ux'],
         storage: localStorage,
       });
   }
+
+  setKeyboardActiveInput = value => {
+    runInAction(() => {
+      this.activeInput = value;
+    });
+  };
+
+  getKeyboardInputValue = inputName => {
+    return this.onScreenKeyboardInput[inputName];
+  };
+
+  clearKeyboardInputValues = () => {
+    const emptyState = {
+      transitSearch: '',
+      startAddress: '',
+      endAddress: '',
+      pin: '',
+      areaCode: '',
+      phone1: '',
+      phone2: '',
+      date: '',
+      time: ''
+    };
+    runInAction(() => {
+      this.onScreenKeyboardInput = { ...emptyState };
+      this.activeInput = 'transitSearch';
+    });
+  };
+
+  setKeyboardInputValue = value => {
+    runInAction(() => {
+      this.onScreenKeyboardInput = {
+        ...this.onScreenKeyboardInput,
+        [this.activeInput]: value
+      };
+    });
+  };
+
+  setKeyboardType = value => {
+    runInAction(() => {
+      this.keyBoardType = value;
+    });
+  }
+
+  setUX = value => {
+    runInAction(() => {
+      this.ux = value;
+    });
+  };
+
+  setUI = value => {
+    runInAction(() => {
+      this.ui = { ...this.ui, ...value };
+    });
+  };
 
   setDebugMode = value => {
     runInAction(() => {
@@ -59,6 +139,34 @@ class UIStore {
     runInAction(() => {
       this.isLoading = value;
     });
+  };
+
+  setHasSelectedPlan = value => {
+    runInAction(() => {
+      this.hasSelectedPlan = value;
+    });
+  };
+
+  setFocusedCheckbox = value => {
+    runInAction(() => {
+      this.focusedCheckbox = value;
+    });
+  };
+
+  toggleFocusedCheckbox = () => {
+    if (this.focusedCheckbox) {
+      // Find the element and toggle it
+      const element = document.getElementById(this.focusedCheckbox);
+      if (element) {
+        // Simulate a click on the element
+        element.click();
+
+        // Re-focus the element after toggling
+        setTimeout(() => {
+          element.focus();
+        }, 50);
+      }
+    }
   };
 }
 export default UIStore;

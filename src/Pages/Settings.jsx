@@ -5,16 +5,16 @@ import {
   Grid,
   Heading,
   Stack,
+  Text,
   useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
 import {
   FavoritesList,
-  PrivacyPolicy,
   ProfileInformation,
   TermsOfUse,
 } from '../components/Settings/SettingsViews';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AddCaregiver } from '../components/Settings/AddCaregiver';
@@ -28,6 +28,7 @@ import { EditTripPreferences } from '../components/Settings/EditTripPreferences'
 import { SettingsModal } from '../components/Settings/SettingsModal';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
+import useTranslation from '../models/useTranslation';
 
 const Settings = observer(({ view }) => {
   const navigate = useNavigate();
@@ -44,15 +45,17 @@ const Settings = observer(({ view }) => {
     if (!isOpen) setActivePanel(null);
   }, [isOpen]);
 
+  const { t } = useTranslation();
+
   const links = [
     {
-      title: 'Profile Information',
+      title: t('settingsMenu.profile'),
       path: 'profile',
       type: 'account',
       action: () => navigate('/settings/profile'),
     },
     {
-      title: 'Caregivers',
+      title: t('settingsMenu.caregivers'),
       path: 'caregivers',
       type: 'account',
       action: () => navigate('/settings/caregivers'),
@@ -65,80 +68,105 @@ const Settings = observer(({ view }) => {
     //   action: () => navigate('/settings/dependents'),
     // },
     {
-      title: 'Dependents',
+      title: t('settingsMenu.dependents'),
       path: 'dependents',
       type: 'account',
       hide: !dependents.length,
       action: () => navigate('/settings/dependents'),
     },
     {
-      title: 'Favorites',
+      title: t('settingsMenu.favorites'),
       path: 'favorites',
       type: 'account',
       action: () => navigate('/settings/favorites'),
     },
     {
-      title: 'Trip Preferences',
-      path: 'preferences',
+      title: t('settingsMenu.palsDirect'),
       type: 'account',
+      action: () => window.open('https://paldirect.nfta.com/', '_blank'),
+    },
+    {
+      title: t('settingsMenu.terms'),
+      path: 'terms',
+      type: 'account',
+      action: () => navigate('/settings/terms'),
+    },
+    {
+      title: t('settingsMenu.tripPreferences'),
+      path: 'preferences',
+      type: 'setting',
       action: () => navigate('/settings/preferences'),
     },
     {
-      title: 'Password',
-      path: 'password',
-      type: 'setting',
-      action: () => navigate('/settings/password'),
-    },
-    {
-      title: 'Accessibility',
+      title: t('settingsMenu.accessibility'),
       type: 'setting',
       action: () => navigate('/settings/accessibility'),
     },
     {
-      title: 'Notifications',
+      title: t('settingsMenu.notifications'),
       type: 'setting',
       action: () => navigate('/settings/notifications'),
     },
     {
-      title: 'Terms of Use',
-      path: 'terms',
+      title: t('settingsMenu.password'),
+      path: 'password',
       type: 'setting',
-      action: () => navigate('/settings/terms'),
+      action: () => navigate('/settings/password'),
     },
-    {
-      title: 'Privacy Policy',
-      path: 'privacy',
-      type: 'setting',
-      action: () => navigate('/settings/privacy'),
-    },
+    // {
+    //   title: t('settingsMenu.privacy'),
+    //   path: 'privacy',
+    //   type: 'setting',
+    //   action: () => navigate('/settings/privacy'),
+    // },
   ];
 
-  const settingsForms = [
+  const settingsPanels = [
     {
-      title: 'Edit Profile Information',
+      id: 'Edit Profile',
+      title: t('settingsProfile.editProfile'),
       el: <EditProfile onClose={onClose} />,
     },
     {
-      title: 'Remove Caregiver',
+      id: 'Remove Caregiver',
+      title: t('settingsCaregivers.removeCaregiver'),
       el: <AddCaregiver id={caretakerId} onClose={onClose} />,
     },
     {
-      title: 'Add Caregiver',
+      id: 'Add Caregiver',
+      title: t('settingsCaregivers.addCaregiver'),
       el: <AddCaregiver onClose={onClose} />,
     },
     {
-      title: 'Trip Preferences',
+      id: 'Trip Preferences',
+      title: t('settingsPreferences.tripPreferences'),
       el: <EditTripPreferences />,
     },
     {
-      title: 'Password',
+      id: 'Password',
+      title: t('settingsPassword.editPassword'),
       el: <EditPassword />,
     },
     {
-      title: 'Accessibility',
+      id: 'Accessibility',
+      title: t('settingsAccessibility.editAccessibility'),
       el: <EditAccessibility />,
     },
   ];
+
+  const activePageRef = useRef(null);
+  useEffect(() => {
+    if (activePageRef.current) {
+      console.log('setting focus');
+      var focusable = activePageRef?.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      // console.log(focusable);
+      if (focusable?.length) {
+        focusable[0].focus();
+      }
+    }
+  }, [view]);
 
   return (
     <>
@@ -154,7 +182,7 @@ const Settings = observer(({ view }) => {
         >
           <Stack spacing={4}>
             <Heading as="h2" size="sm" pt={8} px={8} ml={1}>
-              ACCOUNT
+              {t('settingsMenu.account').toUpperCase()}
             </Heading>
             {links.map((l, i) => {
               l['id'] = i;
@@ -165,7 +193,7 @@ const Settings = observer(({ view }) => {
               }
             })}
             <Heading as="h2" size="sm" px={8} ml={2}>
-              SETTINGS
+              {t('settingsMenu.settings').toUpperCase()}
             </Heading>
             {links.map((l, i) => {
               l['id'] = i;
@@ -177,24 +205,38 @@ const Settings = observer(({ view }) => {
             })}
           </Stack>
           <Box mt={6} display={{ base: 'block', md: 'none' }}>
-            <Divider />
+            <Divider aria-hidden={true} />
           </Box>
         </Box>
         <Box
           id="rightSettingsPanel"
           p={{ base: 10, md: 10 }}
           maxW={{ base: '100%', md: '600px', lg: '1000px' }}
+          ref={activePageRef}
         >
-          {switchViews({ view, caregivers, setActivePanel, setCaretakerId })}
+          <Text tabIndex={0} aria-label=""></Text>
+          {switchViews({
+            view,
+            caregivers,
+            setActivePanel,
+          })}
         </Box>
       </Grid>
       <SettingsModal
         isOpen={isOpen}
         onClose={onClose}
-        title={activePanel}
+        title={
+          activePanel
+            ? settingsPanels.find(
+                l => l.title === activePanel || l?.id === activePanel
+              )?.title
+            : ''
+        }
         children={
           activePanel
-            ? settingsForms.find(l => l.title === activePanel)?.el
+            ? settingsPanels.find(
+                l => l.title === activePanel || l?.id === activePanel
+              )?.el
             : ''
         }
       />
@@ -211,6 +253,7 @@ function switchViews({ view, setActivePanel }) {
       return (
         <CaregiversList
           action={() => setActivePanel('Add Caregiver')}
+
           //   if (!id && id !== 0) {
           //     return setActivePanel('Add Caregiver');
           //   }
@@ -229,8 +272,8 @@ function switchViews({ view, setActivePanel }) {
       return <EditAppNotifications />;
     case 'terms':
       return <TermsOfUse />;
-    case 'privacy':
-      return <PrivacyPolicy />;
+    // case 'privacy':
+    //   return <PrivacyPolicy />;
     case 'favorites':
       return <FavoritesList />;
     case 'dependents':
@@ -238,7 +281,7 @@ function switchViews({ view, setActivePanel }) {
     default:
       return (
         <ProfileInformation
-          action={() => setActivePanel('Edit Profile Information')}
+          action={() => setActivePanel('Edit Profile')}
         ></ProfileInformation>
       );
   }

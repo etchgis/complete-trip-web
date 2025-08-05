@@ -3,8 +3,10 @@ import { useColorMode, useToast } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const ErrorToastMessage = observer(({ message }) => {
+  const { t } = useTranslation();
   const { errorToastMessage, setErrorToastMessage } = useStore().authentication;
   const {
     toastMessage,
@@ -22,13 +24,16 @@ export const ErrorToastMessage = observer(({ message }) => {
     const msg = errorToastMessage || toastMessage;
     if (!msg) setToastMessage(message);
     toast({
-      title: toastTitle || toastStatus || 'Error',
+      title:
+        t(`global.${toastStatus ? toastStatus.toLowerCase() : 'error'}`) ||
+        toastTitle ||
+        '',
       description: msg,
       status: toastStatus?.toLowerCase() || 'error',
       duration: duration,
       isClosable: true,
       position: 'top-right',
-      variant: colorMode === 'light' ? 'top-accent' : 'solid',
+      variant: 'solid',
     });
     setTimeout(() => {
       setErrorToastMessage(null);
