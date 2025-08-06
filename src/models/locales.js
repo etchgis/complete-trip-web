@@ -271,6 +271,9 @@ export default function genLocales() {
           other: "Other"
         },
         checkbox: "Include my email address for follow-up if needed",
+        confirmationTitle: "Thank You!",
+        confirmationMessage: "Your feedback has been submitted successfully. We appreciate your input and will review it soon.",
+        dismiss: "Dismiss",
       },
       es: {
         title: 'Comentario', //✅
@@ -288,6 +291,9 @@ export default function genLocales() {
           other: "Otro"
         },
         checkbox: "Incluya mi dirección de correo electrónico para seguimiento si es necesario.",
+        confirmationTitle: "¡Gracias!",
+        confirmationMessage: "Su comentario ha sido enviado exitosamente. Apreciamos su opinión y la revisaremos pronto.",
+        dismiss: "Descartar",
       }
     },
     loginWizard: {
