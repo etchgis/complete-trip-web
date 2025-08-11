@@ -2,6 +2,18 @@ import TripRequest from './trip-request';
 import formatters from '../utils/formatters';
 import { otp } from '../services/transport';
 
+// Cache for agency mappings
+let agencyMappingsCache = null;
+
+// GraphQL query for fetching agencies
+const AGENCIES_QUERY = `
+query {
+  agencies {
+    gtfsId
+    name
+  }
+}`;
+
 const TRIP_QUERY = `
 query plan(
   $from: InputCoordinates!,
@@ -20,7 +32,8 @@ query plan(
   $maxWalkDistance: Float,
   $allowedVehicleRentalNetworks: [String],
   $bannedVehicleRentalNetworks: [String],
-  $allowKeepingRentedBicycleAtDestination: Boolean
+  $allowKeepingRentedBicycleAtDestination: Boolean,
+  $banned: InputBanned
 ) {
   plan(
     from: $from
@@ -40,6 +53,7 @@ query plan(
     allowedVehicleRentalNetworks: $allowedVehicleRentalNetworks
     bannedVehicleRentalNetworks: $bannedVehicleRentalNetworks
     allowKeepingRentedBicycleAtDestination: $allowKeepingRentedBicycleAtDestination
+    banned: $banned
   ) {
     itineraries {
       start
@@ -221,6 +235,87 @@ const convertModesToTransportModes = (modes, tripRequest) => {
 };
 
 /**
+ * Fetch agencies from the server
+ * @returns {Promise<object>}
+ */
+const fetchAgencyMappings = async () => {
+  if (agencyMappingsCache) {
+    return agencyMappingsCache;
+  }
+
+  try {
+    const result = await otp.graphql(AGENCIES_QUERY, {});
+
+    if (result && result.agencies) {
+      const mappings = {
+        toFeed: {},  // simple -> feed-prefixed
+        fromFeed: {},  // feed-prefixed -> simple
+      };
+
+      result.agencies.forEach((agency) => {
+        const gtfsId = agency.gtfsId;
+        const name = agency.name;
+
+        // Extract simple name (part after colon)
+        const simpleName = gtfsId.includes(':') ? gtfsId.split(':')[1] : gtfsId;
+
+        // Map both directions
+        mappings.toFeed[simpleName] = gtfsId;
+        mappings.toFeed[simpleName.toLowerCase()] = gtfsId;
+        mappings.toFeed[gtfsId] = gtfsId; // passthrough
+
+        mappings.fromFeed[gtfsId] = simpleName;
+
+        // Also map by agency name if different
+        if (name && name !== simpleName) {
+          mappings.toFeed[name] = gtfsId;
+          mappings.toFeed[name.toLowerCase()] = gtfsId;
+        }
+      });
+
+      agencyMappingsCache = mappings;
+      console.log('Fetched agency mappings:', mappings);
+      return mappings;
+    }
+  } catch (error) {
+    console.error('Failed to fetch agency mappings:', error.message);
+  }
+
+  // Return empty mappings if fetch fails
+  return { toFeed: {}, fromFeed: {} };
+};
+
+/**
+ * Convert simple agency names to feed-prefixed IDs
+ * @param {string[]} agencies
+ * @returns {Promise<string[]>}
+ */
+const mapAgenciesToFeed = async (agencies) => {
+  if (!Array.isArray(agencies)) {
+    return [];
+  }
+
+  const mappings = await fetchAgencyMappings();
+
+  return agencies.map(agency => {
+    const mapped = mappings.toFeed[agency];
+    return mapped || agency;
+  });
+};
+
+/**
+ * Convert feed-prefixed agency IDs to simple names
+ * @param {string} agencyId
+ * @param {object} mappings
+ * @returns {string}
+ */
+const mapAgencyFromFeed = (agencyId, mappings) => {
+  if (!agencyId) return agencyId;
+  const mapped = mappings.fromFeed[agencyId];
+  return mapped || agencyId;
+};
+
+/**
  * Execute GraphQL query
  * @param {object} variables
  * @returns {Promise}
@@ -245,9 +340,10 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
 
   const routeTypes = pickRouteTypes(tripRequest);
 
-  const queries = routeTypes.map(routeType => {
-    const date = formatters.datetime.asMDYYYY(whenTime);
-    const time = formatters.datetime.asHMA(whenTime);
+  const queries = routeTypes.map(async routeType => {
+    const dt = whenTime instanceof Date ? whenTime : new Date(whenTime);
+    const date = dt.toISOString().split('T')[0]; // YYYY-MM-DD
+    const time = dt.toTimeString().split(' ')[0]; // HH:MM:SS
 
     const variables = {
       from: {
@@ -261,11 +357,11 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
       date,
       time,
       arriveBy: tripRequest.whenAction === 'arrive',
-      wheelchair: tripRequest.hasRequirement('wheelchair') || false,
+      wheelchair: preferences.wheelchair || false,
       numItineraries: 5,
       walkSpeed: 1.25,
-      walkReluctance: preferences.minimizeWalking ? 15 : 75,
-      waitReluctance: 0.6,
+      walkReluctance: preferences.minimizeWalking ? 2 : 10,
+      waitReluctance: 0.8,
       transferPenalty: 300,
     };
 
@@ -280,6 +376,37 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
       variables.transportModes.push({ mode: 'FLEX', qualifier: 'EGRESS' });
     }
 
+    // Handle agency banning (matches native app)
+    const agenciesToBan = [];
+    
+    // Ban MET if no rail/tram modes selected
+    if (!tripRequest.hasMode('tram') && !tripRequest.hasMode('rail')) {
+      agenciesToBan.push('MET');
+    }
+    
+    // Ban NFTA if no bus mode selected
+    if (!tripRequest.hasMode('bus')) {
+      agenciesToBan.push('NFTA');
+    }
+    
+    // Ban ub-1 if no ubshuttle mode selected
+    if (!tripRequest.hasMode('ubshuttle')) {
+      agenciesToBan.push('ub-1');
+    }
+    
+    // Ban BNMC if no hail mode selected
+    if (!tripRequest.hasMode('hail')) {
+      agenciesToBan.push('BNMC');
+    }
+    
+    // Apply agency bans
+    if (agenciesToBan.length > 0) {
+      const bannedAgencies = await mapAgenciesToFeed(agenciesToBan);
+      variables.banned = {
+        agencies: bannedAgencies.join(',')
+      };
+    }
+
     // Walk distance limits
     if (preferences.maxWalk && modes.indexOf('BICYCLE') === -1) {
       variables.maxWalkDistance = preferences.maxWalk;
@@ -287,6 +414,16 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
     if (modes.includes('BICYCLE') || modes.includes('MICROMOBILITY_RENT')) {
       variables.maxWalkDistance = 3218.69; // 2 miles
       variables.bikeSpeed = 4.0; // ~9 mph
+    }
+
+    // Handle regular transit without UB Shuttle
+    if ((tripRequest.hasMode('bus') || tripRequest.hasMode('tram')) && routeType === 'walkToTransit') {
+      variables.walkReluctance = 200;
+    }
+
+    // Set high walk reluctance for all transit routes
+    if (routeType === 'walkToTransit' || routeType === 'bikeToTransit') {
+      variables.walkReluctance = 200;
     }
 
     // Handle banned providers
@@ -371,7 +508,7 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
     });
 
     resolve({
-      plans: removeDuplicates(allPlans),
+      plans: calculateShortest(removeDuplicates(allPlans)),
       id: queryId,
     });
   } catch (err) {
@@ -481,7 +618,12 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
       convertedLeg.routeType = leg.route.type;
       convertedLeg.routeColor = leg.route.color;
       convertedLeg.routeTextColor = leg.route.textColor;
-      convertedLeg.agencyId = leg.route.agency?.gtfsId;
+      // Map agency ID to simple name
+      const agencyId = leg.route.agency?.gtfsId;
+      if (agencyId) {
+        // We need mappings passed to this function
+        convertedLeg.agencyId = agencyId.includes(':') ? agencyId.split(':')[1] : agencyId;
+      }
       convertedLeg.agencyName = leg.route.agency?.name;
       convertedLeg.tripId = leg.trip?.gtfsId;
       convertedLeg.headsign = leg.trip?.tripHeadsign;
@@ -629,6 +771,32 @@ const pickRouteTypes = (trip) => {
     }
   }
   return modeSets;
+};
+
+/**
+ * Calculate shortest plans
+ * @param {object[]} plans
+ * @returns {object[]}
+ */
+const calculateShortest = (plans) => {
+  if (!plans || plans.length === 0) return plans;
+  
+  // Find the shortest duration
+  let shortestDuration = Number.MAX_VALUE;
+  plans.forEach(plan => {
+    if (plan.duration < shortestDuration) {
+      shortestDuration = plan.duration;
+    }
+  });
+  
+  // Mark plans that are within 10% of shortest as "shortest"
+  plans.forEach(plan => {
+    if (plan.duration <= shortestDuration * 1.1) {
+      plan.isShortest = true;
+    }
+  });
+  
+  return plans;
 };
 
 /**
