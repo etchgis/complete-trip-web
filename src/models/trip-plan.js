@@ -167,9 +167,10 @@ export default class TripPlan {
 /**
  * Convert TransportMode array format for GraphQL
  * @param {string[]} modes
+ * @param {TripRequest} tripRequest
  * @returns {object[]}
  */
-const convertModesToTransportModes = (modes) => {
+const convertModesToTransportModes = (modes, tripRequest) => {
   const transportModes = [];
 
   modes.forEach(mode => {
@@ -197,11 +198,19 @@ const convertModesToTransportModes = (modes) => {
         transportModes.push({ mode: 'CAR', qualifier: 'HAIL' });
         break;
       case 'TRANSIT':
-        transportModes.push({ mode: 'BUS' });
-        transportModes.push({ mode: 'TRAM' });
-        transportModes.push({ mode: 'RAIL' });
-        transportModes.push({ mode: 'SUBWAY' });
-        transportModes.push({ mode: 'FERRY' });
+        // Only add the transit modes that are actually selected (matches native app)
+        const hasBus = tripRequest?.hasMode('bus') || tripRequest?.hasMode('ubshuttle');
+        const hasTram = tripRequest?.hasMode('tram') || tripRequest?.hasMode('rail');
+        
+        if (hasBus) {
+          transportModes.push({ mode: 'BUS' });
+        }
+        if (hasTram) {
+          transportModes.push({ mode: 'TRAM' });
+          transportModes.push({ mode: 'RAIL' });
+          transportModes.push({ mode: 'SUBWAY' });
+          transportModes.push({ mode: 'FERRY' });
+        }
         break;
       case 'FLEXIBLE':
         transportModes.push({ mode: 'FLEX', qualifier: 'DIRECT' });
@@ -268,7 +277,7 @@ const queryPlanner = async (tripRequest, preferences, queryId, resolve, reject) 
 
     // Convert modes to TransportMode format
     const modes = RouteTypes[routeType];
-    variables.transportModes = convertModesToTransportModes(modes);
+    variables.transportModes = convertModesToTransportModes(modes, tripRequest);
 
     // Add flex modes if needed
     if (modes.includes('FLEXIBLE') || tripRequest.hasMode('flex')) {
@@ -510,30 +519,20 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
     }
 
     // Handle campus shuttle and demand-response services
-    // Route type 715 is "Demand and Response Bus" in GTFS
-    // GraphQL returns these as BUS mode, but they need to be HAIL for the app
-    // Check if this is UB Shuttle based on route info
-    if (leg.transitLeg && leg.route &&
-        (leg.route.gtfsId?.includes('ub-1') ||
-         leg.route.gtfsId?.includes('ub_shuttle') ||
-         leg.route.longName?.toLowerCase().includes('ub shuttle') ||
-         leg.route.shortName?.toLowerCase().includes('ub'))) {
-      // This is UB Shuttle
-      convertedLeg.mode = 'UBSHUTTLE';
-      convertedLeg.hailedCar = false;
+    // Check for UB Shuttle first (matches native app logic)
+    if (leg.mode === 'BUS' && convertedLeg.agencyId === 'ub-1') {
+      // This is UB shuttle - convert to 'ubshuttle' mode
+      convertedLeg.mode = 'ubshuttle';
       convertedLeg.flexibleTransit = true;
-      convertedLeg.tripId = 'UBS:A1'; // UB Shuttle identifier
-      convertedLeg.providerId = 'ub_shuttle';
-      convertedLeg.agencyId = 'ub-1';
-      convertedLeg.agencyName = 'UB Shuttle';
+      convertedLeg.tripId = 'HDS:A1'; // Human-Driven Shuttle identifier
+      convertedLeg.providerId = 'campus_shuttle';
+      // Override route short name to display 'SDS' instead of 'UB-1'
+      convertedLeg.routeShortName = 'SDS';
     }
-    // Check if this is Community Shuttle (HDS)
-    else if (leg.transitLeg && leg.route &&
-        (leg.route.type === 715 ||
-         leg.route.gtfsId?.includes('campus_shuttle') ||
-         (leg.route.longName?.toLowerCase().includes('shuttle') && 
-          !leg.route.longName?.toLowerCase().includes('ub')))) {
-      // This is a flex/shuttle service that needs to be hailed
+    // Handle community shuttle and other demand-response services
+    // Route type 715 is "Demand and Response Bus" in GTFS
+    else if (leg.transitLeg && leg.route && leg.route.type === 715) {
+      // This is community shuttle or other flex service - convert to HAIL
       convertedLeg.mode = 'HAIL';
       convertedLeg.hailedCar = true;
       convertedLeg.flexibleTransit = true;
@@ -543,12 +542,13 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
 
     // Handle UB Shuttle for FLEX mode
     if (leg.mode === 'FLEX' && (routeType === 'ubshuttle' || routeType === 'ubshuttleToTransit')) {
-      convertedLeg.mode = 'UBSHUTTLE';
+      convertedLeg.mode = 'ubshuttle';
       convertedLeg.hailedCar = false;
-      convertedLeg.tripId = 'UBS:A1';
-      convertedLeg.providerId = 'ub_shuttle';
+      convertedLeg.tripId = 'HDS:A1';
+      convertedLeg.providerId = 'campus_shuttle';
       convertedLeg.agencyId = 'ub-1';
       convertedLeg.agencyName = 'UB Shuttle';
+      convertedLeg.routeShortName = 'SDS';
     }
 
     // Handle actual car hail (ride-sharing services)
@@ -587,9 +587,6 @@ const RouteTypes = {
   // For backwards compatibility: hail now uses FLEXIBLE for shuttle service
   hail: ['FLEXIBLE', 'WALK'],
   hailToTransit: ['FLEXIBLE', 'WALK', 'TRANSIT'],
-  // UB Shuttle uses FLEXIBLE mode like Community Shuttle
-  ubshuttle: ['UBSHUTTLE', 'WALK'],
-  ubshuttleToTransit: ['UBSHUTTLE', 'WALK', 'TRANSIT'],
   walkToTransit: ['TRANSIT', 'WALK'],
   bikeToTransit: ['TRANSIT', 'BICYCLE'],
   rentBikeToTransit: ['TRANSIT', 'WALK', 'MICROMOBILITY_RENT'],
@@ -608,7 +605,7 @@ const pickRouteTypes = (trip) => {
   // Check for flex service
   const hasFlexService = trip.hasMode('flex') || trip.hasMode('flexible');
 
-  if (trip.hasMode('bus') || trip.hasMode('tram')) {
+  if (trip.hasMode('bus') || trip.hasMode('tram') || trip.hasMode('ubshuttle')) {
     if (hasFlexService) {
       modeSets.push('flexToTransit');
     }
@@ -619,10 +616,6 @@ const pickRouteTypes = (trip) => {
     if (trip.hasMode('hail')) {
       modeSets.push('hailToTransit');
       modeSets.push('hail');
-    }
-    if (trip.hasMode('ubshuttle')) {
-      modeSets.push('ubshuttleToTransit');
-      modeSets.push('ubshuttle');
     }
     if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bikeToTransit');
@@ -641,15 +634,12 @@ const pickRouteTypes = (trip) => {
     if (trip.hasMode('hail')) {
       modeSets.push('hail');
     }
-    if (trip.hasMode('ubshuttle')) {
-      modeSets.push('ubshuttle');
-    }
     if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bike');
     }
     if (trip.hasMode('scooter') || trip.hasMode('bike_rental')) {
       modeSets.push('rentBike');
-    } else if (!trip.hasMode('hail') && !trip.hasMode('ubshuttle')) {
+    } else if (!trip.hasMode('hail')) {
       modeSets.push('walk');
     }
   }
