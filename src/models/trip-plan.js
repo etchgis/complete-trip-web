@@ -207,18 +207,12 @@ const convertModesToTransportModes = (modes, tripRequest) => {
         }
         if (hasTram) {
           transportModes.push({ mode: 'TRAM' });
-          transportModes.push({ mode: 'RAIL' });
-          transportModes.push({ mode: 'SUBWAY' });
-          transportModes.push({ mode: 'FERRY' });
         }
         break;
       case 'FLEXIBLE':
         transportModes.push({ mode: 'FLEX', qualifier: 'DIRECT' });
         transportModes.push({ mode: 'FLEX', qualifier: 'ACCESS' });
         transportModes.push({ mode: 'FLEX', qualifier: 'EGRESS' });
-        break;
-      case 'UBSHUTTLE':
-        transportModes.push({ mode: 'FLEX', qualifier: 'DIRECT' });
         break;
     }
   });
@@ -519,7 +513,7 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
     }
 
     // Handle campus shuttle and demand-response services
-    // Check for UB Shuttle first (matches native app logic)
+    // Handle UB shuttle - BUS mode with ub-1 agency
     if (leg.mode === 'BUS' && convertedLeg.agencyId === 'ub-1') {
       // This is UB shuttle - convert to 'ubshuttle' mode
       convertedLeg.mode = 'ubshuttle';
@@ -529,9 +523,10 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
       // Override route short name to display 'SDS' instead of 'UB-1'
       convertedLeg.routeShortName = 'SDS';
     }
+
     // Handle community shuttle and other demand-response services
     // Route type 715 is "Demand and Response Bus" in GTFS
-    else if (leg.transitLeg && leg.route && leg.route.type === 715) {
+    if (leg.transitLeg && leg.route && leg.route.type === 715) {
       // This is community shuttle or other flex service - convert to HAIL
       convertedLeg.mode = 'HAIL';
       convertedLeg.hailedCar = true;
@@ -540,16 +535,6 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
       convertedLeg.providerId = 'campus_shuttle';
     }
 
-    // Handle UB Shuttle for FLEX mode
-    if (leg.mode === 'FLEX' && (routeType === 'ubshuttle' || routeType === 'ubshuttleToTransit')) {
-      convertedLeg.mode = 'ubshuttle';
-      convertedLeg.hailedCar = false;
-      convertedLeg.tripId = 'HDS:A1';
-      convertedLeg.providerId = 'campus_shuttle';
-      convertedLeg.agencyId = 'ub-1';
-      convertedLeg.agencyName = 'UB Shuttle';
-      convertedLeg.routeShortName = 'SDS';
-    }
 
     // Handle actual car hail (ride-sharing services)
     if (leg.mode === 'CAR' && (routeType === 'hailToTransit' || routeType === 'hail')) {
