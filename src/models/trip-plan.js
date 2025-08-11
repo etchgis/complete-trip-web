@@ -208,6 +208,9 @@ const convertModesToTransportModes = (modes) => {
         transportModes.push({ mode: 'FLEX', qualifier: 'ACCESS' });
         transportModes.push({ mode: 'FLEX', qualifier: 'EGRESS' });
         break;
+      case 'UBSHUTTLE':
+        transportModes.push({ mode: 'FLEX', qualifier: 'DIRECT' });
+        break;
     }
   });
 
@@ -509,16 +512,43 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
     // Handle campus shuttle and demand-response services
     // Route type 715 is "Demand and Response Bus" in GTFS
     // GraphQL returns these as BUS mode, but they need to be HAIL for the app
+    // Check if this is UB Shuttle based on route info
     if (leg.transitLeg && leg.route &&
+        (leg.route.gtfsId?.includes('ub-1') ||
+         leg.route.gtfsId?.includes('ub_shuttle') ||
+         leg.route.longName?.toLowerCase().includes('ub shuttle') ||
+         leg.route.shortName?.toLowerCase().includes('ub'))) {
+      // This is UB Shuttle
+      convertedLeg.mode = 'UBSHUTTLE';
+      convertedLeg.hailedCar = false;
+      convertedLeg.flexibleTransit = true;
+      convertedLeg.tripId = 'UBS:A1'; // UB Shuttle identifier
+      convertedLeg.providerId = 'ub_shuttle';
+      convertedLeg.agencyId = 'ub-1';
+      convertedLeg.agencyName = 'UB Shuttle';
+    }
+    // Check if this is Community Shuttle (HDS)
+    else if (leg.transitLeg && leg.route &&
         (leg.route.type === 715 ||
          leg.route.gtfsId?.includes('campus_shuttle') ||
-         leg.route.longName?.toLowerCase().includes('shuttle'))) {
+         (leg.route.longName?.toLowerCase().includes('shuttle') && 
+          !leg.route.longName?.toLowerCase().includes('ub')))) {
       // This is a flex/shuttle service that needs to be hailed
       convertedLeg.mode = 'HAIL';
       convertedLeg.hailedCar = true;
       convertedLeg.flexibleTransit = true;
       convertedLeg.tripId = 'HDS:A1'; // Human-Driven Shuttle identifier
       convertedLeg.providerId = 'campus_shuttle';
+    }
+
+    // Handle UB Shuttle for FLEX mode
+    if (leg.mode === 'FLEX' && (routeType === 'ubshuttle' || routeType === 'ubshuttleToTransit')) {
+      convertedLeg.mode = 'UBSHUTTLE';
+      convertedLeg.hailedCar = false;
+      convertedLeg.tripId = 'UBS:A1';
+      convertedLeg.providerId = 'ub_shuttle';
+      convertedLeg.agencyId = 'ub-1';
+      convertedLeg.agencyName = 'UB Shuttle';
     }
 
     // Handle actual car hail (ride-sharing services)
@@ -557,6 +587,9 @@ const RouteTypes = {
   // For backwards compatibility: hail now uses FLEXIBLE for shuttle service
   hail: ['FLEXIBLE', 'WALK'],
   hailToTransit: ['FLEXIBLE', 'WALK', 'TRANSIT'],
+  // UB Shuttle uses FLEXIBLE mode like Community Shuttle
+  ubshuttle: ['UBSHUTTLE', 'WALK'],
+  ubshuttleToTransit: ['UBSHUTTLE', 'WALK', 'TRANSIT'],
   walkToTransit: ['TRANSIT', 'WALK'],
   bikeToTransit: ['TRANSIT', 'BICYCLE'],
   rentBikeToTransit: ['TRANSIT', 'WALK', 'MICROMOBILITY_RENT'],
@@ -587,6 +620,10 @@ const pickRouteTypes = (trip) => {
       modeSets.push('hailToTransit');
       modeSets.push('hail');
     }
+    if (trip.hasMode('ubshuttle')) {
+      modeSets.push('ubshuttleToTransit');
+      modeSets.push('ubshuttle');
+    }
     if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bikeToTransit');
     }
@@ -604,12 +641,15 @@ const pickRouteTypes = (trip) => {
     if (trip.hasMode('hail')) {
       modeSets.push('hail');
     }
+    if (trip.hasMode('ubshuttle')) {
+      modeSets.push('ubshuttle');
+    }
     if (trip.hasMode('bike') || trip.hasMode('bicycle')) {
       modeSets.push('bike');
     }
     if (trip.hasMode('scooter') || trip.hasMode('bike_rental')) {
       modeSets.push('rentBike');
-    } else if (!trip.hasMode('hail')) {
+    } else if (!trip.hasMode('hail') && !trip.hasMode('ubshuttle')) {
       modeSets.push('walk');
     }
   }

@@ -891,6 +891,7 @@ export default function genLocales() {
         bus: 'Bus',
         tram: 'Metro Rail',
         hail: 'Community Shuttle',
+        ubshuttle: 'UB Shuttle',
       },
       es: {
         wheelchair: 'Accesibilidad para Sillas de Ruedas',
@@ -904,6 +905,7 @@ export default function genLocales() {
         bus: 'autobús', //✅
         tram: 'Metro Rail', //✅
         hail: 'Transporte comunitario',
+        ubshuttle: 'Autobús UB',
       },
     },
     settingsPassword: {
