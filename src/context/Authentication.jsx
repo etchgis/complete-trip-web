@@ -268,7 +268,6 @@ class Authentication {
           runInAction(() => {
             this.requireMFA = false;
             this.user = user;
-            this.refreshToken = null; //NOTE we no longer need the refresh token stored inside the store
             this.hydrate(user.profile);
             this.loggedIn = true;
             this.inTransaction = false;
@@ -325,6 +324,7 @@ class Authentication {
             //NOTE the user could change their onboarded status client side - why they would do this, I don't know, but they could and then be able to just login without onboarding and verifying their phone
             runInAction(() => {
               this.accessToken = user.accessToken;
+              this.refreshToken = user.refreshToken;
               this.user = user;
               this.hydrate(user.profile);
               this.loggedIn = true;
