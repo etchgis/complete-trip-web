@@ -31,7 +31,7 @@ export const Routes = observer(() => {
   ) {
     trace(false);
   }
-  const { user, loggedIn, auth, logout } = useStore().authentication;
+  const { user, loggedIn, auth, logout, refreshToken } = useStore().authentication;
   const { debug, setDebugMode, ui, setUI, setUX, ux } = useStore().uiStore;
   const {
     onClose: hideLogin,
@@ -65,7 +65,8 @@ export const Routes = observer(() => {
 
   //INIT AUTH & USER
   useEffect(() => {
-    console.log('[routes]', { cachedUser: user?.refreshToken ? true : false }, { loggedIn });
+    const hasRefreshToken = user?.refreshToken || refreshToken;
+    console.log('[routes]', { cachedUser: hasRefreshToken ? true : false }, { loggedIn });
     console.log('[routes] checking for kiosk mode')
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
@@ -79,7 +80,7 @@ export const Routes = observer(() => {
     }
 
     (async () => {
-      if (user?.refreshToken && !loggedIn) {
+      if (hasRefreshToken && !loggedIn) {
         if (debug) console.log('[routes] checking for auth');
         try {
           await auth(); //any errors will be handled by auth()

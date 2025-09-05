@@ -45,7 +45,7 @@ class Authentication {
     ) {
       makePersistable(this, {
         name: `Authentication`,
-        properties: ['user'],
+        properties: ['user', 'refreshToken'],
         storage: localStorage,
       });
     }
