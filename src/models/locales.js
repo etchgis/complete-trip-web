@@ -117,7 +117,7 @@ export default function genLocales() {
         second: 'Second',
         third: 'Third',
 
-        caregiver: 'Caregiver',
+        caregiver: 'Coordinator',
 
         error: 'Error',
         success: 'Success',
