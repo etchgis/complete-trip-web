@@ -51,7 +51,7 @@ export const ProfileInformation = observer(({ action }) => {
           {user?.profile?.firstName} {user?.profile?.lastName}
         </Text>
         <Text>{user?.email}</Text>
-        <Text> {user?.phone !== '+15555555555' ? formatters.phone.asDomestic(user?.phone.slice(2)) || '' : ''}</Text>
+        {user.phone && <Text> {user?.phone !== '+15555555555' ? formatters.phone.asDomestic(user?.phone.slice(2)) || '' : ''}</Text>}
         <Box p={4}></Box>
 
         <Text pb={4}>{user?.profile?.address?.text}</Text>
