@@ -1,26 +1,38 @@
 // import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 
 import { makeAutoObservable, runInAction, toJS } from 'mobx';
+import { SavedLocation, Coordinates, Profile } from '../types/UserProfile';
 
-class Location {
-  point = {};
-  constructor(obj) {
-    this.id = Date.now();
+class Location implements Partial<SavedLocation> {
+  id: string;
+  title?: string;
+  alias?: string;
+  description?: string;
+  distance?: string | null;
+  point: Coordinates;
+  text: string;
+  name?: string;
+  
+  constructor(obj: any) {
+    this.id = Date.now().toString();
     this.title = obj?.title;
     this.alias = obj?.alias;
     this.description = obj?.description;
     this.distance = obj?.distance || null;
-    this.point.lat = obj?.point?.lat || 0;
-    this.point.lng = obj?.point?.lng || 0;
+    this.point = {
+      lat: obj?.point?.lat || 0,
+      lng: obj?.point?.lng || 0
+    };
     this.text = this.title + ', ' + this.description;
   }
 }
 
 class Favorites {
-  locations = [];
-  trips = [];
+  locations: Location[] = [];
+  trips: any[] = [];
+  rootStore: any;
 
-  constructor(rootStore) {
+  constructor(rootStore: any) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
@@ -37,14 +49,14 @@ class Favorites {
     // }
   }
 
-  updateProperty = (name, value) => {
+  updateProperty = (name: string, value: any) => {
     runInAction(() => {
       this[name] = value;
     });
     return this.updateProfile();
   };
 
-  addLocation = location => {
+  addLocation = (location: any) => {
     const _location = new Location(location);
     const newLocation = { ..._location };
     console.log({ newLocation });
@@ -55,7 +67,7 @@ class Favorites {
     return newLocation.id;
   };
 
-  removeLocation = id => {
+  removeLocation = (id: string) => {
     runInAction(() => {
       var i = this.locations.findIndex(l => l.id === id);
       if (i > -1) {
@@ -101,18 +113,18 @@ class Favorites {
   };
 
   updateProfile = async () => {
-    const profile = toJS(this.rootStore.authentication.user.profile);
+    const profile = toJS(this.rootStore.authentication.user.profile) as Profile;
     return await this.rootStore.authentication.updateUserProfile(
       Object.assign(profile, { favorites: this.getAll() })
     );
     // return await this.rootStore.profile.updateProfile();
   };
 
-  hydrate = profile => {
+  hydrate = (profile: Profile) => {
     // console.log('Favorites hydrate', profile);
     if (profile.favorites) {
       runInAction(() => {
-        this.locations = profile.favorites.locations || [];
+        this.locations = (profile.favorites.locations || []).map((loc: any) => new Location(loc));
         this.trips = profile.favorites.trips || [];
       });
     }

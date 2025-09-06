@@ -1,22 +1,23 @@
 import { makeAutoObservable, runInAction, toJS } from 'mobx';
-
 import config from '../config';
+import { Preferences as PreferencesType, Profile, TransportMode, Language } from '../types/UserProfile';
 
-class Preferences {
-  language = 'en';
+class Preferences implements PreferencesType {
+  language: Language = 'en';
   wheelchair = false;
   serviceAnimal = false;
   maxCost = 10;
   maxTransfers = 4;
   minimizeWalking = false;
-  modes = [];
-  notifications = [];
-  notificationTypes = [];
+  modes: TransportMode[] = [];
+  notifications: ('sms' | 'email')[] = [];
+  notificationTypes: string[] = [];
   shareWithConcierge = false;
-  navigationDirections = 'voiceOn';
-  pin = '';
+  navigationDirections: 'voiceOn' | 'voiceOff' = 'voiceOn';
+  pin?: string = '';
+  rootStore: any;
 
-  constructor(rootStore) {
+  constructor(rootStore: any) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
@@ -32,21 +33,21 @@ class Preferences {
     // }
   }
 
-  updateProperty = (name, value) => {
+  updateProperty = (name: string, value: any) => {
     runInAction(() => {
-      this[name] = value;
+      (this as any)[name] = value;
     });
     return this.updateProfile();
   };
 
-  addMode = value => {
+  addMode = (value: TransportMode) => {
     runInAction(() => {
       this.modes.push(value);
     });
     return this.updateProfile();
   };
 
-  removeMode = value => {
+  removeMode = (value: TransportMode) => {
     runInAction(() => {
       var i = this.modes.findIndex(m => m === value);
       if (i > -1) {
@@ -56,14 +57,14 @@ class Preferences {
     return this.updateProfile();
   };
 
-  addNotification = value => {
+  addNotification = (value: 'sms' | 'email') => {
     runInAction(() => {
       this.notifications.push(value);
     });
     return this.updateProfile();
   };
 
-  removeNotification = value => {
+  removeNotification = (value: 'sms' | 'email') => {
     runInAction(() => {
       var i = this.notifications.findIndex(m => m === value);
       if (i > -1) {
@@ -73,14 +74,14 @@ class Preferences {
     return this.updateProfile();
   };
 
-  addNotificationType = values => {
+  addNotificationType = (values: string[]) => {
     runInAction(() => {
       this.notificationTypes.push(...values);
     });
     return this.updateProfile();
   };
 
-  removeNotificationType = values => {
+  removeNotificationType = (values: string[]) => {
     runInAction(() => {
       for (let i = 0; i < values.length; i++) {
         const value = values[i];
@@ -103,7 +104,7 @@ class Preferences {
     this.rootStore.authentication.updateUserProfile(update);
   };
 
-  getAll = () => {
+  getAll = (): PreferencesType => {
     return {
       language: this.language,
       wheelchair: this.wheelchair,
@@ -124,7 +125,7 @@ class Preferences {
     for (var i = 0; i < config.MODES.length; i++) {
       var mode = config.MODES[i].mode;
       if (this.modes.indexOf(mode) > -1) {
-        modes.push(mode);
+        modes.push(mode as TransportMode);
       }
     }
     return modes;
@@ -167,11 +168,11 @@ class Preferences {
       this.notifications = [];
       this.notificationTypes = [];
       this.shareWithConcierge = false;
-      this.navigationDirections = 'Voice On';
+      this.navigationDirections = 'voiceOn';
     });
   };
 
-  hydrate = profile => {
+  hydrate = (profile: Profile) => {
     if (profile.preferences) {
       // console.log('Preferences.hydrate', profile.preferences);
       runInAction(() => {
