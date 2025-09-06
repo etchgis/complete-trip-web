@@ -31,7 +31,7 @@ const CaregiverLink = observer(() => {
     validInvitedCaregiver,
   } = useStore().caregivers;
   const { user, loggedIn, inTransaction } = useStore().authentication;
-  const { isLoading, setToastMessage, setToastStatus } = useStore().uiStore;
+  const { setToastMessage, setToastStatus } = useStore().uiStore;
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -126,7 +126,7 @@ const CaregiverLink = observer(() => {
             p={4}
           >
             <Box width={'320px'} maxW={'100%'}>
-              {isLoading || inTransaction ? (
+              {inTransaction ? (
                 <></>
               ) : loggedIn ? (
                 <Box>

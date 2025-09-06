@@ -1,13 +1,15 @@
 import { DependentsList } from './DependentsList';
 import { DependentsTripsTable } from './DependentsTripsTable';
-import { Grid } from '@chakra-ui/react';
-import { useEffect } from 'react';
+import { Grid, Flex, Spinner, Text } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../../context/RootStore';
+import useTranslation from '../../models/useTranslation';
 
 export const Dependents = () => {
   const { hydrate } = useStore().caregivers;
-  const { setIsLoading } = useStore().uiStore;
   const { hydrateDependentTrips } = useStore().schedule;
+  const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(true);
 
   //NOTE hydrate the caregivers and trips on each page load
   useEffect(() => {
@@ -24,6 +26,15 @@ export const Dependents = () => {
     })();
     //eslint-disable-next-line
   }, []);
+
+  if (isLoading) {
+    return (
+      <Flex justify="center" align="center" minH="200px">
+        <Spinner size="lg" color="blue.500" mr={3} />
+        <Text>{t('global.loading')}</Text>
+      </Flex>
+    );
+  }
 
   return (
     <Grid
