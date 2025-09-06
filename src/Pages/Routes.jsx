@@ -2,7 +2,6 @@ import { Navigate, Routes as ReactRoutes, Route, useSearchParams } from 'react-r
 import { toJS, trace } from 'mobx';
 
 import CaregiverLink from './CaregiverLink';
-import Gleap from 'gleap';
 import Layout from './Layout';
 import Login from './Login';
 import Settings from './Settings';
@@ -46,22 +45,6 @@ export const Routes = observer(() => {
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
-
-  //GLEAP
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlParams.entries());
-    const { mode } = params;
-    if (mode === 'webapp') {
-      Gleap.initialize(import.meta.env.VITE_GLEAP);
-      const gleapDivs = document.querySelectorAll('.gleap-font');
-      if (gleapDivs.length > 0) {
-        gleapDivs.forEach(div => {
-          div.setAttribute('aria-hidden', 'true');
-        });
-      }
-    }
-  }, []);
 
   //INIT AUTH & USER
   useEffect(() => {
