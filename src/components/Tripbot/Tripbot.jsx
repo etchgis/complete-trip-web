@@ -100,6 +100,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         },
         userContext: buildUserContext(user), // Includes home address
         state: chatState,
+        timezone: user?.organizations?.[0]?.timezone || 'America/New_York',
       };
       if (chat.length === 1) {
         body.shouldReset = true;

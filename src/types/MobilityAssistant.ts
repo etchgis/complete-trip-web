@@ -113,6 +113,9 @@ export interface MobilityAssistantRequest {
   // Reset conversation flag (for new trips)
   shouldReset?: boolean;
   
+  // User's timezone (e.g., 'America/New_York')
+  timezone?: string;
+  
   // Optional metadata
   sessionId?: string;
   requestId?: string;
@@ -260,6 +263,9 @@ export const buildMobilityRequest = (
   state: ChatState = {},
   shouldReset: boolean = false
 ): MobilityAssistantRequest => {
+  // Extract timezone from user's first organization if available
+  const timezone = user?.organizations?.[0]?.timezone || 'America/New_York';
+  
   return {
     message,
     origin,
@@ -267,6 +273,7 @@ export const buildMobilityRequest = (
     userContext: buildUserContext(user),
     state,
     shouldReset,
+    timezone,
     timestamp: new Date().toISOString()
   };
 };
