@@ -5,7 +5,6 @@ import {
   Grid,
   Heading,
   Stack,
-  Text,
   useColorMode,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -214,7 +213,6 @@ const Settings = observer(({ view }) => {
           maxW={{ base: '100%', md: '600px', lg: '1000px' }}
           ref={activePageRef}
         >
-          <Text tabIndex={0} aria-label=""></Text>
           {switchViews({
             view,
             caregivers,
