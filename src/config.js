@@ -56,6 +56,12 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    assistant: {
+      // Comment out the next line when not developing the assistant locally
+      // url: 'http://localhost:3000/local/v3/chat',
+      url: 'https://staging.lambda.etch.app/assistant/v3/chat',
+      xApiKey: 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi',
+    },
   },
   stage: {
     admin: {
@@ -104,6 +110,12 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    assistant: {
+      // Comment out the next line when not developing the assistant locally
+      // url: 'http://localhost:3000/local/v3/chat',
+      url: 'https://staging.lambda.etch.app/assistant/v3/chat',
+      xApiKey: 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi',
+    },
   },
 };
 

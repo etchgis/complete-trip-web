@@ -1,5 +1,5 @@
 import { Box, Flex, Input, Spinner, Text } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import config from '../../config';
 import geocode from '../../services/transport/geocoder';
@@ -8,18 +8,22 @@ import { observer } from 'mobx-react-lite';
 import sampleChatResponse from '../ScheduleTripModal/sample-chat-response.json';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import { buildUserContext } from '../../types/MobilityAssistant';
 
 //18 Goethe St, Buffalo, NY 14206
 //to go
 //208 Hayes Rd, Buffalo, NY 14260
 //swan st diner
 
-const url = 'https://staging.lambda.etch.app/assistant/v2/chat';
-const key = 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi';
+// Use assistant configuration from config
+const url = config.SERVICES.assistant.url;
+const key = config.SERVICES.assistant.xApiKey;
 
 //token is the user's access token
 const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   const { t } = useTranslation();
+  const inputRef = useRef(null);
+  const chatEndRef = useRef(null);
   const [location, setLocation] = useState([
     config.MAP.CENTER[1],
     config.MAP.CENTER[0],
@@ -30,7 +34,7 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
   const { hasSelectedPlan, setHasSelectedPlan } = useStore().uiStore;
   const [chat, setChat] = useState([]);
   const [chatState, setChatState] = useState({});
-  const { accessToken } = useStore().authentication;
+  const { accessToken, user } = useStore().authentication;
 
   useEffect(() => {
     setChat(() => [
@@ -39,7 +43,18 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         user: '',
       },
     ]);
+    // Focus the input when component mounts
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }, []);
+
+  // Scroll to bottom when chat updates
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chat, isThinking]);
 
   useEffect(() => {
     (async () => {
@@ -73,17 +88,17 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       setIsThinking(true);
       const body = {
         message: message,
-        origin: {
+        // Send current location data (from geolocation or fallback)
+        currentLocation: location[0] && location[1] ? {
           lat: location[1],
           lng: location[0],
-          address: address || '',
-          // lat: config.MAP.CENTER[0],
-          // lng: config.MAP.CENTER[1],
-        },
+          address: address || ''
+        } : null,
         center: {
           lat: config.MAP.CENTER[0],
           lng: config.MAP.CENTER[1],
         },
+        userContext: buildUserContext(user), // Includes home address
         state: chatState,
       };
       if (chat.length === 1) {
@@ -251,29 +266,57 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
       borderRadius={10}
       w="600px"
       maxW={'calc(100% - 6rem)'}
+      onClick={() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }}
+      cursor="text"
+      overflowY="auto"
+      maxH="70vh"
     >
       {chat.map((message, i) => (
-        <Flex flexDir="column" key={i.toString()} w="100%">
+        <Flex flexDir="column" key={i.toString()} w="100%" mb={3}>
           {message.bot && (
-            <Text alignSelf={'flex-start'} textAlign={'left'}>
-              {message.bot}
-            </Text>
+            <Box
+              alignSelf={'flex-start'}
+              bg="gray.50"
+              p={3}
+              borderRadius="lg"
+              maxW="85%"
+            >
+              <Text textAlign={'left'} whiteSpace="pre-wrap">
+                {message.bot}
+              </Text>
+            </Box>
           )}
           {message.user && (
-            <Text as="em" alignSelf={'flex-end'} textAlign={'right'} py={2}>
-              {message.user}
-            </Text>
+            <Box
+              alignSelf={'flex-end'}
+              bg="brand"
+              color="white"
+              p={3}
+              borderRadius="lg"
+              maxW="85%"
+              mt={2}
+            >
+              <Text textAlign={'right'} whiteSpace="pre-wrap">
+                {message.user}
+              </Text>
+            </Box>
           )}
         </Flex>
       ))}
       {isThinking && (
         <Spinner alignSelf={'flex-start'} size="sm" color="gray.500" />
       )}
+      <div ref={chatEndRef} />
       <Box flex={1}></Box>
       <Box
         mt={10}
         as="form"
         width="100%"
+        onClick={e => e.stopPropagation()}
         onSubmit={e => {
           e.preventDefault();
           const data = new FormData(e.target);
@@ -291,10 +334,12 @@ const Tripbot = observer(({ setSelectedTrip, setStep, stagedTrip }) => {
         }}
       >
         <Input
+          ref={inputRef}
           w="100%"
           type="text"
-          placeholder={t('tripWizard.chatbot')}
+          placeholder={t('tripWizard.chatbotPlaceholder')}
           name="tripbot"
+          autoFocus
         ></Input>
       </Box>
     </Flex>
