@@ -70,7 +70,7 @@ export const CaregiverCard = ({ caregiver }) => {
     try {
       await remove(id);
       setToastStatus('success');
-      setToastMessage('Coordinator removed');
+      setToastMessage(t('settingsCaregivers.coordinatorRemoved'));
     } catch (error) {
       console.log(error); //TODO add error message
       setToastMessage('An error occurred removing the Caregiver.');
