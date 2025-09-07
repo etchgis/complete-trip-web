@@ -99,7 +99,7 @@ function SliderThumbWithTooltipLength({ action, initialValue }) {
 
       <SliderThumb
         boxSize={6}
-        aria-aria-labelledby="maxTransfers"
+        aria-labelledby="maxTransfers"
         position={'relative'}
       >
         <Box color="brand" as={FaExchangeAlt} position={'relative'} />
