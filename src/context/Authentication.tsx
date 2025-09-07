@@ -6,11 +6,15 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { authentication } from '../services/transport';
 import config from '../config';
 import jwtDecode from 'jwt-decode';
-import { User, Profile, Preferences } from '../types/UserProfile';
+import { User, Profile } from '../types/UserProfile';
+
+interface JWTPayload {
+  exp: number;
+}
 
 const validateJWT = (token: string): number | false => {
   try {
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode<JWTPayload>(token);
     if (decoded.exp > Date.now() / 1000) {
       return decoded.exp;
     }
@@ -472,7 +476,7 @@ class Authentication {
     if (!validateJWT(this.user.refreshToken)) {
       console.log('[auth-store--reset] invalid refresh token');
       this.reset();
-      this.errorToastMessage('Session expired, please login.');
+      this.errorToastMessage = 'Session expired, please login.';
     }
 
     //NOTE this will refresh the user on each page load
@@ -492,7 +496,7 @@ class Authentication {
               this.inTransaction = false;
               if (!skipHydrate) {
                 this.user = result;
-                await this.hydrate(result?.profile, accessToken);
+                await this.hydrate(result?.profile);
               } else {
                 console.log('[auth-store] skipping hydration of user profile');
               }
@@ -523,14 +527,14 @@ class Authentication {
       }
       //NOTE this will refresh the access token if it is missing or invalid/expired
       this.accessTokenPromise = authentication
-        .refreshAccessToken(this.user.refreshToken)
+        .refreshAccessToken((this.user as User).refreshToken || '')
         .then(result => {
           if (result.accessToken) {
             console.log('[auth-store] received access token');
             runInAction(() => {
               this.accessTokenPromise = null;
               this.accessToken = result.accessToken;
-              this.fetchAccessToken(); //NOTE this runs through this function again to hydrate the user
+              this.fetchAccessToken(skipHydrate).catch(console.error); //NOTE this runs through this function again to hydrate the user
             });
             return result.accessToken;
           }
@@ -543,7 +547,7 @@ class Authentication {
           console.log(e);
           runInAction(() => {
             this.reset();
-            this.errorToastMessage = t('errors.expired');
+            this.errorToastMessage = 'Session expired, please login.';
           });
           throw e;
         });

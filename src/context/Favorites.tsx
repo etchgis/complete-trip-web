@@ -1,35 +1,40 @@
 // import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 
 import { makeAutoObservable, runInAction, toJS } from 'mobx';
-import { SavedLocation, Coordinates, Profile } from '../types/UserProfile';
+import { SavedLocation, SavedTrip, Coordinates, Profile } from '../types/UserProfile';
 
-class Location implements Partial<SavedLocation> {
+class Location implements SavedLocation {
   id: string;
-  title?: string;
+  title: string;
   alias?: string;
   description?: string;
-  distance?: string | null;
+  distance?: string;
   point: Coordinates;
   text: string;
   name?: string;
+  childKey?: string;
+  search?: string;
   
   constructor(obj: any) {
-    this.id = Date.now().toString();
-    this.title = obj?.title;
+    this.id = obj?.id || Date.now().toString();
+    this.title = obj?.title || '';
     this.alias = obj?.alias;
+    this.name = obj?.name;
     this.description = obj?.description;
     this.distance = obj?.distance || null;
     this.point = {
       lat: obj?.point?.lat || 0,
       lng: obj?.point?.lng || 0
     };
-    this.text = this.title + ', ' + this.description;
+    this.text = obj?.text || (this.title + (this.description ? ', ' + this.description : ''));
+    this.childKey = obj?.childKey;
+    this.search = obj?.search;
   }
 }
 
 class Favorites {
   locations: Location[] = [];
-  trips: any[] = [];
+  trips: SavedTrip[] = [];
   rootStore: any;
 
   constructor(rootStore: any) {

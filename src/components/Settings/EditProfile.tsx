@@ -15,7 +15,7 @@ import { useRef } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { Address, Coordinates } from '../../types/UserProfile';
+import { Coordinates } from '../../types/UserProfile';
 
 interface EditProfileProps {
   onClose: () => void;
@@ -69,7 +69,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ onClose }) => {
         onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           const data = new FormData(e.currentTarget);
-          console.log(...data);
+          console.log(Array.from(data.entries()));
           if (!geocoderResult?.title) {
             //TODO create an error here and show some validation message
             console.log('[edit profile] no address selected');
@@ -142,13 +142,14 @@ export const EditProfile: React.FC<EditProfileProps> = ({ onClose }) => {
             </FormControl>
           }
           <FormControl isRequired>
+            {/* @ts-ignore - AddressSearchForm is a JSX component */}
             <AddressSearchForm
               saveAddress={setAddress}
               center={center}
               defaultAddress={user?.profile?.address?.text || ''}
               setGeocoderResult={setGeocoderResult}
               label={t('settingsProfile.homeAddress')}
-            ></AddressSearchForm>
+            />
           </FormControl>
           <Button
             bg={'brand'}
