@@ -52,9 +52,6 @@ class Schedule {
       return Promise.resolve();
     }
     try {
-      runInAction(() => {
-        this.rootStore.uiStore.setIsLoading(true);
-      });
       const _trips = [];
       await Promise.all(
         dependents.map(async d => {
@@ -82,12 +79,9 @@ class Schedule {
         console.log('{schedule-store} dependent trips have changed', !equals);
       runInAction(() => {
         if (!equals) this.dependentTrips = _trips;
-        this.rootStore.uiStore.setIsLoading(false);
       });
     } catch (error) {
-      runInAction(() => {
-        this.rootStore.uiStore.setIsLoading(false);
-      });
+      console.error('Error hydrating dependent trips:', error);
     }
   };
 

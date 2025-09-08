@@ -34,6 +34,7 @@ export const MFAVerify = observer(
     const [verifyError, setVerifyError] = useState(false);
     const [stage, setStage] = useState(0);
     const [method, setMethod] = useState('');
+    const [isSuccessful, setIsSuccessful] = useState(false);
     // console.log({ requireMFA });
     const { t } = useTranslation();
     const onComplete = async e => {
@@ -45,6 +46,7 @@ export const MFAVerify = observer(
       }
       setStage(0);
       setMethod('');
+      setIsSuccessful(true);
       onClose();
       callbackFn();
     };
@@ -54,12 +56,15 @@ export const MFAVerify = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          console.log(
-            '[mfa-verify] resetting auth store via closing MFA modal manually'
-          );
-          reset();
+          if (!isSuccessful) {
+            console.log(
+              '[mfa-verify] resetting auth store via closing MFA modal manually'
+            );
+            reset();
+          }
           setStage(0);
           setMethod('');
+          setIsSuccessful(false);
         }}
         size={'md'}
         scrollBehavior={'inside'}

@@ -4,6 +4,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Spinner,
   Stack,
   Text,
   useColorMode,
@@ -12,7 +13,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import AlertModal from '../AlertModal';
-import Loader from '../Loader';
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import config from '../../config';
 import debounce from '../../utils/debounce';
@@ -313,8 +313,6 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
         <RouteList routeClickHandler={routeClickHandler} />
         <StopTimesList stopClickHandler={stopClickHandler} />
       </Flex>
-      {/* NOTE only show loader when map is actually open */}
-      <Loader isOpen={showLoader && pathname === '/map'}></Loader>
       <AlertModal 
         isOpen={alertModalOpen}
         onClose={() => setAlertModalOpen(false)}
@@ -568,7 +566,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
 });
 
 const RouteList = observer(({ routeClickHandler }) => {
-  const { routes, stoptimes } = useStore().mapStore.mapState;
+  const { routes, stoptimes, routesLoading } = useStore().mapStore.mapState;
   const { updateShuttle } = useStore().mapStore;
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
@@ -668,7 +666,14 @@ const RouteList = observer(({ routeClickHandler }) => {
 
   return (
     <>
-      {!stoptimes?.features.length && routes.length > 0 ? (
+      {/* Show inline spinner when loading routes */}
+      {routesLoading && (
+        <Flex justify="center" align="center" py={4}>
+          <Spinner size="md" color="blue.500" />
+          <Text ml={2}>{t('global.loading')}</Text>
+        </Flex>
+      )}
+      {!stoptimes?.features.length && routes.length > 0 && !routesLoading ? (
         <Flex
           position={'relative'}
           mt={2}
