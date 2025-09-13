@@ -11,6 +11,7 @@ import {
 import {
   FavoritesList,
   ProfileInformation,
+  PrivacyPolicy,
   TermsOfUse,
 } from '../components/Settings/SettingsViews';
 import { useEffect, useRef, useState } from 'react';
@@ -50,74 +51,56 @@ const Settings = observer(({ view }) => {
     {
       title: t('settingsMenu.profile'),
       path: 'profile',
-      type: 'account',
       action: () => navigate('/settings/profile'),
+    },
+    {
+      title: t('settingsMenu.password'),
+      path: 'password',
+      action: () => navigate('/settings/password'),
     },
     {
       title: t('settingsMenu.caregivers'),
       path: 'caregivers',
-      type: 'account',
       action: () => navigate('/settings/caregivers'),
     },
-    // {
-    //   title: 'Dependents',
-    //   path: 'dependents',
-    //   type: 'account',
-    //   hide: !dependents.length,
-    //   action: () => navigate('/settings/dependents'),
-    // },
     {
       title: t('settingsMenu.dependents'),
       path: 'dependents',
-      type: 'account',
       hide: !dependents.length,
       action: () => navigate('/settings/dependents'),
     },
     {
       title: t('settingsMenu.favorites'),
       path: 'favorites',
-      type: 'account',
       action: () => navigate('/settings/favorites'),
     },
     {
+      title: t('settingsMenu.tripPreferences'),
+      path: 'preferences',
+      action: () => navigate('/settings/preferences'),
+    },
+    {
+      title: t('settingsMenu.accessibility'),
+      action: () => navigate('/settings/accessibility'),
+    },
+    {
+      title: t('settingsMenu.notifications'),
+      action: () => navigate('/settings/notifications'),
+    },
+    {
       title: t('settingsMenu.palsDirect'),
-      type: 'account',
       action: () => window.open('https://paldirect.nfta.com/', '_blank'),
     },
     {
       title: t('settingsMenu.terms'),
       path: 'terms',
-      type: 'account',
       action: () => navigate('/settings/terms'),
     },
     {
-      title: t('settingsMenu.tripPreferences'),
-      path: 'preferences',
-      type: 'setting',
-      action: () => navigate('/settings/preferences'),
+      title: t('settingsMenu.privacy'),
+      path: 'privacy',
+      action: () => navigate('/settings/privacy'),
     },
-    {
-      title: t('settingsMenu.accessibility'),
-      type: 'setting',
-      action: () => navigate('/settings/accessibility'),
-    },
-    {
-      title: t('settingsMenu.notifications'),
-      type: 'setting',
-      action: () => navigate('/settings/notifications'),
-    },
-    {
-      title: t('settingsMenu.password'),
-      path: 'password',
-      type: 'setting',
-      action: () => navigate('/settings/password'),
-    },
-    // {
-    //   title: t('settingsMenu.privacy'),
-    //   path: 'privacy',
-    //   type: 'setting',
-    //   action: () => navigate('/settings/privacy'),
-    // },
   ];
 
   const settingsPanels = [
@@ -179,28 +162,13 @@ const Settings = observer(({ view }) => {
           borderRightColor={'brand'}
           borderRightWidth={'3px'}
         >
-          <Stack spacing={4}>
-            <Heading as="h2" size="sm" pt={8} px={8} ml={1}>
-              {t('settingsMenu.account').toUpperCase()}
-            </Heading>
+          <Stack spacing={4} pt={8}>
             {links.map((l, i) => {
               l['id'] = i;
-              if (l.type === 'account' && !l?.hide) {
+              if (!l?.hide) {
                 return <LinkButton item={l} key={i.toString()} />;
-              } else {
-                return '';
               }
-            })}
-            <Heading as="h2" size="sm" px={8} ml={2}>
-              {t('settingsMenu.settings').toUpperCase()}
-            </Heading>
-            {links.map((l, i) => {
-              l['id'] = i;
-              if (l.type === 'setting') {
-                return <LinkButton item={l} key={i.toString()} />;
-              } else {
-                return '';
-              }
+              return null;
             })}
           </Stack>
           <Box mt={6} display={{ base: 'block', md: 'none' }}>
@@ -270,8 +238,8 @@ function switchViews({ view, setActivePanel }) {
       return <EditAppNotifications />;
     case 'terms':
       return <TermsOfUse />;
-    // case 'privacy':
-    //   return <PrivacyPolicy />;
+    case 'privacy':
+      return <PrivacyPolicy />;
     case 'favorites':
       return <FavoritesList />;
     case 'dependents':
