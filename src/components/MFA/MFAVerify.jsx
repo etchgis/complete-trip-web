@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
@@ -37,6 +37,17 @@ export const MFAVerify = observer(
     const [isSuccessful, setIsSuccessful] = useState(false);
     // console.log({ requireMFA });
     const { t } = useTranslation();
+    
+    // Reset state when modal opens to ensure clean state
+    useEffect(() => {
+      if (isOpen) {
+        setStage(0);
+        setMethod('');
+        setVerifyError(false);
+        setIsSuccessful(false);
+      }
+    }, [isOpen]);
+
     const onComplete = async e => {
       const to = method === 'email' ? user?.email : user?.phone;
       const valid = await confirmUser(to, e);
@@ -44,8 +55,6 @@ export const MFAVerify = observer(
         setVerifyError(true);
         return;
       }
-      setStage(0);
-      setMethod('');
       setIsSuccessful(true);
       onClose();
       callbackFn();
@@ -62,9 +71,6 @@ export const MFAVerify = observer(
             );
             reset();
           }
-          setStage(0);
-          setMethod('');
-          setIsSuccessful(false);
         }}
         size={'md'}
         scrollBehavior={'inside'}
