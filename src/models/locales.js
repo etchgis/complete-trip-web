@@ -605,6 +605,9 @@ export default function genLocales() {
         drive: 'Drive',
         wait: 'Wait',
         tripScheduled: 'Trip Scheduled',
+        saveTripTitle: 'Save Trip to Your Account?',
+        saveTripMessage: 'This trip will be saved to your account. If notifications are enabled in your profile, you\'ll receive reminders before your scheduled departure. To execute the planned trip with turn-by-turn navigation, you can download the mobile app.',
+        saveTripConfirm: 'Save Trip',
         showQR: 'Download the App!',
         summonShuttle: 'Summon Shuttle',
         noTrips: 'No trips found.',
@@ -657,6 +660,9 @@ export default function genLocales() {
         drive: 'Conducir', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
+        saveTripTitle: '¿Guardar Viaje en Tu Cuenta?',
+        saveTripMessage: 'Este viaje se guardará en tu cuenta. Si las notificaciones están habilitadas en tu perfil, recibirás recordatorios antes de tu salida programada. Para ejecutar el viaje planificado con navegación paso a paso, puedes descargar la aplicación móvil.',
+        saveTripConfirm: 'Guardar Viaje',
         showQR: '¡Descarga la aplicación!', //✅
         summonShuttle: 'Llamar al autobús', //✅
         noTrips: 'No se encontraron viajes.', //✅

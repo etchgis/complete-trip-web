@@ -47,6 +47,7 @@ import { BsFillChatDotsFill } from 'react-icons/bs';
 import CreateIcon from '../CreateIcon';
 import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -1061,6 +1062,7 @@ const Fourth = ({
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
   const { t } = useTranslation();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const navigate = useNavigate()
 
@@ -1075,27 +1077,40 @@ const Fourth = ({
   // //------------------DEBUG------------------//
 
   async function scheduleTrip() {
-    const _request = toJS(trip.request);
-    _request.origin['text'] =
-      trip.request.origin.title + ' ' + trip.request.origin.description;
-    _request.destination['text'] =
-      trip.request.destination.title +
-      ' ' +
-      trip.request.destination.description;
-    const updated = await saveTrip(selectedTrip, _request);
-    console.log({ updated });
-    if (updated) {
-      closeModal();
+    // Show confirmation modal before saving
+    const confirmed = await confirm({
+      title: t('tripWizard.saveTripTitle'),
+      message: t('tripWizard.saveTripMessage'),
+      confirmText: t('tripWizard.saveTripConfirm'),
+      cancelText: t('global.cancel'),
+      iconType: 'info',
+      variant: 'brand',
+      showIcon: true,
+    });
 
-      setToastStatus('success');
-      setToastMessage(t('tripWizard.tripScheduled'));
+    if (confirmed) {
+      const _request = toJS(trip.request);
+      _request.origin['text'] =
+        trip.request.origin.title + ' ' + trip.request.origin.description;
+      _request.destination['text'] =
+        trip.request.destination.title +
+        ' ' +
+        trip.request.destination.description;
+      const updated = await saveTrip(selectedTrip, _request);
+      console.log({ updated });
+      if (updated) {
+        closeModal();
 
-      setHasSelectedPlan(false);
-      setSelectedTrip({});
+        setToastStatus('success');
+        setToastMessage(t('tripWizard.tripScheduled'));
 
-      trip.create();
+        setHasSelectedPlan(false);
+        setSelectedTrip({});
 
-      setStep(0);
+        trip.create();
+
+        setStep(0);
+      }
     }
   }
 
@@ -1151,6 +1166,7 @@ const Fourth = ({
         }}
 
       ></VerticalTripPlan>
+      <ConfirmDialog />
     </Stack>
   );
 };
