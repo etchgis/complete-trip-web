@@ -415,7 +415,17 @@ const authentication = {
         if (response.status === 200) {
           return true;
         }
-        throw new Error({ message: 'Unknown error resetting password' });
+        // Handle specific error cases
+        const error = new Error();
+        error.status = response.status;
+        if (response.status === 400) {
+          error.message = 'Invalid or expired verification code';
+        } else if (response.status === 401) {
+          error.message = 'Verification code does not match this email address';
+        } else {
+          error.message = 'Unknown error resetting password';
+        }
+        throw error;
       })
       .catch(err => {
         throw err;
