@@ -620,6 +620,7 @@ export default function genLocales() {
         popUpDirectionsTitle: "Pickup Location:",
         popUpDirectionsImage: "Pickup location photo:",
         popUpSuccessModalTitle: "Shuttle Requested Successfully",
+        scheduleNote: "Note: Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.",
         timeRemaining: {
           zero: "Exiting now...",
           one: "Exiting in 1 second",
@@ -675,6 +676,7 @@ export default function genLocales() {
         popUpDirectionsTitle: "Ubicación de recogida:",
         popUpDirectionsImage: "Foto de la ubicación de recogida:",
         popUpSuccessModalTitle: "Transporte Solicitado Exitosamente",
+        scheduleNote: "Nota: Los horarios de tránsito están sujetos a cambios y su viaje puede actualizarse después de agregarlo a su horario.",
         timeRemaining: {
           zero: "Saliendo ahora...",
           one: "Saliendo en 1 segundo",

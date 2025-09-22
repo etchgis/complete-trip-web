@@ -923,6 +923,9 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     >
       <FormControl>
         <FormLabel>{t('tripWizard.modes')}</FormLabel>
+        <Text fontSize="sm" color="gray.500" mb={2} fontStyle="italic">
+          {t('tripWizard.scheduleNote')}
+        </Text>
         <VStack alignItems={'flex-start'} spacing={2}>
           <Checkbox
             isChecked={(() => {
