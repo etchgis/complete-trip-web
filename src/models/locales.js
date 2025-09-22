@@ -611,7 +611,7 @@ export default function genLocales() {
         showQR: 'Download the App!',
         summonShuttle: 'Summon Shuttle',
         noTrips: 'No trips found.',
-        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below.",
+        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below. To get a PIN, sign up for an account at https://completetrip.etch.app",
         popUpPin: "PIN",
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
@@ -666,7 +666,7 @@ export default function genLocales() {
         showQR: '¡Descarga la aplicación!', //✅
         summonShuttle: 'Llamar al autobús', //✅
         noTrips: 'No se encontraron viajes.', //✅
-        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación.", //✅
+        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación. Para obtener un PIN, regístrese para obtener una cuenta en https://completetrip.etch.app", //✅
         popUpPin: "PIN", //✅
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
