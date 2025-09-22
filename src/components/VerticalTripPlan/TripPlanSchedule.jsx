@@ -13,6 +13,8 @@ import {
   VStack,
   createIcon,
   useColorMode,
+  Badge,
+  Tooltip,
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCircle, FaStar } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
@@ -424,13 +426,22 @@ export const TripPlanSchedule = observer(
                 console.log(mode.name, { leg });
                 if (name === 'scooter') {
                   // later
-                } else if (name === 'bus') {
-                  title += ' (' + leg.mode.toLowerCase() + ')';
                 }
 
                 let route, headsign;
-                if (leg.agencyName && leg.route) {
-                  route = leg.route;
+                // Check for route in multiple possible fields
+                if (leg.agencyName || leg.agencyId) {
+                  // For transit modes with routes, show the mode name as title
+                  // The route number will be shown in the badge
+                  if (name === 'bus' && (leg.route || leg.routeShortName || leg.routeId)) {
+                    route = 'Bus';
+                  } else if (name === 'tram' && (leg.route || leg.routeShortName || leg.routeId)) {
+                    route = 'Metro Rail';
+                  } else if (name === 'rail' && (leg.route || leg.routeShortName || leg.routeId)) {
+                    route = 'Rail';
+                  } else {
+                    route = leg.route || leg.routeShortName || leg.routeId;
+                  }
                   headsign = leg.headsign;
                 }
 
@@ -487,8 +498,101 @@ export const TripPlanSchedule = observer(
                         fontWeight={'extrabold'}
                         data-name="route-or-title"
                         tabIndex={0}
+                        display="flex"
+                        alignItems="center"
+                        gap={2}
                       >
                         {route || title}
+                        {/* Add badge for bus routes */}
+                        {name === 'bus' && (leg.route || leg.routeShortName) && (
+                          <Tooltip label={`Bus Route ${leg.route || leg.routeShortName}`} placement="top" hasArrow>
+                            <Badge
+                              colorScheme="blue"
+                              fontSize="xs"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              ml={1}
+                            >
+                              {leg.route || leg.routeShortName}
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {/* Add badge for car */}
+                        {name === 'car' && (
+                          <Tooltip label="Personal Vehicle" placement="top" hasArrow>
+                            <Badge
+                              colorScheme="cyan"
+                              fontSize="xs"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              ml={1}
+                            >
+                              CAR
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {/* Add badge for bicycle */}
+                        {name === 'bicycle' && (
+                          <Tooltip label="Bicycle" placement="top" hasArrow>
+                            <Badge
+                              colorScheme="red"
+                              fontSize="xs"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              ml={1}
+                            >
+                              BIKE
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {/* Add badge for UB Shuttle (Self-Driving Shuttle) */}
+                        {name === 'ubshuttle' && (
+                          <Tooltip label="Self-Driving Shuttle (UB)" placement="top" hasArrow>
+                            <Badge
+                              colorScheme="purple"
+                              fontSize="xs"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              ml={1}
+                            >
+                              SDS
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {/* Add badge for Community Shuttle (Human-Driven Shuttle) */}
+                        {name === 'hail' && (
+                          <Tooltip label="Human-Driven Community Shuttle (NFTA)" placement="top" hasArrow>
+                            <Badge
+                              colorScheme="green"
+                              fontSize="xs"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              ml={1}
+                            >
+                              HDS
+                            </Badge>
+                          </Tooltip>
+                        )}
+                        {/* Add badge for Metro Rail */}
+                        {name === 'tram' && (leg.route || leg.routeShortName) && (
+                          <Tooltip label={`Metro Rail Route ${leg.route || leg.routeShortName}`} placement="top" hasArrow>
+                            <Badge
+                              colorScheme="orange"
+                              fontSize="xs"
+                              px={2}
+                              py={0.5}
+                              borderRadius="full"
+                              ml={1}
+                            >
+                              {leg.route || leg.routeShortName}
+                            </Badge>
+                          </Tooltip>
+                        )}
                       </Heading>
                     </Flex>
                     <Box>
@@ -730,6 +834,29 @@ const formatModeTitle = (leg, wheelchair) => {
 
 const getLegModeName = (leg, wheelchair) => {
   var name = leg.mode.toLowerCase(); //(leg.agencyId || leg.providerId || leg.mode).toLowerCase();
+
+  // Check mode directly first for shuttle types
+  if (name === 'ubshuttle') {
+    return 'ubshuttle';
+  }
+  if (name === 'hail') {
+    return 'hail';
+  }
+
+  // Only check agency/provider for non-bus modes to identify shuttle types
+  // Don't apply this logic to regular bus routes
+  if ((leg.agencyId || leg.providerId) && name !== 'bus') {
+    const agency = (leg.agencyId || leg.providerId || '').toLowerCase();
+    // Only identify as ubshuttle if it's not already identified as a bus
+    if (agency.includes('ub shuttle') || (agency.includes('university') && !agency.includes('bus'))) {
+      return 'ubshuttle';
+    }
+    // Only identify as hail (community shuttle) if specifically mentioned
+    if (agency.includes('community shuttle')) {
+      return 'hail';
+    }
+  }
+
   if (name === 'walk' && wheelchair) {
     return 'roll';
   }
