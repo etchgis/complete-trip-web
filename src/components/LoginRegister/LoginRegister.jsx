@@ -65,7 +65,6 @@ export const LoginRegister = observer(({ hideModal, verify, onVerificationComple
     if (!verify) return
     const forgotOptions = {
       email: verify.identity,
-      code: verify.code,
       method: 'email',
     }
     setForgotOptions(forgotOptions)
@@ -556,14 +555,13 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
     try {
       console.log({ method });
       const recovered = await recover(email, method);
-      if (!recovered || !recovered.code || !recovered.concealed)
+      if (!recovered || !recovered.concealed)
         throw new Error();
       console.log('recovered', recovered);
       setForgotOptions(current => ({
         ...current,
         email,
         method,
-        code: recovered.code,
         concealed: recovered.concealed,
         destination: recovered?.destination,
       }));
@@ -632,7 +630,6 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
   const [pin, setPin] = useState('');
-  const [code, setCode] = useState(options?.code);
   const { t } = useTranslation();
 
   // console.log({ options });
@@ -647,11 +644,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       setInTransaction(true);
 
-      // TODO: Update API to remove need for /confirm endpoint
-      // const confirmed = await confirmUser(options.destination, pin);
-      // if (!confirmed) throw new Error('verify error');
-
-      const updated = await resetPassword(options.email, options.code, password);
+      const updated = await resetPassword(options.email, pin, password);
       if (!updated) throw new Error('password error');
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
       await auth(options.email, password, true);
@@ -704,9 +697,8 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         onClick={async () => {
           setInTransaction(true);
           const recovered = await recover(options.email, options.method);
-          if (!recovered || !recovered.code || !recovered.concealed)
+          if (!recovered || !recovered.concealed)
             console.log('error with recover');
-          if (!options.code) setCode(recovered?.code);
           setInTransaction(false);
         }}
       >

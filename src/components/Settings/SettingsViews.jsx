@@ -241,63 +241,94 @@ export const TermsOfUse = () => {
 export const PrivacyPolicy = () => {
   const { t } = useTranslation();
   return (
-    <Box tabIndex={0}>
+    <Stack spacing={4} fontSize="16px" tabIndex={0}>
       <Heading as="h2" size="lg">
         {t('settingsPrivacy.title')}
       </Heading>
-      <Text fontSize={'16px'}>
-        Privacy Policy We respect your privacy and are committed to protecting
-        it. This Privacy Policy explains what information we collect, how we use
-        it, and how you can control it.
-      </Text>
-      <Text>Information Collection</Text>
+      
       <Text>
-        We collect information that you provide to us directly, such as when you
-        create an account, place an order, or contact us with a question or
-        concern. This information may include your name, email address, and
-        other contact information.
+        We respect your privacy and are committed to protecting it. This Privacy Policy 
+        explains what information we collect, how we use it, and how you can control it.
       </Text>
-      <Text>
-        We may also automatically collect certain information about your use of
-        our services, such as your browsing and search history, device
-        information, and location data. This information is collected through
-        the use of cookies and other technologies.
-      </Text>
-      <Text>Information Use</Text>
-      <Text>
-        We use the information we collect to provide and improve our services,
-        and to communicate with you. For example, we may use your email address
-        to send you updates on your order or to respond to your customer service
-        inquiries.
-      </Text>
-      <Text>
-        We may also use the information we collect to personalize your
-        experience on our website and to send you targeted marketing
-        communications.
-      </Text>
-      <Text>Information Control</Text>
-      <Text>
-        You have the right to access and control your personal information. You
-        can request access to your information, update your information, or ask
-        us to delete it by contacting us at privacy@example.com.
-      </Text>
-      <Text>
-        You can also control the use of cookies and other technologies through
-        your browser settings.
-      </Text>
-      <Text>Changes to this Privacy Policy</Text>
-      <Text>
-        We may update this Privacy Policy from time to time. If we make any
-        changes, we will notify you by revising the date at the top of this
-        policy and, in some cases, provide you with additional notice (such as
-        adding a statement to our homepage or sending you an email
-        notification).
-      </Text>
-      <Text>Contact Us</Text>
-      <Text>
-        If you have any questions or concerns about this Privacy Policy or our
-        privacy practices, please contact us at privacy@example.com.
-      </Text>
-    </Box>
+
+      <Box>
+        <Heading as="h3" size="md" mb={2}>
+          Information Collection
+        </Heading>
+        <Stack spacing={3}>
+          <Text>
+            We collect information that you provide to us directly, such as when you
+            create an account, place an order, or contact us with a question or
+            concern. This information may include your name, email address, and
+            other contact information.
+          </Text>
+          <Text>
+            We may also automatically collect certain information about your use of
+            our services, such as your browsing and search history, device
+            information, and location data. This information is collected through
+            the use of cookies and other technologies.
+          </Text>
+        </Stack>
+      </Box>
+
+      <Box>
+        <Heading as="h3" size="md" mb={2}>
+          Information Use
+        </Heading>
+        <Stack spacing={3}>
+          <Text>
+            We use the information we collect to provide and improve our services,
+            and to communicate with you. For example, we may use your email address
+            to send you updates on your order or to respond to your customer service
+            inquiries.
+          </Text>
+          <Text>
+            We may also use the information we collect to personalize your
+            experience on our website and to send you targeted marketing
+            communications.
+          </Text>
+        </Stack>
+      </Box>
+
+      <Box>
+        <Heading as="h3" size="md" mb={2}>
+          Information Control
+        </Heading>
+        <Stack spacing={3}>
+          <Text>
+            You have the right to access and control your personal information. You
+            can request access to your information, update your information, or ask
+            us to delete it by contacting us at privacy@example.com.
+          </Text>
+          <Text>
+            You can also control the use of cookies and other technologies through
+            your browser settings.
+          </Text>
+        </Stack>
+      </Box>
+
+      <Box>
+        <Heading as="h3" size="md" mb={2}>
+          Changes to this Privacy Policy
+        </Heading>
+        <Text>
+          We may update this Privacy Policy from time to time. If we make any
+          changes, we will notify you by revising the date at the top of this
+          policy and, in some cases, provide you with additional notice (such as
+          adding a statement to our homepage or sending you an email
+          notification).
+        </Text>
+      </Box>
+
+      <Box>
+        <Heading as="h3" size="md" mb={2}>
+          Contact Us
+        </Heading>
+        <Text>
+          If you have any questions or concerns about this Privacy Policy or our
+          privacy practices, please contact us at privacy@example.com.
+        </Text>
+      </Box>
+    </Stack>
   );
 };

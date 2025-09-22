@@ -605,10 +605,13 @@ export default function genLocales() {
         drive: 'Drive',
         wait: 'Wait',
         tripScheduled: 'Trip Scheduled',
+        saveTripTitle: 'Save Trip to Your Account?',
+        saveTripMessage: 'This trip will be saved to your account. If notifications are enabled in your profile, you\'ll receive reminders before your scheduled departure. To execute the planned trip with turn-by-turn navigation, you can download the mobile app.',
+        saveTripConfirm: 'Save Trip',
         showQR: 'Download the App!',
         summonShuttle: 'Summon Shuttle',
         noTrips: 'No trips found.',
-        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below.",
+        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below. To get a PIN, sign up for an account at https://completetrip.etch.app",
         popUpPin: "PIN",
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
@@ -657,10 +660,13 @@ export default function genLocales() {
         drive: 'Conducir', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
+        saveTripTitle: '¿Guardar Viaje en Tu Cuenta?',
+        saveTripMessage: 'Este viaje se guardará en tu cuenta. Si las notificaciones están habilitadas en tu perfil, recibirás recordatorios antes de tu salida programada. Para ejecutar el viaje planificado con navegación paso a paso, puedes descargar la aplicación móvil.',
+        saveTripConfirm: 'Guardar Viaje',
         showQR: '¡Descarga la aplicación!', //✅
         summonShuttle: 'Llamar al autobús', //✅
         noTrips: 'No se encontraron viajes.', //✅
-        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación.", //✅
+        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación. Para obtener un PIN, regístrese para obtener una cuenta en https://completetrip.etch.app", //✅
         popUpPin: "PIN", //✅
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅

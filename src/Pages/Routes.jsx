@@ -21,6 +21,7 @@ import { LoginRegister } from '../components/LoginRegister/LoginRegister.jsx';
 import config from '../config.js';
 import { useState } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
+import { PublicTerms, PublicPrivacy } from './PublicLegal.jsx';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -193,6 +194,10 @@ export const Routes = observer(() => {
       {/* Callcenter shortcut */}
       <Route path="/callcenter" element={<CallCenterRoute />} />
 
+      {/* Public Legal Pages */}
+      <Route path="/terms" element={<PublicTerms />} />
+      <Route path="/privacy" element={<PublicPrivacy />} />
+
       {/* CAREGIVER LINK */}
       <Route
         path={'/caregiver'}
@@ -272,10 +277,10 @@ export const Routes = observer(() => {
             path="/settings/terms"
             element={<Layout children={<Settings view="terms" />} />}
           />
-          {/* <Route
+          <Route
             path="/settings/privacy"
             element={<Layout children={<Settings view="privacy" />} />}
-          /> */}
+          />
         </>
       ) : (
         <>
