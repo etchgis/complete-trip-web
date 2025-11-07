@@ -5,6 +5,8 @@ import {
   Divider,
   Heading,
   IconButton,
+  List,
+  ListItem,
   Stack,
   Text,
   useColorMode,
@@ -234,6 +236,67 @@ export const TermsOfUse = () => {
       <Text>
       {t('settingsTerms.changesToTermsText')}
       </Text>
+
+      <Box mt={8} pt={6} borderTop="2px" borderColor="gray.300">
+        <Heading as="h3" size="md" mb={4}>
+          {t('settingsTerms.allAccessLoop')}
+        </Heading>
+
+        <Box mb={4}>
+          <Heading as="h4" size="sm" mb={2}>
+            {t('settingsTerms.generalConduct')}
+          </Heading>
+          <List as="ul" styleType="disc" spacing={3} pl={5}>
+            {t('settingsTerms.generalConductItems').map((item, index) => (
+              <ListItem key={index}>
+                <Text fontWeight="bold">{item.title}</Text>
+                <Text>{item.text}</Text>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box mb={4}>
+          <Heading as="h4" size="sm" mb={2}>
+            {t('settingsTerms.automatedDriveWarnings')}
+          </Heading>
+          <List as="ul" styleType="disc" spacing={3} pl={5}>
+            {t('settingsTerms.automatedDriveWarningsItems').map((item, index) => (
+              <ListItem key={index}>
+                <Text fontWeight="bold">{item.title}</Text>
+                <Text>{item.text}</Text>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box mb={4}>
+          <Heading as="h4" size="sm" mb={2}>
+            {t('settingsTerms.mediaRelease')}
+          </Heading>
+          <Text>
+            {t('settingsTerms.mediaReleaseText')}
+          </Text>
+        </Box>
+
+        <Box mb={4}>
+          <Heading as="h4" size="sm" mb={2}>
+            {t('settingsTerms.serviceAnimals')}
+          </Heading>
+          <Text whiteSpace="pre-line">
+            {t('settingsTerms.serviceAnimalsText')}
+          </Text>
+        </Box>
+
+        <Box mb={4}>
+          <Heading as="h4" size="sm" mb={2}>
+            {t('settingsTerms.noFirearmsWeapons')}
+          </Heading>
+          <Text>
+            {t('settingsTerms.noFirearmsWeaponsText')}
+          </Text>
+        </Box>
+      </Box>
     </Stack>
   );
 };
