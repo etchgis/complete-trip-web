@@ -277,7 +277,7 @@ export default function genLocales() {
         categories: {
           scheduling: "Programación de viajes",
           hds: "Transporte Comunitario NFTA",
-          sds: "Autobús Autónomo UB",
+          sds: "Autobús Autónomo AAL",
           intersections: "Intersecciones inteligentes",
           transit: "Tránsito (autobús, ferrocarril)",
           outdoorNavigation: "Navegación al aire libre",
