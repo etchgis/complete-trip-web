@@ -277,7 +277,7 @@ export default function genLocales() {
         categories: {
           scheduling: "Programación de viajes",
           hds: "NFTA Community Shuttle",
-          sds: "UB Autonomous Bus",
+          sds: "AAL Autonomous Bus",
           intersections: "Intersecciones inteligentes",
           transit: "Tránsito (autobús, ferrocarril)",
           outdoorNavigation: "Navegación al aire libre",
@@ -575,6 +575,8 @@ export default function genLocales() {
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
         modes: 'Modes of Transportation',
+        modesNote: 'Note: Walking/rolling options are provided for all trips.',
+        modesMessage: 'Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.',
         selectTransportation: 'Schedule a Trip',
         chatbot: 'Where To?',
         selectTrip: 'Select a Trip',

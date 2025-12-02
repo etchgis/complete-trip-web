@@ -763,6 +763,12 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
             })}
           </CheckboxGroup>
         </VStack>
+        <Text fontSize={12} marginTop={3}>
+          {t('tripWizard.modesNote')}
+        </Text>
+        <Text fontSize={12} marginTop={3}>
+          {t('tripWizard.modesMessage')}
+        </Text>
       </FormControl>
 
       {/* <FormControl>
