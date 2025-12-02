@@ -1432,7 +1432,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
                         ml={1}
                         mr={2}
                       >
-                        CS
+                        NFTACS
                       </Badge>
                     </Tooltip>
                   )}
