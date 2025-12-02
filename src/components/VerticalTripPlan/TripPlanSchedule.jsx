@@ -550,7 +550,7 @@ export const TripPlanSchedule = observer(
                         )}
                         {/* Add badge for UB Shuttle (Self-Driving Shuttle) */}
                         {name === 'ubshuttle' && (
-                          <Tooltip label="Self-Driving Shuttle (UB)" placement="top" hasArrow>
+                          <Tooltip label="Self-Driving Shuttle (AAL)" placement="top" hasArrow>
                             <Badge
                               colorScheme="purple"
                               fontSize="xs"
@@ -559,7 +559,7 @@ export const TripPlanSchedule = observer(
                               borderRadius="full"
                               ml={1}
                             >
-                              SDS
+                              AAL
                             </Badge>
                           </Tooltip>
                         )}
@@ -574,7 +574,7 @@ export const TripPlanSchedule = observer(
                               borderRadius="full"
                               ml={1}
                             >
-                              HDS
+                              CS
                             </Badge>
                           </Tooltip>
                         )}

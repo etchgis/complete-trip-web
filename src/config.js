@@ -251,7 +251,7 @@ const MODES = [
     id: 'ubshuttle',
     mode: 'ubshuttle',
     sort: 4,
-    label: 'UB Shuttle',
+    label: 'All Access Loop (Self Driving) Shuttle',
     icon: 'van-shuttle',
     type: 'transit',
     accessible: true,

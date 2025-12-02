@@ -260,7 +260,7 @@ export default function genLocales() {
         categories: {
           scheduling: "Trip Scheduling",
           hds: "Community Shuttle",
-          sds: "Autonomous Bus",
+          sds: "AAL Autonomous Bus",
           intersections: "Smart Intersections",
           transit: "Transit",
           outdoorNavigation: "Outdoor Navigation",
@@ -906,8 +906,8 @@ export default function genLocales() {
         bicycle: 'Bike',
         bus: 'Bus',
         tram: 'Metro Rail',
-        hail: 'Community Shuttle',
-        ubshuttle: 'UB Shuttle',
+        hail: 'NFTA Community Shuttle',
+        ubshuttle: 'All Access Loop (Self Driving) Shuttle',
       },
       es: {
         wheelchair: 'Accesibilidad para Sillas de Ruedas',
@@ -921,7 +921,7 @@ export default function genLocales() {
         bus: 'autobús', //✅
         tram: 'Metro Rail', //✅
         hail: 'Transporte comunitario',
-        ubshuttle: 'Autobús UB',
+        ubshuttle: 'Autobús AAL',
       },
     },
     settingsPassword: {

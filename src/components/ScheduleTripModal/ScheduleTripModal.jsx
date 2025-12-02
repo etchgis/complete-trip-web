@@ -1407,7 +1407,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
                     </Tooltip>
                   )}
                   {isShuttleUB && (
-                    <Tooltip label="Self-Driving Shuttle (UB)" placement="top" hasArrow>
+                    <Tooltip label="Self-Driving Shuttle (AAL)" placement="top" hasArrow>
                       <Badge
                         colorScheme="purple"
                         fontSize="xs"
@@ -1417,7 +1417,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
                         ml={1}
                         mr={2}
                       >
-                        SDS
+                        AAL
                       </Badge>
                     </Tooltip>
                   )}
@@ -1432,7 +1432,7 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
                         ml={1}
                         mr={2}
                       >
-                        HDS
+                        CS
                       </Badge>
                     </Tooltip>
                   )}
