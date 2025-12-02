@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '../context/RootStore';
 import useTranslation from '../models/useTranslation';
 import config from '../config';
+import { getCurrentKioskConfig } from '../models/kiosk-definitions';
 
 // import { useEffect } from 'react';
 
@@ -113,6 +114,8 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
   // const kioskMiddleHeight = 1920 - kioskTopHeight - kioskBottomHeight;
   const headerHeight = 60;
 
+  const kioskConfig = ux === 'kiosk' ? getCurrentKioskConfig() : null;
+
   return (
     <Flex
       direction="column"
@@ -124,12 +127,22 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
           borderBottomColor="gray.300"
           borderBottomWidth={2}
         >
-          <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8}>
+          <Center bg={colorMode === 'light' ? 'white' : 'gray.800'} p={8} flexDirection="column">
             <Image
               src={'/buffalo_logo_full.png'}
               h={'200px'}
               alt="Buffalo Access"
             />
+            {kioskConfig && (
+              <Text
+                fontSize="3xl"
+                fontWeight="bold"
+                mt={4}
+                textAlign="center"
+              >
+                {kioskConfig.displayName}
+              </Text>
+            )}
           </Center>
         </Flex>
       }

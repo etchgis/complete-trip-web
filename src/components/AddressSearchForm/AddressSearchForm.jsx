@@ -12,6 +12,7 @@ export const SearchForm = observer(
     saveAddress,
     center,
     defaultAddress,
+    defaultGeocoderResult,
     setGeocoderResult,
     name,
     label,
@@ -19,6 +20,7 @@ export const SearchForm = observer(
     clearResult,
     resultsMaxWidth,
     inputName,
+    autoFocus,
   }) => {
     const [address, setAddress] = useState(defaultAddress || '');
     const { locations } = useStore().favorites;
@@ -38,8 +40,12 @@ export const SearchForm = observer(
 
     useEffect(() => {
       setAddress(defaultAddress);
+      // If we have a default geocoder result, set it immediately
+      if (defaultGeocoderResult && defaultGeocoderResult.text) {
+        setGeocoderResult(defaultGeocoderResult);
+      }
       // eslint-disable-next-line
-    }, [defaultAddress]);
+    }, [defaultAddress, defaultGeocoderResult]);
 
     let list = useAsyncList({
       async load({ signal, cursor, filterText }) {
@@ -145,6 +151,7 @@ export const SearchForm = observer(
         onFocus={() => setKeyboardActiveInput(inputName)}
         inputName={inputName}
         activeInput={activeInput}
+        autoFocus={autoFocus}
         //END KEYBOARD
         required={required || false}
         placeholder={t('map.searchPlaceholder')}

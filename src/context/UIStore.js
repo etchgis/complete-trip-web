@@ -15,10 +15,15 @@ class UIStore {
     startAddress: '',
     endAddress: '',
     pin: '',
-    phone: ''
+    areaCode: '',
+    phone1: '',
+    phone2: '',
+    date: '',
+    time: ''
   };
   activeInput = 'transitSearch';
   keyBoardType = 'default';
+  focusedCheckbox = null;
   ui = {
     contrast: false,
     letterSpacing: 'normal',
@@ -46,12 +51,8 @@ class UIStore {
   }
 
   setKeyboardActiveInput = value => {
-    //NOTE this would reset the state of the keyboard input for the active input
-    // const newState = { ...this.onScreenKeyboardInput };
-    // newState[value] = '';
     runInAction(() => {
       this.activeInput = value;
-      // this.onScreenKeyboardInput = { ...newState };
     });
   };
 
@@ -64,6 +65,12 @@ class UIStore {
       transitSearch: '',
       startAddress: '',
       endAddress: '',
+      pin: '',
+      areaCode: '',
+      phone1: '',
+      phone2: '',
+      date: '',
+      time: ''
     };
     runInAction(() => {
       this.onScreenKeyboardInput = { ...emptyState };
@@ -73,9 +80,10 @@ class UIStore {
 
   setKeyboardInputValue = value => {
     runInAction(() => {
-      const newInput = { ...this.onScreenKeyboardInput };
-      newInput[this.activeInput] = value;
-      this.onScreenKeyboardInput = { ...newInput };
+      this.onScreenKeyboardInput = {
+        ...this.onScreenKeyboardInput,
+        [this.activeInput]: value
+      };
     });
   };
 
@@ -137,6 +145,28 @@ class UIStore {
     runInAction(() => {
       this.hasSelectedPlan = value;
     });
+  };
+
+  setFocusedCheckbox = value => {
+    runInAction(() => {
+      this.focusedCheckbox = value;
+    });
+  };
+
+  toggleFocusedCheckbox = () => {
+    if (this.focusedCheckbox) {
+      // Find the element and toggle it
+      const element = document.getElementById(this.focusedCheckbox);
+      if (element) {
+        // Simulate a click on the element
+        element.click();
+
+        // Re-focus the element after toggling
+        setTimeout(() => {
+          element.focus();
+        }, 50);
+      }
+    }
   };
 }
 export default UIStore;

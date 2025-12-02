@@ -276,8 +276,8 @@ export default function genLocales() {
         title: 'Comentario', //✅
         categories: {
           scheduling: "Programación de viajes",
-          hds: "NFTA Community Shuttle",
-          sds: "AAL Autonomous Bus",
+          hds: "Transporte Comunitario NFTA",
+          sds: "Autobús Autónomo UB",
           intersections: "Intersecciones inteligentes",
           transit: "Tránsito (autobús, ferrocarril)",
           outdoorNavigation: "Navegación al aire libre",
@@ -287,7 +287,7 @@ export default function genLocales() {
           mapping: "Mapeo general",
           other: "Otro"
         },
-        checkbox: "Include my email address for follow-up if needed",
+        checkbox: "Incluya mi dirección de correo electrónico para seguimiento si es necesario.",
       }
     },
     loginWizard: {
@@ -488,7 +488,11 @@ export default function genLocales() {
         resendCode: 'Send Another Code',
         invalidCode: 'Invalid Code',
       },
-      es: {},
+      es: {
+        message: `Escriba el código de 6 dígitos. El código también se puede pegar en el primer cuadro.`,
+        resendCode: 'Enviar otro código',
+        invalidCode: 'Código inválido',
+      },
     },
 
     terms: {
@@ -514,12 +518,12 @@ export default function genLocales() {
     // },
     home: {
       en: {
-        tripButton: 'Schedule a Trip',
+        tripButton: 'Plan a Trip',
         tripName: 'Trip Name',
         saveFavorite: 'Save as Favorite',
       },
       es: {
-        tripButton: 'Programar un Viaje',
+        tripButton: 'Planificar un Viaje',
         tripName: 'Nombre del Viaje',
         saveFavorite: 'Guardar como Favorito',
       },
@@ -550,27 +554,28 @@ export default function genLocales() {
         back: 'Back',
         servicing: 'Servicing',
         stop: 'Stop',
-        shuttleNotAvailableTimeFrame: 'Sorry but this shuttle is not available during this time.'
+        shuttleNotAvailableTimeFrame: 'Sorry, but this shuttle is not available at this time.'
       },
       es: {
         next: 'Próximo',
         back: 'Atrás',
         servicing: 'Servicio',
         stop: 'Parada',
-        shuttleNotAvailableTimeFrame: 'Lo sentimos, pero este servicio de traslado no está disponible durante este tiempo.'
+        shuttleNotAvailableTimeFrame: 'Lo sentimos, pero este autobús no está disponible en este momento.'
       },
     },
     tripWizard: {
       en: {
         searchFrom: 'From',
         searchTo: 'To',
-        scheduleTrip: 'Schedule a Trip',
+        scheduleTrip: 'Plan a Trip',
         scheduleShuttle: 'Schedule Shuttle',
         saveAddress: 'Save Address',
         addressName: 'Address Nickname',
         favorite: 'Favorite Location',
         selectDate: 'Select a Date',
         time: 'Time',
+        when: 'When',
         now: 'Leave Now (ASAP)',
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
@@ -603,28 +608,32 @@ export default function genLocales() {
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
         popUpUnknownError: "An unknown error occurred. Please try again.",
-        popUpSuccess: "Success! Your shuttle will arrive at the front door to pick you up in about 5 minutes.",
+        popUpSuccess: "Success! Your shuttle will arrive in about 5 minutes.",
+        popUpDirectionsTitle: "Pickup Location:",
+        popUpDirectionsImage: "Pickup location photo:",
+        popUpSuccessModalTitle: "Shuttle Requested Successfully",
         timeRemaining: {
-          zero: "Refreshing now...",
-          one: "Refreshing in 1 second",
-          other: "Refreshing in %{count} seconds",
+          zero: "Exiting now...",
+          one: "Exiting in 1 second",
+          other: "Exiting in %{count} seconds",
         }
       },
       es: {
         searchFrom: 'De',
         searchTo: 'hacia',
-        scheduleTrip: 'Programar un viaje',
+        scheduleTrip: 'Planificar un viaje',
         scheduleShuttle: 'Programar autobús',
         saveAddress: 'Guardar dirección',
         addressName: 'Apodo de la dirección',
         favorite: 'Ubicación favorita',
         selectDate: 'Seleccionar una Fecha', //✅
         time: 'Tiempo',
+        when: 'Cuándo',
         now: 'Salir Ahora', //✅
         leaveBy: 'Salir A', //✅
         arriveBy: 'Llegar antes de', //✅
         modes: 'Modos de Transporte', //✅
-        selectTransportation: 'Programar un Viaje',
+        selectTransportation: 'Planificar un Viaje',
         chatbot: '¿A dónde?', //✅
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
@@ -634,12 +643,12 @@ export default function genLocales() {
         includesStops: 'Incluye paradas',
         mode: 'Modo',
         generatingPlans: 'Generando Planes...', //✅
-        schedule: 'Programar viaje',
+        schedule: 'Planificar viaje',
         overview: 'Descripción General del Plan de Viaje', //✅
         transfer: 'transferencia', //✅
         roll: 'Rollo', //✅
         walk: 'camine',
-        drive: 'Drive', //✅
+        drive: 'Conducir', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
         showQR: '¡Descarga la aplicación!', //✅
@@ -650,11 +659,14 @@ export default function genLocales() {
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
-        popUpSuccess: "¡Éxito! Tu shuttle llegará a la puerta de tu casa para recogerte en aproximadamente 5 minutos.",
+        popUpSuccess: "¡Éxito! Tu transporte llegará en aproximadamente 5 minutos.",
+        popUpDirectionsTitle: "Ubicación de recogida:",
+        popUpDirectionsImage: "Foto de la ubicación de recogida:",
+        popUpSuccessModalTitle: "Transporte Solicitado Exitosamente",
         timeRemaining: {
-          zero: "Refrescándose ahora...",
-          one: "Refrescante en 1 segundo",
-          other: "Refrescante en %{count} segundos",
+          zero: "Saliendo ahora...",
+          one: "Saliendo en 1 segundo",
+          other: "Saliendo en %{count} segundos",
         }
       },
     },
@@ -753,7 +765,7 @@ export default function genLocales() {
         dependents: 'Viajeros', //✅
         favorites: 'Favoritos',
         tripPreferences: 'Preferencias de Viaje',
-        palsDirect: 'NFTA PAL Direct Users',
+        palsDirect: 'Usuarios de NFTA PAL Direct',
         settings: 'CONFIGURACIÓN', //✅
         password: 'Contraseña/PIN',
         accessibility: 'Accesibilidad',

@@ -39,7 +39,7 @@ import {
   VStack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FaArrowRight, FaCaretRight, FaCircle, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaCaretRight, FaCircle, FaStar, FaExchangeAlt } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
@@ -56,6 +56,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { getKioskOrigin } from '../../models/kiosk-definitions';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -176,6 +177,7 @@ export const ScheduleTripModal = observer(
           pt={0}
           pb={ux === 'kiosk' ? '180px' : '0'}
           data-testid="schedule-trip-modal--content"
+          position="fixed"
         >
           <ModalHeader as="h3">
             {step === 0
@@ -258,7 +260,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   } = useDisclosure();
   const { locations: favLocations, addLocation } = useStore().favorites;
   const { loggedIn } = useStore().authentication;
-  const { ux, setKeyboardType } = useStore().uiStore;
+  const { ux } = useStore().uiStore;
 
   const startRef = useRef(null);
   const endRef = useRef(null);
@@ -280,9 +282,11 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   });
 
   const [whenAction, setWhenAction] = useState(trip?.request?.whenAction || 'asap');
+  const { onScreenKeyboardInput, setKeyboardType, setKeyboardActiveInput, setKeyboardInputValue } = useStore().uiStore;
 
   useEffect(() => {
     setKeyboardType(null);
+    setOriginExplicitlyCleared(false);
   }, []);
 
   useEffect(() => {
@@ -295,13 +299,27 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
   const setStart = result => {
     trip.updateProperty('id', null);
-    setLocations(current => {
-      return {
-        ...current,
-        start: result,
-      };
-    });
+
+    setOriginExplicitlyCleared(!result?.text);
+
+    setLocations(current => ({
+      ...current,
+      start: result,
+    }));
   };
+
+  const [originExplicitlyCleared, setOriginExplicitlyCleared] = useState(false);
+
+  // Use the kiosk location as the starting point when in kiosk mode
+  useEffect(() => {
+    if (ux === 'kiosk' && !locations?.start?.text && !originExplicitlyCleared) {
+      const kioskOrigin = getKioskOrigin();
+      if (kioskOrigin) {
+        setStart(kioskOrigin);
+        trip.updateOrigin(kioskOrigin);
+      }
+    }
+  }, [ux, trip, locations?.start?.text, setStart, originExplicitlyCleared]);
 
   const setEnd = result => {
     trip.updateProperty('id', null);
@@ -338,7 +356,15 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
       trip.updateDestination(locations.end);
       trip.updateWhenAction('asap'); //TODO add leave, arrive
       if (data.get('date') && data.get('time')) {
-        trip.updateWhen(new Date(data.get('date') + ' ' + data.get('time')));
+        // When in kiosk mode, we might have the input values from the on-screen keyboard
+        const dateValue = ux === 'kiosk' && onScreenKeyboardInput.date
+          ? onScreenKeyboardInput.date
+          : data.get('date');
+        const timeValue = ux === 'kiosk' && onScreenKeyboardInput.time
+          ? onScreenKeyboardInput.time
+          : data.get('time');
+
+        trip.updateWhen(new Date(dateValue + ' ' + timeValue));
       }
       else {
         trip.updateWhen(new Date());
@@ -415,6 +441,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
                 ? locations?.start?.alias || locations?.start?.text
                 : locations?.start?.text || ''
             }
+            defaultGeocoderResult={locations?.start}
             setGeocoderResult={setStart}
             name="startAddress"
             label={t('tripWizard.searchFrom')}
@@ -526,6 +553,42 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
         </FormControl>
       }
 
+      {/* Swap between from/to fields */}
+      {!trip.isShuttle &&
+        <Flex justifyContent="center" my={2}>
+          <IconButton
+            aria-label="Swap origin and destination"
+            icon={<Icon as={FaExchangeAlt} />}
+            variant="ghost"
+            colorScheme="blue"
+            size="lg"
+            isRound
+            onClick={() => {
+              // When swapping to an empty origin, mark it as explicitly cleared
+              if (!locations?.end?.text && locations?.start?.text) {
+                setOriginExplicitlyCleared(true);
+              }
+
+              const startLocation = locations?.start || {};
+              const endLocation = locations?.end || {};
+
+              trip.updateOrigin(endLocation);
+              trip.updateDestination(startLocation);
+              setStart(endLocation);
+              setEnd(startLocation);
+            }}
+            data-test-id="swap-locations-button"
+            id="swap-locations-button"
+            tabIndex={0}
+            onFocus={() => {
+              const { uiStore } = useStore();
+              uiStore.setFocusedCheckbox('swap-locations-button');
+              setKeyboardType(null);
+            }}
+          />
+        </Flex>
+      }
+
       <FormControl isInvalid={endError}>
         <AddressSearchForm
           saveAddress={() => { }}
@@ -536,12 +599,14 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
               ? locations?.end?.alias || locations?.end?.text
               : locations?.end?.text || ''
           }
+          defaultGeocoderResult={locations?.end}
           setGeocoderResult={setEnd}
           name="endAddress"
           label={t('tripWizard.searchTo')}
           required={true}
           clearResult={true}
           inputName="endAddress"
+          autoFocus={ux === 'kiosk'}
         />
 
         {(ux === 'webapp' || ux === 'callcenter') &&
@@ -634,41 +699,149 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
       {!trip.isShuttle &&
         <FormControl isRequired mt={10}>
-          <Select
-            name="when"
-            mb={6}
-            defaultValue={whenAction}
-            onChange={(e) => {
-              console.log(e.target.value);
-              setWhenAction(e.target.value);
-              if (e.target.value !== 'asap') {
-                trip.removeMode('hail');
-              }
-            }}
-          >
-            <option value="asap">{t('tripWizard.now')}</option>
-            <option value="leave">{t('tripWizard.leaveBy')}</option>
-            <option value="arrive">{t('tripWizard.arriveBy')}</option>
-          </Select>
+          {ux === 'kiosk' ? (
+            <Box mb={6}>
+              <FormLabel>{t('tripWizard.when')}</FormLabel>
+              <Flex direction="column" gap={2}>
+                <Button
+                  variant={whenAction === 'asap' ? 'brand' : 'outline'}
+                  size="lg"
+                  height="50px"
+                  onClick={() => {
+                    setWhenAction('asap');
+                  }}
+                  data-test-id="when-now-button"
+                  id="when-button-asap"
+                  tabIndex={0}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox('when-button-asap');
+                  }}
+                >
+                  {t('tripWizard.now')}
+                </Button>
+                <Button
+                  variant={whenAction === 'leave' ? 'brand' : 'outline'}
+                  size="lg"
+                  height="50px"
+                  onClick={() => {
+                    setWhenAction('leave');
+                    trip.removeMode('hail');
+                  }}
+                  data-test-id="when-leave-button"
+                  id="when-button-leave"
+                  tabIndex={0}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox('when-button-leave');
+                  }}
+                >
+                  {t('tripWizard.leaveBy')}
+                </Button>
+                <Button
+                  variant={whenAction === 'arrive' ? 'brand' : 'outline'}
+                  size="lg"
+                  height="50px"
+                  onClick={() => {
+                    setWhenAction('arrive');
+                    trip.removeMode('hail');
+                  }}
+                  data-test-id="when-arrive-button"
+                  id="when-button-arrive"
+                  tabIndex={0}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox('when-button-arrive');
+                  }}
+                >
+                  {t('tripWizard.arriveBy')}
+                </Button>
+              </Flex>
+              {/* Hidden select to maintain form compatibility */}
+              <Input type="hidden" name="when" value={whenAction} />
+            </Box>
+          ) : (
+            <Select
+              name="when"
+              mb={6}
+              defaultValue={whenAction}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setWhenAction(e.target.value);
+                if (e.target.value !== 'asap') {
+                  trip.removeMode('hail');
+                }
+              }}
+            >
+              <option value="asap">{t('tripWizard.now')}</option>
+              <option value="leave">{t('tripWizard.leaveBy')}</option>
+              <option value="arrive">{t('tripWizard.arriveBy')}</option>
+            </Select>
+          )}
         </FormControl>
       }
 
-      {!trip.isShuttle && whenAction !== 'asap' &&
+      {!trip.isShuttle && whenAction !== 'asap' ? (
         <FormControl isRequired>
           <FormLabel>{t('tripWizard.selectDate')}</FormLabel>
-          <Input
-            type="date"
-            defaultValue={parseDate(trip?.request?.whenTime)}
-            name="date"
-          ></Input>
+          {ux === 'kiosk' ? (
+            <Input
+              type="text"
+              pattern="\d{4}-\d{2}-\d{2}"
+              placeholder="YYYY-MM-DD"
+              defaultValue={parseDate(trip?.request?.whenTime)}
+              name="date"
+              value={onScreenKeyboardInput.date || parseDate(trip?.request?.whenTime)}
+              onChange={(e) => {
+                setKeyboardInputValue(e.target.value);
+              }}
+              onFocus={() => {
+                setKeyboardActiveInput('date');
+                // setKeyboardType('numeric'); // Disabled to prevent keyboard switching
+              }}
+              data-testid="schedule-trip-date-input"
+            />
+          ) : (
+            <Input
+              type="date"
+              defaultValue={parseDate(trip?.request?.whenTime)}
+              name="date"
+              data-testid="schedule-trip-date-input"
+            />
+          )}
           <FormLabel>{t('tripWizard.time')}</FormLabel>
-          <Input
-            type="time"
-            defaultValue={parseTime(trip?.request?.whenTime)}
-            name="time"
-          ></Input>
+          {ux === 'kiosk' ? (
+            <Input
+              type="text"
+              pattern="[0-2][0-9]:[0-5][0-9]"
+              placeholder="HH:MM"
+              defaultValue={parseTime(trip?.request?.whenTime)}
+              name="time"
+              value={onScreenKeyboardInput.time || parseTime(trip?.request?.whenTime)}
+              onChange={(e) => {
+                setKeyboardInputValue(e.target.value);
+              }}
+              onFocus={() => {
+                setKeyboardActiveInput('time');
+                // setKeyboardType('numeric'); // Disabled to prevent keyboard switching
+              }}
+              data-testid="schedule-trip-time-input"
+            />
+          ) : (
+            <Input
+              type="time"
+              defaultValue={parseTime(trip?.request?.whenTime)}
+              name="time"
+              data-testid="schedule-trip-time-input"
+            />
+          )}
         </FormControl>
-      }
+      ) : (
+        // Add hidden inputs with default values when not visible
+        whenAction !== 'asap' && (
+          <>
+            <Input type="hidden" name="date" value={parseDate(new Date())} />
+            <Input type="hidden" name="time" value={parseTime(new Date())} />
+          </>
+        )
+      )}
 
       <Button width="100%" variant="brand" type="submit">
         {t('global.next')}
@@ -679,8 +852,9 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
 
 const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
-  const { user } = useStore().authentication;
-  const { setKeyboardType } = useStore().uiStore;
+  const store = useStore();
+  const { user } = store.authentication;
+  const { setKeyboardType } = store.uiStore;
   // console.log(toJS(trip));
   const allowedModes = config.MODES.reduce(
     (acc, mode) => [...acc, mode.mode],
@@ -750,13 +924,21 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
           <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
               const selectedDateTime = moment(trip.request.whenTime);
-              const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+              const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
               const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-              if (mode.id === 'hail' && (!inTimeframe || trip.request.whenAction !== 'asap')) return '';
+              if (mode.id === 'hail' && !inTimeframe) return '';
               if (mode.id === 'walk') return '';
               return (
-                <Checkbox key={mode.id} value={mode.mode}>
+                <Checkbox
+                  key={mode.id}
+                  value={mode.mode}
+                  id={`mode-checkbox-${mode.id}`}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
+                  }}
+                  tabIndex={0} // Make sure checkbox is focusable
+                >
                   {t(`settingsPreferences.${mode.id}`)}
                 </Checkbox>
               );
@@ -881,10 +1063,9 @@ const Fourth = ({
   setSelectedTrip,
   chatIsActive,
 }) => {
-  const { setToastMessage, setToastStatus, setHasSelectedPlan } =
+  const { setToastMessage, setToastStatus, setHasSelectedPlan, setKeyboardType } =
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
-  const { setKeyboardType } = useStore().uiStore;
   const { t } = useTranslation();
 
   const navigate = useNavigate()
@@ -924,16 +1105,17 @@ const Fourth = ({
     }
   }
 
-  const shuttleLegIndex = trip.plans[0].legs.findIndex(leg => leg.mode === "HAIL")
+  const shuttleLegIndex = selectedTrip?.legs?.findIndex(leg => leg.mode === "HAIL") ?? -1
 
   function scheduleShuttle() {
+    if (shuttleLegIndex === -1 || !selectedTrip?.legs?.[shuttleLegIndex]) return;
 
-    const originLat = trip.plans[0].legs[shuttleLegIndex].from.lat;
-    const originLng = trip.plans[0].legs[shuttleLegIndex].from.lon;
-    const originTitle = trip.plans[0].legs[shuttleLegIndex].from.name
-    const destLat = trip.plans[0].legs[shuttleLegIndex].to.lat;
-    const destLng = trip.plans[0].legs[shuttleLegIndex].to.lon;
-    const destTitle = trip.plans[0].legs[shuttleLegIndex].to.name
+    const originLat = selectedTrip.legs[shuttleLegIndex].from.lat;
+    const originLng = selectedTrip.legs[shuttleLegIndex].from.lon;
+    const originTitle = selectedTrip.legs[shuttleLegIndex].from.name
+    const destLat = selectedTrip.legs[shuttleLegIndex].to.lat;
+    const destLng = selectedTrip.legs[shuttleLegIndex].to.lon;
+    const destTitle = selectedTrip.legs[shuttleLegIndex].to.name
 
     const url = `${config.SERVICES.dispatch}#origin_title=${originTitle}&origin_lat=${originLat}
     &origin_lng=${originLng}&dest_title=${destTitle}&dest_lat=${destLat}&dest_lng=${destLng}`;
