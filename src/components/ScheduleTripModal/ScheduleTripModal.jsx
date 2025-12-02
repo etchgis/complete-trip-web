@@ -38,6 +38,8 @@ import {
   Text,
   VStack,
   useDisclosure,
+  Badge,
+  Tooltip,
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCaretRight, FaCircle, FaStar, FaExchangeAlt } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
@@ -47,6 +49,7 @@ import { BsFillChatDotsFill } from 'react-icons/bs';
 import CreateIcon from '../CreateIcon';
 import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -920,8 +923,54 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     >
       <FormControl>
         <FormLabel>{t('tripWizard.modes')}</FormLabel>
-        <VStack alignItems={'flex-start'}>
-          <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
+        <Text fontSize="sm" color="gray.500" mb={2} fontStyle="italic">
+          {t('tripWizard.scheduleNote')}
+        </Text>
+        <VStack alignItems={'flex-start'} spacing={2}>
+          <Checkbox
+            isChecked={(() => {
+              const availableModes = config.MODES.filter(mode => {
+                if (mode.id === 'walk') return false;
+                if (mode.id === 'hail') {
+                  const selectedDateTime = moment(trip.request.whenTime);
+                  const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                    hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+                  const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
+                  return inTimeframe;
+                }
+                return true;
+              });
+              return availableModes.length > 0 && availableModes.every(mode => modes.includes(mode.mode));
+            })()}
+            onChange={(e) => {
+              const availableModes = config.MODES.filter(mode => {
+                if (mode.id === 'walk') return false;
+                if (mode.id === 'hail') {
+                  const selectedDateTime = moment(trip.request.whenTime);
+                  const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                    hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+                  const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
+                  return inTimeframe;
+                }
+                return true;
+              });
+
+              if (e.target.checked) {
+                setModes(availableModes.map(mode => mode.mode));
+              } else {
+                setModes([]);
+              }
+            }}
+            id="mode-checkbox-select-all"
+            onFocus={() => {
+              store.uiStore.setFocusedCheckbox('mode-checkbox-select-all');
+            }}
+            tabIndex={0}
+            fontWeight="bold"
+          >
+            Select All
+          </Checkbox>
+          <CheckboxGroup onChange={e => setModes(e)} value={modes}>
             {config.MODES.map(mode => {
               const selectedDateTime = moment(trip.request.whenTime);
               const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
@@ -1067,6 +1116,7 @@ const Fourth = ({
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
   const { t } = useTranslation();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const navigate = useNavigate()
 
@@ -1081,27 +1131,40 @@ const Fourth = ({
   // //------------------DEBUG------------------//
 
   async function scheduleTrip() {
-    const _request = toJS(trip.request);
-    _request.origin['text'] =
-      trip.request.origin.title + ' ' + trip.request.origin.description;
-    _request.destination['text'] =
-      trip.request.destination.title +
-      ' ' +
-      trip.request.destination.description;
-    const updated = await saveTrip(selectedTrip, _request);
-    console.log({ updated });
-    if (updated) {
-      closeModal();
+    // Show confirmation modal before saving
+    const confirmed = await confirm({
+      title: t('tripWizard.saveTripTitle'),
+      message: t('tripWizard.saveTripMessage'),
+      confirmText: t('tripWizard.saveTripConfirm'),
+      cancelText: t('global.cancel'),
+      iconType: 'info',
+      variant: 'brand',
+      showIcon: true,
+    });
 
-      setToastStatus('success');
-      setToastMessage(t('tripWizard.tripScheduled'));
+    if (confirmed) {
+      const _request = toJS(trip.request);
+      _request.origin['text'] =
+        trip.request.origin.title + ' ' + trip.request.origin.description;
+      _request.destination['text'] =
+        trip.request.destination.title +
+        ' ' +
+        trip.request.destination.description;
+      const updated = await saveTrip(selectedTrip, _request);
+      console.log({ updated });
+      if (updated) {
+        closeModal();
 
-      setHasSelectedPlan(false);
-      setSelectedTrip({});
+        setToastStatus('success');
+        setToastMessage(t('tripWizard.tripScheduled'));
 
-      trip.create();
+        setHasSelectedPlan(false);
+        setSelectedTrip({});
 
-      setStep(0);
+        trip.create();
+
+        setStep(0);
+      }
     }
   }
 
@@ -1157,6 +1220,7 @@ const Fourth = ({
         }}
 
       ></VerticalTripPlan>
+      <ConfirmDialog />
     </Stack>
   );
 };
@@ -1184,10 +1248,33 @@ const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
 
 const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
   const { user } = useStore().authentication;
-  const tripModes = tripPlan.legs.reduce((acc, leg) => [...acc, leg.mode], []);
-  const tripModesSet = Array.from(new Set(tripModes));
   const wheelchair = user?.profile?.preferences?.wheelchair;
   const { t } = useTranslation();
+
+  // Create a unique list of modes with their details
+  const tripModesWithDetails = [];
+  const seenModes = new Set();
+
+  tripPlan.legs.forEach(leg => {
+    // Skip walking segments and placeholder modes
+    if (leg.mode === '___') return;
+
+    // Create a unique key for each mode/route combination
+    const modeKey = `${leg.mode}_${leg.route || ''}_${leg.routeShortName || ''}_${leg.agencyId || leg.providerId || ''}`;
+
+    if (!seenModes.has(modeKey)) {
+      seenModes.add(modeKey);
+      tripModesWithDetails.push({
+        mode: leg.mode,
+        route: leg.routeShortName || leg.route || leg.routeId,
+        agencyId: leg.agencyId,
+        providerId: leg.providerId,
+        agencyName: leg.agencyName,
+        routeLongName: leg.routeLongName,
+      });
+    }
+  });
+
   return (
     <Box key={index.toString() + tripPlan?.id} width="100%">
       <Card
@@ -1245,37 +1332,116 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
               {/* <StatHelpText>Stop</StatHelpText> */}
             </Stat>
           </Grid>
-          <Flex justifyContent={'flex-start'} mx={6} py={2}>
-            {tripModesSet.map((mode, i) => (
-              <Box
-                as="span"
-                key={i.toString()}
-                display="flex"
-                alignItems="center"
-              >
-                {mode !== '___' ? (
-                  CreateIcon(
-                    mode === 'WALK' && wheelchair
-                      ? config.WHEELCHAIR.svg
-                      : config.MODES.find(m => m.id === mode.toLowerCase()).svg
-                  )
-                ) : (
-                  <Icon
-                    as={
-                      mode === 'WALK' && wheelchair
-                        ? config.WHEELCHAIR.webIcon
-                        : config.MODES.find(m => m.id === mode.toLowerCase())
-                          .webIcon
-                    }
-                    boxSize={6}
-                  />
-                )}
+          <Flex justifyContent={'flex-start'} mx={6} py={2} alignItems={'center'} flexWrap={'wrap'}>
+            {tripModesWithDetails.map((leg, i) => {
+              const modeName = leg.mode.toLowerCase();
+              const isShuttleUB = leg.agencyId?.toLowerCase().includes('ub') ||
+                                  leg.providerId?.toLowerCase().includes('ub') ||
+                                  modeName === 'ubshuttle';
+              const isShuttleHDS = (leg.agencyId?.toLowerCase().includes('nfta') ||
+                                   leg.providerId?.toLowerCase().includes('community') ||
+                                   modeName === 'hail') && modeName !== 'bus';
 
-                {i < tripModesSet.length - 1 ? (
-                  <Icon as={FaCaretRight} boxSize={6} mr={2} />
-                ) : null}
-              </Box>
-            ))}
+              return (
+                <Box
+                  as="span"
+                  key={i.toString()}
+                  display="flex"
+                  alignItems="center"
+                >
+                  {CreateIcon(
+                    modeName === 'walk' && wheelchair
+                      ? config.WHEELCHAIR.svg
+                      : config.MODES.find(m => m.id === modeName)?.svg || config.MODES[0].svg
+                  )}
+
+                  {/* Add badges for different modes */}
+                  {(modeName === 'bus' || modeName === 'tram' || modeName === 'rail' ||
+                    leg.mode === 'BUS' || leg.mode === 'TRAM' || leg.mode === 'RAIL') && leg.route && (
+                    <Tooltip
+                      label={`${modeName === 'tram' ? 'Metro Rail' : modeName === 'rail' ? 'Rail' : 'Bus'} Route ${leg.route}${leg.routeLongName ? `: ${leg.routeLongName}` : ''}`}
+                      placement="top"
+                      hasArrow
+                    >
+                      <Badge
+                        colorScheme={modeName === 'tram' ? 'orange' : modeName === 'rail' ? 'purple' : 'blue'}
+                        fontSize="xs"
+                        px={1.5}
+                        py={0.5}
+                        borderRadius="full"
+                        ml={1}
+                        mr={2}
+                      >
+                        {leg.route}
+                      </Badge>
+                    </Tooltip>
+                  )}
+                  {modeName === 'car' && (
+                    <Tooltip label="Personal Vehicle" placement="top" hasArrow>
+                      <Badge
+                        colorScheme="cyan"
+                        fontSize="xs"
+                        px={1.5}
+                        py={0.5}
+                        borderRadius="full"
+                        ml={1}
+                        mr={2}
+                      >
+                        CAR
+                      </Badge>
+                    </Tooltip>
+                  )}
+                  {modeName === 'bicycle' && (
+                    <Tooltip label="Bicycle" placement="top" hasArrow>
+                      <Badge
+                        colorScheme="red"
+                        fontSize="xs"
+                        px={1.5}
+                        py={0.5}
+                        borderRadius="full"
+                        ml={1}
+                        mr={2}
+                      >
+                        BIKE
+                      </Badge>
+                    </Tooltip>
+                  )}
+                  {isShuttleUB && (
+                    <Tooltip label="Self-Driving Shuttle (UB)" placement="top" hasArrow>
+                      <Badge
+                        colorScheme="purple"
+                        fontSize="xs"
+                        px={1.5}
+                        py={0.5}
+                        borderRadius="full"
+                        ml={1}
+                        mr={2}
+                      >
+                        SDS
+                      </Badge>
+                    </Tooltip>
+                  )}
+                  {isShuttleHDS && (
+                    <Tooltip label="Human-Driven Community Shuttle (NFTA)" placement="top" hasArrow>
+                      <Badge
+                        colorScheme="green"
+                        fontSize="xs"
+                        px={1.5}
+                        py={0.5}
+                        borderRadius="full"
+                        ml={1}
+                        mr={2}
+                      >
+                        HDS
+                      </Badge>
+                    </Tooltip>
+                  )}
+                  {i < tripModesWithDetails.length - 1 ? (
+                    <Icon as={FaCaretRight} boxSize={6} mr={2} />
+                  ) : null}
+                </Box>
+              );
+            })}
           </Flex>
           <Flex alignItems={'center'} fontWeight="bold" px={2}>
             {formatters.datetime.asDuration(tripPlan.duration)}
@@ -1283,9 +1449,9 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
             {tripPlan.legs.length > 1
               ? t('tripWizard.includesStops')
               : t('tripWizard.direct')}
-            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesSet.length}{' '}
+            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesWithDetails.length}{' '}
             {t('tripWizard.mode')}
-            {tripModesSet.length > 1 ? 's' : ''}
+            {tripModesWithDetails.length > 1 ? 's' : ''}
           </Flex>
         </CardBody>
       </Card>

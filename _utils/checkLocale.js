@@ -432,7 +432,8 @@ const genLocales = () => {
         modesNote: 'Note: Walking/rolling options are provided for all trips.',
         modesMessage: 'Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.',
         selectTransportation: 'Schedule a Trip',
-        chatbot: 'Where To?',
+        chatbot: 'Trip Planning Assistant',
+        chatbotPlaceholder: 'Tell me where you want to go...',
         selectTrip: 'Select a Trip',
         leave: 'Leave',
         arrive: 'Arrive',
@@ -465,7 +466,8 @@ const genLocales = () => {
         arriveBy: 'Llegar antes de', //✅
         modes: 'Modos de Transporte', //✅
         selectTransportation: 'Programar un Viaje',
-        chatbot: '¿A dónde?', //✅
+        chatbot: 'Asistente de Planificación de Viajes', //✅
+        chatbotPlaceholder: 'Dime a dónde quieres ir...', //✅
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
         arrive: 'Llegar',
@@ -487,13 +489,13 @@ const genLocales = () => {
     },
     tripbot: {
       en: {
-        greeting: 'Where To?',
+        greeting: 'Hi! I can help you plan your trip. Just tell me where you want to go, like "I need to go to the BGMC reception desk" or "Take me to 100 High Street before 2PM". You can also tell me when you need to arrive or leave.',
         error1:
           'Sorry, the bot is experiencing issues. Please try again later.',
         error2: 'Sorry, I am having trouble. Can you try again?',
       },
       es: {
-        greeting: '¿A dónde?', //✅
+        greeting: '¡Hola! Puedo ayudarte a planificar tu viaje. Solo dime a dónde quieres ir, como "Necesito ir a la recepción de BGMC" o "Llévame a 100 High Street antes de las 2PM". También puedes decirme cuándo necesitas llegar o salir.', //✅
         error1:
           'Lo siento, el bot está experimentando problemas. Por favor, inténtelo de nuevo más tarde.', //✅
         error2:

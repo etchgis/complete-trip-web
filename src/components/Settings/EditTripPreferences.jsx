@@ -45,6 +45,24 @@ export const EditTripPreferences = observer(() => {
       });
     }
   };
+
+  const handleSelectAll = e => {
+    if (e.target.checked) {
+      const allModes = config.MODES.filter(mode => mode.id !== 'walk').map(mode => mode.mode);
+      setModes(allModes);
+      updateUserProfile({
+        ...user?.profile,
+        preferences: { ...preferences, modes: allModes },
+      });
+    } else {
+      setModes([]);
+      updateUserProfile({
+        ...user?.profile,
+        preferences: { ...preferences, modes: [] },
+      });
+    }
+  };
+
   const { t } = useTranslation();
   return (
     <Stack spacing={4} maxW="xl">
@@ -58,13 +76,13 @@ export const EditTripPreferences = observer(() => {
       <FormControl>
         <FormLabel>{t('settingsPreferences.modes')}</FormLabel>
         <Stack>
-          {/* <Checkbox name="mode_bus">Bus</Checkbox>
-          <Checkbox name="mode_light_rail">Light Rail</Checkbox>
-          <Checkbox name="mode_walk">Walk</Checkbox>
-          <Checkbox name="mode_human_shuttle">Human Shuttle</Checkbox>
-          <Checkbox name="mode_autonomous_shuttle">Autonomous Shuttle</Checkbox>
-          <Checkbox name="mode_rideshare">Rideshare</Checkbox>
-          <Checkbox name="mode_scooter">Scooter</Checkbox> */}
+          <Checkbox
+            isChecked={config.MODES.filter(mode => mode.id !== 'walk').every(mode => modes.includes(mode.mode))}
+            onChange={handleSelectAll}
+            fontWeight="bold"
+          >
+            Select All
+          </Checkbox>
           {config.MODES.map(mode => {
             if (mode.id === 'walk') return '';
             return (

@@ -117,7 +117,7 @@ export default function genLocales() {
         second: 'Second',
         third: 'Third',
 
-        caregiver: 'Caregiver',
+        caregiver: 'Coordinator',
 
         error: 'Error',
         success: 'Success',
@@ -271,6 +271,9 @@ export default function genLocales() {
           other: "Other"
         },
         checkbox: "Include my email address for follow-up if needed",
+        confirmationTitle: "Thank You!",
+        confirmationMessage: "Your feedback has been submitted successfully. We appreciate your input and will review it soon.",
+        dismiss: "Dismiss",
       },
       es: {
         title: 'Comentario', //✅
@@ -288,6 +291,9 @@ export default function genLocales() {
           other: "Otro"
         },
         checkbox: "Incluya mi dirección de correo electrónico para seguimiento si es necesario.",
+        confirmationTitle: "¡Gracias!",
+        confirmationMessage: "Su comentario ha sido enviado exitosamente. Apreciamos su opinión y la revisaremos pronto.",
+        dismiss: "Descartar",
       }
     },
     loginWizard: {
@@ -583,7 +589,8 @@ export default function genLocales() {
         modesNote: 'Note: Walking/rolling options are provided for all trips.',
         modesMessage: 'Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.',
         selectTransportation: 'Schedule a Trip',
-        chatbot: 'Where To?',
+        chatbot: 'Trip Planning Assistant',
+        chatbotPlaceholder: 'Tell me where you want to go...',
         selectTrip: 'Select a Trip',
         leave: 'Leave',
         arrive: 'Arrive',
@@ -600,10 +607,13 @@ export default function genLocales() {
         drive: 'Drive',
         wait: 'Wait',
         tripScheduled: 'Trip Scheduled',
+        saveTripTitle: 'Save Trip to Your Account?',
+        saveTripMessage: 'This trip will be saved to your account. If notifications are enabled in your profile, you\'ll receive reminders before your scheduled departure. To execute the planned trip with turn-by-turn navigation, you can download the mobile app.',
+        saveTripConfirm: 'Save Trip',
         showQR: 'Download the App!',
         summonShuttle: 'Summon Shuttle',
         noTrips: 'No trips found.',
-        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below.",
+        popUpTitle: "To summon the shuttle you must provide your PIN and Phone number below. To get a PIN, sign up for an account at https://completetrip.etch.app",
         popUpPin: "PIN",
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
@@ -612,6 +622,7 @@ export default function genLocales() {
         popUpDirectionsTitle: "Pickup Location:",
         popUpDirectionsImage: "Pickup location photo:",
         popUpSuccessModalTitle: "Shuttle Requested Successfully",
+        scheduleNote: "Note: Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.",
         timeRemaining: {
           zero: "Exiting now...",
           one: "Exiting in 1 second",
@@ -634,7 +645,8 @@ export default function genLocales() {
         arriveBy: 'Llegar antes de', //✅
         modes: 'Modos de Transporte', //✅
         selectTransportation: 'Planificar un Viaje',
-        chatbot: '¿A dónde?', //✅
+        chatbot: 'Asistente de Planificación de Viajes', //✅
+        chatbotPlaceholder: 'Dime a dónde quieres ir...', //✅
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
         arrive: 'Llegar',
@@ -651,10 +663,13 @@ export default function genLocales() {
         drive: 'Conducir', //✅
         wait: 'Esperar', //✅
         tripScheduled: 'Viaje Programado', //✅
+        saveTripTitle: '¿Guardar Viaje en Tu Cuenta?',
+        saveTripMessage: 'Este viaje se guardará en tu cuenta. Si las notificaciones están habilitadas en tu perfil, recibirás recordatorios antes de tu salida programada. Para ejecutar el viaje planificado con navegación paso a paso, puedes descargar la aplicación móvil.',
+        saveTripConfirm: 'Guardar Viaje',
         showQR: '¡Descarga la aplicación!', //✅
         summonShuttle: 'Llamar al autobús', //✅
         noTrips: 'No se encontraron viajes.', //✅
-        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación.", //✅
+        popUpTitle: "Para solicitar el servicio de traslado, debe proporcionar su PIN y número de teléfono a continuación. Para obtener un PIN, regístrese para obtener una cuenta en https://completetrip.etch.app", //✅
         popUpPin: "PIN", //✅
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
@@ -663,6 +678,7 @@ export default function genLocales() {
         popUpDirectionsTitle: "Ubicación de recogida:",
         popUpDirectionsImage: "Foto de la ubicación de recogida:",
         popUpSuccessModalTitle: "Transporte Solicitado Exitosamente",
+        scheduleNote: "Nota: Los horarios de tránsito están sujetos a cambios y su viaje puede actualizarse después de agregarlo a su horario.",
         timeRemaining: {
           zero: "Saliendo ahora...",
           one: "Saliendo en 1 segundo",
@@ -672,13 +688,13 @@ export default function genLocales() {
     },
     tripbot: {
       en: {
-        greeting: 'Where To?',
+        greeting: 'Hi! I can help you plan your trip. Just tell me where you want to go, like "I need to go to the BGMC reception desk" or "Take me to 100 High Street before 2PM". You can also tell me when you need to arrive or leave.',
         error1:
           'Sorry, the bot is experiencing issues. Please try again later.',
         error2: 'Sorry, I am having trouble. Can you try again?',
       },
       es: {
-        greeting: '¿A dónde?', //✅
+        greeting: '¡Hola! Puedo ayudarte a planificar tu viaje. Solo dime a dónde quieres ir, como "Necesito ir a la recepción de BGMC" o "Llévame a 100 High Street antes de las 2PM". También puedes decirme cuándo necesitas llegar o salir.', //✅
         error1:
           'Lo siento, el bot está experimentando problemas. Por favor, inténtelo de nuevo más tarde.', //✅
         error2:
@@ -761,7 +777,7 @@ export default function genLocales() {
       es: {
         account: 'Cuenta',
         profile: 'Información del Perfil', //✅
-        caregivers: 'Coordinators',
+        caregivers: 'Coordinadores',
         dependents: 'Viajeros', //✅
         favorites: 'Favoritos',
         tripPreferences: 'Preferencias de Viaje',
@@ -819,13 +835,15 @@ export default function genLocales() {
         caregiverAlreadyRegistered:
           'This email is already registered as a coordinator.',
         inviteError: 'There was an error inviting the coordinator.',
+        coordinatorRequestStatus: 'Coordinator request ${status}.',
+        coordinatorRemoved: 'Coordinator removed',
         genericError: 'Unknown Error',
       },
       es: {
         inviteCaregiver: 'Invitar a un Coordinador', //✅
         addCaregiver: 'Invitar a un Coordinador',
         linkMessage:
-          'Se le ha solicitado que sea coordinator(a) de %{name}. ¿Quieres aceptar la solicitud?', //✅
+          'Se le ha solicitado que sea coordinador(a) de %{name}. ¿Quieres aceptar la solicitud?', //✅
         linkMessageNoAccount: `Se le ha solicitado que sea coordinador de la aplicación All Access. Inicie sesión para ver la solicitud. Si no tiene una cuenta, regístrese y podrá revisar la solicitud una vez se registre.`, //✅
         pending: 'Pendiente',
         received: 'RECIBIDO', //✅
@@ -839,8 +857,10 @@ export default function genLocales() {
         confirmRemove: '¿Está seguro de que desea eliminar a este coordinador?',
 
         caregiverAlreadyRegistered:
-          'Este correo electrónico ya está registrado como cuidador.',
-        inviteError: 'Hubo un error al invitar al cuidador.',
+          'Este correo electrónico ya está registrado como coordinador.',
+        inviteError: 'Hubo un error al invitar al coordinador.',
+        coordinatorRequestStatus: 'Solicitud de coordinador ${status}.',
+        coordinatorRemoved: 'Coordinador eliminado',
         genericError: 'Error desconocido',
       },
     },
@@ -887,6 +907,7 @@ export default function genLocales() {
         bus: 'Bus',
         tram: 'Metro Rail',
         hail: 'Community Shuttle',
+        ubshuttle: 'UB Shuttle',
       },
       es: {
         wheelchair: 'Accesibilidad para Sillas de Ruedas',
@@ -900,6 +921,7 @@ export default function genLocales() {
         bus: 'autobús', //✅
         tram: 'Metro Rail', //✅
         hail: 'Transporte comunitario',
+        ubshuttle: 'Autobús UB',
       },
     },
     settingsPassword: {
@@ -1012,6 +1034,28 @@ export default function genLocales() {
         changesToAppText: "Buffalo Access may terminate, change, suspend or discontinue any aspect of its Services, including removing, adding, modifying or otherwise changing any features and/or content at any time without notice or liability. Buffalo Access reserves the right, but shall not be obligated, to correct any errors or omissions in any portion of Buffalo Access at any time without notice to any Buffalo Access user or third party linked to the website or application.",
         changesToTerms: "Changes to Terms and Conditions",
         changesToTermsText: "Buffalo Access reserves the right to change these Terms and Conditions from time to time as it sees fit.",
+        allAccessLoop: "All Access Loop (Self Driving)",
+        generalConduct: "General Conduct & Safety Rules",
+        generalConductItems: [
+          { title: "No Bicycles, Scooters, or Large Equipment", text: "Passengers are not permitted to board with bicycles, scooters, or similarly bulky items that could obstruct space or compromise safety." },
+          { title: "No Standing While the Vehicle Is in Motion", text: "All passengers must remain seated during the entire ride. Standing is strictly prohibited on the automated bus for safety reasons." },
+          { title: "No Eating or Drinking", text: "Eating or drinking on the bus is not allowed to help keep the ride clean and pleasant for everyone." },
+          { title: "No Smoking or Vaping", text: "Smoking, vaping, or the use of any electronic cigarettes is strictly prohibited inside the bus or within designated boarding areas." },
+          { title: "Follow Instructions at All Times", text: "Passengers must comply with directions from ADASTEC staff, safety operators, or posted signage related to safety or operational procedures." }
+        ],
+        automatedDriveWarnings: "Automated Drive-Related Warnings",
+        automatedDriveWarningsItems: [
+          { title: "Tampering with Emergency Equipment is Prohibited", text: "The emergency exit, fire extinguisher, and emergency button must not be used, touched, or tampered with unless there is a genuine emergency. Passengers are asked to use these only when necessary to ensure safety for everyone on board." },
+          { title: "Do Not Interfere with Vehicle Sensors or Cameras", text: "Any action from inside or outside the bus that obstructs, damages, or interferes with external or internal sensors, cameras, or autonomous driving equipment is strictly prohibited." },
+          { title: "Do Not Interfere with the Operator or Driver", text: "Passengers must not distract or interfere with the safety operator or driver under any circumstances." },
+          { title: "Do Not Approach or Touch the Operator's Screen or Controls", text: "The operator's screen and controls are critical to the operation of the automated bus. Passengers must not approach, touch, or attempt to use them." }
+        ],
+        mediaRelease: "Media Release and Rights Consent Statement",
+        mediaReleaseText: "ADASTEC may collect, procure, or use your name, picture, video, voice, written comments, image, likeness, appearance, statements, performance, and any related video recordings or derivative works (collectively referred to as \"Recordings\"). These Recordings may be used, edited, altered, copied, cropped, published, distributed, and displayed by ADASTEC and its affiliates or agents anywhere in the world for the sole purpose of promoting or advertising ADASTEC's products and services. The Recordings may appear in any and all ADASTEC publications or those of its affiliates or agents, across all formats, media platforms, and delivery technologies, including but not limited to websites, advertising sites, social media platforms, and other marketing materials. You acknowledge that you will not receive any additional compensation for the use of the Recordings, and that ADASTEC does not require any further agreement or approval from you in order to use them. ADASTEC will retain sole ownership of all rights, titles, and interests in the Recordings, including full copyright, prior to their use for the stated purposes. You expressly waive any right to inspect or approve the Recordings in the context of their intended use. Furthermore, you waive, discharge, and release ADASTEC, its affiliates, agents, officers, directors, employees, successors, assigns, and any person acting under their authority from any and all current or future claims, rights, causes of action, or objections related to the use of your name, image, portrait, voice, likeness, or personality as described in this release.",
+        serviceAnimals: "Service Animals Policy Statement",
+        serviceAnimalsText: "ADASTEC permits service animals as defined under the Americans with Disabilities Act (ADA) to accompany passengers within its vehicles. Under the ADA, a service animal is defined as a dog that has been individually trained to perform work or tasks for a person with a disability. The work or tasks performed must be directly related to the individual's disability. Examples include guiding individuals who are blind, alerting individuals who are deaf, assisting individuals with mobility or balance, detecting medical conditions, or providing physical support during specific tasks.\n\nADASTEC does not permit animals other than dogs, including emotional support, comfort, or companionship animals, as well as service animals in training, as they are not recognized as service animals under the ADA.\n\nService animals must remain under the handler's control at all times, be leashed, harnessed, or tethered unless such devices interfere with the animal's work, and must be housebroken and well-behaved. ADASTEC staff are not responsible for the care, supervision, or feeding of any service animals. ADASTEC reserves the right to request the removal of a service animal if it is out of control, not housebroken, or poses a direct threat to health or safety.",
+        noFirearmsWeapons: "No Firearms or Weapons",
+        noFirearmsWeaponsText: "Passengers are strictly prohibited from carrying or possessing firearms, ammunition, explosives, knives, or any other weapon or hazardous material on the automated bus or within related boarding areas.",
       },
       es: {
         title: 'Términos y condiciones',
@@ -1024,6 +1068,28 @@ export default function genLocales() {
         changesToAppText: "Buffalo Access puede cancelar, cambiar, suspender o interrumpir cualquier aspecto de sus Servicios, incluida la eliminación, adición, modificación o cambio de cualquier característica y/o contenido en cualquier momento sin previo aviso ni responsabilidad. Buffalo Access se reserva el derecho, pero no estará obligado, a corregir cualquier error u omisión en cualquier parte de Buffalo Access en cualquier momento y sin previo aviso a ningún usuario de Buffalo Access o a un tercero vinculado al sitio web o la aplicación.",
         changesToTerms: "Cambios en los Términos y Condiciones",
         changesToTermsText: "Buffalo Access se reserva el derecho de cambiar estos Términos y Condiciones según lo considere oportuno.",
+        allAccessLoop: "All Access Loop (Conducción Autónoma)",
+        generalConduct: "Reglas Generales de Conducta y Seguridad",
+        generalConductItems: [
+          { title: "No se permiten bicicletas, scooters o equipos grandes", text: "No se permite a los pasajeros abordar con bicicletas, scooters o artículos voluminosos similares que puedan obstruir el espacio o comprometer la seguridad." },
+          { title: "No pararse mientras el vehículo está en movimiento", text: "Todos los pasajeros deben permanecer sentados durante todo el viaje. Está estrictamente prohibido estar de pie en el autobús automatizado por razones de seguridad." },
+          { title: "No comer ni beber", text: "No está permitido comer ni beber en el autobús para ayudar a mantener el viaje limpio y agradable para todos." },
+          { title: "No fumar ni vapear", text: "Está estrictamente prohibido fumar, vapear o usar cigarrillos electrónicos dentro del autobús o en las áreas de embarque designadas." },
+          { title: "Siga las instrucciones en todo momento", text: "Los pasajeros deben cumplir con las instrucciones del personal de ADASTEC, operadores de seguridad o señalización publicada relacionada con procedimientos de seguridad u operacionales." }
+        ],
+        automatedDriveWarnings: "Advertencias Relacionadas con la Conducción Automatizada",
+        automatedDriveWarningsItems: [
+          { title: "Está prohibido manipular el equipo de emergencia", text: "La salida de emergencia, el extintor de incendios y el botón de emergencia no deben usarse, tocarse ni manipularse a menos que haya una emergencia genuina. Se pide a los pasajeros que los usen solo cuando sea necesario para garantizar la seguridad de todos a bordo." },
+          { title: "No interfiera con los sensores o cámaras del vehículo", text: "Cualquier acción desde dentro o fuera del autobús que obstruya, dañe o interfiera con sensores externos o internos, cámaras o equipos de conducción autónoma está estrictamente prohibida." },
+          { title: "No interfiera con el operador o conductor", text: "Los pasajeros no deben distraer ni interferir con el operador de seguridad o el conductor bajo ninguna circunstancia." },
+          { title: "No se acerque ni toque la pantalla o los controles del operador", text: "La pantalla y los controles del operador son críticos para la operación del autobús automatizado. Los pasajeros no deben acercarse, tocar ni intentar usarlos." }
+        ],
+        mediaRelease: "Declaración de Consentimiento de Liberación de Medios y Derechos",
+        mediaReleaseText: "ADASTEC puede recopilar, procurar o usar su nombre, fotografía, video, voz, comentarios escritos, imagen, semejanza, apariencia, declaraciones, desempeño y cualquier grabación de video relacionada u obras derivadas (colectivamente denominadas \"Grabaciones\"). Estas Grabaciones pueden ser usadas, editadas, alteradas, copiadas, recortadas, publicadas, distribuidas y exhibidas por ADASTEC y sus afiliados o agentes en cualquier parte del mundo con el único propósito de promocionar o anunciar los productos y servicios de ADASTEC. Las Grabaciones pueden aparecer en todas y cada una de las publicaciones de ADASTEC o las de sus afiliados o agentes, en todos los formatos, plataformas de medios y tecnologías de entrega, incluidos, entre otros, sitios web, sitios de publicidad, plataformas de redes sociales y otros materiales de marketing. Usted reconoce que no recibirá ninguna compensación adicional por el uso de las Grabaciones, y que ADASTEC no requiere ningún acuerdo o aprobación adicional de su parte para usarlas. ADASTEC conservará la propiedad exclusiva de todos los derechos, títulos e intereses en las Grabaciones, incluidos los derechos de autor completos, antes de su uso para los fines declarados. Usted renuncia expresamente a cualquier derecho a inspeccionar o aprobar las Grabaciones en el contexto de su uso previsto. Además, usted renuncia, descarga y libera a ADASTEC, sus afiliados, agentes, funcionarios, directores, empleados, sucesores, cesionarios y cualquier persona que actúe bajo su autoridad de todas y cada una de las reclamaciones actuales o futuras, derechos, causas de acción u objeciones relacionadas con el uso de su nombre, imagen, retrato, voz, semejanza o personalidad como se describe en esta liberación.",
+        serviceAnimals: "Declaración de Política de Animales de Servicio",
+        serviceAnimalsText: "ADASTEC permite que los animales de servicio, según lo define la Ley de Estadounidenses con Discapacidades (ADA), acompañen a los pasajeros dentro de sus vehículos. Según la ADA, un animal de servicio se define como un perro que ha sido entrenado individualmente para realizar trabajo o tareas para una persona con discapacidad. El trabajo o las tareas realizadas deben estar directamente relacionadas con la discapacidad del individuo. Los ejemplos incluyen guiar a las personas ciegas, alertar a las personas sordas, ayudar a las personas con movilidad o equilibrio, detectar condiciones médicas o proporcionar apoyo físico durante tareas específicas.\n\nADASTEC no permite animales que no sean perros, incluidos animales de apoyo emocional, consuelo o compañía, así como animales de servicio en entrenamiento, ya que no se reconocen como animales de servicio según la ADA.\n\nLos animales de servicio deben permanecer bajo el control del manejador en todo momento, estar atados con correa, arnés o sujetos a menos que dichos dispositivos interfieran con el trabajo del animal, y deben estar entrenados para hacer sus necesidades y tener buen comportamiento. El personal de ADASTEC no es responsable del cuidado, supervisión o alimentación de ningún animal de servicio. ADASTEC se reserva el derecho de solicitar la remoción de un animal de servicio si está fuera de control, no está entrenado para hacer sus necesidades o representa una amenaza directa para la salud o la seguridad.",
+        noFirearmsWeapons: "No se permiten armas de fuego ni armas",
+        noFirearmsWeaponsText: "Está estrictamente prohibido que los pasajeros porten o posean armas de fuego, municiones, explosivos, cuchillos o cualquier otra arma o material peligroso en el autobús automatizado o dentro de las áreas de embarque relacionadas.",
       },
     },
     settingsPrivacy: {
