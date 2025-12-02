@@ -210,13 +210,14 @@ const CreateCircleIcon = ({ svg, backgroundColor }) => {
       backgroundColor={backgroundColor || 'red'}
       borderRadius={'full'}
     >
-      <Icon viewBox={svg?.viewBox || '0 0 512 512'} boxSize={'5'}>
+      <Icon viewBox={svg?.viewBox || '0 0 512 512'} boxSize={svg?.boxSize || '5'}>
         <path
           fill={backgroundColor === 'gray.400' ? 'black' : 'white'}
           d={
             svg?.path ||
             'M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0'
           }
+          transform={svg?.transform}
         />
       </Icon>
     </Flex>
@@ -550,7 +551,7 @@ export const TripPlanSchedule = observer(
                         )}
                         {/* Add badge for UB Shuttle (Self-Driving Shuttle) */}
                         {name === 'ubshuttle' && (
-                          <Tooltip label="Self-Driving Shuttle (UB)" placement="top" hasArrow>
+                          <Tooltip label="Self-Driving Shuttle (AAL)" placement="top" hasArrow>
                             <Badge
                               colorScheme="purple"
                               fontSize="xs"
@@ -559,7 +560,7 @@ export const TripPlanSchedule = observer(
                               borderRadius="full"
                               ml={1}
                             >
-                              SDS
+                              AAL
                             </Badge>
                           </Tooltip>
                         )}
@@ -574,7 +575,7 @@ export const TripPlanSchedule = observer(
                               borderRadius="full"
                               ml={1}
                             >
-                              HDS
+                              NFTACS
                             </Badge>
                           </Tooltip>
                         )}
