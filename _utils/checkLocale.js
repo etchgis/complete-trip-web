@@ -429,6 +429,8 @@ const genLocales = () => {
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
         modes: 'Modes of Transportation',
+        modesNote: 'Note: Walking/rolling options are provided for all trips.',
+        modesMessage: 'Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.',
         selectTransportation: 'Schedule a Trip',
         chatbot: 'Trip Planning Assistant',
         chatbotPlaceholder: 'Tell me where you want to go...',

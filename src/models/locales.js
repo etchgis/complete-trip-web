@@ -260,7 +260,7 @@ export default function genLocales() {
         categories: {
           scheduling: "Trip Scheduling",
           hds: "Community Shuttle",
-          sds: "Autonomous Bus",
+          sds: "AAL Autonomous Bus",
           intersections: "Smart Intersections",
           transit: "Transit",
           outdoorNavigation: "Outdoor Navigation",
@@ -280,7 +280,7 @@ export default function genLocales() {
         categories: {
           scheduling: "Programación de viajes",
           hds: "Transporte Comunitario NFTA",
-          sds: "Autobús Autónomo UB",
+          sds: "Autobús Autónomo AAL",
           intersections: "Intersecciones inteligentes",
           transit: "Tránsito (autobús, ferrocarril)",
           outdoorNavigation: "Navegación al aire libre",
@@ -586,7 +586,9 @@ export default function genLocales() {
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
         modes: 'Modes of Transportation',
-        selectTransportation: 'Plan a Trip',
+        modesNote: 'Note: Walking/rolling options are provided for all trips.',
+        modesMessage: 'Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.',
+        selectTransportation: 'Schedule a Trip',
         chatbot: 'Trip Planning Assistant',
         chatbotPlaceholder: 'Tell me where you want to go...',
         selectTrip: 'Select a Trip',
@@ -904,8 +906,8 @@ export default function genLocales() {
         bicycle: 'Bike',
         bus: 'Bus',
         tram: 'Metro Rail',
-        hail: 'Community Shuttle',
-        ubshuttle: 'UB Shuttle',
+        hail: 'NFTA Community Shuttle',
+        ubshuttle: 'All Access Loop (Self Driving) Shuttle',
       },
       es: {
         wheelchair: 'Accesibilidad para Sillas de Ruedas',
@@ -919,7 +921,7 @@ export default function genLocales() {
         bus: 'autobús', //✅
         tram: 'Metro Rail', //✅
         hail: 'Transporte comunitario',
-        ubshuttle: 'Autobús UB',
+        ubshuttle: 'Autobús AAL',
       },
     },
     settingsPassword: {

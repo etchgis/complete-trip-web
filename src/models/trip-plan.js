@@ -655,15 +655,15 @@ const convertGraphQLItinerary = (itinerary, request, routeType) => {
     }
 
     // Handle campus shuttle and demand-response services
-    // Handle UB shuttle - BUS mode with ub-1 agency
+    // Handle AAL shuttle - BUS mode with ub-1 agency
     if (leg.mode === 'BUS' && convertedLeg.agencyId === 'ub-1') {
-      // This is UB shuttle - convert to 'ubshuttle' mode
+      // This is AAL shuttle - convert to 'ubshuttle' mode
       convertedLeg.mode = 'ubshuttle';
       convertedLeg.flexibleTransit = true;
       convertedLeg.tripId = 'HDS:A1'; // Human-Driven Shuttle identifier
       convertedLeg.providerId = 'campus_shuttle';
-      // Override route short name to display 'SDS' instead of 'UB-1'
-      convertedLeg.routeShortName = 'SDS';
+      // Override route short name to display 'AAL' instead of 'UB-1'
+      convertedLeg.routeShortName = 'AAL';
     }
 
     // Handle community shuttle and other demand-response services
