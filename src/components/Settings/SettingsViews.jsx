@@ -239,15 +239,15 @@ export const TermsOfUse = () => {
 
       <Box mt={8} pt={6} borderTop="2px" borderColor="gray.300">
         <Heading as="h3" size="md" mb={4}>
-          {t('settingsTerms.allAccessLoop')}
+          {t('shuttleTerms.allAccessLoop')}
         </Heading>
 
         <Box mb={4}>
           <Heading as="h4" size="sm" mb={2}>
-            {t('settingsTerms.generalConduct')}
+            {t('shuttleTerms.generalConduct')}
           </Heading>
           <List as="ul" styleType="disc" spacing={3} pl={5}>
-            {t('settingsTerms.generalConductItems').map((item, index) => (
+            {t('shuttleTerms.generalConductItems').map((item, index) => (
               <ListItem key={index}>
                 <Text fontWeight="bold">{item.title}</Text>
                 <Text>{item.text}</Text>
@@ -258,10 +258,10 @@ export const TermsOfUse = () => {
 
         <Box mb={4}>
           <Heading as="h4" size="sm" mb={2}>
-            {t('settingsTerms.automatedDriveWarnings')}
+            {t('shuttleTerms.automatedDriveWarnings')}
           </Heading>
           <List as="ul" styleType="disc" spacing={3} pl={5}>
-            {t('settingsTerms.automatedDriveWarningsItems').map((item, index) => (
+            {t('shuttleTerms.automatedDriveWarningsItems').map((item, index) => (
               <ListItem key={index}>
                 <Text fontWeight="bold">{item.title}</Text>
                 <Text>{item.text}</Text>
@@ -272,28 +272,28 @@ export const TermsOfUse = () => {
 
         <Box mb={4}>
           <Heading as="h4" size="sm" mb={2}>
-            {t('settingsTerms.mediaRelease')}
+            {t('shuttleTerms.mediaRelease')}
           </Heading>
           <Text>
-            {t('settingsTerms.mediaReleaseText')}
+            {t('shuttleTerms.mediaReleaseText')}
           </Text>
         </Box>
 
         <Box mb={4}>
           <Heading as="h4" size="sm" mb={2}>
-            {t('settingsTerms.serviceAnimals')}
+            {t('shuttleTerms.serviceAnimals')}
           </Heading>
           <Text whiteSpace="pre-line">
-            {t('settingsTerms.serviceAnimalsText')}
+            {t('shuttleTerms.serviceAnimalsText')}
           </Text>
         </Box>
 
         <Box mb={4}>
           <Heading as="h4" size="sm" mb={2}>
-            {t('settingsTerms.noFirearmsWeapons')}
+            {t('shuttleTerms.noFirearmsWeapons')}
           </Heading>
           <Text>
-            {t('settingsTerms.noFirearmsWeaponsText')}
+            {t('shuttleTerms.noFirearmsWeaponsText')}
           </Text>
         </Box>
       </Box>
