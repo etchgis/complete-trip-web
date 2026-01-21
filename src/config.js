@@ -1,6 +1,6 @@
 // Environment toggle - change this to switch between staging and production
 // Valid values: 'dev', 'stage', or 'prod'
-const API_ENV = 'stage';
+const API_ENV = 'prod';
 const ENV = 'stage';
 
 const CAREGIVER_SECRET =
