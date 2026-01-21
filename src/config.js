@@ -1,3 +1,5 @@
+// Environment toggle - change this to switch between staging and production
+// Valid values: 'dev', 'stage', or 'prod'
 const API_ENV = 'stage';
 const ENV = 'stage';
 
@@ -115,6 +117,58 @@ const API = {
       // url: 'http://localhost:3000/local/v3/chat',
       url: 'https://staging.lambda.etch.app/assistant/v3/chat',
       xApiKey: 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi',
+    },
+  },
+  prod: {
+    admin: {
+      url: 'https://lambda.etch.app/admin',
+      xApiKey: '8dDef8HT608KF3yfzNrNbaMrTtkLLVvQ7okMDccD',
+    },
+    auth: {
+      url: 'https://lambda.etch.app/accounts',
+      xApiKey: '4qHPexG6u9idltk3rCEE9oyFMonnYtj4vVHICNP5',
+    },
+    trips: {
+      url: 'https://lambda.etch.app/trips',
+      xApiKey: 'yemqqBYsOD1rpDCnQmhusa8CSGEJTaH31mLnC0z4',
+    },
+    rides: {
+      url: 'https://lambda.etch.app/rides',
+      xApiKey: 'SHXJEVi2l3aDoNRcs4iwU6c5sYaIciKA25tRqY0M',
+    },
+    plans: {
+      url: 'https://api.etch.app/routeplans/plans',
+      xApiKey: '0lHZS75Dxzv94i2p4VMWkXS9jj5298pVaBwF0ypH',
+    },
+    plantrip: {
+      url: 'http://192.168.86.249:8082/plantrip',
+      xApiKey: '',
+    },
+    routes: {
+      url: 'https://lambda.etch.app/routes',
+      xApiKey: 'mTRo8TwY5h9RO40nEo8GE4cDShXWfTOJKwswkdh0',
+    },
+    verifications: {
+      url: 'https://lambda.etch.app/verifications',
+      xApiKey: 'ZicSjlQlPx1qdXNWWn5ut1fDV55DObGg2uoxLG8L',
+    },
+    caregivers: {
+      url: 'https://lambda.etch.app/caregivers',
+      xApiKey: 'Axed9jWEkk98ZSzIHn7gw6O2wb8AfCIP1GMSuvOT',
+    },
+    feedback: {
+      url: 'https://lambda.etch.app/feedback',
+      xApiKey: 'Dff0FvSOt34pHiPxutIvY80VhMoM3YVp4lpprOPl',
+    },
+    dispatch: 'https://nfta.etch.app/callcenter',
+    websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/production',
+    streamsocket: 'wss://{org}.etch.app/services',
+    otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
+    otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
+    geocode: 'https://mmapi.etch.app/geocode',
+    assistant: {
+      url: 'https://lambda.etch.app/assistant/v3/chat',
+      xApiKey: 'IYaw4ePgA137U741zVZnY56itMez14sh6Jw7kzrg',
     },
   },
 };
