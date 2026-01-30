@@ -29,6 +29,11 @@ test:
       commands:
         - nvm install 22
         - nvm use 22
+        # Fetch secrets from Secrets Manager
+        - export NPM_ETCHTOKEN=$(aws secretsmanager get-secret-value --secret-id amplify/npm-etchtoken --query SecretString --output text --region us-east-2)
+        # Set up npm authentication for private packages
+        - echo "//npm.pkg.github.com/:_authToken=${NPM_ETCHTOKEN}" > ~/.npmrc
+        - echo "@etchgis:registry=https://npm.pkg.github.com" >> ~/.npmrc
         - yarn install
         - yarn add mocha mochawesome mochawesome-merge mochawesome-report-generator
         # - npm ci
