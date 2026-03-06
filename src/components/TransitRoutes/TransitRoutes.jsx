@@ -746,7 +746,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                   width={'100%'}
                   whiteSpace={'normal'}
                 >
-                  {r.mode === 'bus' && (
+                  {(r.mode === 'bus' || r.mode === 'light rail') && (
                     <>
                       <Flex
                         flexDir={'row'}
@@ -755,7 +755,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                       // whiteSpace={'normal'}
                       >
                         <Heading as="h3" className="route-list-heading">
-                          {r?.route?.subRoute}
+                          {r?.route?.shortName || r?.route?.longName || r?.route?.subRoute}
                         </Heading>
                         <Flex flexDir={'column'}>
                           <Box style={{ textAlign: 'right' }}>

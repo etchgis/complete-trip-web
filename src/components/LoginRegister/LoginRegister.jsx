@@ -14,6 +14,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  List,
+  ListItem,
   PinInput,
   PinInputField,
   Radio,
@@ -935,6 +937,73 @@ const Terms = ({ hideTerms, agreedToTerms, termsChanged, agreedToConsent, consen
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
         {t('loginWizard.changesToTermsText')}
       </Text>
+
+      <Box mt={8} pt={6} borderTop="2px" borderColor="gray.300">
+        <Heading
+          as="h3"
+          size="md"
+          mb={4}
+          color={colorMode === 'light' ? 'brandDark' : 'brand'}
+        >
+          {t('shuttleTerms.allAccessLoop')}
+        </Heading>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.generalConduct')}
+          </Text>
+          <List as="ul" styleType="disc" spacing={3} pl={5} mt={2}>
+            {t('shuttleTerms.generalConductItems').map((item, index) => (
+              <ListItem key={index} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+                <Text fontWeight="bold">{item.title}</Text>
+                <Text>{item.text}</Text>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.automatedDriveWarnings')}
+          </Text>
+          <List as="ul" styleType="disc" spacing={3} pl={5} mt={2}>
+            {t('shuttleTerms.automatedDriveWarningsItems').map((item, index) => (
+              <ListItem key={index} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+                <Text fontWeight="bold">{item.title}</Text>
+                <Text>{item.text}</Text>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.mediaRelease')}
+          </Text>
+          <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} mt={2}>
+            {t('shuttleTerms.mediaReleaseText')}
+          </Text>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.serviceAnimals')}
+          </Text>
+          <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line" mt={2}>
+            {t('shuttleTerms.serviceAnimalsText')}
+          </Text>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.noFirearmsWeapons')}
+          </Text>
+          <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} mt={2}>
+            {t('shuttleTerms.noFirearmsWeaponsText')}
+          </Text>
+        </Box>
+      </Box>
+
       <Divider />
       <Heading
         as="h2"

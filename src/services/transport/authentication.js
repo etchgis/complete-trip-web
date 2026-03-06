@@ -137,6 +137,8 @@ const authentication = {
     if (channel === 'email') {
       data.channelConfiguration = config.VERIFY.CHANNEL_CONFIGURATION;
       data.to = data.to.toLowerCase();
+    } else if (channel === 'sms' && !to.startsWith('+')) {
+      data.to = `+${to}`;
     }
     return fetch(`${config.SERVICES.auth.url}/verify`, {
       method: 'POST',
