@@ -22,6 +22,16 @@ const Help = () => {
       </Flex>
       <Divider marginY={10} />
       <Flex direction="column" align="center" justify="center">
+          <Link
+            href="https://bnmc.org/allaccess/"
+            color="dodgerblue"
+            fontWeight="bold"
+            role="link"
+            mb={4}
+            aria-label="Transportation Status"
+          >
+            Transportation Status
+          </Link>
         <Text>
           Looking for help for the mobile app? Click{" "}
           <Link

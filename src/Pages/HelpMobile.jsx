@@ -27,6 +27,16 @@ const HelpMobile = () => {
       </Flex>
       <Divider marginY={10} />
       <Flex direction="column" align="center" justify="center">
+      <Link
+            href="https://bnmc.org/allaccess/"
+            color="dodgerblue"
+            fontWeight="bold"
+            mb={4}
+            role="link"
+            aria-label="Transportation Status"
+          >
+            Transportation Status
+        </Link>
         <Text>
           Looking for help for the website? Click{" "}
           <Link
@@ -95,6 +105,9 @@ const HelpMobile = () => {
         </Link>
         <Link href="#profile-and-settings" color="dodgerblue" role="link">
           Profile and Settings
+        </Link>
+        <Link href="#profile-and-settings" color="dodgerblue" role="link">
+          Transportation Status
         </Link>
         {mode === 'callcenter' &&
           <Link href="#accessibility" color="dodgerblue" role="link">
