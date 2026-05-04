@@ -143,7 +143,7 @@ export const ScheduleTripModal = observer(
           />
         ),
       },
-      {
+      ...(config.FEATURES.CHAT_ASSISTANT ? [{
         name: 'Tripbot',
         component: (
           <Tripbot
@@ -152,7 +152,7 @@ export const ScheduleTripModal = observer(
             stagedTrip={stagedTrip}
           />
         ),
-      },
+      }] : []),
     ];
 
     return (
@@ -194,9 +194,8 @@ export const ScheduleTripModal = observer(
                     : step === 4 //chatbot
                       ? t('tripWizard.chatbot')
                       : null}
-            {accessToken && (step === 0 || step === 4) ? (
+            {config.FEATURES.CHAT_ASSISTANT && accessToken && (step === 0 || step === 4) ? (
               <IconButton
-                // display={'none'}
                 variant={step === 4 ? 'brand' : 'brand-outline'}
                 ml={5}
                 fontSize={'xl'}

@@ -472,7 +472,11 @@ const defaults = {
   LANAGUAGES,
   NOTIFY_METHODS,
   FEEDBACK,
-  HDS_HOURS
+  HDS_HOURS,
+
+  FEATURES: {
+    CHAT_ASSISTANT: false,
+  },
 };
 const config = { ...defaults };
 
