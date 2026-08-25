@@ -858,8 +858,11 @@ export default function genLocales() {
         caregiverAlreadyRegistered:
           'This email is already registered as a coordinator.',
         inviteError: 'There was an error inviting the coordinator.',
-        coordinatorRequestStatus: 'Coordinator request ${status}.',
+        coordinatorRequestStatus: 'Coordinator request %{status}.',
         coordinatorRemoved: 'Coordinator removed',
+        approved: 'Approved',
+        wrongEmail:
+          'This invitation was sent to %{email}. Please log in with that email address to accept it.',
         genericError: 'Unknown Error',
       },
       es: {
@@ -882,8 +885,11 @@ export default function genLocales() {
         caregiverAlreadyRegistered:
           'Este correo electrónico ya está registrado como coordinador.',
         inviteError: 'Hubo un error al invitar al coordinador.',
-        coordinatorRequestStatus: 'Solicitud de coordinador ${status}.',
+        coordinatorRequestStatus: 'Solicitud de coordinador %{status}.',
         coordinatorRemoved: 'Coordinador eliminado',
+        approved: 'Aprobado',
+        wrongEmail:
+          'Esta invitación se envió a %{email}. Inicie sesión con esa dirección de correo para aceptarla.',
         genericError: 'Error desconocido',
       },
     },

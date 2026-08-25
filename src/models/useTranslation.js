@@ -47,7 +47,7 @@ const useTranslation = () => {
   const i18n = new I18n({
     en: languages.en,
     es: languages.es,
-    fallbacks: true,
+    enableFallback: true, // i18n-js v4 name. `fallbacks` is ignored, leaving fallback off.
     defaultLocale: 'en',
     locale: 'en',
     // missingTranslation: (scope, options) => {

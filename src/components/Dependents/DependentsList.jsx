@@ -61,7 +61,13 @@ export const DependentsList = observer(() => {
       console.log({ result });
       if (status === 'approved') setToastStatus('Success');
       if (status === 'denied') setToastStatus('Info');
-      setToastMessage(t('settingsCaregivers.coordinatorRequestStatus', { status }));
+      setToastMessage(
+        t('settingsCaregivers.coordinatorRequestStatus', {
+          // Translate the status word too, otherwise the Spanish message
+          // ends up with an English "approved" or "denied" inside it.
+          status: t(`settingsCaregivers.${status}`),
+        })
+      );
     } catch (error) {
       console.log({ error });
       setToastMessage('An error occurred with the request.');

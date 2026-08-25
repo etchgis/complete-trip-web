@@ -85,16 +85,20 @@ const CaregiverLink = observer(() => {
     } catch (error) {
       console.log({ error });
       setToastStatus('Error');
-      if (error?.message?.startsWith('wrong-email:')) {
-        const invitedEmail = error.message.split(':')[1];
-        setInviteCode(null);
+      const message = String(error?.message ?? '');
+      if (message.startsWith('wrong-email:')) {
         setToastMessage(
-          `This invitation was sent to ${invitedEmail}. Please log in with that email address to accept this invitation.`
+          t('settingsCaregivers.wrongEmail', {
+            email: message.slice('wrong-email:'.length),
+          })
         );
-        navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
         setToastMessage(t('settingsCaregivers.genericError'));
       }
+      // Clear the code either way. Leaving it set re-opens this modal on every
+      // render, so a bad or expired invite would trap the user here.
+      setInviteCode(null);
+      navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
     }
   };
 

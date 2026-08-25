@@ -97,14 +97,34 @@ class Caregivers {
     if (this?.rootStore?.uiStore?.debug)
       console.log('{caregivers store} hydrate');
     return new Promise(async (resolve, reject) => {
-      const token = await this.rootStore.authentication.fetchToken();
-      const caregivers = await travelerAPI.caregivers.get.all(token);
-      const dependents = await travelerAPI.dependents.get.all(token);
+      // Guard this await. A rejection inside an async promise executor is swallowed
+      // and the promise never settles, so callers wait forever instead of seeing
+      // the error. Token refresh failing is the common way to hit that.
+      let token;
+      try {
+        token = await this.rootStore.authentication.fetchToken();
+      } catch (err) {
+        reject(err);
+        return;
+      }
+      let caregivers;
+      let dependents;
+      try {
+        caregivers = await travelerAPI.caregivers.get.all(token);
+        dependents = await travelerAPI.dependents.get.all(token);
+      } catch (err) {
+        reject(err);
+        return;
+      }
       // console.log('{caregivers-store} de', dependents);
-      if (!caregivers?.member || !dependents?.member)
+      if (!caregivers?.member || !dependents?.member) {
+        // Must return. Without it execution continued and assigned undefined below,
+        // which then threw when callers read .length on the result.
         reject({
           message: 'An unknown error occurred.',
         });
+        return;
+      }
 
       const validCaregivers = caregivers?.member?.filter(c => {
         return (
@@ -120,9 +140,9 @@ class Caregivers {
         return d.status === 'approved' || d.status === 'received';
       });
       runInAction(() => {
-        this.caregivers = validCaregivers;
-        this.dependents = validDependents;
-        this.denied = deniedCaregivers;
+        this.caregivers = validCaregivers || [];
+        this.dependents = validDependents || [];
+        this.denied = deniedCaregivers || [];
       });
       resolve(true);
     });
@@ -171,7 +191,16 @@ class Caregivers {
    */
   update = (id, status) => {
     return new Promise(async (resolve, reject) => {
-      const token = await this.rootStore.authentication.fetchToken();
+      // Guard this await. A rejection inside an async promise executor is swallowed
+      // and the promise never settles, so callers wait forever instead of seeing
+      // the error. Token refresh failing is the common way to hit that.
+      let token;
+      try {
+        token = await this.rootStore.authentication.fetchToken();
+      } catch (err) {
+        reject(err);
+        return;
+      }
       const userId = this.rootStore.authentication.user?.id;
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
@@ -196,7 +225,16 @@ class Caregivers {
 
   removeCaregiver = id => {
     return new Promise(async (resolve, reject) => {
-      const token = await this.rootStore.authentication.fetchToken();
+      // Guard this await. A rejection inside an async promise executor is swallowed
+      // and the promise never settles, so callers wait forever instead of seeing
+      // the error. Token refresh failing is the common way to hit that.
+      let token;
+      try {
+        token = await this.rootStore.authentication.fetchToken();
+      } catch (err) {
+        reject(err);
+        return;
+      }
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });
@@ -219,7 +257,16 @@ class Caregivers {
 
   removeDependent = id => {
     return new Promise(async (resolve, reject) => {
-      const token = await this.rootStore.authentication.fetchToken();
+      // Guard this await. A rejection inside an async promise executor is swallowed
+      // and the promise never settles, so callers wait forever instead of seeing
+      // the error. Token refresh failing is the common way to hit that.
+      let token;
+      try {
+        token = await this.rootStore.authentication.fetchToken();
+      } catch (err) {
+        reject(err);
+        return;
+      }
       runInAction(() => {
         this.rootStore.authentication.inTransaction = true;
       });
