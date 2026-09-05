@@ -3,7 +3,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import bbox from '@turf/bbox';
 import { featureCollection } from '@turf/helpers';
-import { mobility } from '@etchgis/mobility-transport-layer';
+import { skids } from '../services/transport';
 
 import config from '../config';
 
@@ -174,7 +174,7 @@ class MapStore {
       this.mapState.routesLoading = true;
     });
     const appMode = this.rootStore.uiStore.ux;
-    mobility.skids.services
+    skids.services
       .byDistance(lng, lat, 0.5, config.ORGANIZATION)
       .then(values => {
         console.log('got service: count', values.length);
@@ -199,7 +199,7 @@ class MapStore {
       this.mapState.stopsLoading = showLoading;
     });
     return new Promise((resolve, reject) => {
-      mobility.skids.feeds
+      skids.feeds
         .get(service.service, service.route.patternId, config.ORGANIZATION)
         .then(result => {
           let route = {

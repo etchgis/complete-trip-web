@@ -1,4 +1,5 @@
 import authentication from './authentication';
 import geocoder from './geocoder';
 import otp from './otp';
-export { authentication, geocoder, otp };
+import skids from './skids';
+export { authentication, geocoder, otp, skids };
