@@ -578,6 +578,18 @@ const RouteList = observer(({ routeClickHandler }) => {
     return diff / 1000;
   };
 
+  /**
+   * How long ago a position was reported, for a shuttle that has stopped
+   * sending. Rounded to the minute, which is as precise as the reading is.
+   */
+  const lastSeenToString = ageSeconds => {
+    if (!Number.isFinite(ageSeconds) || ageSeconds < 60) {
+      return 'less than a minute ago';
+    }
+    const minutes = Math.floor(ageSeconds / 60);
+    return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
+  };
+
   const durationToString = timestamp => {
     const diff = timeToDuration(timestamp);
     var hours = Math.floor(diff / 3600);
@@ -614,9 +626,11 @@ const RouteList = observer(({ routeClickHandler }) => {
     if (ux === 'callcenter') {
       const fetchData = () => {
         try {
-          skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
+          // Ask for a parked shuttle's last known position. The driver app goes
+          // quiet whenever the vehicle is stopped, and without this the call
+          // center is told the location is unknown for the whole of a layover.
+          skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION, { includeStale: true })
             .then((result) => {
-              console.log('result', result);
               let fc = {
                 type: 'FeatureCollection',
                 features: [],
@@ -635,6 +649,10 @@ const RouteList = observer(({ routeClickHandler }) => {
                   .then((results) => {
                     fc.features[0].properties = results.length && results.length > 0 ? results[0] : { title: 'Unknown' };
                     fc.features[0].properties.icon = 'shuttle-live';
+                    // Carried through so the card can say how old the position
+                    // is. A stale one is where the shuttle was, not where it is.
+                    fc.features[0].properties.stale = vehicle.stale === true;
+                    fc.features[0].properties.ageSeconds = vehicle.ageSeconds;
                     setShuttleData(fc);
                     updateShuttle(fc);
                   })
@@ -714,7 +732,14 @@ const RouteList = observer(({ routeClickHandler }) => {
                   <Divider mt={2} mb={2} />
                   <Text fontSize={16} textAlign={'left'}>Current Location</Text>
                   {shuttleData && shuttleData.features.length > 0 &&
-                    <Text mt={2} fontSize={16} textAlign={'left'}>{shuttleData.features[0].properties.title}</Text>
+                    <>
+                      <Text mt={2} fontSize={16} textAlign={'left'}>{shuttleData.features[0].properties.title}</Text>
+                      {shuttleData.features[0].properties.stale &&
+                        <Text mt={1} fontSize={14} fontWeight={'normal'} fontStyle={'italic'} textAlign={'left'}>
+                          Stopped here, last reported {lastSeenToString(shuttleData.features[0].properties.ageSeconds)}
+                        </Text>
+                      }
+                    </>
                   }
                   {shuttleData && shuttleData.features.length === 0 &&
                     <Text mt={2} fontSize={16} textAlign={'left'}>Unknown</Text>

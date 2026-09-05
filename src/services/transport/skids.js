@@ -112,16 +112,26 @@ const services = {
 const trips = {
   /**
    * Get one trip of a service, including the vehicles currently running it.
+   *
+   * A driver app only reports while the vehicle moves, so a shuttle waiting at
+   * a stop sends nothing and drops out of the response. Pass includeStale to
+   * get its last known position back instead. Those vehicles come marked
+   * `stale` with an `ageSeconds`, and must be shown as a last known location
+   * rather than a live one.
+   *
    * @param {string} id service id
    * @param {string} tripId
    * @param {string} organizationId
+   * @param {{includeStale?: boolean}} [options]
    */
-  get: (id, tripId, organizationId) =>
-    getJson(
-      `/feed/${id}/trips/${tripId}?${cacheBuster()}`,
+  get: (id, tripId, organizationId, options = {}) => {
+    const stale = options.includeStale ? '&includeStale=true' : '';
+    return getJson(
+      `/feed/${id}/trips/${tripId}?${cacheBuster()}${stale}`,
       organizationId,
       'Unknown Skids error: trips'
-    ),
+    );
+  },
 };
 
 const skids = {
