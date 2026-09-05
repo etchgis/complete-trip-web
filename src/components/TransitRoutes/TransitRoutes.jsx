@@ -24,8 +24,7 @@ import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { mobility } from '@etchgis/mobility-transport-layer';
-import { geocoder } from '../../services/transport';
+import { geocoder, skids } from '../../services/transport';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 
 export const TransitRoutes = observer(({ onShuttlePress }) => {
@@ -615,7 +614,7 @@ const RouteList = observer(({ routeClickHandler }) => {
     if (ux === 'callcenter') {
       const fetchData = () => {
         try {
-          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
+          skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
             .then((result) => {
               console.log('result', result);
               let fc = {

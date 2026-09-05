@@ -6,6 +6,9 @@ const ENV = 'stage';
 const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
 
+// The transit API has a single deployment, so every environment reads from it.
+const SKIDS_URL = 'https://api.etch.app/skids';
+
 const API = {
   dev: {
     admin: {
@@ -58,6 +61,7 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    skids: SKIDS_URL,
     assistant: {
       // Comment out the next line when not developing the assistant locally
       // url: 'http://localhost:3000/local/v3/chat',
@@ -112,6 +116,7 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    skids: SKIDS_URL,
     assistant: {
       // Comment out the next line when not developing the assistant locally
       // url: 'http://localhost:3000/local/v3/chat',
@@ -166,6 +171,7 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    skids: SKIDS_URL,
     assistant: {
       url: 'https://lambda.etch.app/assistant/v3/chat',
       xApiKey: 'IYaw4ePgA137U741zVZnY56itMez14sh6Jw7kzrg',
