@@ -1,7 +1,7 @@
 // Environment toggle - change this to switch between staging and production
 // Valid values: 'dev', 'stage', or 'prod'
 const API_ENV = 'prod';
-const ENV = 'stage';
+const ENV = 'prod';
 
 const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
@@ -166,7 +166,9 @@ const API = {
       xApiKey: 'Dff0FvSOt34pHiPxutIvY80VhMoM3YVp4lpprOPl',
     },
     dispatch: 'https://nfta.etch.app/callcenter',
-    websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/production',
+    // Staging and production are separate API Gateway websocket APIs, so the
+    // host here differs from the staging one above, not just the stage name.
+    websocket: 'wss://vnc7cq5o24.execute-api.us-east-2.amazonaws.com/production',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
