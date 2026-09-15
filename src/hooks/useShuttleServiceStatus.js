@@ -196,6 +196,9 @@ const useShuttleServiceStatus = ({
           ? { ...current, title }
           : current
       );
+      // The marker carries the same address as the card, so the map label is
+      // filled in with the card rather than at the next poll.
+      publishFeature(feedAnswer.vehicle, title);
     };
 
     const readService = async () => {

@@ -161,6 +161,11 @@ describe('addresses', () => {
 });
 
 describe('the map marker', () => {
+  // What the map is showing now. The marker is published again when a late
+  // address arrives, so the last call is the one on screen.
+  const marker = onFeature =>
+    onFeature.mock.calls[onFeature.mock.calls.length - 1][0].features;
+
   test('a failed request leaves the shuttle on the map', async () => {
     // The card says the page could not reach the tracking, and the map beside
     // it has to agree. Clearing the marker tells an agent the shuttle is gone.
@@ -168,8 +173,8 @@ describe('the map marker', () => {
     const onFeature = vi.fn();
 
     const { result, rerender } = render({ onFeature });
-    await waitFor(() => expect(onFeature).toHaveBeenCalledTimes(1));
-    expect(onFeature.mock.calls[0][0].features).toHaveLength(1);
+    await waitFor(() => expect(onFeature).toHaveBeenCalled());
+    expect(marker(onFeature)).toHaveLength(1);
 
     vehicles.mockRejectedValue(new Error('503'));
     rerender(options({ tripId: 'A2', onFeature }));
@@ -177,7 +182,9 @@ describe('the map marker', () => {
     await waitFor(() =>
       expect(result.current.position.state).toBe('unreachable')
     );
-    expect(onFeature).toHaveBeenCalledTimes(1);
+    expect(onFeature.mock.calls.every(call => call[0].features.length === 1)).toBe(
+      true
+    );
   });
 
   test('a map that throws does not stop the card from updating', async () => {
@@ -196,18 +203,40 @@ describe('the map marker', () => {
     expect(result.current.position.location.title).toBe('Main St at Utica');
   });
 
+  test('puts an address that arrives late on the marker, not only on the card', async () => {
+    vi.useFakeTimers();
+    let name;
+    reverse.mockImplementation(
+      () => new Promise(resolve => {
+        name = () => resolve([{ title: 'Main St at Utica' }]);
+      })
+    );
+    const onFeature = vi.fn();
+
+    const { result } = render({ onFeature });
+    await settle();
+    expect(onFeature).toHaveBeenCalledTimes(1);
+    expect(onFeature.mock.calls[0][0].features[0].properties.title).toBe(null);
+
+    name();
+    await settle();
+    expect(result.current.position.location.title).toBe('Main St at Utica');
+    const last = onFeature.mock.calls[onFeature.mock.calls.length - 1][0];
+    expect(last.features[0].properties.title).toBe('Main St at Utica');
+    expect(last.features[0].geometry.coordinates).toEqual([-78.86, 42.89]);
+  });
+
   test('an answer reporting nothing does clear the shuttle from the map', async () => {
     const onFeature = vi.fn();
     reverse.mockResolvedValue([{ title: 'Main St at Utica' }]);
 
     const { rerender } = render({ onFeature });
-    await waitFor(() => expect(onFeature).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(onFeature).toHaveBeenCalled());
 
     vehicles.mockResolvedValue({ vehicles: [] });
     rerender(options({ tripId: 'A2', onFeature }));
 
-    await waitFor(() => expect(onFeature).toHaveBeenCalledTimes(2));
-    expect(onFeature.mock.calls[1][0].features).toHaveLength(0);
+    await waitFor(() => expect(marker(onFeature)).toHaveLength(0));
   });
 });
 
