@@ -458,6 +458,10 @@ const FEEDBACK = {
 // availability check for this service, so they are never copied into the app.
 const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
 
+// The All Access Loop shuttle. A trip plan can ride it, so its hours and
+// closures come from the availability check for this service.
+const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
+
 const defaults = {
   ENV: ENV,
   DEBUG: false,
@@ -493,6 +497,7 @@ const defaults = {
   NOTIFY_METHODS,
   FEEDBACK,
   HDS_SERVICE_ID,
+  UB_SHUTTLE_SERVICE_ID,
 };
 const config = { ...defaults };
 
