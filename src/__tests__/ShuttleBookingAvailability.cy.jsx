@@ -510,6 +510,61 @@ describe('summoning the shuttle from the kiosk', () => {
     cy.wait('@ride', { timeout: RIDE_MS + 4000 });
   });
 
+  it('reuses the same idempotency key when the rider retries an unconfirmed booking', () => {
+    const RIDE_MS = 8000;
+    const keys = [];
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      keys.push(req.headers['idempotency-key']);
+      req.reply({ delay: RIDE_MS, statusCode: 200, body: { id: 'ride-1' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    mountSummon(cy.stub().as('success'), { requestTimeoutMs: 1000 });
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+    cy.contains(RIDE_UNCONFIRMED).should('be.visible');
+    cy.get('@ride.all').should('have.length', 1);
+
+    // The "Try again anyway" tap is a retry of the same booking, so it carries
+    // the key the first attempt sent.
+    cy.get(SUMMON_BUTTON).click();
+    cy.get('@ride.all').should('have.length', 2);
+    cy.wrap(null).should(() => {
+      expect(keys[0]).to.be.a('string').and.not.be.empty;
+      expect(keys[1]).to.equal(keys[0]);
+    });
+
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+  });
+
+  it('sends a different idempotency key for a brand-new booking', () => {
+    const keys = [];
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      keys.push(req.headers['idempotency-key']);
+      req.reply({ statusCode: 200, body: { id: 'ride-1' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    mountSummon(cy.stub().as('success'));
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+    cy.wait('@ride');
+    cy.get('@success').should('have.been.calledOnce');
+
+    // A second booking is a new intent, so it gets its own key.
+    cy.get(SUMMON_BUTTON).click();
+    cy.wait('@ride');
+    cy.get('@success').should('have.been.calledTwice');
+    cy.wrap(null).should(() => {
+      expect(keys[0]).to.be.a('string').and.not.be.empty;
+      expect(keys[1]).to.be.a('string').and.not.be.empty;
+      expect(keys[1]).to.not.equal(keys[0]);
+    });
+  });
+
   it('keeps the ride-not-confirmed warning after the form is closed and reopened', () => {
     const RIDE_MS = 6000;
     cy.intercept('GET', CHECK_URL, OPEN).as('check');

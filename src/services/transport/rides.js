@@ -2,7 +2,7 @@ import config from '../../config';
 
 const rides = {
 
-  request(organizationId, datetime, direction, pickup, dropoff, driverId, passengers, phone, pin) {
+  request(organizationId, datetime, direction, pickup, dropoff, driverId, passengers, phone, pin, idempotencyKey) {
     const body = {
       organization: organizationId,
       passengers: passengers || 1,
@@ -17,14 +17,20 @@ const rides = {
     if (driverId) {
       body.driver = driverId;
     }
+    const headers = {
+      // Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'x-api-key': config.SERVICES.rides.xApiKey,
+    };
+    // The caller sends one key per booking and reuses it when it retries, so a
+    // retry after a lost reply returns the first ride instead of booking again.
+    if (idempotencyKey) {
+      headers['Idempotency-Key'] = idempotencyKey;
+    }
     return fetch(`${config.SERVICES.rides.url}/request`, {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: {
-        // Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'x-api-key': config.SERVICES.rides.xApiKey,
-      },
+      headers,
     }).then(async (response) => {
       const json = await response.json();
       if (response.status === 200) {

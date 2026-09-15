@@ -7,6 +7,7 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import rides from '../../services/transport/rides';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
@@ -74,6 +75,11 @@ const ShuttleSummonModal = observer(({
   // reply only acts on the form when the number still matches, so an earlier
   // rider's reply cannot touch a later rider's session.
   const sessionRef = useRef(0);
+  // One idempotency key per booking intent. A fresh booking makes a new key; a
+  // "Try again anyway" retry of the same booking reuses it, so the server can
+  // tell a retry from a new ride and never books the same one twice. It is
+  // cleared once the booking resolves or the rider books a different number.
+  const intentKeyRef = useRef(null);
 
   useEffect(() => {
     if (ux !== 'kiosk' || !isOpen) return;
@@ -199,6 +205,12 @@ const ShuttleSummonModal = observer(({
       // The session that owns this request. If the form is closed and reopened
       // the session changes, and any reply to this request is then ignored.
       const session = sessionRef.current;
+      // Reuse the key from an unconfirmed attempt so a retry dedupes; otherwise
+      // start a new booking intent with a fresh key.
+      if (!intentKeyRef.current) {
+        intentKeyRef.current = uuidv4();
+      }
+      const idempotencyKey = intentKeyRef.current;
       const requested = rides.request(
         organizationId,
         datetime,
@@ -208,7 +220,8 @@ const ShuttleSummonModal = observer(({
         driverId,
         passengers,
         phone,
-        pin
+        pin,
+        idempotencyKey
       );
 
       // The reply can still arrive after we have stopped waiting for it, and
@@ -220,12 +233,14 @@ const ShuttleSummonModal = observer(({
           if (!timedOut || sessionRef.current !== session) return;
           console.log('SUMMONED RESULT (late):', result);
           setUnconfirmed(null);
+          intentKeyRef.current = null;
           setError('');
           onSuccess();
         },
         e => {
           if (!timedOut || sessionRef.current !== session) return;
           setUnconfirmed(null);
+          intentKeyRef.current = null;
           setError(requestErrorMessage(t, e));
         }
       );
@@ -240,6 +255,7 @@ const ShuttleSummonModal = observer(({
         if (sessionRef.current !== session) return;
         console.log('SUMMONED RESULT:', result);
         setUnconfirmed(null);
+        intentKeyRef.current = null;
         onSuccess();
       } catch (e) {
         if (sessionRef.current !== session) return;
@@ -252,6 +268,7 @@ const ShuttleSummonModal = observer(({
         }
         else {
           setUnconfirmed(null);
+          intentKeyRef.current = null;
           setError(requestErrorMessage(t, e));
         }
       } finally {
@@ -270,6 +287,9 @@ const ShuttleSummonModal = observer(({
     const typed = `+1${areaCode}${phone1}${phone2}`;
     if (unconfirmed && typed.length === 12 && typed !== unconfirmed) {
       setUnconfirmed(null);
+      // A different number is a different booking, so the next tap starts a new
+      // intent with its own key.
+      intentKeyRef.current = null;
     }
   }, [unconfirmed, areaCode, phone1, phone2]);
 
