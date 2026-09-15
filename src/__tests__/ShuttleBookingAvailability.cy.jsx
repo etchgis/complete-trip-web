@@ -57,7 +57,15 @@ const withStore = (store, children) => (
   </MemoryRouter>
 );
 
-const mountRoutes = onShuttlePress => {
+// A scheduled route tile, which loads its stops rather than booking anything.
+const BUS_ROUTE = {
+  mode: 'bus',
+  service: 'nfta-metro',
+  name: 'Route 12',
+  route: { patternId: 'p1', shortName: '12' },
+};
+
+const mountRoutes = (onShuttlePress, alsoOnScreen = []) => {
   const store = new RootStore();
   store.uiStore.setUX('webapp');
   store.mapStore.setMapState('routesLoading', false);
@@ -67,6 +75,7 @@ const mountRoutes = onShuttlePress => {
       service: config.HDS_SERVICE_ID,
       name: 'NFTA Community Shuttle',
     },
+    ...alsoOnScreen,
   ]);
   mount(withStore(store, <TransitRoutes onShuttlePress={onShuttlePress} />));
 };
@@ -272,8 +281,12 @@ describe('tapping the community shuttle on the kiosk route list', () => {
   });
 
   it('shows the tile as busy while checking and presses once for repeated taps', () => {
+    // Each reply is quick enough that a tap the guard failed to hold would get
+    // its own answer and open the booking, rather than timing out unnoticed.
+    let asked = 0;
     cy.intercept('GET', CHECK_URL, req => {
-      req.reply({ delay: 3000, body: OPEN });
+      asked += 1;
+      req.reply({ delay: 250, body: OPEN });
     }).as('check');
     const onShuttlePress = cy.stub().as('press');
     mountRoutes(onShuttlePress);
@@ -283,7 +296,29 @@ describe('tapping the community shuttle on the kiosk route list', () => {
     cy.wait('@check');
     cy.get('@press').should('have.been.calledOnce');
     cy.get(SHUTTLE_TILE).should('not.have.attr', 'aria-busy', 'true');
-    cy.get('@check.all').should('have.length', 1);
+
+    // Three more taps, each one answered, and still one booking each.
+    tapThreeTimes(SHUTTLE_TILE);
+    cy.get('@press').should('have.been.calledTwice');
+    cy.wrap(null).should(() => {
+      expect(asked).to.equal(2);
+    });
+  });
+
+  it('ignores a check that answers after the rider has tapped another route', () => {
+    cy.intercept('GET', CHECK_URL, req => {
+      req.reply({ delay: 1500, body: OPEN });
+    }).as('check');
+    cy.intercept('GET', '**/feed/**', { statusCode: 200, body: {} }).as('stops');
+    const onShuttlePress = cy.stub().as('press');
+    mountRoutes(onShuttlePress, [BUS_ROUTE]);
+
+    cy.get(SHUTTLE_TILE).first().click();
+    cy.get(SHUTTLE_TILE).last().click();
+    cy.wait('@check');
+    cy.get('@press').should('not.have.been.called');
+    cy.contains(NOT_AVAILABLE).should('not.exist');
+    cy.contains(UNCONFIRMED).should('not.exist');
   });
 });
 

@@ -50,6 +50,9 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
   // on it do nothing until the answer is in.
   const [checkingShuttle, setCheckingShuttle] = useState(false);
   const checkingShuttleRef = useRef(false);
+  // Counts taps on the route list. An availability check that answers after
+  // the rider has tapped something else is about a tile they have left.
+  const tapRef = useRef(0);
   const { pathname } = useLocation();
 
   const intervalRef = useRef();
@@ -102,6 +105,11 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
 
   const routeClickHandler = async service => {
     console.log('[map-view] route click handler');
+    // A second tap on the shuttle while its check is out is not a new tap: it
+    // is the same rider waiting, so it must not cancel the answer they are
+    // waiting for.
+    if (service.mode === 'shuttle' && checkingShuttleRef.current) return;
+    const tap = (tapRef.current += 1);
     try {
       setDefaultAddress('');
       setKeyboardInputValue(''); //NOTE this is supposed to clear the keyboard input (not working)
@@ -138,7 +146,6 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           });
       }
       else if (service.mode === 'shuttle') {
-        if (checkingShuttleRef.current) return;
         checkingShuttleRef.current = true;
         setCheckingShuttle(true);
         try {
@@ -152,6 +159,9 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
               ? service.service
               : config.HDS_SERVICE_ID
           );
+          // The rider has tapped another route since, so this answer is no
+          // longer about what is on screen.
+          if (tapRef.current !== tap) return;
           if (verdict === 'available') {
             if (onShuttlePress) onShuttlePress(service);
           } else {
