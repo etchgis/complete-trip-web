@@ -462,6 +462,11 @@ export function deriveVerdict(service, position) {
     if (position.state === 'out-of-date') {
       return { state: 'running-position-old', ageMs: finiteOrNull(position.ageMs) };
     }
+    // The schedule still counts the service as running, but the shuttle's own
+    // driver has reported off duty, so a rider cannot be told it is coming.
+    if (position.state === 'off-duty') {
+      return { state: 'running-driver-off-duty', ageMs: finiteOrNull(position.ageMs) };
+    }
   }
   return { state: service.state, ageMs: null };
 }
@@ -509,16 +514,18 @@ function derivePosition(poll, history, now) {
       coordinates: poll.vehicle.coordinates,
     };
 
+    // The feed withholds anything older than its window, so a position past
+    // it is one the shuttle would already have dropped off the feed with. This
+    // comes before the duty flag, because an off-duty report that old says
+    // nothing about what the driver is doing now.
+    if (age.ageMs !== null && age.ageMs > FEED_REPORT_WINDOW_MS) {
+      return { ...empty, state: 'no-contact', location, ...age };
+    }
+
     if (poll.vehicle.onDuty === false) {
       // An explicit off-duty report is the only trustworthy way to say the
       // driver is on a break rather than out of contact.
       return { ...empty, state: 'off-duty', location, ...age };
-    }
-
-    // The feed withholds anything older than its window, so a position past
-    // it is one the shuttle would already have dropped off the feed with.
-    if (age.ageMs !== null && age.ageMs > FEED_REPORT_WINDOW_MS) {
-      return { ...empty, state: 'no-contact', location, ...age };
     }
 
     const outOfDate =

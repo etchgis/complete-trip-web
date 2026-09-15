@@ -6,9 +6,11 @@ import { CloseIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import rides from '../../services/transport/rides';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
+import config from '../../config';
 
 /**
  * Modal component for summoning a shuttle with PIN and phone verification
@@ -38,6 +40,10 @@ const ShuttleSummonModal = observer(({
   const areaCodeRef = useRef(null);
   const phone1Ref = useRef(null);
   const phone2Ref = useRef(null);
+  // Set from the first tap on Summon Shuttle until the request is done, so more
+  // taps while it is out cannot send a second shuttle.
+  const [summoning, setSummoning] = useState(false);
+  const summoningRef = useRef(false);
 
   useEffect(() => {
     if (ux !== 'kiosk' || !isOpen) return;
@@ -88,8 +94,9 @@ const ShuttleSummonModal = observer(({
 
     if (pinInputRef.current) {
       // Focus the PIN field after a brief delay to ensure the modal is fully rendered
+      // The modal can close before this runs, which removes the field.
       setTimeout(() => {
-        pinInputRef.current.focus();
+        pinInputRef.current?.focus();
       }, 200);
     }
   };
@@ -100,12 +107,34 @@ const ShuttleSummonModal = observer(({
     }
   }, [isOpen]);
 
-  const handleSummonPress = () => {
+  const handleSummonPress = async () => {
+    if (summoningRef.current) return;
     if (pin.length !== 4 || areaCode.length !== 3 || phone1.length !== 3 || phone2.length !== 4) {
       setError(t('tripWizard.popUpError'));
+      return;
     }
-    else {
-      setError('');
+
+    summoningRef.current = true;
+    setSummoning(true);
+    setError('');
+    try {
+      // This creates a ride for right now, and the rider may have spent minutes
+      // on the destination, PIN and phone since tapping the shuttle, so the
+      // shuttle is checked again here. Only a check that says it is running
+      // lets the ride through. A failed or slow check, or a service with no
+      // hours on record, is refused as unconfirmed rather than as closed.
+      const verdict = await checkServiceAvailability(config.HDS_SERVICE_ID);
+      if (verdict !== 'available') {
+        setError(
+          t(
+            verdict === 'unavailable'
+              ? 'routeList.shuttleNotAvailableTimeFrame'
+              : 'tripWizard.shuttleUnconfirmed'
+          )
+        );
+        return;
+      }
+
       const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
         driverId = null,
         datetime = Date.now(),
@@ -127,29 +156,31 @@ const ShuttleSummonModal = observer(({
           trip.request.destination.point.lat
         ]
       };
-      rides.request(
-        organizationId,
-        datetime,
-        'leave',
-        pickup,
-        dropoff,
-        driverId,
-        passengers,
-        `+1${areaCode}${phone1}${phone2}`,
-        pin
-      )
-        .then((result) => {
-          console.log('SUMMONED RESULT:', result);
-          onSuccess();
-        })
-        .catch((e) => {
-          if (e === 'invalid pin' || e === 'user not found for this phone number') {
-            setError(t('tripWizard.popUpError'));
-          }
-          else {
-            setError(t('tripWizard.popUpUnknownError'));
-          }
-        });
+      try {
+        const result = await rides.request(
+          organizationId,
+          datetime,
+          'leave',
+          pickup,
+          dropoff,
+          driverId,
+          passengers,
+          `+1${areaCode}${phone1}${phone2}`,
+          pin
+        );
+        console.log('SUMMONED RESULT:', result);
+        onSuccess();
+      } catch (e) {
+        if (e === 'invalid pin' || e === 'user not found for this phone number') {
+          setError(t('tripWizard.popUpError'));
+        }
+        else {
+          setError(t('tripWizard.popUpUnknownError'));
+        }
+      }
+    } finally {
+      summoningRef.current = false;
+      setSummoning(false);
     }
   };
 
@@ -340,6 +371,7 @@ const ShuttleSummonModal = observer(({
             width={'100%'}
             type='button'
             onClick={handleSummonPress}
+            isLoading={summoning}
             data-test-id="summon-shuttle-button"
           >
             {t('tripWizard.summonShuttle')}

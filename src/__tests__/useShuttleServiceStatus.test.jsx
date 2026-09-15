@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, renderHook, waitFor } from '@testing-library/react';
 
 import useShuttleServiceStatus, {
+  GEOCODE_TIMEOUT_MS,
   POLL_INTERVAL_MS,
 } from '../hooks/useShuttleServiceStatus';
 
@@ -100,6 +101,46 @@ describe('addresses', () => {
       ])
     );
     expect(result.current.position.location.title).toBe(null);
+  });
+
+  test('a geocoder that never answers does not hold up the status', async () => {
+    vi.useFakeTimers();
+    reverse.mockImplementation(() => new Promise(() => {}));
+
+    const { result } = render();
+    await settle();
+    // The card shows the position before any address is known.
+    expect(result.current.position.state).toBe('reporting');
+    expect(result.current.position.location.title).toBe(null);
+
+    // The shuttle keeps moving and every poll still goes out and lands.
+    vehicles.mockResolvedValue(at([-78.87, 42.9]));
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS);
+    await settle();
+    expect(result.current.position.location.coordinates).toEqual([-78.87, 42.9]);
+
+    vehicles.mockResolvedValue(at([-78.88, 42.91]));
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS);
+    await settle();
+    expect(vehicles).toHaveBeenCalledTimes(3);
+    expect(result.current.position.location.coordinates).toEqual([-78.88, 42.91]);
+  });
+
+  test('gives up on an address after the timeout and asks again on a later poll', async () => {
+    vi.useFakeTimers();
+    reverse
+      .mockImplementationOnce(() => new Promise(() => {}))
+      .mockResolvedValue([{ title: 'Main St at Utica' }]);
+
+    const { result } = render();
+    await settle();
+    expect(reverse).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(GEOCODE_TIMEOUT_MS);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS - GEOCODE_TIMEOUT_MS);
+    await settle();
+    expect(reverse).toHaveBeenCalledTimes(2);
+    expect(result.current.position.location.title).toBe('Main St at Utica');
   });
 
   test('asks the geocoder again for a position it has not resolved', async () => {

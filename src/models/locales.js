@@ -603,6 +603,7 @@ export default function genLocales() {
         serviceRunningNoContact: 'Service running - no contact for %{since}',
         serviceRunningNotReporting: 'Service running - shuttle not reporting',
         serviceRunningTrackingUnavailable: 'Service running - tracking unavailable',
+        serviceScheduledDriverOffDuty: 'Service scheduled - driver off duty',
         serviceNoDriver: 'No driver on duty',
         serviceNotRunning: 'Service not running',
         serviceUnknown: 'Service status unavailable',
@@ -676,6 +677,7 @@ export default function genLocales() {
         serviceRunningNoContact: 'Servicio en marcha - sin contacto desde hace %{since}',
         serviceRunningNotReporting: 'Servicio en marcha - el autobús no reporta',
         serviceRunningTrackingUnavailable: 'Servicio en marcha - seguimiento no disponible',
+        serviceScheduledDriverOffDuty: 'Servicio programado - conductor fuera de servicio',
         serviceNoDriver: 'No hay conductor de turno',
         serviceNotRunning: 'Servicio no disponible',
         serviceUnknown: 'Estado del servicio no disponible',
@@ -793,6 +795,9 @@ export default function genLocales() {
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
         popUpUnknownError: "An unknown error occurred. Please try again.",
+        shuttleUnconfirmed: "We can't confirm the shuttle is running right now. Please try again.",
+        shuttleHoursChecking: 'Checking Community Shuttle hours...',
+        shuttleHoursUnconfirmed: "Couldn't confirm Community Shuttle hours.",
         popUpSuccess: "Success! Your shuttle will arrive in about 5 minutes.",
         popUpDirectionsTitle: "Pickup Location:",
         popUpDirectionsImage: "Pickup location photo:",
@@ -851,6 +856,9 @@ export default function genLocales() {
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
+        shuttleUnconfirmed: "No podemos confirmar que el autobús esté funcionando en este momento. Inténtalo de nuevo.",
+        shuttleHoursChecking: 'Comprobando el horario del transporte comunitario...',
+        shuttleHoursUnconfirmed: 'No se pudo confirmar el horario del transporte comunitario.',
         popUpSuccess: "¡Éxito! Tu transporte llegará en aproximadamente 5 minutos.",
         popUpDirectionsTitle: "Ubicación de recogida:",
         popUpDirectionsImage: "Foto de la ubicación de recogida:",

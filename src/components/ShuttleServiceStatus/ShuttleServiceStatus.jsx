@@ -1,6 +1,7 @@
 import { Badge, Box, Divider, Text } from '@chakra-ui/react';
 
 import {
+  CONTACT_STALE_MS,
   FEED_REPORT_WINDOW_MS,
   deriveVerdict,
   describeAge,
@@ -22,6 +23,12 @@ const VERDICT_BADGES = {
   'running-tracking-unavailable': {
     key: 'serviceRunningTrackingUnavailable',
     colorScheme: 'gray',
+  },
+  // The schedule counts the service as running, but this shuttle's driver has
+  // reported off duty, so the badge cannot be the green "running" one.
+  'running-driver-off-duty': {
+    key: 'serviceScheduledDriverOffDuty',
+    colorScheme: 'orange',
   },
   'no-driver': { key: 'serviceNoDriver', colorScheme: 'red' },
   'not-running': { key: 'serviceNotRunning', colorScheme: 'red' },
@@ -60,9 +67,17 @@ const POSITION_DETAILS = {
   unreachable: 'positionUnreachableDetail',
 };
 
-// States where the position on screen is the shuttle's current whereabouts
-// rather than the last place it was seen before it went quiet.
-const CURRENT = ['reporting', 'off-duty'];
+// Whether the position on screen is the shuttle's current whereabouts rather
+// than the last place it was seen. An off-duty report counts only while it is
+// as fresh as a reporting one.
+function isCurrentPosition(position) {
+  if (position.state === 'reporting') return true;
+  return (
+    position.state === 'off-duty' &&
+    typeof position.ageMs === 'number' &&
+    position.ageMs <= CONTACT_STALE_MS
+  );
+}
 
 // The copy names the window the feed will answer for, so the bound an agent
 // reads is the one the request actually asked for.
@@ -144,7 +159,7 @@ export const ShuttleServiceStatus = ({ status }) => {
 
       <Text fontSize={16} textAlign={'left'} fontWeight={'bold'}>
         {t(
-          CURRENT.indexOf(position.state) !== -1
+          isCurrentPosition(position)
             ? 'shuttleStatus.currentLocation'
             : 'shuttleStatus.lastKnownLocation'
         )}

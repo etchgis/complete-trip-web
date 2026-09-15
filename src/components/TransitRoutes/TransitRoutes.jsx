@@ -46,6 +46,10 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
   const [searchResult, setSearchResult] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  // Set while the shuttle tile waits on the availability check, so more taps
+  // on it do nothing until the answer is in.
+  const [checkingShuttle, setCheckingShuttle] = useState(false);
+  const checkingShuttleRef = useRef(false);
   const { pathname } = useLocation();
 
   const intervalRef = useRef();
@@ -134,19 +138,35 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           });
       }
       else if (service.mode === 'shuttle') {
-        // Only a definite "not running" from the service's own availability
-        // check stops the booking. A check that could not be read lets it
-        // through, because the failure is ours and not the shuttle's.
-        const verdict = await checkServiceAvailability(
-          typeof service.service === 'string' && service.service
-            ? service.service
-            : config.HDS_SERVICE_ID
-        );
-        if (verdict === 'unavailable') {
-          setAlertMessage(t('routeList.shuttleNotAvailableTimeFrame'));
-          setAlertModalOpen(true);
-        } else if (onShuttlePress) {
-          onShuttlePress(service);
+        if (checkingShuttleRef.current) return;
+        checkingShuttleRef.current = true;
+        setCheckingShuttle(true);
+        try {
+          // This tile starts a request for a shuttle right now, so it only
+          // goes ahead when the availability check says the shuttle is
+          // running. A check that failed, timed out, or has no hours on record
+          // is refused with a message that says we could not confirm it,
+          // rather than that the shuttle is not running.
+          const verdict = await checkServiceAvailability(
+            typeof service.service === 'string' && service.service
+              ? service.service
+              : config.HDS_SERVICE_ID
+          );
+          if (verdict === 'available') {
+            if (onShuttlePress) onShuttlePress(service);
+          } else {
+            setAlertMessage(
+              t(
+                verdict === 'unavailable'
+                  ? 'routeList.shuttleNotAvailableTimeFrame'
+                  : 'tripWizard.shuttleUnconfirmed'
+              )
+            );
+            setAlertModalOpen(true);
+          }
+        } finally {
+          checkingShuttleRef.current = false;
+          setCheckingShuttle(false);
         }
       }
     } catch (error) {
@@ -318,7 +338,10 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           <BackButton backClickHandler={backClickHandler} />
         </Box>
         {/* ROUTES AND STOPS LIST */}
-        <RouteList routeClickHandler={routeClickHandler} />
+        <RouteList
+          routeClickHandler={routeClickHandler}
+          checkingShuttle={checkingShuttle}
+        />
         <StopTimesList stopClickHandler={stopClickHandler} />
       </Flex>
       <AlertModal 
@@ -573,7 +596,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
   // );
 });
 
-const RouteList = observer(({ routeClickHandler }) => {
+const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
   const { routes, stoptimes, routesLoading } = useStore().mapStore.mapState;
   const { updateShuttle } = useStore().mapStore;
   const { debug } = useStore().uiStore;
@@ -686,6 +709,8 @@ const RouteList = observer(({ routeClickHandler }) => {
                   key={i}
                   data-testid="map-route-list-button"
                   onClick={() => routeClickHandler(r)}
+                  isLoading={r.mode === 'shuttle' && checkingShuttle}
+                  aria-busy={r.mode === 'shuttle' && checkingShuttle}
                   background={`#${r.color || 'brand'}`}
                   color={`#${r.textColor || 'ffffff'}`}
                   _hover={{

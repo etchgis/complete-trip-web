@@ -582,7 +582,19 @@ describe('deriveStatus position', () => {
     expect(status.position.state).toBe('unreachable');
   });
 
-  test('an explicit off duty report outranks the position age', () => {
+  test('an off duty report inside the feed window outranks an out of date position', () => {
+    const vehicle = readVehicle(
+      feedWith(driverVehicle({ onDuty: false, isStale: true, ageSeconds: 120 }))
+    );
+    const status = deriveStatus({
+      poll: poll({ vehicle }),
+      history: {},
+      now: NOW,
+    });
+    expect(status.position.state).toBe('off-duty');
+  });
+
+  test('an off duty report older than the feed window is lost contact, not off duty', () => {
     const vehicle = readVehicle(
       feedWith(driverVehicle({ onDuty: false, ageSeconds: 600 }))
     );
@@ -591,7 +603,8 @@ describe('deriveStatus position', () => {
       history: {},
       now: NOW,
     });
-    expect(status.position.state).toBe('off-duty');
+    expect(status.position.state).toBe('no-contact');
+    expect(status.position.ageMs).toBe(600000);
   });
 
   test('falls back to the device fix time when the server sends no age', () => {
@@ -656,6 +669,26 @@ describe('deriveVerdict', () => {
     expect(
       deriveVerdict(running, { state: 'no-report', ageMs: null }).ageMs
     ).toBe(null);
+  });
+
+  test('a running service whose driver reported off duty is not a green running badge', () => {
+    ['off-duty report', 'old off-duty report'].forEach((name, i) => {
+      const status = deriveStatus({
+        poll: poll({
+          availability: readAvailability(available()),
+          vehicle: readVehicle(
+            feedWith(driverVehicle({ onDuty: false, ageSeconds: i === 0 ? 30 : 1500 }))
+          ),
+        }),
+        history: {},
+        now: NOW,
+      });
+      const verdict = deriveVerdict(status.service, status.position);
+      expect(verdict.state, name).not.toBe('running');
+    });
+    expect(
+      deriveVerdict(running, { state: 'off-duty', ageMs: 30000 }).state
+    ).toBe('running-driver-off-duty');
   });
 
   test('a shuttle that is reporting leaves the service verdict alone', () => {

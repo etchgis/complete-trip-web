@@ -27,8 +27,19 @@ const leafKeys = (value, path = '') => {
   );
 };
 
+// The value at a dotted path, or undefined when the path does not exist.
+const valueAt = (value, path) =>
+  path.split('.').reduce((node, key) => (node == null ? undefined : node[key]), value);
+
+// A string that is empty or only spaces shows the rider a blank, so it counts
+// as missing rather than as a translation.
+const isBlank = value => typeof value !== 'string' || value.trim() === '';
+
+const translatedKeys = strings =>
+  leafKeys(strings).filter(key => !isBlank(valueAt(strings, key)));
+
 const missingFrom = (source, target) => {
-  const present = new Set(leafKeys(target));
+  const present = new Set(translatedKeys(target));
   return leafKeys(source).filter(key => !present.has(key));
 };
 
@@ -102,6 +113,20 @@ describe('Checks that english and spanish objects exist', () => {
     const languages = generateLanguages(genLocales());
     expect(languages.en).to.exist;
     expect(languages.es).to.exist;
+  });
+});
+
+describe('Checks that no string is blank', () => {
+  it('Every English and Spanish string has text', () => {
+    const { en, es } = generateLanguages(genLocales());
+    const blankEnglish = leafKeys(en).filter(
+      key => isBlank(valueAt(en, key)) && KNOWN_SPANISH_ONLY.indexOf(key) === -1
+    );
+    const blankSpanish = leafKeys(es).filter(
+      key => isBlank(valueAt(es, key)) && KNOWN_ENGLISH_ONLY.indexOf(key) === -1
+    );
+    expect(blankEnglish).to.deep.equal([]);
+    expect(blankSpanish).to.deep.equal([]);
   });
 });
 

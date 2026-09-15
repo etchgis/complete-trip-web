@@ -28,6 +28,10 @@ export const MAX_BACKOFF_MS = 2 * 60 * 1000;
 // same loop keeps hitting the addresses it already resolved.
 const COORDINATE_PRECISION = 4;
 
+// How long to wait for a street address before showing the coordinates
+// instead. The lookup runs beside the status poll, never in front of it.
+export const GEOCODE_TIMEOUT_MS = 5000;
+
 // How many resolved addresses to keep. A route's worth of stops and corners
 // fits comfortably, and the oldest is dropped once it does not.
 const TITLE_CACHE_LIMIT = 200;
@@ -122,32 +126,76 @@ const useShuttleServiceStatus = ({
       }
     };
 
-    const titleFor = async coordinates => {
+    const coordinateKey = coordinates =>
+      coordinates.map(value => value.toFixed(COORDINATE_PRECISION)).join(',');
+
+    // Addresses being looked up right now, so a slow lookup is not started a
+    // second time by the next poll.
+    const pendingTitles = new Set();
+
+    const lookUpTitle = async coordinates => {
+      let timer;
       try {
-        const key = coordinates
-          .map(value => value.toFixed(COORDINATE_PRECISION))
-          .join(',');
-        const cache = titleCacheRef.current;
-        if (cache.has(key)) return cache.get(key);
-        const results = await geocoder.reverse({
-          lat: coordinates[1],
-          lng: coordinates[0],
+        const timeout = new Promise((resolve, reject) => {
+          timer = setTimeout(
+            () => reject(new Error(`no answer after ${GEOCODE_TIMEOUT_MS} ms`)),
+            GEOCODE_TIMEOUT_MS
+          );
         });
-        const title =
-          Array.isArray(results) && results.length > 0 ? results[0].title : null;
-        if (cache.size >= TITLE_CACHE_LIMIT) {
-          cache.delete(cache.keys().next().value);
-        }
-        cache.set(key, title);
-        return title;
+        const results = await Promise.race([
+          geocoder.reverse({ lat: coordinates[1], lng: coordinates[0] }),
+          timeout,
+        ]);
+        return {
+          ok: true,
+          title:
+            Array.isArray(results) && results.length > 0 ? results[0].title : null,
+        };
       } catch (e) {
         // The address we hold belongs to a different place than the one we were
         // just asked about, so reusing it would put an old street name under a
         // new position. The card shows the coordinates instead, which are at
         // least true.
         console.warn('[shuttle-status] reverse geocode failed', e);
-        return null;
+        return { ok: false, title: null };
+      } finally {
+        clearTimeout(timer);
       }
+    };
+
+    // Looks up the address for a position and, when it arrives, puts it on the
+    // card if the card is still showing that position. Nothing waits on this.
+    const resolveTitle = async coordinates => {
+      const key = coordinateKey(coordinates);
+      if (pendingTitles.has(key)) return;
+      pendingTitles.add(key);
+      const { ok, title } = await lookUpTitle(coordinates);
+      pendingTitles.delete(key);
+      if (canceled || !ok) return;
+
+      const cache = titleCacheRef.current;
+      if (cache.size >= TITLE_CACHE_LIMIT) {
+        cache.delete(cache.keys().next().value);
+      }
+      cache.set(key, title);
+
+      const history = historyRef.current;
+      if (history.lastVehicle && coordinateKey(history.lastVehicle.coordinates) === key) {
+        historyRef.current = { ...history, lastTitle: title };
+      }
+      if (
+        !feedAnswer ||
+        !feedAnswer.vehicle ||
+        coordinateKey(feedAnswer.vehicle.coordinates) !== key
+      ) {
+        return;
+      }
+      feedAnswer = { ...feedAnswer, title };
+      setPoll(current =>
+        current && current.vehicle && coordinateKey(current.vehicle.coordinates) === key
+          ? { ...current, title }
+          : current
+      );
     };
 
     const readService = async () => {
@@ -183,6 +231,7 @@ const useShuttleServiceStatus = ({
       }
 
       let published = false;
+      let lookUp = null;
       if (askVehicles) {
         recordAttempt(vehicleBackoff, feed.ok);
         if (feed.ok) {
@@ -193,8 +242,12 @@ const useShuttleServiceStatus = ({
               : null,
             { vehicle: feed.vehicle, requestedAt }
           );
-          const title = vehicle ? await titleFor(vehicle.coordinates) : null;
-          if (canceled) return;
+          // A known address is used straight away. An unknown one is looked up
+          // on the side and filled in when it arrives.
+          const key = vehicle ? coordinateKey(vehicle.coordinates) : null;
+          const cache = titleCacheRef.current;
+          const title = key !== null && cache.has(key) ? cache.get(key) : null;
+          if (key !== null && !cache.has(key)) lookUp = vehicle.coordinates;
 
           feedAnswer = { ok: true, vehicle, title, requestedAt };
           if (vehicle) {
@@ -226,6 +279,7 @@ const useShuttleServiceStatus = ({
       // where the shuttle is, and wiping the marker would tell an agent it has
       // gone when all that happened is that we could not ask.
       if (published) publishFeature(feedAnswer.vehicle, feedAnswer.title);
+      if (lookUp) resolveTitle(lookUp);
     };
 
     const tick = () => {

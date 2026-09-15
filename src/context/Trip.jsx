@@ -2,6 +2,8 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import TripPlan from '../models/trip-plan';
 import TripRequest from '../models/trip-request';
+import config from '../config';
+import { withoutClosedShuttlePickups } from '../hooks/useServiceAvailability';
 
 // import { makePersistable, PersistStoreMap } from 'mobx-persist-store';
 
@@ -80,11 +82,16 @@ class Trip {
     console.log('TRIP GENERATE PLANS');
     return new Promise((resolve, reject) => {
       TripPlan.generate(this.request, this.rootStore.preferences, this.queryId)
-        .then(tripPlanResults => {
+        .then(async tripPlanResults => {
           console.log({ tripPlanResults });
+          if (this.queryId !== tripPlanResults.id) return;
+          const plans = await withoutClosedShuttlePickups(
+            tripPlanResults.plans,
+            config.HDS_SERVICE_ID
+          );
           if (this.queryId === tripPlanResults.id) {
             runInAction(() => {
-              this.plans = tripPlanResults.plans;
+              this.plans = plans;
               this.generatingPlans = false;
             });
             resolve(this.plans);

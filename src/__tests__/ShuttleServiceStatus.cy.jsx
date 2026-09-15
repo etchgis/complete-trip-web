@@ -2,6 +2,11 @@ import RootStore, { StoreProvider } from '../context/RootStore';
 
 import { ChakraProvider } from '@chakra-ui/react';
 import { ShuttleServiceStatus } from '../components/ShuttleServiceStatus/ShuttleServiceStatus';
+import {
+  deriveStatus,
+  readAvailability,
+  readVehicle,
+} from '../models/shuttle-status';
 import { TestWrapper } from '../setupTests';
 import { mount } from '@cypress/react18';
 import { theme } from '../theme';
@@ -55,6 +60,49 @@ describe('ShuttleServiceStatus', () => {
     cy.get('[data-testid="shuttle-location-detail"]').should(
       'contain.text',
       'Last heard from less than a minute ago.'
+    );
+  });
+
+  it('does not show a green running badge over an off-duty report', () => {
+    // Built through the model, so the card sees exactly what the feeds would
+    // produce for a service inside its hours whose shuttle reported off duty.
+    const now = Date.now();
+    const offDutyFor = ageSeconds =>
+      deriveStatus({
+        poll: {
+          availability: readAvailability({ isAvailable: true, todayHours: HOURS }),
+          vehicleFeedOk: true,
+          vehicle: readVehicle({
+            vehicles: [
+              {
+                vehicleId: 'v1',
+                coordinates: [-78.86, 42.89],
+                ageSeconds,
+                onDuty: false,
+              },
+            ],
+          }),
+          title: 'Main St at Utica',
+          requestedAt: now,
+        },
+        history: {},
+        now,
+      });
+
+    render(offDutyFor(25 * 60));
+    cy.get('[data-testid="shuttle-service-badge"]')
+      .should('not.have.attr', 'data-tone', 'green')
+      .and('not.have.text', 'Service running');
+    cy.contains('Last known location').should('exist');
+    cy.contains('Current location').should('not.exist');
+
+    render(offDutyFor(30));
+    cy.get('[data-testid="shuttle-service-badge"]')
+      .should('have.text', 'Service scheduled - driver off duty')
+      .and('have.attr', 'data-tone', 'orange');
+    cy.get('[data-testid="shuttle-location-detail"]').should(
+      'contain.text',
+      'The driver has marked themselves off duty.'
     );
   });
 
