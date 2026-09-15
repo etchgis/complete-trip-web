@@ -50,7 +50,10 @@ import CreateIcon from '../CreateIcon';
 import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
-import useServiceAvailability from '../../hooks/useServiceAvailability';
+import useServiceAvailability, {
+  PLAN_SHUTTLE_SERVICES,
+} from '../../hooks/useServiceAvailability';
+import { formatWindows, readNextService } from '../../models/shuttle-hours';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -1257,10 +1260,11 @@ const Fourth = ({
   );
 };
 
-const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
+export const TripResults = observer(({ setStep, trip, trips, setSelectedTrip }) => {
   const { t } = useTranslation();
   return (
     <>
+      <ShuttleNotice notice={trip?.shuttleNotice} />
       {trips.length ? (
         trips.map((t, i) => (
           <TripCard
@@ -1277,6 +1281,77 @@ const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
     </>
   );
 });
+
+// What the availability checks did to this search's plans: why a shuttle plan
+// the rider asked for is not on the list, and which shuttles we could not
+// confirm the hours of. Without this a rider who asked for a 2:45 arrival is
+// shown "No trips found" and has nothing to act on.
+const ShuttleNotice = observer(({ notice }) => {
+  const { t } = useTranslation();
+  if (!notice) return null;
+
+  const closed = notice.closed;
+  const availability = closed?.availability || null;
+  const hours = formatWindows(t, availability?.todayHours);
+  const next =
+    SCHEDULE_CLOSURES.indexOf(availability?.reason) !== -1
+      ? readNextService(t, availability?.nextAvailable)
+      : null;
+  const why = availability && CLOSURE_REASONS[availability.reason];
+
+  return (
+    <>
+      {closed && (
+        <Box textAlign={'left'} width={'100%'} data-testid="shuttle-plans-dropped">
+          <Text>
+            {t('tripWizard.shuttleClosedAtTime', {
+              service: t(closed.service.name),
+            })}
+          </Text>
+          {why === 'hours' && hours && (
+            <Text>{t('tripWizard.shuttleClosedHours', { hours })}</Text>
+          )}
+          {why === 'day' && <Text>{t('tripWizard.shuttleClosedDay')}</Text>}
+          {why === 'no-driver' && (
+            <Text>{t('tripWizard.shuttleClosedNoDriver')}</Text>
+          )}
+          {next && <Text>{t('tripWizard.shuttleClosedNext', next)}</Text>}
+        </Box>
+      )}
+      {(notice.unconfirmed || []).map(key => (
+        <Box
+          key={key}
+          textAlign={'left'}
+          width={'100%'}
+          data-testid="shuttle-hours-unconfirmed-plans"
+        >
+          <Text>
+            {t('tripWizard.shuttleHoursUnconfirmedFor', {
+              service: t(serviceName(key)),
+            })}
+          </Text>
+        </Box>
+      ))}
+    </>
+  );
+});
+
+// Stoppages that come from the published schedule, where the next scheduled
+// window is when the shuttle runs again. A driver on a break or a dispatcher
+// alert can stop service inside a window, and the check then names the window
+// already under way.
+const SCHEDULE_CLOSURES = ['outside_hours', 'day_not_scheduled'];
+
+// What to say about a closure beyond naming it. The check writes its own
+// sentence for each, but only in English.
+const CLOSURE_REASONS = {
+  outside_hours: 'hours',
+  day_not_scheduled: 'day',
+  'no-driver': 'no-driver',
+};
+
+const serviceName = key =>
+  PLAN_SHUTTLE_SERVICES.find(service => service.key === key)?.name || key;
 
 const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
   const { user } = useStore().authentication;

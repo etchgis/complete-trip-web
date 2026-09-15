@@ -3,11 +3,16 @@ import { useEffect, useState } from 'react';
 
 import { ChakraProvider } from '@chakra-ui/react';
 import { MemoryRouter } from 'react-router-dom';
-import { Second } from '../components/ScheduleTripModal/ScheduleTripModal';
+import {
+  Second,
+  TripResults,
+} from '../components/ScheduleTripModal/ScheduleTripModal';
+import { screenShuttlePickups } from '../hooks/useServiceAvailability';
 import ShuttleSummonModal from '../components/VerticalTripPlan/ShuttleSummonModal';
 import { TransitRoutes } from '../components/TransitRoutes/TransitRoutes';
 import config from '../config';
 import { mount } from '@cypress/react18';
+import { observer } from 'mobx-react-lite';
 import { runInAction } from 'mobx';
 import { theme } from '../theme';
 
@@ -27,6 +32,7 @@ const CLOSED = {
   isAvailable: false,
   reason: 'outside_hours',
   details: 'Operating hours: 10:30 AM - 2:30 PM',
+  nextAvailable: { date: '2026-09-16', window: { start: '10:30', end: '14:30' } },
   todayHours: [{ start: '10:30', end: '14:30' }],
   hoursDisplay: '10:30 AM - 2:30 PM',
 };
@@ -132,6 +138,57 @@ const mountSummon = onSuccess => {
   });
   mount(withStore(store, <SummonForm onSuccess={onSuccess} />));
 };
+
+// A plan that rides the community shuttle, with the fields a trip card shows.
+const shuttleTripPlan = pickup => {
+  const startTime = pickup.getTime();
+  const endTime = startTime + 15 * 60000;
+  return {
+    startTime,
+    endTime,
+    duration: 900,
+    legs: [
+      {
+        mode: 'HAIL',
+        startTime,
+        endTime,
+        agencyId: 'BNMC',
+        routeShortName: 'Community Shuttle',
+      },
+    ],
+  };
+};
+
+// A store holding the results of a search, screened by the real availability
+// checks, so the screen is shown exactly what a search would leave it.
+const storeWithPlans = (plans, { language } = {}) => {
+  const store = new RootStore();
+  if (language) store.uiStore.setUI({ language });
+  store.trip.create();
+  cy.wrap(null)
+    .then(() => screenShuttlePickups(plans))
+    .then(screened => {
+      runInAction(() => {
+        store.trip.plans = screened.plans;
+        store.trip.shuttleNotice = {
+          closed: screened.closed,
+          unconfirmed: screened.unconfirmed,
+        };
+      });
+    });
+  return store;
+};
+
+const ResultsView = observer(({ trip }) => (
+  <TripResults
+    trip={trip}
+    trips={trip.plans}
+    setStep={() => {}}
+    setSelectedTrip={() => {}}
+  />
+));
+
+const mountResults = store => mount(withStore(store, <ResultsView trip={store.trip} />));
 
 const SUMMON_BUTTON = '[data-test-id="summon-shuttle-button"]';
 const SHUTTLE_TILE = '[data-testid="map-route-list-button"]';
@@ -407,6 +464,21 @@ describe('choosing the community shuttle for a trip', () => {
     });
   });
 
+  it('keeps the plans and marks them unconfirmed when a pickup check fails', () => {
+    // An arrive-by trip is judged at its plans' pickup times, so this is the
+    // only place it can be told the hours were not confirmed.
+    cy.intercept('GET', CHECK_URL, DOWN).as('check');
+    const store = storeWithPlans([shuttleTripPlan(new Date(2026, 8, 15, 14, 40))]);
+    mountResults(store);
+
+    cy.get('[data-testid="shuttle-hours-unconfirmed-plans"]').should(
+      'contain.text',
+      "Couldn't confirm NFTA Community Shuttle hours."
+    );
+    cy.get('[data-testid="shuttle-plans-dropped"]').should('not.exist');
+    cy.contains('No trips found.').should('not.exist');
+  });
+
   it('does not judge an arrive-by trip by its arrival time', () => {
     // A 2:45 PM arrival can have a pickup before the 2:30 PM close. The plans
     // are checked at their own pickup times instead.
@@ -422,5 +494,49 @@ describe('choosing the community shuttle for a trip', () => {
       expect(store.trip.request.modes).to.include('hail');
     });
     cy.get('@check.all').should('have.length', 0);
+  });
+});
+
+describe('the trips a search comes back with', () => {
+  it('says the shuttle is closed at that time instead of only "No trips found"', () => {
+    // A 2:45 PM arrival planned as a 2:31 PM pickup, after the shuttle closes.
+    cy.intercept('GET', CHECK_URL, CLOSED).as('check');
+    const store = storeWithPlans([shuttleTripPlan(new Date(2026, 8, 15, 14, 31))]);
+    mountResults(store);
+
+    cy.get('[data-testid="shuttle-plans-dropped"]')
+      .should('contain.text', "The NFTA Community Shuttle isn't running at that time.")
+      .and('contain.text', 'It runs 10:30 AM - 2:30 PM that day.')
+      .and(
+        'contain.text',
+        'Next available: Wednesday, September 16, 10:30 AM - 2:30 PM.'
+      );
+    cy.contains('No trips found.').should('exist');
+  });
+
+  it('says it in Spanish too', () => {
+    cy.intercept('GET', CHECK_URL, CLOSED).as('check');
+    const store = storeWithPlans([shuttleTripPlan(new Date(2026, 8, 15, 14, 31))], {
+      language: 'es',
+    });
+    mountResults(store);
+
+    cy.get('[data-testid="shuttle-plans-dropped"]')
+      .should(
+        'contain.text',
+        'El Transporte comunitario no está en funcionamiento a esa hora.'
+      )
+      .and('contain.text', 'Su horario ese día es 10:30 - 14:30.')
+      .and('contain.text', 'Próxima disponibilidad: miércoles');
+  });
+
+  it('says nothing about the shuttle when no plan was dropped', () => {
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    const store = storeWithPlans([shuttleTripPlan(new Date(2026, 8, 15, 11, 30))]);
+    mountResults(store);
+
+    cy.get('[data-testid="shuttle-plans-dropped"]').should('not.exist');
+    cy.get('[data-testid="shuttle-hours-unconfirmed-plans"]').should('not.exist');
+    cy.contains('No trips found.').should('not.exist');
   });
 });

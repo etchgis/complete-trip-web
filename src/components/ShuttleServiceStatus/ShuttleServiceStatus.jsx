@@ -5,8 +5,8 @@ import {
   FEED_REPORT_WINDOW_MS,
   deriveVerdict,
   describeAge,
-  readClock,
 } from '../../models/shuttle-status';
+import { formatWindows, readNextService } from '../../models/shuttle-hours';
 import useTranslation from '../../models/useTranslation';
 
 const VERDICT_BADGES = {
@@ -297,43 +297,9 @@ function formatDuration(t, ageMs) {
   });
 }
 
-function formatClock(t, time) {
-  const clock = readClock(time);
-  return clock ? t('shuttleStatus.clockTime', clock) : null;
-}
-
-function formatWindow(t, window) {
-  const start = formatClock(t, window.start);
-  const end = formatClock(t, window.end);
-  if (!start || !end) return null;
-  return t('shuttleStatus.hoursWindow', { start, end });
-}
-
-function formatWindows(t, windows) {
-  if (!Array.isArray(windows) || windows.length === 0) return null;
-  const parts = windows.map(window => formatWindow(t, window)).filter(Boolean);
-  return parts.length > 0 ? parts.join(', ') : null;
-}
-
 // When the service is next scheduled, so an agent can tell a rider when to call
-// back. The date is the service's own calendar date, so it is printed as given
-// rather than converted through the browser's time zone.
+// back.
 function formatNextService(t, next) {
-  if (!next) return null;
-  const hours = formatWindow(t, next.window);
-  if (!hours) return null;
-  const [year, month, day] = next.date.split('-').map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day, 12));
-  let dayText;
-  try {
-    dayText = date.toLocaleDateString(t('shuttleStatus.dateLocale'), {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC',
-    });
-  } catch (e) {
-    dayText = next.date;
-  }
-  return t('shuttleStatus.nextService', { day: dayText, hours });
+  const service = readNextService(t, next);
+  return service ? t('shuttleStatus.nextService', service) : null;
 }
