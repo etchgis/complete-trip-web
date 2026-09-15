@@ -809,6 +809,8 @@ export default function genLocales() {
         popUpUnknownError: "An unknown error occurred. Please try again.",
         rideUnconfirmed:
           "We couldn't confirm your ride was booked. Please check before trying again.",
+        rideProcessing:
+          'Your shuttle is still being booked. Please try again in a moment.',
         summonShuttleRetry: 'Try again anyway',
         shuttleUnconfirmed: "We can't confirm the shuttle is running right now. Please try again.",
         shuttleHoursChecking: 'Checking Community Shuttle hours...',
@@ -879,6 +881,8 @@ export default function genLocales() {
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
         rideUnconfirmed:
           'No pudimos confirmar que tu viaje fue reservado. Por favor verifica antes de intentarlo de nuevo.',
+        rideProcessing:
+          'Tu autobús aún se está reservando. Inténtalo de nuevo en un momento.',
         summonShuttleRetry: 'Intentar de nuevo de todos modos',
         shuttleUnconfirmed: "No podemos confirmar que el autobús esté funcionando en este momento. Inténtalo de nuevo.",
         shuttleHoursChecking: 'Comprobando el horario del transporte comunitario...',

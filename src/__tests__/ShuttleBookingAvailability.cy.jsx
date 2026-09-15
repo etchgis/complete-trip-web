@@ -47,6 +47,9 @@ const UNCONFIRMED =
   "We can't confirm the shuttle is running right now. Please try again.";
 const RIDE_UNCONFIRMED =
   "We couldn't confirm your ride was booked. Please check before trying again.";
+const RIDE_PROCESSING =
+  'Your shuttle is still being booked. Please try again in a moment.';
+const POP_UP_ERROR = 'You must provide a valid PIN and phone number.';
 
 // Longer than the app waits for the check, so a test can see it give up.
 const SLOW_MS = 8000;
@@ -537,6 +540,70 @@ describe('summoning the shuttle from the kiosk', () => {
 
     cy.wait('@ride', { timeout: RIDE_MS + 4000 });
     cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+  });
+
+  it('keeps the idempotency key and warns still-processing when the server says the booking is still being handled', () => {
+    const keys = [];
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      keys.push(req.headers['idempotency-key']);
+      req.reply({ statusCode: 409, body: { message: 'still processing' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    mountSummon(cy.stub().as('success'));
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+    cy.wait('@ride');
+
+    // The rider is told the booking is still in flight, not shown a generic
+    // error, and no ride is treated as created.
+    cy.contains(RIDE_PROCESSING).should('be.visible');
+    cy.get(SUMMON_BUTTON).should('have.text', 'Try again anyway');
+    cy.get('@success').should('not.have.been.called');
+
+    // The retry carries the same key, so the server resolves it to the one
+    // ride instead of booking a second.
+    cy.get(SUMMON_BUTTON).click();
+    cy.get('@ride.all').should('have.length', 2);
+    cy.wrap(null).should(() => {
+      expect(keys[0]).to.be.a('string').and.not.be.empty;
+      expect(keys[1]).to.equal(keys[0]);
+    });
+  });
+
+  it('starts a fresh idempotency key after a definitive booking error', () => {
+    const keys = [];
+    let call = 0;
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      keys.push(req.headers['idempotency-key']);
+      call += 1;
+      if (call === 1) {
+        req.reply({ statusCode: 400, body: { message: 'invalid pin' } });
+      } else {
+        req.reply({ statusCode: 200, body: { id: 'ride-1' } });
+      }
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    mountSummon(cy.stub().as('success'));
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+    cy.wait('@ride');
+
+    // A rejected booking is done, so the warning clears and the button offers
+    // a plain summon rather than a retry.
+    cy.contains(POP_UP_ERROR).should('be.visible');
+    cy.get(SUMMON_BUTTON).should('have.text', 'Summon Shuttle');
+
+    // The next tap is a new booking intent, so it gets its own key.
+    cy.get(SUMMON_BUTTON).click();
+    cy.wait('@ride');
+    cy.wrap(null).should(() => {
+      expect(keys[0]).to.be.a('string').and.not.be.empty;
+      expect(keys[1]).to.not.equal(keys[0]);
+    });
   });
 
   it('sends a different idempotency key for a brand-new booking', () => {

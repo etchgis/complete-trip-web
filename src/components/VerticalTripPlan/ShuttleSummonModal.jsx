@@ -26,10 +26,17 @@ const NO_ANSWER = Symbol('ride request did not answer');
 
 // What the rides service says when it refuses a booking. Anything else is
 // reported as an unknown failure rather than guessed at.
-const requestErrorMessage = (t, e) =>
-  e === 'invalid pin' || e === 'user not found for this phone number'
+const requestErrorMessage = (t, e) => {
+  const message = typeof e === 'string' ? e : e?.message;
+  return message === 'invalid pin' || message === 'user not found for this phone number'
     ? t('tripWizard.popUpError')
     : t('tripWizard.popUpUnknownError');
+};
+
+// True when the ride request came back as still-in-progress or with an unknown
+// outcome, so the same idempotency key can be retried instead of minting a new
+// one that could book a second ride.
+const isRetryable = (e) => e?.retryable === true;
 
 /**
  * Modal component for summoning a shuttle with PIN and phone verification
@@ -239,6 +246,12 @@ const ShuttleSummonModal = observer(({
         },
         e => {
           if (!timedOut || sessionRef.current !== session) return;
+          if (isRetryable(e)) {
+            // The booking may still be recording. Keep the warning and the key
+            // so a retry reuses it rather than creating a second ride.
+            setError(t('tripWizard.rideProcessing'));
+            return;
+          }
           setUnconfirmed(null);
           intentKeyRef.current = null;
           setError(requestErrorMessage(t, e));
@@ -265,6 +278,13 @@ const ShuttleSummonModal = observer(({
           timedOut = true;
           setUnconfirmed(phone);
           setError(t('tripWizard.rideUnconfirmed'));
+        }
+        else if (isRetryable(e)) {
+          // A 409 or a dropped reply means the booking may still be recording.
+          // Keep the intent key and warn the rider so the next tap retries the
+          // same booking instead of creating a second ride.
+          setUnconfirmed(phone);
+          setError(t('tripWizard.rideProcessing'));
         }
         else {
           setUnconfirmed(null);
