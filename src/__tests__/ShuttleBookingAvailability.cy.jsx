@@ -156,6 +156,65 @@ const mountSummon = (onSuccess, { requestTimeoutMs } = {}) => {
   );
 };
 
+// The same form with a close button that unmounts its contents and a reopen
+// button that brings it back, so a test can act as one rider closing the form
+// and another opening it. The parent keeps the field, error, and open state,
+// which is how the real kiosk owns them.
+const SummonFormToggle = ({ onSuccess, requestTimeoutMs }) => {
+  const [pin, setPin] = useState('');
+  const [areaCode, setAreaCode] = useState('');
+  const [phone1, setPhone1] = useState('');
+  const [phone2, setPhone2] = useState('');
+  const [error, setError] = useState('');
+  const [open, setOpen] = useState(true);
+  useEffect(() => {
+    setPin('1234');
+    setAreaCode('716');
+    setPhone1('555');
+    setPhone2('0100');
+  }, []);
+  return (
+    <>
+      <button data-test-id="test-reopen" onClick={() => setOpen(true)}>
+        reopen
+      </button>
+      <ShuttleSummonModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onSuccess={onSuccess}
+        pin={pin}
+        setPin={setPin}
+        areaCode={areaCode}
+        setAreaCode={setAreaCode}
+        phone1={phone1}
+        setPhone1={setPhone1}
+        phone2={phone2}
+        setPhone2={setPhone2}
+        error={error}
+        setError={setError}
+        requestTimeoutMs={requestTimeoutMs}
+      />
+    </>
+  );
+};
+
+const mountSummonToggle = (onSuccess, { requestTimeoutMs } = {}) => {
+  const store = new RootStore();
+  store.uiStore.setUX('webapp');
+  store.trip.create();
+  store.trip.updateDestination({
+    title: 'Buffalo General Medical Center',
+    address: '100 High St, Buffalo, NY',
+    point: { lat: 42.9003, lng: -78.8662 },
+  });
+  mount(
+    withStore(
+      store,
+      <SummonFormToggle onSuccess={onSuccess} requestTimeoutMs={requestTimeoutMs} />
+    )
+  );
+};
+
 // A plan that rides the community shuttle, with the fields a trip card shows.
 const shuttleTripPlan = pickup => {
   const startTime = pickup.getTime();
@@ -209,6 +268,8 @@ const mountResults = store => mount(withStore(store, <ResultsView trip={store.tr
 
 const SUMMON_BUTTON = '[data-test-id="summon-shuttle-button"]';
 const SHUTTLE_TILE = '[data-testid="map-route-list-button"]';
+const CLOSE_BUTTON = '[data-test-id="shuttle-modal-close"]';
+const REOPEN_BUTTON = '[data-test-id="test-reopen"]';
 
 const interceptRide = () => {
   cy.intercept('POST', RIDE_URL, { statusCode: 200, body: { id: 'ride-1' } }).as('ride');
@@ -447,6 +508,61 @@ describe('summoning the shuttle from the kiosk', () => {
 
     cy.wait('@ride', { timeout: RIDE_MS + 4000 });
     cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+  });
+
+  it('keeps the ride-not-confirmed warning after the form is closed and reopened', () => {
+    const RIDE_MS = 6000;
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      req.reply({ delay: RIDE_MS, statusCode: 200, body: { id: 'ride-1' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    mountSummonToggle(cy.stub().as('success'), { requestTimeoutMs: 1000 });
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+
+    // The request stops answering, so the form warns and offers to try again.
+    cy.contains(RIDE_UNCONFIRMED).should('be.visible');
+    cy.get(SUMMON_BUTTON).should('have.text', 'Try again anyway');
+
+    // Closing and reopening keeps the warning beside its button, so the two
+    // never disagree.
+    cy.get(CLOSE_BUTTON).click();
+    cy.get(REOPEN_BUTTON).click();
+    cy.get(SUMMON_BUTTON).should('have.text', 'Try again anyway');
+    cy.contains(RIDE_UNCONFIRMED).should('be.visible');
+
+    // Let the late reply land so it does not bleed into the next test.
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+  });
+
+  it('ignores an earlier rider\'s late reply once a new rider has the form', () => {
+    const RIDE_MS = 6000;
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      req.reply({ delay: RIDE_MS, statusCode: 200, body: { id: 'ride-1' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    const onSuccess = cy.stub().as('success');
+    mountSummonToggle(onSuccess, { requestTimeoutMs: 1000 });
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+
+    // The first rider's request stops answering and they walk away.
+    cy.contains(RIDE_UNCONFIRMED).should('be.visible');
+    cy.get(CLOSE_BUTTON).click();
+
+    // A new rider opens the form.
+    cy.get(REOPEN_BUTTON).click();
+    cy.get(SUMMON_BUTTON).should('be.visible');
+
+    // The first rider's reply finally lands. It must not pop a success into
+    // the new rider's session.
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+    cy.wait(500);
+    cy.get('@success').should('not.have.been.called');
   });
 
   it('creates one ride for repeated taps while the check is out', () => {

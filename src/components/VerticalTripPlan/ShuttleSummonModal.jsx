@@ -69,6 +69,11 @@ const ShuttleSummonModal = observer(({
   // have created that ride, so the rider is told before the button will book
   // another one.
   const [unconfirmed, setUnconfirmed] = useState(null);
+  // A new number every time the form opens. It stands for the rider at the
+  // kiosk right now. A ride request captures the value at the tap and a late
+  // reply only acts on the form when the number still matches, so an earlier
+  // rider's reply cannot touch a later rider's session.
+  const sessionRef = useRef(0);
 
   useEffect(() => {
     if (ux !== 'kiosk' || !isOpen) return;
@@ -106,12 +111,19 @@ const ShuttleSummonModal = observer(({
   }, [activeInput, ux, isOpen]);
 
   const handleOpen = () => {
+    // A fresh session for the rider now opening the form.
+    sessionRef.current += 1;
+
     // Clear fields and set PIN as the active input when modal opens
     setPin('');
     setAreaCode('');
     setPhone1('');
     setPhone2('');
-    setError('');
+    // The button label and this warning both come from the unconfirmed state,
+    // so they are shown or hidden together. Reopening keeps the warning while
+    // that state stands, so the "Try again anyway" button always has its
+    // "we couldn't confirm your ride" explanation beside it.
+    setError(unconfirmed ? t('tripWizard.rideUnconfirmed') : '');
     setKeyboardActiveInput('pin');
 
     // TODO: make the keyboard type dynamic based on the input
@@ -184,6 +196,9 @@ const ShuttleSummonModal = observer(({
       };
       let timedOut = false;
       let timer;
+      // The session that owns this request. If the form is closed and reopened
+      // the session changes, and any reply to this request is then ignored.
+      const session = sessionRef.current;
       const requested = rides.request(
         organizationId,
         datetime,
@@ -202,14 +217,14 @@ const ShuttleSummonModal = observer(({
       // means no ride was created and the warning can go.
       requested.then(
         result => {
-          if (!timedOut) return;
+          if (!timedOut || sessionRef.current !== session) return;
           console.log('SUMMONED RESULT (late):', result);
           setUnconfirmed(null);
           setError('');
           onSuccess();
         },
         e => {
-          if (!timedOut) return;
+          if (!timedOut || sessionRef.current !== session) return;
           setUnconfirmed(null);
           setError(requestErrorMessage(t, e));
         }
@@ -222,10 +237,12 @@ const ShuttleSummonModal = observer(({
             timer = setTimeout(() => reject(NO_ANSWER), requestTimeoutMs);
           }),
         ]);
+        if (sessionRef.current !== session) return;
         console.log('SUMMONED RESULT:', result);
         setUnconfirmed(null);
         onSuccess();
       } catch (e) {
+        if (sessionRef.current !== session) return;
         if (e === NO_ANSWER) {
           // The request may have created the ride before the reply was lost.
           // Booking again without saying so would put the rider in two rides.
