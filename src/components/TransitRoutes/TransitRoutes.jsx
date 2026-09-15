@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import AlertModal from '../AlertModal';
+import ShuttleServiceStatus from '../ShuttleServiceStatus';
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import config from '../../config';
 import debounce from '../../utils/debounce';
@@ -24,9 +25,13 @@ import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { mobility } from '@etchgis/mobility-transport-layer';
-import { geocoder } from '../../services/transport';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import useShuttleServiceStatus from '../../hooks/useShuttleServiceStatus';
+
+// The one shuttle the call center watches. The service is the NFTA Community
+// Shuttle and the trip is its single route.
+const SHUTTLE_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
+const SHUTTLE_TRIP_ID = 'A1';
 
 export const TransitRoutes = observer(({ onShuttlePress }) => {
   const colorMode = useColorMode();
@@ -609,60 +614,15 @@ const RouteList = observer(({ routeClickHandler }) => {
     }
   };
 
-  const [shuttleData, setShuttleData] = useState(null);
-
-  useEffect(() => {
-    if (ux === 'callcenter') {
-      const fetchData = () => {
-        try {
-          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
-            .then((result) => {
-              console.log('result', result);
-              let fc = {
-                type: 'FeatureCollection',
-                features: [],
-              };
-              if (result && result.vehicles && result.vehicles.length) {
-                const vehicle = result.vehicles[0];
-                const coordinates = vehicle.location ? vehicle.location.coordinates : vehicle.coordinates;
-                fc.features.push({
-                  type: 'Feature',
-                  geometry: {
-                    type: 'Point',
-                    coordinates,
-                  },
-                });
-                geocoder.reverse({ lat: coordinates[1], lng: coordinates[0] })
-                  .then((results) => {
-                    fc.features[0].properties = results.length && results.length > 0 ? results[0] : { title: 'Unknown' };
-                    fc.features[0].properties.icon = 'shuttle-live';
-                    setShuttleData(fc);
-                    updateShuttle(fc);
-                  })
-                  .catch((e) => {
-                    console.log('geocoder error', e);
-                  });
-              }
-              else {
-                setShuttleData(fc);
-                updateShuttle(fc);
-              }
-            })
-            .catch((e) => {
-              console.log('skids trips error', e);
-            });
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-
-      fetchData();
-
-      const intervalId = setInterval(fetchData, 10000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, []);
+  // The call center card is the only place this data is shown, so the polling
+  // only runs in that mode.
+  const shuttleStatus = useShuttleServiceStatus({
+    enabled: ux === 'callcenter',
+    serviceId: SHUTTLE_SERVICE_ID,
+    tripId: SHUTTLE_TRIP_ID,
+    organizationId: config.ORGANIZATION,
+    onFeature: updateShuttle,
+  });
 
   return (
     <>
@@ -713,13 +673,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                     {r.name}
                   </Text>
                   <Divider mt={2} mb={2} />
-                  <Text fontSize={16} textAlign={'left'}>Current Location</Text>
-                  {shuttleData && shuttleData.features.length > 0 &&
-                    <Text mt={2} fontSize={16} textAlign={'left'}>{shuttleData.features[0].properties.title}</Text>
-                  }
-                  {shuttleData && shuttleData.features.length === 0 &&
-                    <Text mt={2} fontSize={16} textAlign={'left'}>Unknown</Text>
-                  }
+                  <ShuttleServiceStatus status={shuttleStatus} />
                 </Box>
               );
             }

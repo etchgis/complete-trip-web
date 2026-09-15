@@ -32,6 +32,12 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -90,6 +96,12 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -142,6 +154,12 @@ const API = {
     },
     plantrip: {
       url: 'http://192.168.86.249:8082/plantrip',
+      xApiKey: '',
+    },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
       xApiKey: '',
     },
     routes: {

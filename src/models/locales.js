@@ -593,6 +593,158 @@ export default function genLocales() {
         shuttleNotAvailableTimeFrame: 'Lo sentimos, pero este autobús no está disponible en este momento.'
       },
     },
+    // Call center shuttle card. An agent reads these lines out loud to a rider
+    // on the phone, so each one says exactly how sure the page is.
+    shuttleStatus: {
+      en: {
+        stateChecking: 'Checking',
+        serviceRunning: 'Service running',
+        serviceRunningPositionOld: 'Service running - position %{age} old',
+        serviceRunningNoContact: 'Service running - no contact for %{since}',
+        serviceRunningNotReporting: 'Service running - shuttle not reporting',
+        serviceRunningTrackingUnavailable: 'Service running - tracking unavailable',
+        serviceNoDriver: 'No driver on duty',
+        serviceNotRunning: 'Service not running',
+        serviceUnknown: 'Service status unavailable',
+
+        checkingDetail: 'Checking on the shuttle.',
+        serviceRunningDetail: 'The shuttle service is running now.',
+        serviceNoDriverDetail:
+          'The service is inside its hours, but every driver has marked themselves off duty.',
+        serviceNotRunningDetail: 'The shuttle service is not running now.',
+        serviceOutsideHoursDetail:
+          'The shuttle service is outside its operating hours right now.',
+        serviceDayNotScheduledDetail: 'The shuttle service does not run today.',
+        serviceAlertDetail: 'The shuttle service is stopped right now.',
+        serviceNoticeLabel: 'Notice from the service:',
+        nextService: 'Next scheduled service: %{day}, %{hours}',
+        serviceUnknownDetail:
+          'The service schedule could not be read, so we cannot say whether the shuttle is running.',
+
+        currentLocation: 'Current location',
+        lastKnownLocation: 'Last known location',
+        locationChecking: 'Looking for the shuttle.',
+        locationUnavailable: 'Location unavailable right now.',
+        noLocation: 'None reported in the last %{minutes} minutes.',
+        addressUnavailable: 'Address unavailable for %{lat}, %{lng}',
+
+        positionReportingDetail: 'The shuttle is reporting.',
+        positionOutOfDateDetail:
+          'The shuttle has not sent a new position for over a minute. It does not send one while standing still, so it may be waiting at a stop or in traffic.',
+        positionOffDutyDetail: 'The driver has marked themselves off duty.',
+        positionNoContactDetail:
+          'The shuttle has stopped reporting. It may be parked, out of coverage, or its tablet may be off.',
+        positionNoReportDetail:
+          'The shuttle has not reported in the last %{minutes} minutes. We cannot tell from that whether it was running earlier today.',
+        positionUnreachableDetail:
+          'We could not reach the shuttle tracking. The problem is on our side, not necessarily with the shuttle.',
+
+        contactAge: 'Last heard from %{age}.',
+        reportedAge: 'Position taken %{age}.',
+        observedAge:
+          'Last seen %{age}. We do not know when this position was taken.',
+
+        ageMoment: 'less than a minute ago',
+        ageMinutes: {
+          one: '%{count} minute ago',
+          other: '%{count} minutes ago',
+        },
+        ageAgo: '%{duration} ago',
+        ageOverADay: 'more than a day ago',
+
+        durationMoment: 'less than a minute',
+        durationMinutes: '%{minutes} min',
+        durationHours: {
+          one: '%{count} hr',
+          other: '%{count} hrs',
+        },
+        durationHoursMinutes: {
+          one: '%{count} hr %{minutes} min',
+          other: '%{count} hrs %{minutes} min',
+        },
+        durationOverADay: 'more than a day',
+
+        scheduledHours: 'Scheduled hours today: %{hours}',
+        hoursWindow: '%{start} - %{end}',
+        clockTime: '%{hour12}:%{minute} %{meridiem}',
+        dateLocale: 'en-US',
+      },
+      es: {
+        stateChecking: 'Comprobando',
+        serviceRunning: 'Servicio en marcha',
+        serviceRunningPositionOld: 'Servicio en marcha - posición de hace %{age}',
+        serviceRunningNoContact: 'Servicio en marcha - sin contacto desde hace %{since}',
+        serviceRunningNotReporting: 'Servicio en marcha - el autobús no reporta',
+        serviceRunningTrackingUnavailable: 'Servicio en marcha - seguimiento no disponible',
+        serviceNoDriver: 'No hay conductor de turno',
+        serviceNotRunning: 'Servicio no disponible',
+        serviceUnknown: 'Estado del servicio no disponible',
+
+        checkingDetail: 'Comprobando el estado del autobús.',
+        serviceRunningDetail: 'El servicio de autobús está en marcha ahora.',
+        serviceNoDriverDetail:
+          'El servicio está dentro de su horario, pero todos los conductores se han marcado como fuera de servicio.',
+        serviceNotRunningDetail:
+          'El servicio de autobús no está en marcha ahora.',
+        serviceOutsideHoursDetail:
+          'El servicio de autobús está fuera de su horario en este momento.',
+        serviceDayNotScheduledDetail: 'El servicio de autobús no funciona hoy.',
+        serviceAlertDetail: 'El servicio de autobús está detenido en este momento.',
+        serviceNoticeLabel: 'Aviso del servicio (en inglés):',
+        nextService: 'Próximo servicio programado: %{day}, %{hours}',
+        serviceUnknownDetail:
+          'No se pudo leer el horario del servicio, así que no podemos decir si el autobús está en marcha.',
+
+        currentLocation: 'Ubicación actual',
+        lastKnownLocation: 'Última ubicación conocida',
+        locationChecking: 'Buscando el autobús.',
+        locationUnavailable: 'Ubicación no disponible en este momento.',
+        noLocation: 'Ninguna reportada en los últimos %{minutes} minutos.',
+        addressUnavailable: 'Dirección no disponible para %{lat}, %{lng}',
+
+        positionReportingDetail: 'El autobús está reportando.',
+        positionOutOfDateDetail:
+          'El autobús no ha enviado una posición nueva en más de un minuto. No la envía mientras está detenido, así que puede estar esperando en una parada o en el tráfico.',
+        positionOffDutyDetail:
+          'El conductor se ha marcado como fuera de servicio.',
+        positionNoContactDetail:
+          'El autobús dejó de reportar. Puede estar estacionado, fuera de cobertura, o su tableta puede estar apagada.',
+        positionNoReportDetail:
+          'El autobús no ha reportado en los últimos %{minutes} minutos. Eso no nos dice si estuvo en marcha más temprano hoy.',
+        positionUnreachableDetail:
+          'No pudimos comunicarnos con el seguimiento del autobús. El problema está de nuestro lado, no necesariamente en el autobús.',
+
+        contactAge: 'Último contacto hace %{age}.',
+        reportedAge: 'Posición tomada hace %{age}.',
+        observedAge:
+          'Visto por última vez hace %{age}. No sabemos cuándo se tomó esta posición.',
+
+        ageMoment: 'menos de un minuto',
+        ageMinutes: {
+          one: '%{count} minuto',
+          other: '%{count} minutos',
+        },
+        ageAgo: '%{duration}',
+        ageOverADay: 'más de un día',
+
+        durationMoment: 'menos de un minuto',
+        durationMinutes: '%{minutes} min',
+        durationHours: {
+          one: '%{count} hora',
+          other: '%{count} horas',
+        },
+        durationHoursMinutes: {
+          one: '%{count} h %{minutes} min',
+          other: '%{count} h %{minutes} min',
+        },
+        durationOverADay: 'más de un día',
+
+        scheduledHours: 'Horario programado hoy: %{hours}',
+        hoursWindow: '%{start} - %{end}',
+        clockTime: '%{hour}:%{minute}',
+        dateLocale: 'es-US',
+      },
+    },
     tripWizard: {
       en: {
         searchFrom: 'From',
