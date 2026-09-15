@@ -807,6 +807,9 @@ export default function genLocales() {
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
         popUpUnknownError: "An unknown error occurred. Please try again.",
+        rideUnconfirmed:
+          "We couldn't confirm your ride was booked. Please check before trying again.",
+        summonShuttleRetry: 'Try again anyway',
         shuttleUnconfirmed: "We can't confirm the shuttle is running right now. Please try again.",
         shuttleHoursChecking: 'Checking Community Shuttle hours...',
         shuttleHoursUnconfirmed: "Couldn't confirm Community Shuttle hours.",
@@ -874,6 +877,9 @@ export default function genLocales() {
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
+        rideUnconfirmed:
+          'No pudimos confirmar que tu viaje fue reservado. Por favor verifica antes de intentarlo de nuevo.',
+        summonShuttleRetry: 'Intentar de nuevo de todos modos',
         shuttleUnconfirmed: "No podemos confirmar que el autobús esté funcionando en este momento. Inténtalo de nuevo.",
         shuttleHoursChecking: 'Comprobando el horario del transporte comunitario...',
         shuttleHoursUnconfirmed: 'No se pudo confirmar el horario del transporte comunitario.',

@@ -45,6 +45,8 @@ const DOWN = { statusCode: 503, body: { message: 'down' } };
 const NOT_AVAILABLE = 'Sorry, but this shuttle is not available at this time.';
 const UNCONFIRMED =
   "We can't confirm the shuttle is running right now. Please try again.";
+const RIDE_UNCONFIRMED =
+  "We couldn't confirm your ride was booked. Please check before trying again.";
 
 // Longer than the app waits for the check, so a test can see it give up.
 const SLOW_MS = 8000;
@@ -105,7 +107,7 @@ const mountModes = (when, { whenAction = 'leave', modes, preferredModes } = {}) 
 };
 
 // The summon form with a valid PIN and phone already typed in.
-const SummonForm = ({ onSuccess }) => {
+const SummonForm = ({ onSuccess, requestTimeoutMs }) => {
   const [pin, setPin] = useState('');
   const [areaCode, setAreaCode] = useState('');
   const [phone1, setPhone1] = useState('');
@@ -132,11 +134,12 @@ const SummonForm = ({ onSuccess }) => {
       setPhone2={setPhone2}
       error={error}
       setError={setError}
+      requestTimeoutMs={requestTimeoutMs}
     />
   );
 };
 
-const mountSummon = onSuccess => {
+const mountSummon = (onSuccess, { requestTimeoutMs } = {}) => {
   const store = new RootStore();
   store.uiStore.setUX('webapp');
   store.trip.create();
@@ -145,7 +148,12 @@ const mountSummon = onSuccess => {
     address: '100 High St, Buffalo, NY',
     point: { lat: 42.9003, lng: -78.8662 },
   });
-  mount(withStore(store, <SummonForm onSuccess={onSuccess} />));
+  mount(
+    withStore(
+      store,
+      <SummonForm onSuccess={onSuccess} requestTimeoutMs={requestTimeoutMs} />
+    )
+  );
 };
 
 // A plan that rides the community shuttle, with the fields a trip card shows.
@@ -387,6 +395,58 @@ describe('summoning the shuttle from the kiosk', () => {
     cy.contains(UNCONFIRMED, { timeout: SLOW_MS }).should('be.visible');
     cy.get('@ride.all').should('have.length', 0);
     waitOutSlowReply();
+  });
+
+  it('gives the kiosk back when the ride request stops answering', () => {
+    const RIDE_MS = 6000;
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      req.reply({ delay: RIDE_MS, statusCode: 200, body: { id: 'ride-1' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    const onSuccess = cy.stub().as('success');
+    mountSummon(onSuccess, { requestTimeoutMs: 1000 });
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+
+    // The rider gets the button back rather than a form that stays loading.
+    cy.contains(RIDE_UNCONFIRMED).should('be.visible');
+    cy.get(SUMMON_BUTTON).should('not.have.attr', 'data-loading');
+    cy.get('@success').should('not.have.been.called');
+
+    // The server may have created that ride, so the button says what a second
+    // tap would be doing.
+    cy.get(SUMMON_BUTTON).should('have.text', 'Try again anyway');
+    cy.get('@ride.all').should('have.length', 1);
+
+    // The reply was only late, not lost: the ride it created is the rider's.
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+    cy.get('@success').should('have.been.calledOnce');
+    cy.contains(RIDE_UNCONFIRMED).should('not.exist');
+    cy.get(SUMMON_BUTTON).should('have.text', 'Summon Shuttle');
+  });
+
+  it('books again only on a second deliberate tap after an unconfirmed ride', () => {
+    const RIDE_MS = 8000;
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    cy.intercept('POST', RIDE_URL, req => {
+      req.reply({ delay: RIDE_MS, statusCode: 200, body: { id: 'ride-1' } });
+    }).as('ride');
+    cy.intercept('PATCH', PLAN_LINK_URL, { statusCode: 200, body: {} });
+    mountSummon(cy.stub().as('success'), { requestTimeoutMs: 1000 });
+
+    summonFormFilled();
+    cy.get(SUMMON_BUTTON).click();
+    cy.contains(RIDE_UNCONFIRMED).should('be.visible');
+
+    // Nothing books itself while the rider reads that.
+    cy.get('@ride.all').should('have.length', 1);
+    cy.get(SUMMON_BUTTON).click();
+    cy.get('@ride.all').should('have.length', 2);
+
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
+    cy.wait('@ride', { timeout: RIDE_MS + 4000 });
   });
 
   it('creates one ride for repeated taps while the check is out', () => {

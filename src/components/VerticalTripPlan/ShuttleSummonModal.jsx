@@ -12,6 +12,24 @@ import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
 import config from '../../config';
 
+// How long the kiosk waits for the ride request before it stops waiting. The
+// request checks the rider's PIN, may book through the organization's booking
+// system and then creates the ride, so it is given longer than a read. Past
+// this the rider gets the screen back rather than a button that never comes
+// out of its loading state.
+export const RIDE_REQUEST_TIMEOUT_MS = 20000;
+
+// Thrown when the ride request has not answered in time. It says nothing about
+// whether the ride was created, which is the whole problem with it.
+const NO_ANSWER = Symbol('ride request did not answer');
+
+// What the rides service says when it refuses a booking. Anything else is
+// reported as an unknown failure rather than guessed at.
+const requestErrorMessage = (t, e) =>
+  e === 'invalid pin' || e === 'user not found for this phone number'
+    ? t('tripWizard.popUpError')
+    : t('tripWizard.popUpUnknownError');
+
 /**
  * Modal component for summoning a shuttle with PIN and phone verification
  */
@@ -30,7 +48,10 @@ const ShuttleSummonModal = observer(({
   phone2,
   setPhone2,
   error,
-  setError
+  setError,
+  // How long to wait for the ride request. A caller only sets this to make a
+  // slow booking happen on demand.
+  requestTimeoutMs = RIDE_REQUEST_TIMEOUT_MS
 }) => {
   const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
   const { trip } = useStore();
@@ -44,6 +65,10 @@ const ShuttleSummonModal = observer(({
   // taps while it is out cannot send a second shuttle.
   const [summoning, setSummoning] = useState(false);
   const summoningRef = useRef(false);
+  // The phone number of a ride request that stopped answering. The server may
+  // have created that ride, so the rider is told before the button will book
+  // another one.
+  const [unconfirmed, setUnconfirmed] = useState(null);
 
   useEffect(() => {
     if (ux !== 'kiosk' || !isOpen) return;
@@ -113,6 +138,7 @@ const ShuttleSummonModal = observer(({
       setError(t('tripWizard.popUpError'));
       return;
     }
+    const phone = `+1${areaCode}${phone1}${phone2}`;
 
     summoningRef.current = true;
     setSummoning(true);
@@ -156,33 +182,79 @@ const ShuttleSummonModal = observer(({
           trip.request.destination.point.lat
         ]
       };
+      let timedOut = false;
+      let timer;
+      const requested = rides.request(
+        organizationId,
+        datetime,
+        'leave',
+        pickup,
+        dropoff,
+        driverId,
+        passengers,
+        phone,
+        pin
+      );
+
+      // The reply can still arrive after we have stopped waiting for it, and
+      // it is the only thing that can say what became of the ride. A late
+      // success is the rider's ride, so it is shown as one; a late failure
+      // means no ride was created and the warning can go.
+      requested.then(
+        result => {
+          if (!timedOut) return;
+          console.log('SUMMONED RESULT (late):', result);
+          setUnconfirmed(null);
+          setError('');
+          onSuccess();
+        },
+        e => {
+          if (!timedOut) return;
+          setUnconfirmed(null);
+          setError(requestErrorMessage(t, e));
+        }
+      );
+
       try {
-        const result = await rides.request(
-          organizationId,
-          datetime,
-          'leave',
-          pickup,
-          dropoff,
-          driverId,
-          passengers,
-          `+1${areaCode}${phone1}${phone2}`,
-          pin
-        );
+        const result = await Promise.race([
+          requested,
+          new Promise((resolve, reject) => {
+            timer = setTimeout(() => reject(NO_ANSWER), requestTimeoutMs);
+          }),
+        ]);
         console.log('SUMMONED RESULT:', result);
+        setUnconfirmed(null);
         onSuccess();
       } catch (e) {
-        if (e === 'invalid pin' || e === 'user not found for this phone number') {
-          setError(t('tripWizard.popUpError'));
+        if (e === NO_ANSWER) {
+          // The request may have created the ride before the reply was lost.
+          // Booking again without saying so would put the rider in two rides.
+          timedOut = true;
+          setUnconfirmed(phone);
+          setError(t('tripWizard.rideUnconfirmed'));
         }
         else {
-          setError(t('tripWizard.popUpUnknownError'));
+          setUnconfirmed(null);
+          setError(requestErrorMessage(t, e));
         }
+      } finally {
+        clearTimeout(timer);
       }
     } finally {
       summoningRef.current = false;
       setSummoning(false);
     }
   };
+
+  // The warning belongs to the number that was booked with. It stays through a
+  // close and reopen, which clears the fields, and only goes once another
+  // whole number has been typed in.
+  useEffect(() => {
+    const typed = `+1${areaCode}${phone1}${phone2}`;
+    if (unconfirmed && typed.length === 12 && typed !== unconfirmed) {
+      setUnconfirmed(null);
+    }
+  }, [unconfirmed, areaCode, phone1, phone2]);
 
   // Reset keyboard type to default when modal is closed
   useEffect(() => {
@@ -374,7 +446,11 @@ const ShuttleSummonModal = observer(({
             isLoading={summoning}
             data-test-id="summon-shuttle-button"
           >
-            {t('tripWizard.summonShuttle')}
+            {t(
+              unconfirmed
+                ? 'tripWizard.summonShuttleRetry'
+                : 'tripWizard.summonShuttle'
+            )}
           </Button>
         </VStack>
       </Box>
