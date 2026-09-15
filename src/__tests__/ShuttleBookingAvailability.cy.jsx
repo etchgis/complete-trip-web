@@ -514,6 +514,27 @@ describe('choosing the community shuttle for a trip', () => {
     cy.contains('No trips found.').should('not.exist');
   });
 
+  it('plans with nothing but walking when the rider clears every mode', () => {
+    // Clearing the last checkbox has to reach the trip. A rider who takes the
+    // shuttle out of the selection and is then given shuttle plans anyway has
+    // been ignored.
+    cy.intercept('GET', CHECK_URL, OPEN).as('check');
+    const store = mountModes(new Date(2026, 8, 15, 11, 0), { modes: ['bus', 'hail'] });
+
+    cy.wait('@check');
+    cy.get('#mode-checkbox-select-all').click({ force: true });
+    cy.wrap(null).should(() => {
+      expect(store.trip.request.modes).to.include('hail');
+    });
+
+    cy.get('#mode-checkbox-select-all').click({ force: true });
+    cy.wrap(null).should(() => {
+      expect(store.trip.request.modes.filter(mode => mode !== 'walk')).to.deep.equal(
+        []
+      );
+    });
+  });
+
   it('does not judge an arrive-by trip by its arrival time', () => {
     // A 2:45 PM arrival can have a pickup before the 2:30 PM close. The plans
     // are checked at their own pickup times instead.
