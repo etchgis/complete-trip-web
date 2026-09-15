@@ -610,6 +610,12 @@ export default function genLocales() {
 
         checkingDetail: 'Checking on the shuttle.',
         serviceRunningDetail: 'The shuttle service is running now.',
+        serviceRunningNoContactDetail:
+          'The service is inside its hours, but the shuttle is not reporting, so we cannot confirm a shuttle is on its way.',
+        serviceRunningTrackingUnavailableDetail:
+          'The service is inside its hours, but we cannot see the shuttle right now, so we cannot confirm a shuttle is on its way.',
+        serviceScheduledDriverOffDutyDetail:
+          'The service is inside its hours, but the driver has marked themselves off duty and no other shuttle is reporting, so we cannot confirm a shuttle is on its way.',
         serviceNoDriverDetail:
           'The service is inside its hours, but every driver has marked themselves off duty.',
         serviceNotRunningDetail: 'The shuttle service is not running now.',
@@ -684,6 +690,12 @@ export default function genLocales() {
 
         checkingDetail: 'Comprobando el estado del autobús.',
         serviceRunningDetail: 'El servicio de autobús está en marcha ahora.',
+        serviceRunningNoContactDetail:
+          'El servicio está dentro de su horario, pero el autobús no está reportando, así que no podemos confirmar que haya un autobús en camino.',
+        serviceRunningTrackingUnavailableDetail:
+          'El servicio está dentro de su horario, pero no podemos ver el autobús en este momento, así que no podemos confirmar que haya un autobús en camino.',
+        serviceScheduledDriverOffDutyDetail:
+          'El servicio está dentro de su horario, pero el conductor se ha marcado como fuera de servicio y ningún otro autobús está reportando, así que no podemos confirmar que haya un autobús en camino.',
         serviceNoDriverDetail:
           'El servicio está dentro de su horario, pero todos los conductores se han marcado como fuera de servicio.',
         serviceNotRunningDetail:

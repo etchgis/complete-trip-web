@@ -47,9 +47,17 @@ const OFF_DUTY_ALERT_PREFIX = 'driver-off-duty';
  * not just the one running this trip, in whatever order the position store
  * happens to hand them over. Asking for stale positions widens that to vehicles
  * that stopped reporting minutes ago, so at a shift change a parked vehicle and
- * the one carrying riders are both in the list. The freshest entry is the only
- * defensible choice: it is the one closest to being the shuttle's whereabouts
- * now, and an entry the feed has not heard from in minutes never displaces it.
+ * the one carrying riders are both in the list.
+ *
+ * A vehicle whose driver has reported off duty is not carrying riders, so it
+ * only stands for the shuttle when no other vehicle can. Any vehicle that has
+ * not reported off duty and is still inside the feed window comes first, and
+ * the freshest of those is chosen: it is the shuttle an agent can tell a rider
+ * about. A vehicle that sends no duty state at all, as older driver apps do,
+ * counts as working, because silence about duty is not an off-duty report.
+ * Only when every vehicle on offer is off duty or outside the window is the
+ * freshest entry of all chosen, and an entry the feed has not heard from in
+ * minutes never displaces a fresher one.
  *
  * Two ages arrive here and they mean different things. `ageSeconds` is measured
  * by the server against its own receive time, so it says how long since anyone
@@ -71,9 +79,22 @@ export function readVehicle(response) {
     .filter(vehicle => vehicle !== null);
   if (reported.length === 0) return null;
 
-  return reported.reduce((freshest, candidate) =>
-    contactRank(candidate) < contactRank(freshest) ? candidate : freshest
+  const working = reported.filter(
+    vehicle => vehicle.onDuty !== false && insideFeedWindow(vehicle)
   );
+  return freshest(working.length > 0 ? working : reported);
+}
+
+function freshest(vehicles) {
+  return vehicles.reduce((best, candidate) =>
+    contactRank(candidate) < contactRank(best) ? candidate : best
+  );
+}
+
+// An entry with no age was still served by the feed, which only serves
+// positions inside its window, so it counts as inside.
+function insideFeedWindow(vehicle) {
+  return vehicle.contactAgeMs === null || vehicle.contactAgeMs <= FEED_REPORT_WINDOW_MS;
 }
 
 function normalizeVehicle(vehicle) {
@@ -462,8 +483,10 @@ export function deriveVerdict(service, position) {
     if (position.state === 'out-of-date') {
       return { state: 'running-position-old', ageMs: finiteOrNull(position.ageMs) };
     }
-    // The schedule still counts the service as running, but the shuttle's own
-    // driver has reported off duty, so a rider cannot be told it is coming.
+    // The schedule still counts the service as running, but the only shuttle
+    // in the feed has a driver who reported off duty. readVehicle picks a
+    // working vehicle whenever one is reporting, so this means none is, and a
+    // rider cannot be told a shuttle is coming.
     if (position.state === 'off-duty') {
       return { state: 'running-driver-off-duty', ageMs: finiteOrNull(position.ageMs) };
     }

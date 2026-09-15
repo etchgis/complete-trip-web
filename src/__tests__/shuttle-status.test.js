@@ -109,6 +109,53 @@ describe('readVehicle', () => {
     );
   });
 
+  test('takes a working shuttle over a fresher one whose driver went off duty', () => {
+    // One tablet has just gone off duty while the shuttle carrying riders last
+    // reported 40 seconds ago. The working one is the shuttle an agent can
+    // tell a rider about.
+    const offDuty = driverVehicle({
+      vehicleId: 'break',
+      ageSeconds: 5,
+      onDuty: false,
+      coordinates: [-78.9, 42.95],
+      location: { coordinates: [-78.9, 42.95], timestamp: NOW - 5000 },
+    });
+    const working = driverVehicle({ vehicleId: 'working', ageSeconds: 40, onDuty: true });
+
+    [[offDuty, working], [working, offDuty]].forEach(vehicles => {
+      const chosen = readVehicle({ vehicles });
+      expect(chosen.onDuty).toBe(true);
+      expect(chosen.contactAgeMs).toBe(40000);
+    });
+  });
+
+  test('counts a vehicle that sends no duty state as working', () => {
+    const offDuty = driverVehicle({ vehicleId: 'break', ageSeconds: 5, onDuty: false });
+    const olderApp = driverVehicle({ vehicleId: 'older-app', ageSeconds: 50 });
+    expect(readVehicle({ vehicles: [offDuty, olderApp] }).onDuty).toBe(null);
+  });
+
+  test('takes the freshest of several working shuttles', () => {
+    const vehicles = [
+      driverVehicle({ vehicleId: 'a', ageSeconds: 200, onDuty: true }),
+      driverVehicle({ vehicleId: 'b', ageSeconds: 3, onDuty: false }),
+      driverVehicle({ vehicleId: 'c', ageSeconds: 70, onDuty: true }),
+    ];
+    expect(readVehicle({ vehicles }).contactAgeMs).toBe(70000);
+  });
+
+  test('falls back to the freshest off-duty report when no working shuttle is in the window', () => {
+    const vehicles = [
+      driverVehicle({ vehicleId: 'late', ageSeconds: 20, onDuty: false }),
+      driverVehicle({ vehicleId: 'early', ageSeconds: 90, onDuty: false }),
+      // Past the feed window, so it says nothing about a shuttle out now.
+      driverVehicle({ vehicleId: 'gone', ageSeconds: 400, onDuty: true }),
+    ];
+    const chosen = readVehicle({ vehicles });
+    expect(chosen.onDuty).toBe(false);
+    expect(chosen.contactAgeMs).toBe(20000);
+  });
+
   test('prefers any vehicle with an age over one the feed gave no age for', () => {
     const unaged = driverVehicle({ vehicleId: 'unaged' });
     delete unaged.ageSeconds;
@@ -689,6 +736,29 @@ describe('deriveVerdict', () => {
     expect(
       deriveVerdict(running, { state: 'off-duty', ageMs: 30000 }).state
     ).toBe('running-driver-off-duty');
+  });
+
+  test('a working shuttle keeps the service running when another tablet just went off duty', () => {
+    const verdictFor = vehicles => {
+      const status = deriveStatus({
+        poll: poll({
+          availability: readAvailability(available()),
+          vehicle: readVehicle({ vehicles }),
+        }),
+        history: {},
+        now: NOW,
+      });
+      return deriveVerdict(status.service, status.position).state;
+    };
+    const offDuty = driverVehicle({ vehicleId: 'break', ageSeconds: 5, onDuty: false });
+
+    expect(
+      verdictFor([offDuty, driverVehicle({ vehicleId: 'live', ageSeconds: 40, onDuty: true })])
+    ).toBe('running');
+    expect(
+      verdictFor([offDuty, driverVehicle({ vehicleId: 'parked', ageSeconds: 180, onDuty: true })])
+    ).toBe('running-position-old');
+    expect(verdictFor([offDuty])).toBe('running-driver-off-duty');
   });
 
   test('a shuttle that is reporting leaves the service verdict alone', () => {

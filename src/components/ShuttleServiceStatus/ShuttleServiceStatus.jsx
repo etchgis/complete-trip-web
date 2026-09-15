@@ -24,8 +24,9 @@ const VERDICT_BADGES = {
     key: 'serviceRunningTrackingUnavailable',
     colorScheme: 'gray',
   },
-  // The schedule counts the service as running, but this shuttle's driver has
-  // reported off duty, so the badge cannot be the green "running" one.
+  // The schedule counts the service as running, but no shuttle with a working
+  // driver is reporting and the one that is has a driver who reported off
+  // duty, so the badge cannot be the green "running" one.
   'running-driver-off-duty': {
     key: 'serviceScheduledDriverOffDuty',
     colorScheme: 'orange',
@@ -35,13 +36,26 @@ const VERDICT_BADGES = {
   unknown: { key: 'serviceUnknown', colorScheme: 'gray' },
 };
 
-const SERVICE_DETAILS = {
+// The sentence under the badge. It is chosen from the same verdict as the badge,
+// so the two can never disagree: a badge that stops short of "running" never
+// sits over a line that says the service is running.
+const VERDICT_DETAILS = {
   loading: 'checkingDetail',
   running: 'serviceRunningDetail',
+  // The position line below explains why the position is old. The service
+  // itself is running, so this line says so.
+  'running-position-old': 'serviceRunningDetail',
+  'running-no-contact': 'serviceRunningNoContactDetail',
+  'running-tracking-unavailable': 'serviceRunningTrackingUnavailableDetail',
+  'running-driver-off-duty': 'serviceScheduledDriverOffDutyDetail',
   'no-driver': 'serviceNoDriverDetail',
   'not-running': 'serviceNotRunningDetail',
   unknown: 'serviceUnknownDetail',
 };
+
+// Verdicts for a service that is stopped, where the reason the check gave is
+// worth saying in place of the general line.
+const STOPPED_VERDICTS = ['no-driver', 'not-running'];
 
 // Why the service is stopped, said in the agent's own language. The check sends
 // its own sentence for each of these, but it only writes English, so the card
@@ -127,7 +141,7 @@ export const ShuttleServiceStatus = ({ status }) => {
         aria-live="polite"
         data-testid="shuttle-service-detail"
       >
-        {serviceDetail(t, service)}
+        {verdictDetail(t, verdict, service)}
       </Text>
 
       {nextService && (
@@ -199,11 +213,12 @@ function badgeText(t, verdict, badge) {
   return t(`shuttleStatus.${badge.key}`);
 }
 
-function serviceDetail(t, service) {
-  const key =
-    (service.reason && STOPPAGE_DETAILS[service.reason]) ||
-    SERVICE_DETAILS[service.state] ||
-    SERVICE_DETAILS.unknown;
+function verdictDetail(t, verdict, service) {
+  const stoppage =
+    STOPPED_VERDICTS.indexOf(verdict.state) !== -1 && service.reason
+      ? STOPPAGE_DETAILS[service.reason]
+      : null;
+  const key = stoppage || VERDICT_DETAILS[verdict.state] || VERDICT_DETAILS.unknown;
   return t(`shuttleStatus.${key}`);
 }
 
