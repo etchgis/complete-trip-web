@@ -108,6 +108,9 @@ class Trip {
           reject(e);
         })
         .finally(() => {
+          // A newer search is already running, and the screen belongs to it, so
+          // an older one finishing must not stop its spinner.
+          if (this.queryId !== queryId) return;
           runInAction(() => {
             this.generatingPlans = false;
           });
