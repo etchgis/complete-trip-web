@@ -667,6 +667,8 @@ export default function genLocales() {
         leaveBy: 'Salir A', //✅
         arriveBy: 'Llegar antes de', //✅
         modes: 'Modos de Transporte', //✅
+        modesNote: 'Nota: Todos los viajes incluyen opciones para caminar o desplazarse en silla de ruedas.',
+        modesMessage: 'Los horarios de tránsito están sujetos a cambios y su viaje puede actualizarse después de agregarlo a su horario.',
         selectTransportation: 'Planificar un Viaje',
         chatbot: 'Asistente de Planificación de Viajes', //✅
         chatbotPlaceholder: 'Dime a dónde quieres ir...', //✅
