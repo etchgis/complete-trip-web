@@ -16,15 +16,19 @@ import config from '../../config';
  */
 const shuttle = {
   /**
-   * Whether the service is running right now, per the published operating
-   * hours, any service alert, and whether a driver is on duty.
+   * Whether the service is running, per the published operating hours, any
+   * service alert, and whether a driver is on duty. The driver duty part only
+   * applies to times within a few minutes of now.
    *
    * @param {string} serviceId the shuttle service
+   * @param {number} [at] the time to ask about, in epoch milliseconds; now when
+   *   left out
    * @returns {Promise<object>} the availability check body
    */
-  availability(serviceId) {
+  availability(serviceId, at) {
+    const query = typeof at === 'number' && isFinite(at) ? `?timestamp=${at}` : '';
     return fetch(
-      `${config.SERVICES.skids.url}/services/availability/${serviceId}/check`,
+      `${config.SERVICES.skids.url}/services/availability/${serviceId}/check${query}`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },

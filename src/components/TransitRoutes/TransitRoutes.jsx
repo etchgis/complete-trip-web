@@ -27,10 +27,10 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 import useShuttleServiceStatus from '../../hooks/useShuttleServiceStatus';
+import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
 
 // The one shuttle the call center watches. The service is the NFTA Community
 // Shuttle and the trip is its single route.
-const SHUTTLE_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
 const SHUTTLE_TRIP_ID = 'A1';
 
 export const TransitRoutes = observer(({ onShuttlePress }) => {
@@ -134,16 +134,19 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           });
       }
       else if (service.mode === 'shuttle') {
-        const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-          hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-        const inTimeframe = moment().isAfter(hdsStart) && moment().isBefore(hdsEnd);
-        // const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
-        if (onShuttlePress && inTimeframe) {
-          onShuttlePress(service);
-        }
-        if (!inTimeframe) {
+        // Only a definite "not running" from the service's own availability
+        // check stops the booking. A check that could not be read lets it
+        // through, because the failure is ours and not the shuttle's.
+        const verdict = await checkServiceAvailability(
+          typeof service.service === 'string' && service.service
+            ? service.service
+            : config.HDS_SERVICE_ID
+        );
+        if (verdict === 'unavailable') {
           setAlertMessage(t('routeList.shuttleNotAvailableTimeFrame'));
           setAlertModalOpen(true);
+        } else if (onShuttlePress) {
+          onShuttlePress(service);
         }
       }
     } catch (error) {
@@ -618,7 +621,7 @@ const RouteList = observer(({ routeClickHandler }) => {
   // only runs in that mode.
   const shuttleStatus = useShuttleServiceStatus({
     enabled: ux === 'callcenter',
-    serviceId: SHUTTLE_SERVICE_ID,
+    serviceId: config.HDS_SERVICE_ID,
     tripId: SHUTTLE_TRIP_ID,
     organizationId: config.ORGANIZATION,
     onFeature: updateShuttle,

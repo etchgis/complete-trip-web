@@ -453,10 +453,10 @@ const FEEDBACK = {
   categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
 }
 
-const HDS_HOURS = {
-  start: [8, 0],
-  end: [17, 0]
-}
+// The NFTA Community Shuttle, the human driven shuttle riders book through
+// this app. Its hours, closures and driver duty come from the skids
+// availability check for this service, so they are never copied into the app.
+const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
 
 const defaults = {
   ENV: ENV,
@@ -492,7 +492,7 @@ const defaults = {
   LANAGUAGES,
   NOTIFY_METHODS,
   FEEDBACK,
-  HDS_HOURS
+  HDS_SERVICE_ID,
 };
 const config = { ...defaults };
 

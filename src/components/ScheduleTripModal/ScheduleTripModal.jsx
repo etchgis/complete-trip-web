@@ -50,6 +50,7 @@ import CreateIcon from '../CreateIcon';
 import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import useServiceAvailability from '../../hooks/useServiceAvailability';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -853,9 +854,18 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   );
 });
 
-const Second = observer(({ setStep, trip, setSelectedTrip }) => {
+export const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
   const store = useStore();
+  // The community shuttle is offered for the time the rider picked only when
+  // its availability check does not say it is closed then. While the check is
+  // still out the option stays hidden, so it cannot vanish after being ticked.
+  const shuttleAvailability = useServiceAvailability(
+    config.HDS_SERVICE_ID,
+    trip.request.whenTime
+  );
+  const offerShuttle =
+    shuttleAvailability === 'available' || shuttleAvailability === 'unknown';
   const { user } = store.authentication;
   const { setKeyboardType } = store.uiStore;
   // console.log(toJS(trip));
@@ -931,13 +941,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
             isChecked={(() => {
               const availableModes = config.MODES.filter(mode => {
                 if (mode.id === 'walk') return false;
-                if (mode.id === 'hail') {
-                  const selectedDateTime = moment(trip.request.whenTime);
-                  const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                    hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-                  const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-                  return inTimeframe;
-                }
+                if (mode.id === 'hail') return offerShuttle;
                 return true;
               });
               return availableModes.length > 0 && availableModes.every(mode => modes.includes(mode.mode));
@@ -945,13 +949,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
             onChange={(e) => {
               const availableModes = config.MODES.filter(mode => {
                 if (mode.id === 'walk') return false;
-                if (mode.id === 'hail') {
-                  const selectedDateTime = moment(trip.request.whenTime);
-                  const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                    hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-                  const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-                  return inTimeframe;
-                }
+                if (mode.id === 'hail') return offerShuttle;
                 return true;
               });
 
@@ -972,11 +970,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
           </Checkbox>
           <CheckboxGroup onChange={e => setModes(e)} value={modes}>
             {config.MODES.map(mode => {
-              const selectedDateTime = moment(trip.request.whenTime);
-              const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-              const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-              if (mode.id === 'hail' && !inTimeframe) return '';
+              if (mode.id === 'hail' && !offerShuttle) return '';
               if (mode.id === 'walk') return '';
               return (
                 <Checkbox
