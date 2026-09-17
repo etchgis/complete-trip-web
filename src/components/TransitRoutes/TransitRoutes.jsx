@@ -688,6 +688,11 @@ const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
 
             // console.log('route', r);
             if (r.mode === 'shuttle' && ux === 'callcenter') {
+              // The status card describes the NFTA Community Shuttle, so it is
+              // shown only under that route. Match the same service id the
+              // status hook reads, so another shuttle route such as the All
+              // Access Loop never shows the Community Shuttle's status.
+              const isCommunityShuttle = r.service === config.HDS_SERVICE_ID;
               return (
                 <Box
                   key={i}
@@ -708,8 +713,12 @@ const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
                   <Text fontSize={18} textAlign={'left'}>
                     {r.name}
                   </Text>
-                  <Divider mt={2} mb={2} />
-                  <ShuttleServiceStatus status={shuttleStatus} />
+                  {isCommunityShuttle && (
+                    <>
+                      <Divider mt={2} mb={2} />
+                      <ShuttleServiceStatus status={shuttleStatus} />
+                    </>
+                  )}
                 </Box>
               );
             }
