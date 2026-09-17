@@ -507,6 +507,35 @@ describe('ShuttleServiceStatus', () => {
     cy.contains('Current location').should('not.exist');
   });
 
+  it('leaves off the location block when closed even with no next window', () => {
+    // The schedule has service closed but sent no usable next window, so the
+    // next-service line cannot render. The location block must still be hidden:
+    // no shuttle is out, so a last known location would be stale.
+    render(
+      status({
+        service: {
+          state: 'not-running',
+          reason: 'outside_hours',
+          todayHours: HOURS,
+          nextAvailable: null,
+        },
+        position: {
+          state: 'no-contact',
+          location: { title: 'Main St at Utica', coordinates: [-78.86, 42.89] },
+          ageMs: 8 * 60000,
+          ageBasis: 'contact',
+        },
+      })
+    );
+    cy.get('[data-testid="shuttle-next-service"]').should('not.exist');
+    cy.get('[data-testid="shuttle-location"]').should('not.exist');
+    cy.get('[data-testid="shuttle-location-detail"]').should('not.exist');
+    cy.contains('Last known location').should('not.exist');
+    cy.contains('Current location').should('not.exist');
+    // The footer must not reappear as a stand-in for the missing line.
+    cy.get('[data-testid="shuttle-scheduled-hours"]').should('not.exist');
+  });
+
   it('keeps the location block while the service is running', () => {
     render(status({ service: { state: 'running', todayHours: HOURS } }));
     cy.get('[data-testid="shuttle-location"]').should(
