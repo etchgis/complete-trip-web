@@ -42,7 +42,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCaretRight, FaCircle, FaStar, FaExchangeAlt } from 'react-icons/fa';
-import { useEffect, useRef } from 'react';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import { BsFillChatDotsFill } from 'react-icons/bs';
@@ -50,6 +50,10 @@ import CreateIcon from '../CreateIcon';
 import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import useServiceAvailability, {
+  PLAN_SHUTTLE_SERVICES,
+} from '../../hooks/useServiceAvailability';
+import { formatWindows, readNextService } from '../../models/shuttle-hours';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -853,9 +857,23 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   );
 });
 
-const Second = observer(({ setStep, trip, setSelectedTrip }) => {
+export const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
   const store = useStore();
+  // The trip planner only plans, so it leans toward offering the community
+  // shuttle. Only a definite "closed" from the availability check takes it out
+  // of the trip. A check that is still out, failed, or timed out leaves it in
+  // and says so next to the option.
+  //
+  // For a trip that leaves at the picked time, that time is close to the
+  // pickup, so it is checked here. For an arrive-by trip the picked time is the
+  // arrival, and the pickup is only known once plans are built, so the plans
+  // are checked at their own pickup times instead.
+  const shuttleCheck = useServiceAvailability(
+    config.HDS_SERVICE_ID,
+    trip.request.whenAction === 'arrive' ? null : trip.request.whenTime
+  );
+  const offerShuttle = shuttleCheck !== 'unavailable';
   const { user } = store.authentication;
   const { setKeyboardType } = store.uiStore;
   // console.log(toJS(trip));
@@ -868,10 +886,19 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     if (mode !== 'walk') _modes.push(mode);
   });
   // console.log('check modes', _modes);
-  const [modes, setModes] = useState(
+  // A copy, so changing the trip's modes below does not also change the
+  // rider's selection on this screen.
+  const [modes, setModes] = useState(() =>
     _modes.filter(m => m !== 'walk').length
-      ? trip.request.modes
-      : user?.profile?.preferences?.modes || []
+      ? [...trip.request.modes]
+      : [...(user?.profile?.preferences?.modes || [])]
+  );
+  // The modes the trip is planned with. A rider can have the shuttle selected,
+  // for example through saved preferences, at a time it is closed, so it is
+  // taken out here and not only hidden on screen.
+  const sentModes = useMemo(
+    () => (offerShuttle ? modes : modes.filter(m => m !== 'hail')),
+    [modes, offerShuttle]
   );
   // const tripModes = toJS(trip.request.modes);
   // console.log('tripModes', tripModes);
@@ -896,16 +923,17 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   };
 
   useEffect(() => {
-    modes.forEach(mode => {
+    sentModes.forEach(mode => {
       if (!trip.request.modes.includes(mode) && allowedModes.includes(mode)) {
         trip.addMode(mode);
       }
-      trip.request.modes.forEach(m =>
-        !modes.includes(m) && m !== 'walk' ? trip.removeMode(m) : null
-      );
+    });
+    // Walks a copy, because removing a mode changes the trip's list in place.
+    [...trip.request.modes].forEach(m => {
+      if (!sentModes.includes(m) && m !== 'walk') trip.removeMode(m);
     });
     //eslint-disable-next-line
-  }, [modes]);
+  }, [sentModes]);
 
   // const setCaretaker = e => {
   //   trip.updateProperty('caretaker', e.target.value);
@@ -931,13 +959,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
             isChecked={(() => {
               const availableModes = config.MODES.filter(mode => {
                 if (mode.id === 'walk') return false;
-                if (mode.id === 'hail') {
-                  const selectedDateTime = moment(trip.request.whenTime);
-                  const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                    hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-                  const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-                  return inTimeframe;
-                }
+                if (mode.id === 'hail') return offerShuttle;
                 return true;
               });
               return availableModes.length > 0 && availableModes.every(mode => modes.includes(mode.mode));
@@ -945,13 +967,7 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
             onChange={(e) => {
               const availableModes = config.MODES.filter(mode => {
                 if (mode.id === 'walk') return false;
-                if (mode.id === 'hail') {
-                  const selectedDateTime = moment(trip.request.whenTime);
-                  const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                    hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-                  const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-                  return inTimeframe;
-                }
+                if (mode.id === 'hail') return offerShuttle;
                 return true;
               });
 
@@ -972,24 +988,43 @@ const Second = observer(({ setStep, trip, setSelectedTrip }) => {
           </Checkbox>
           <CheckboxGroup onChange={e => setModes(e)} value={modes}>
             {config.MODES.map(mode => {
-              const selectedDateTime = moment(trip.request.whenTime);
-              const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-                hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-              const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
-              if (mode.id === 'hail' && !inTimeframe) return '';
+              if (mode.id === 'hail' && !offerShuttle) return '';
               if (mode.id === 'walk') return '';
               return (
-                <Checkbox
-                  key={mode.id}
-                  value={mode.mode}
-                  id={`mode-checkbox-${mode.id}`}
-                  onFocus={() => {
-                    store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
-                  }}
-                  tabIndex={0} // Make sure checkbox is focusable
-                >
-                  {t(`settingsPreferences.${mode.id}`)}
-                </Checkbox>
+                <Fragment key={mode.id}>
+                  <Checkbox
+                    value={mode.mode}
+                    id={`mode-checkbox-${mode.id}`}
+                    onFocus={() => {
+                      store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
+                    }}
+                    tabIndex={0} // Make sure checkbox is focusable
+                  >
+                    {t(`settingsPreferences.${mode.id}`)}
+                  </Checkbox>
+                  {mode.id === 'hail' && shuttleCheck === 'loading' && (
+                    <HStack
+                      spacing={2}
+                      pl={6}
+                      fontSize={12}
+                      role="status"
+                      data-testid="shuttle-hours-checking"
+                    >
+                      <Spinner size="xs" />
+                      <Text>{t('tripWizard.shuttleHoursChecking')}</Text>
+                    </HStack>
+                  )}
+                  {mode.id === 'hail' && shuttleCheck === 'unknown' && (
+                    <Text
+                      pl={6}
+                      fontSize={12}
+                      role="status"
+                      data-testid="shuttle-hours-unconfirmed"
+                    >
+                      {t('tripWizard.shuttleHoursUnconfirmed')}
+                    </Text>
+                  )}
+                </Fragment>
               );
             })}
           </CheckboxGroup>
@@ -1225,10 +1260,11 @@ const Fourth = ({
   );
 };
 
-const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
+export const TripResults = observer(({ setStep, trip, trips, setSelectedTrip }) => {
   const { t } = useTranslation();
   return (
     <>
+      <ShuttleNotice notice={trip?.shuttleNotice} />
       {trips.length ? (
         trips.map((t, i) => (
           <TripCard
@@ -1245,6 +1281,77 @@ const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
     </>
   );
 });
+
+// What the availability checks did to this search's plans: why a shuttle plan
+// the rider asked for is not on the list, and which shuttles we could not
+// confirm the hours of. Without this a rider who asked for a 2:45 arrival is
+// shown "No trips found" and has nothing to act on.
+const ShuttleNotice = observer(({ notice }) => {
+  const { t } = useTranslation();
+  if (!notice) return null;
+
+  const closed = notice.closed;
+  const availability = closed?.availability || null;
+  const hours = formatWindows(t, availability?.todayHours);
+  const next =
+    SCHEDULE_CLOSURES.indexOf(availability?.reason) !== -1
+      ? readNextService(t, availability?.nextAvailable)
+      : null;
+  const why = availability && CLOSURE_REASONS[availability.reason];
+
+  return (
+    <>
+      {closed && (
+        <Box textAlign={'left'} width={'100%'} data-testid="shuttle-plans-dropped">
+          <Text>
+            {t('tripWizard.shuttleClosedAtTime', {
+              service: t(closed.service.name),
+            })}
+          </Text>
+          {why === 'hours' && hours && (
+            <Text>{t('tripWizard.shuttleClosedHours', { hours })}</Text>
+          )}
+          {why === 'day' && <Text>{t('tripWizard.shuttleClosedDay')}</Text>}
+          {why === 'no-driver' && (
+            <Text>{t('tripWizard.shuttleClosedNoDriver')}</Text>
+          )}
+          {next && <Text>{t('tripWizard.shuttleClosedNext', next)}</Text>}
+        </Box>
+      )}
+      {(notice.unconfirmed || []).map(key => (
+        <Box
+          key={key}
+          textAlign={'left'}
+          width={'100%'}
+          data-testid="shuttle-hours-unconfirmed-plans"
+        >
+          <Text>
+            {t('tripWizard.shuttleHoursUnconfirmedFor', {
+              service: t(serviceName(key)),
+            })}
+          </Text>
+        </Box>
+      ))}
+    </>
+  );
+});
+
+// Stoppages that come from the published schedule, where the next scheduled
+// window is when the shuttle runs again. A driver on a break or a dispatcher
+// alert can stop service inside a window, and the check then names the window
+// already under way.
+const SCHEDULE_CLOSURES = ['outside_hours', 'day_not_scheduled'];
+
+// What to say about a closure beyond naming it. The check writes its own
+// sentence for each, but only in English.
+const CLOSURE_REASONS = {
+  outside_hours: 'hours',
+  day_not_scheduled: 'day',
+  'no-driver': 'no-driver',
+};
+
+const serviceName = key =>
+  PLAN_SHUTTLE_SERVICES.find(service => service.key === key)?.name || key;
 
 const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
   const { user } = useStore().authentication;

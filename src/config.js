@@ -1,7 +1,7 @@
 // Environment toggle - change this to switch between staging and production
 // Valid values: 'dev', 'stage', or 'prod'
 const API_ENV = 'prod';
-const ENV = 'stage';
+const ENV = 'prod';
 
 const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
@@ -30,6 +30,12 @@ const API = {
     },
     plantrip: {
       url: 'http://192.168.86.249:8082/plantrip',
+      xApiKey: '',
+    },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
       xApiKey: '',
     },
     routes: {
@@ -90,6 +96,12 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -144,6 +156,12 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
     routes: {
       url: 'https://lambda.etch.app/routes',
       xApiKey: 'mTRo8TwY5h9RO40nEo8GE4cDShXWfTOJKwswkdh0',
@@ -161,7 +179,9 @@ const API = {
       xApiKey: 'Dff0FvSOt34pHiPxutIvY80VhMoM3YVp4lpprOPl',
     },
     dispatch: 'https://nfta.etch.app/callcenter',
-    websocket: 'wss://ce9siadbi5.execute-api.us-east-2.amazonaws.com/production',
+    // Staging and production are separate API Gateway websocket APIs, so the
+    // host here differs from the staging one above, not just the stage name.
+    websocket: 'wss://vnc7cq5o24.execute-api.us-east-2.amazonaws.com/production',
     streamsocket: 'wss://{org}.etch.app/services',
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
@@ -433,10 +453,14 @@ const FEEDBACK = {
   categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
 }
 
-const HDS_HOURS = {
-  start: [8, 0],
-  end: [17, 0]
-}
+// The NFTA Community Shuttle, the human driven shuttle riders book through
+// this app. Its hours, closures and driver duty come from the skids
+// availability check for this service, so they are never copied into the app.
+const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
+
+// The All Access Loop shuttle. A trip plan can ride it, so its hours and
+// closures come from the availability check for this service.
+const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
 
 const defaults = {
   ENV: ENV,
@@ -472,7 +496,8 @@ const defaults = {
   LANAGUAGES,
   NOTIFY_METHODS,
   FEEDBACK,
-  HDS_HOURS
+  HDS_SERVICE_ID,
+  UB_SHUTTLE_SERVICE_ID,
 };
 const config = { ...defaults };
 

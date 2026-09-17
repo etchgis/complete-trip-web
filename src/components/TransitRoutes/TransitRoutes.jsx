@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import AlertModal from '../AlertModal';
+import ShuttleServiceStatus from '../ShuttleServiceStatus';
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import config from '../../config';
 import debounce from '../../utils/debounce';
@@ -24,9 +25,13 @@ import { toJS } from 'mobx';
 import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { mobility } from '@etchgis/mobility-transport-layer';
-import { geocoder } from '../../services/transport';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import useShuttleServiceStatus from '../../hooks/useShuttleServiceStatus';
+import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
+
+// The one shuttle the call center watches. The service is the NFTA Community
+// Shuttle and the trip is its single route.
+const SHUTTLE_TRIP_ID = 'A1';
 
 export const TransitRoutes = observer(({ onShuttlePress }) => {
   const colorMode = useColorMode();
@@ -41,6 +46,13 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
   const [searchResult, setSearchResult] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  // Set while the shuttle tile waits on the availability check, so more taps
+  // on it do nothing until the answer is in.
+  const [checkingShuttle, setCheckingShuttle] = useState(false);
+  const checkingShuttleRef = useRef(false);
+  // Counts taps on the route list. An availability check that answers after
+  // the rider has tapped something else is about a tile they have left.
+  const tapRef = useRef(0);
   const { pathname } = useLocation();
 
   const intervalRef = useRef();
@@ -93,6 +105,11 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
 
   const routeClickHandler = async service => {
     console.log('[map-view] route click handler');
+    // A second tap on the shuttle while its check is out is not a new tap: it
+    // is the same rider waiting, so it must not cancel the answer they are
+    // waiting for.
+    if (service.mode === 'shuttle' && checkingShuttleRef.current) return;
+    const tap = (tapRef.current += 1);
     try {
       setDefaultAddress('');
       setKeyboardInputValue(''); //NOTE this is supposed to clear the keyboard input (not working)
@@ -129,16 +146,37 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           });
       }
       else if (service.mode === 'shuttle') {
-        const hdsStart = moment().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
-          hdsEnd = moment().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
-        const inTimeframe = moment().isAfter(hdsStart) && moment().isBefore(hdsEnd);
-        // const inTimeframe = moment().hour() >= config.HDS_HOURS.start && moment().hour() <= config.HDS_HOURS.end;
-        if (onShuttlePress && inTimeframe) {
-          onShuttlePress(service);
-        }
-        if (!inTimeframe) {
-          setAlertMessage(t('routeList.shuttleNotAvailableTimeFrame'));
-          setAlertModalOpen(true);
+        checkingShuttleRef.current = true;
+        setCheckingShuttle(true);
+        try {
+          // This tile starts a request for a shuttle right now, so it only
+          // goes ahead when the availability check says the shuttle is
+          // running. A check that failed, timed out, or has no hours on record
+          // is refused with a message that says we could not confirm it,
+          // rather than that the shuttle is not running.
+          const verdict = await checkServiceAvailability(
+            typeof service.service === 'string' && service.service
+              ? service.service
+              : config.HDS_SERVICE_ID
+          );
+          // The rider has tapped another route since, so this answer is no
+          // longer about what is on screen.
+          if (tapRef.current !== tap) return;
+          if (verdict === 'available') {
+            if (onShuttlePress) onShuttlePress(service);
+          } else {
+            setAlertMessage(
+              t(
+                verdict === 'unavailable'
+                  ? 'routeList.shuttleNotAvailableTimeFrame'
+                  : 'tripWizard.shuttleUnconfirmed'
+              )
+            );
+            setAlertModalOpen(true);
+          }
+        } finally {
+          checkingShuttleRef.current = false;
+          setCheckingShuttle(false);
         }
       }
     } catch (error) {
@@ -310,7 +348,10 @@ export const TransitRoutes = observer(({ onShuttlePress }) => {
           <BackButton backClickHandler={backClickHandler} />
         </Box>
         {/* ROUTES AND STOPS LIST */}
-        <RouteList routeClickHandler={routeClickHandler} />
+        <RouteList
+          routeClickHandler={routeClickHandler}
+          checkingShuttle={checkingShuttle}
+        />
         <StopTimesList stopClickHandler={stopClickHandler} />
       </Flex>
       <AlertModal 
@@ -565,7 +606,7 @@ const StopTimesList = observer(({ stopClickHandler }) => {
   // );
 });
 
-const RouteList = observer(({ routeClickHandler }) => {
+const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
   const { routes, stoptimes, routesLoading } = useStore().mapStore.mapState;
   const { updateShuttle } = useStore().mapStore;
   const { debug } = useStore().uiStore;
@@ -609,60 +650,15 @@ const RouteList = observer(({ routeClickHandler }) => {
     }
   };
 
-  const [shuttleData, setShuttleData] = useState(null);
-
-  useEffect(() => {
-    if (ux === 'callcenter') {
-      const fetchData = () => {
-        try {
-          mobility.skids.trips.get('5da89172-056f-47c9-bef9-adf408bb587e', 'A1', config.ORGANIZATION)
-            .then((result) => {
-              console.log('result', result);
-              let fc = {
-                type: 'FeatureCollection',
-                features: [],
-              };
-              if (result && result.vehicles && result.vehicles.length) {
-                const vehicle = result.vehicles[0];
-                const coordinates = vehicle.location ? vehicle.location.coordinates : vehicle.coordinates;
-                fc.features.push({
-                  type: 'Feature',
-                  geometry: {
-                    type: 'Point',
-                    coordinates,
-                  },
-                });
-                geocoder.reverse({ lat: coordinates[1], lng: coordinates[0] })
-                  .then((results) => {
-                    fc.features[0].properties = results.length && results.length > 0 ? results[0] : { title: 'Unknown' };
-                    fc.features[0].properties.icon = 'shuttle-live';
-                    setShuttleData(fc);
-                    updateShuttle(fc);
-                  })
-                  .catch((e) => {
-                    console.log('geocoder error', e);
-                  });
-              }
-              else {
-                setShuttleData(fc);
-                updateShuttle(fc);
-              }
-            })
-            .catch((e) => {
-              console.log('skids trips error', e);
-            });
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-
-      fetchData();
-
-      const intervalId = setInterval(fetchData, 10000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, []);
+  // The call center card is the only place this data is shown, so the polling
+  // only runs in that mode.
+  const shuttleStatus = useShuttleServiceStatus({
+    enabled: ux === 'callcenter',
+    serviceId: config.HDS_SERVICE_ID,
+    tripId: SHUTTLE_TRIP_ID,
+    organizationId: config.ORGANIZATION,
+    onFeature: updateShuttle,
+  });
 
   return (
     <>
@@ -713,13 +709,7 @@ const RouteList = observer(({ routeClickHandler }) => {
                     {r.name}
                   </Text>
                   <Divider mt={2} mb={2} />
-                  <Text fontSize={16} textAlign={'left'}>Current Location</Text>
-                  {shuttleData && shuttleData.features.length > 0 &&
-                    <Text mt={2} fontSize={16} textAlign={'left'}>{shuttleData.features[0].properties.title}</Text>
-                  }
-                  {shuttleData && shuttleData.features.length === 0 &&
-                    <Text mt={2} fontSize={16} textAlign={'left'}>Unknown</Text>
-                  }
+                  <ShuttleServiceStatus status={shuttleStatus} />
                 </Box>
               );
             }
@@ -729,6 +719,8 @@ const RouteList = observer(({ routeClickHandler }) => {
                   key={i}
                   data-testid="map-route-list-button"
                   onClick={() => routeClickHandler(r)}
+                  isLoading={r.mode === 'shuttle' && checkingShuttle}
+                  aria-busy={r.mode === 'shuttle' && checkingShuttle}
                   background={`#${r.color || 'brand'}`}
                   color={`#${r.textColor || 'ffffff'}`}
                   _hover={{
