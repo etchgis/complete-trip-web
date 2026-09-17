@@ -461,6 +461,86 @@ describe('ShuttleServiceStatus', () => {
     );
   });
 
+  it('states the window once outside hours, in the next-service line only', () => {
+    render(
+      status({
+        service: {
+          state: 'not-running',
+          reason: 'outside_hours',
+          todayHours: HOURS,
+          nextAvailable: { date: '2026-09-16', window: HOURS[0] },
+        },
+        position: { state: 'no-report', location: null, ageMs: null },
+      })
+    );
+    cy.get('[data-testid="shuttle-next-service"]').should(
+      'contain.text',
+      '10:30 AM - 2:30 PM'
+    );
+    // The footer would only repeat the window the next-service line already
+    // shows, so it is hidden here.
+    cy.get('[data-testid="shuttle-scheduled-hours"]').should('not.exist');
+    cy.get('[data-testid="shuttle-service-status"]')
+      .invoke('text')
+      .then(text => {
+        const matches = text.match(/10:30 AM - 2:30 PM/g) || [];
+        expect(matches).to.have.length(1);
+      });
+  });
+
+  it('leaves off the location block when the schedule has service closed', () => {
+    render(
+      status({
+        service: {
+          state: 'not-running',
+          reason: 'outside_hours',
+          todayHours: HOURS,
+          nextAvailable: { date: '2026-09-16', window: HOURS[0] },
+        },
+        position: { state: 'no-report', location: null, ageMs: null },
+      })
+    );
+    cy.get('[data-testid="shuttle-next-service"]').should('exist');
+    cy.get('[data-testid="shuttle-location"]').should('not.exist');
+    cy.get('[data-testid="shuttle-location-detail"]').should('not.exist');
+    cy.contains('Last known location').should('not.exist');
+    cy.contains('Current location').should('not.exist');
+  });
+
+  it('keeps the location block while the service is running', () => {
+    render(status({ service: { state: 'running', todayHours: HOURS } }));
+    cy.get('[data-testid="shuttle-location"]').should(
+      'have.text',
+      'Main St at Utica'
+    );
+    cy.contains('Current location').should('exist');
+  });
+
+  it('keeps the location block when a driver is off duty mid-service', () => {
+    // A driver on break stops the service without the schedule closing it, so a
+    // waiting rider still needs to see where the shuttle was.
+    render(fromFeed([offDutyReport(90)]));
+    cy.get('[data-testid="shuttle-next-service"]').should('not.exist');
+    cy.get('[data-testid="shuttle-location"]').should('exist');
+    cy.contains('Last known location').should('exist');
+
+    render(status({ service: { state: 'no-driver' } }));
+    cy.get('[data-testid="shuttle-next-service"]').should('not.exist');
+    cy.get('[data-testid="shuttle-location"]').should(
+      'have.text',
+      'Main St at Utica'
+    );
+  });
+
+  it('shows the scheduled hours footer while the service is running', () => {
+    render(status({ service: { state: 'running', todayHours: HOURS } }));
+    cy.get('[data-testid="shuttle-next-service"]').should('not.exist');
+    cy.get('[data-testid="shuttle-scheduled-hours"]').should(
+      'have.text',
+      'Scheduled hours today: 10:30 AM - 2:30 PM'
+    );
+  });
+
   it('does not name a next window when a dispatcher or a missing driver stopped service', () => {
     // The check names the window already under way in that case, which would
     // read as service coming back later today.
@@ -497,12 +577,13 @@ describe('ShuttleServiceStatus', () => {
       'have.text',
       'Servicio no disponible'
     );
-    cy.get('[data-testid="shuttle-scheduled-hours"]')
-      .should('have.text', 'Horario programado hoy: 10:30 - 14:30')
-      .and('not.contain.text', 'PM');
+    // The next-service line carries the window, so the footer stays hidden and
+    // the Spanish hours show once, there.
+    cy.get('[data-testid="shuttle-scheduled-hours"]').should('not.exist');
     cy.get('[data-testid="shuttle-next-service"]')
       .should('contain.text', 'lunes')
-      .and('contain.text', '10:30 - 14:30');
+      .and('contain.text', '10:30 - 14:30')
+      .and('not.contain.text', 'PM');
   });
 
   it('shows coordinates rather than the word unknown when the address is missing', () => {

@@ -115,6 +115,9 @@ export const ShuttleServiceStatus = ({ status }) => {
   const badge = VERDICT_BADGES[verdict.state] || VERDICT_BADGES.unknown;
   const locationDetail = positionDetail(t, position);
   const hours = formatWindows(t, service.todayHours);
+  // When set, the schedule has service closed and this names when it resumes.
+  // It is the signal that no shuttle is out, so both the position block and the
+  // repeated hours footer are left off while it is showing.
   const nextService =
     SCHEDULE_STOPPAGES.indexOf(service.reason) !== -1
       ? formatNextService(t, service.nextAvailable)
@@ -169,25 +172,38 @@ export const ShuttleServiceStatus = ({ status }) => {
         </Text>
       )}
 
-      <Divider mt={2} mb={2} />
+      {/* While the schedule has the service closed there is no shuttle out to
+          locate, so the whole location block is left off rather than reporting a
+          stale or missing position. It stays for every state where a shuttle is
+          meant to be running, including a driver on break, so a waiting rider can
+          still be told where it was. */}
+      {!nextService && (
+        <>
+          <Divider mt={2} mb={2} />
 
-      <Text fontSize={16} textAlign={'left'} fontWeight={'bold'}>
-        {t(
-          isCurrentPosition(position)
-            ? 'shuttleStatus.currentLocation'
-            : 'shuttleStatus.lastKnownLocation'
-        )}
-      </Text>
-      <Text fontSize={16} textAlign={'left'} data-testid="shuttle-location">
-        {locationText(t, position)}
-      </Text>
-      {locationDetail && (
-        <Text fontSize={14} textAlign={'left'} data-testid="shuttle-location-detail">
-          {locationDetail}
-        </Text>
+          <Text fontSize={16} textAlign={'left'} fontWeight={'bold'}>
+            {t(
+              isCurrentPosition(position)
+                ? 'shuttleStatus.currentLocation'
+                : 'shuttleStatus.lastKnownLocation'
+            )}
+          </Text>
+          <Text fontSize={16} textAlign={'left'} data-testid="shuttle-location">
+            {locationText(t, position)}
+          </Text>
+          {locationDetail && (
+            <Text fontSize={14} textAlign={'left'} data-testid="shuttle-location-detail">
+              {locationDetail}
+            </Text>
+          )}
+        </>
       )}
 
-      {hours && (
+      {/* The next-service line already states today's window, so the footer
+          would only repeat it. It is kept for the running and mid-window states,
+          where there is no next-service line and it tells the agent when today's
+          service ends. */}
+      {hours && !nextService && (
         <>
           <Divider mt={2} mb={2} />
           <Text fontSize={14} textAlign={'left'} data-testid="shuttle-scheduled-hours">
