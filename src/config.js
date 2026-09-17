@@ -32,12 +32,6 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
-    // The shuttle vehicle feed and the service availability check. There is
-    // only a production deployment, so every environment points at it.
-    skids: {
-      url: 'https://api.etch.app/skids',
-      xApiKey: '',
-    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -96,12 +90,6 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
-    // The shuttle vehicle feed and the service availability check. There is
-    // only a production deployment, so every environment points at it.
-    skids: {
-      url: 'https://api.etch.app/skids',
-      xApiKey: '',
-    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -154,12 +142,6 @@ const API = {
     },
     plantrip: {
       url: 'http://192.168.86.249:8082/plantrip',
-      xApiKey: '',
-    },
-    // The shuttle vehicle feed and the service availability check. There is
-    // only a production deployment, so every environment points at it.
-    skids: {
-      url: 'https://api.etch.app/skids',
       xApiKey: '',
     },
     routes: {
@@ -453,14 +435,10 @@ const FEEDBACK = {
   categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
 }
 
-// The NFTA Community Shuttle, the human driven shuttle riders book through
-// this app. Its hours, closures and driver duty come from the skids
-// availability check for this service, so they are never copied into the app.
-const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
-
-// The All Access Loop shuttle. A trip plan can ride it, so its hours and
-// closures come from the availability check for this service.
-const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
+const HDS_HOURS = {
+  start: [8, 0],
+  end: [17, 0]
+}
 
 const defaults = {
   ENV: ENV,
@@ -496,8 +474,7 @@ const defaults = {
   LANAGUAGES,
   NOTIFY_METHODS,
   FEEDBACK,
-  HDS_SERVICE_ID,
-  UB_SHUTTLE_SERVICE_ID,
+  HDS_HOURS
 };
 const config = { ...defaults };
 
