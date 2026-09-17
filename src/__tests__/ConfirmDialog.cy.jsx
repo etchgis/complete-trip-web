@@ -25,9 +25,9 @@ describe('ConfirmDialog', () => {
     );
     cy.get('button').click();
     cy.get('.chakra-modal__body').should('have.text', 'message');
-    cy.contains('button', 'Cancel').should('exist');
-    cy.contains('button', 'Open Confirm Dialog').should('exist');
-    cy.contains('button', 'Cancel').click();
+    cy.findByText('Cancel').should('exist');
+    cy.findByText('Confirm Text').should('exist');
+    cy.findByText('Cancel').click();
     cy.get('.chakra-modal__body').should('not.exist');
   });
 });

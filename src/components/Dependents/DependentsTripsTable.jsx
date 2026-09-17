@@ -26,6 +26,7 @@ export const DependentsTripsTable = observer(
     const { colorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { dependentTrips } = useStore().schedule;
+    const { isLoading } = useStore().uiStore;
     const { dependentTracker, resetMap, setActiveTripId } =
       useStore().tripMapStore;
     const [selectedTrip, setSelectedTrip] = useState({});
@@ -99,7 +100,7 @@ export const DependentsTripsTable = observer(
               {t('settingsDependents.upcoming')}
             </Heading>
           )}
-          {!trips.length && (
+          {!isLoading && !trips.length && (
             <p tabIndex={0}>{t('settingsDependents.noTrips')}</p>
           )}
           {!trips.length ? (

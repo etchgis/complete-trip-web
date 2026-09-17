@@ -1,23 +1,22 @@
 import { makeAutoObservable, runInAction, toJS } from 'mobx';
-import config from '../config';
-import { Preferences as PreferencesType, Profile, Language, ApiTransportMode, NotificationType } from '../types/UserProfile';
 
-class Preferences implements PreferencesType {
-  language: Language = 'en';
+import config from '../config';
+
+class Preferences {
+  language = 'en';
   wheelchair = false;
   serviceAnimal = false;
   maxCost = 10;
   maxTransfers = 4;
   minimizeWalking = false;
-  modes: ApiTransportMode[] = [];
-  notifications: ('sms' | 'email')[] = [];
-  notificationTypes: NotificationType[] = [];
+  modes = [];
+  notifications = [];
+  notificationTypes = [];
   shareWithConcierge = false;
-  navigationDirections: 'voiceOn' | 'voiceOff' = 'voiceOn';
-  pin?: string = '';
-  rootStore: any;
+  navigationDirections = 'voiceOn';
+  pin = '';
 
-  constructor(rootStore: any) {
+  constructor(rootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
@@ -33,21 +32,21 @@ class Preferences implements PreferencesType {
     // }
   }
 
-  updateProperty = (name: string, value: any) => {
+  updateProperty = (name, value) => {
     runInAction(() => {
-      (this as any)[name] = value;
+      this[name] = value;
     });
     return this.updateProfile();
   };
 
-  addMode = (value: ApiTransportMode) => {
+  addMode = value => {
     runInAction(() => {
       this.modes.push(value);
     });
     return this.updateProfile();
   };
 
-  removeMode = (value: ApiTransportMode) => {
+  removeMode = value => {
     runInAction(() => {
       var i = this.modes.findIndex(m => m === value);
       if (i > -1) {
@@ -57,14 +56,14 @@ class Preferences implements PreferencesType {
     return this.updateProfile();
   };
 
-  addNotification = (value: 'sms' | 'email') => {
+  addNotification = value => {
     runInAction(() => {
       this.notifications.push(value);
     });
     return this.updateProfile();
   };
 
-  removeNotification = (value: 'sms' | 'email') => {
+  removeNotification = value => {
     runInAction(() => {
       var i = this.notifications.findIndex(m => m === value);
       if (i > -1) {
@@ -74,14 +73,14 @@ class Preferences implements PreferencesType {
     return this.updateProfile();
   };
 
-  addNotificationType = (values: NotificationType[]) => {
+  addNotificationType = values => {
     runInAction(() => {
       this.notificationTypes.push(...values);
     });
     return this.updateProfile();
   };
 
-  removeNotificationType = (values: NotificationType[]) => {
+  removeNotificationType = values => {
     runInAction(() => {
       for (let i = 0; i < values.length; i++) {
         const value = values[i];
@@ -104,7 +103,7 @@ class Preferences implements PreferencesType {
     this.rootStore.authentication.updateUserProfile(update);
   };
 
-  getAll = (): PreferencesType => {
+  getAll = () => {
     return {
       language: this.language,
       wheelchair: this.wheelchair,
@@ -124,8 +123,8 @@ class Preferences implements PreferencesType {
     var modes = [];
     for (var i = 0; i < config.MODES.length; i++) {
       var mode = config.MODES[i].mode;
-      if (this.modes.indexOf(mode as ApiTransportMode) > -1) {
-        modes.push(mode as ApiTransportMode);
+      if (this.modes.indexOf(mode) > -1) {
+        modes.push(mode);
       }
     }
     return modes;
@@ -138,8 +137,8 @@ class Preferences implements PreferencesType {
       let types = config.NOTIFICATION_TYPES.caregiver[i].types;
       for (let j = 0; j < types.length; j++) {
         let type = types[j];
-        if (this.notificationTypes.indexOf(type as NotificationType) > -1) {
-          nTypes.push(type as NotificationType);
+        if (this.notificationTypes.indexOf(type) > -1) {
+          nTypes.push(type);
         }
       }
     }
@@ -148,8 +147,8 @@ class Preferences implements PreferencesType {
       let types = config.NOTIFICATION_TYPES.traveler[i].types;
       for (let j = 0; j < types.length; j++) {
         let type = types[j];
-        if (this.notificationTypes.indexOf(type as NotificationType) > -1) {
-          nTypes.push(type as NotificationType);
+        if (this.notificationTypes.indexOf(type) > -1) {
+          nTypes.push(type);
         }
       }
     }
@@ -168,11 +167,11 @@ class Preferences implements PreferencesType {
       this.notifications = [];
       this.notificationTypes = [];
       this.shareWithConcierge = false;
-      this.navigationDirections = 'voiceOn';
+      this.navigationDirections = 'Voice On';
     });
   };
 
-  hydrate = (profile: Profile) => {
+  hydrate = profile => {
     if (profile.preferences) {
       // console.log('Preferences.hydrate', profile.preferences);
       runInAction(() => {

@@ -6,15 +6,10 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { authentication } from '../services/transport';
 import config from '../config';
 import jwtDecode from 'jwt-decode';
-import { User, Profile } from '../types/UserProfile';
 
-interface JWTPayload {
-  exp: number;
-}
-
-const validateJWT = (token: string): number | false => {
+const validateJWT = token => {
   try {
-    const decoded = jwtDecode<JWTPayload>(token);
+    const decoded = jwtDecode(token);
     if (decoded.exp > Date.now() / 1000) {
       return decoded.exp;
     }
@@ -25,22 +20,21 @@ const validateJWT = (token: string): number | false => {
 };
 
 class Authentication {
-  user: Partial<User> = {};
-  contact: { email?: string; phone?: string } = {};
+  user = {};
+  contact = {};
   loggedIn = false;
   loggingIn = false;
   registering = false;
-  error: string | null = null;
+  error = null;
   inTransaction = false;
   requireMFA = false;
-  refreshToken: string | null = null;
-  accessToken: string | null = null; //replaces user.accessToken so that we dont keep that in the user profile and it stands alone - this should never be referenced outside this store
-  stagedUser: Partial<User> = {};
-  errorToastMessage: string | null = null;
-  accessTokenPromise: Promise<string> | null = null;
-  rootStore: any;
+  refreshToken = null;
+  accessToken = null; //replaces user.accessToken so that we dont keep that in the user profile and it stands alone - this should never be referenced outside this store
+  stagedUser = {};
+  errorToastMessage = null;
+  accessTokenPromise = null;
 
-  constructor(rootStore: any) {
+  constructor(rootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
@@ -51,43 +45,43 @@ class Authentication {
     ) {
       makePersistable(this, {
         name: `Authentication`,
-        properties: ['user', 'refreshToken'],
+        properties: ['user'],
         storage: localStorage,
       });
     }
   }
 
-  setRequireMFA = (e: boolean) => {
+  setRequireMFA = e => {
     runInAction(() => {
       this.requireMFA = e;
     });
   };
 
-  setInTransaction = (e: boolean) => {
+  setInTransaction = e => {
     runInAction(() => {
       this.inTransaction = e;
     });
   };
 
-  setStagedUser = (user: Partial<User>) => {
+  setStagedUser = user => {
     runInAction(() => {
       this.stagedUser = user;
     });
   };
 
-  setError = (error: string | null) => {
+  setError = error => {
     runInAction(() => {
       this.error = error;
     });
   };
 
-  setErrorToastMessage = (message: string | null) => {
+  setErrorToastMessage = message => {
     runInAction(() => {
       this.errorToastMessage = message;
     });
   };
 
-  registerUser = (user: any) => {
+  registerUser = user => {
     runInAction(() => {
       this.inTransaction = true;
     });
@@ -138,7 +132,7 @@ class Authentication {
     });
   };
 
-  verifyUser = (channel: string, to: string) => {
+  verifyUser = (channel, to) => {
     runInAction(() => {
       this.inTransaction = true;
     });
@@ -168,7 +162,7 @@ class Authentication {
     });
   };
 
-  confirmUser = (to: string, code: string) => {
+  confirmUser = (to, code) => {
     runInAction(() => {
       this.registering = true;
       this.inTransaction = true;
@@ -202,10 +196,10 @@ class Authentication {
     });
   };
 
-  hydrate = async (profile: Profile | undefined) => {
+  hydrate = async profile => {
     if (!profile) return;
     console.log('[auth-store] hydrating profile');
-    return new Promise<void>(resolve => {
+    return new Promise(resolve => {
       runInAction(() => {
         // this.rootStore.profile.hydrate(profile);
         this.rootStore.preferences.hydrate(profile);
@@ -253,7 +247,7 @@ class Authentication {
    * @param {*} password
    * @returns { Promise<Object> || null }
    */
-  auth = async (email?: string, password?: string, forgot?: boolean): Promise<User | null> => {
+  auth = async (email, password, forgot) => {
     const refreshToken = this.user?.refreshToken || this.refreshToken;
     runInAction(() => {
       this.inTransaction = true;
@@ -274,6 +268,7 @@ class Authentication {
           runInAction(() => {
             this.requireMFA = false;
             this.user = user;
+            this.refreshToken = null; //NOTE we no longer need the refresh token stored inside the store
             this.hydrate(user.profile);
             this.loggedIn = true;
             this.inTransaction = false;
@@ -316,7 +311,6 @@ class Authentication {
                 phone: user.phone,
               };
               this.refreshToken = user.refreshToken;
-              this.user = { refreshToken: user.refreshToken };
               this.inTransaction = false;
             });
             return Promise.resolve(null);
@@ -330,7 +324,6 @@ class Authentication {
             //NOTE the user could change their onboarded status client side - why they would do this, I don't know, but they could and then be able to just login without onboarding and verifying their phone
             runInAction(() => {
               this.accessToken = user.accessToken;
-              this.refreshToken = user.refreshToken;
               this.user = user;
               this.hydrate(user.profile);
               this.loggedIn = true;
@@ -369,7 +362,7 @@ class Authentication {
    * each one.
    * @returns {Promise} - the user access token.
    */
-  fetchToken = (): Promise<string> => {
+  fetchToken = () => {
     if (this.accessTokenPromise) {
       console.log(
         '[auth-store] fetchToken accessTokenPromise exists, returning promise'
@@ -408,7 +401,7 @@ class Authentication {
    * @param {Boolean} skipMFA //user object/null - //TODO remove all user logic from this function - moving to the auth function - this function should just login the user and return the user object
    * @returns
    */
-  login = (email: string, password: string): Promise<User | null> => {
+  login = (email, password) => {
     console.log('[auth-store] logging in');
     runInAction(() => {
       this.inTransaction = true;
@@ -476,7 +469,7 @@ class Authentication {
     if (!validateJWT(this.user.refreshToken)) {
       console.log('[auth-store--reset] invalid refresh token');
       this.reset();
-      this.errorToastMessage = 'Session expired, please login.';
+      this.errorToastMessage('Session expired, please login.');
     }
 
     //NOTE this will refresh the user on each page load
@@ -496,7 +489,7 @@ class Authentication {
               this.inTransaction = false;
               if (!skipHydrate) {
                 this.user = result;
-                await this.hydrate(result?.profile);
+                await this.hydrate(result?.profile, accessToken);
               } else {
                 console.log('[auth-store] skipping hydration of user profile');
               }
@@ -527,14 +520,14 @@ class Authentication {
       }
       //NOTE this will refresh the access token if it is missing or invalid/expired
       this.accessTokenPromise = authentication
-        .refreshAccessToken((this.user as User).refreshToken || '')
+        .refreshAccessToken(this.user.refreshToken)
         .then(result => {
           if (result.accessToken) {
             console.log('[auth-store] received access token');
             runInAction(() => {
               this.accessTokenPromise = null;
               this.accessToken = result.accessToken;
-              this.fetchAccessToken(skipHydrate).catch(console.error); //NOTE this runs through this function again to hydrate the user
+              this.fetchAccessToken(); //NOTE this runs through this function again to hydrate the user
             });
             return result.accessToken;
           }
@@ -547,7 +540,7 @@ class Authentication {
           console.log(e);
           runInAction(() => {
             this.reset();
-            this.errorToastMessage = 'Session expired, please login.';
+            this.errorToastMessage = t('errors.expired');
           });
           throw e;
         });
@@ -582,7 +575,7 @@ class Authentication {
     });
   };
 
-  get = async (accessToken: string): Promise<User> => {
+  get = async accessToken => {
     try {
       const user = await authentication.get(accessToken);
       return Promise.resolve(user);
@@ -591,8 +584,8 @@ class Authentication {
     }
   };
 
-  updateUser = (user: Partial<User>) => {
-    return new Promise<void>(resolve => {
+  updateUser = user => {
+    return new Promise(resolve => {
       runInAction(() => {
         this.user = user;
         resolve();
@@ -600,7 +593,7 @@ class Authentication {
     });
   };
 
-  updateUserProfile = (profile: Profile) => {
+  updateUserProfile = profile => {
     console.log('[auth-store] updateUserProfile');
     runInAction(() => {
       this.inTransaction = true;
@@ -632,7 +625,7 @@ class Authentication {
     });
   };
 
-  updateUserPassword = (oldPassword: string, password: string) => {
+  updateUserPassword = (oldPassword, password) => {
     runInAction(() => {
       this.inTransaction = true;
     });
@@ -662,7 +655,7 @@ class Authentication {
     });
   };
 
-  updateUserPhone = (phone: string) => {
+  updateUserPhone = phone => {
     runInAction(() => {
       this.inTransaction = true;
     });

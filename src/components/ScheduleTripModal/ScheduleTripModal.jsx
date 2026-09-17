@@ -38,22 +38,15 @@ import {
   Text,
   VStack,
   useDisclosure,
-  Badge,
-  Tooltip,
 } from '@chakra-ui/react';
 import { FaArrowRight, FaCaretRight, FaCircle, FaStar, FaExchangeAlt } from 'react-icons/fa';
-import { Fragment, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import { BsFillChatDotsFill } from 'react-icons/bs';
 import CreateIcon from '../CreateIcon';
 import Tripbot from '../Tripbot';
 import VerticalTripPlan from '../VerticalTripPlan';
-import { useConfirmDialog } from '../../hooks/useConfirmDialog';
-import useServiceAvailability, {
-  PLAN_SHUTTLE_SERVICES,
-} from '../../hooks/useServiceAvailability';
-import { formatWindows, readNextService } from '../../models/shuttle-hours';
 import config from '../../config';
 import formatters from '../../utils/formatters';
 import { observer } from 'mobx-react-lite';
@@ -857,23 +850,9 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
   );
 });
 
-export const Second = observer(({ setStep, trip, setSelectedTrip }) => {
+const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   const { t } = useTranslation();
   const store = useStore();
-  // The trip planner only plans, so it leans toward offering the community
-  // shuttle. Only a definite "closed" from the availability check takes it out
-  // of the trip. A check that is still out, failed, or timed out leaves it in
-  // and says so next to the option.
-  //
-  // For a trip that leaves at the picked time, that time is close to the
-  // pickup, so it is checked here. For an arrive-by trip the picked time is the
-  // arrival, and the pickup is only known once plans are built, so the plans
-  // are checked at their own pickup times instead.
-  const shuttleCheck = useServiceAvailability(
-    config.HDS_SERVICE_ID,
-    trip.request.whenAction === 'arrive' ? null : trip.request.whenTime
-  );
-  const offerShuttle = shuttleCheck !== 'unavailable';
   const { user } = store.authentication;
   const { setKeyboardType } = store.uiStore;
   // console.log(toJS(trip));
@@ -886,19 +865,10 @@ export const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     if (mode !== 'walk') _modes.push(mode);
   });
   // console.log('check modes', _modes);
-  // A copy, so changing the trip's modes below does not also change the
-  // rider's selection on this screen.
-  const [modes, setModes] = useState(() =>
+  const [modes, setModes] = useState(
     _modes.filter(m => m !== 'walk').length
-      ? [...trip.request.modes]
-      : [...(user?.profile?.preferences?.modes || [])]
-  );
-  // The modes the trip is planned with. A rider can have the shuttle selected,
-  // for example through saved preferences, at a time it is closed, so it is
-  // taken out here and not only hidden on screen.
-  const sentModes = useMemo(
-    () => (offerShuttle ? modes : modes.filter(m => m !== 'hail')),
-    [modes, offerShuttle]
+      ? trip.request.modes
+      : user?.profile?.preferences?.modes || []
   );
   // const tripModes = toJS(trip.request.modes);
   // console.log('tripModes', tripModes);
@@ -923,17 +893,16 @@ export const Second = observer(({ setStep, trip, setSelectedTrip }) => {
   };
 
   useEffect(() => {
-    sentModes.forEach(mode => {
+    modes.forEach(mode => {
       if (!trip.request.modes.includes(mode) && allowedModes.includes(mode)) {
         trip.addMode(mode);
       }
-    });
-    // Walks a copy, because removing a mode changes the trip's list in place.
-    [...trip.request.modes].forEach(m => {
-      if (!sentModes.includes(m) && m !== 'walk') trip.removeMode(m);
+      trip.request.modes.forEach(m =>
+        !modes.includes(m) && m !== 'walk' ? trip.removeMode(m) : null
+      );
     });
     //eslint-disable-next-line
-  }, [sentModes]);
+  }, [modes]);
 
   // const setCaretaker = e => {
   //   trip.updateProperty('caretaker', e.target.value);
@@ -951,90 +920,31 @@ export const Second = observer(({ setStep, trip, setSelectedTrip }) => {
     >
       <FormControl>
         <FormLabel>{t('tripWizard.modes')}</FormLabel>
-        <Text fontSize="sm" color="gray.500" mb={2} fontStyle="italic">
-          {t('tripWizard.scheduleNote')}
-        </Text>
-        <VStack alignItems={'flex-start'} spacing={2}>
-          <Checkbox
-            isChecked={(() => {
-              const availableModes = config.MODES.filter(mode => {
-                if (mode.id === 'walk') return false;
-                if (mode.id === 'hail') return offerShuttle;
-                return true;
-              });
-              return availableModes.length > 0 && availableModes.every(mode => modes.includes(mode.mode));
-            })()}
-            onChange={(e) => {
-              const availableModes = config.MODES.filter(mode => {
-                if (mode.id === 'walk') return false;
-                if (mode.id === 'hail') return offerShuttle;
-                return true;
-              });
-
-              if (e.target.checked) {
-                setModes(availableModes.map(mode => mode.mode));
-              } else {
-                setModes([]);
-              }
-            }}
-            id="mode-checkbox-select-all"
-            onFocus={() => {
-              store.uiStore.setFocusedCheckbox('mode-checkbox-select-all');
-            }}
-            tabIndex={0}
-            fontWeight="bold"
-          >
-            Select All
-          </Checkbox>
-          <CheckboxGroup onChange={e => setModes(e)} value={modes}>
+        <VStack alignItems={'flex-start'}>
+          <CheckboxGroup onChange={e => setModes(e)} defaultValue={modes}>
             {config.MODES.map(mode => {
-              if (mode.id === 'hail' && !offerShuttle) return '';
+              const selectedDateTime = moment(trip.request.whenTime);
+              const hdsStart = selectedDateTime.clone().hour(config.HDS_HOURS.start[0]).minute(config.HDS_HOURS.start[1]).second(0),
+                hdsEnd = selectedDateTime.clone().hour(config.HDS_HOURS.end[0]).minute(config.HDS_HOURS.end[1]).second(0);
+              const inTimeframe = selectedDateTime.isAfter(hdsStart) && selectedDateTime.isBefore(hdsEnd);
+              if (mode.id === 'hail' && !inTimeframe) return '';
               if (mode.id === 'walk') return '';
               return (
-                <Fragment key={mode.id}>
-                  <Checkbox
-                    value={mode.mode}
-                    id={`mode-checkbox-${mode.id}`}
-                    onFocus={() => {
-                      store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
-                    }}
-                    tabIndex={0} // Make sure checkbox is focusable
-                  >
-                    {t(`settingsPreferences.${mode.id}`)}
-                  </Checkbox>
-                  {mode.id === 'hail' && shuttleCheck === 'loading' && (
-                    <HStack
-                      spacing={2}
-                      pl={6}
-                      fontSize={12}
-                      role="status"
-                      data-testid="shuttle-hours-checking"
-                    >
-                      <Spinner size="xs" />
-                      <Text>{t('tripWizard.shuttleHoursChecking')}</Text>
-                    </HStack>
-                  )}
-                  {mode.id === 'hail' && shuttleCheck === 'unknown' && (
-                    <Text
-                      pl={6}
-                      fontSize={12}
-                      role="status"
-                      data-testid="shuttle-hours-unconfirmed"
-                    >
-                      {t('tripWizard.shuttleHoursUnconfirmed')}
-                    </Text>
-                  )}
-                </Fragment>
+                <Checkbox
+                  key={mode.id}
+                  value={mode.mode}
+                  id={`mode-checkbox-${mode.id}`}
+                  onFocus={() => {
+                    store.uiStore.setFocusedCheckbox(`mode-checkbox-${mode.id}`);
+                  }}
+                  tabIndex={0} // Make sure checkbox is focusable
+                >
+                  {t(`settingsPreferences.${mode.id}`)}
+                </Checkbox>
               );
             })}
           </CheckboxGroup>
         </VStack>
-        <Text fontSize={12} marginTop={3}>
-          {t('tripWizard.modesNote')}
-        </Text>
-        <Text fontSize={12} marginTop={3}>
-          {t('tripWizard.modesMessage')}
-        </Text>
       </FormControl>
 
       {/* <FormControl>
@@ -1151,7 +1061,6 @@ const Fourth = ({
     useStore().uiStore;
   const { add: saveTrip } = useStore().schedule;
   const { t } = useTranslation();
-  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const navigate = useNavigate()
 
@@ -1166,40 +1075,27 @@ const Fourth = ({
   // //------------------DEBUG------------------//
 
   async function scheduleTrip() {
-    // Show confirmation modal before saving
-    const confirmed = await confirm({
-      title: t('tripWizard.saveTripTitle'),
-      message: t('tripWizard.saveTripMessage'),
-      confirmText: t('tripWizard.saveTripConfirm'),
-      cancelText: t('global.cancel'),
-      iconType: 'info',
-      variant: 'brand',
-      showIcon: true,
-    });
+    const _request = toJS(trip.request);
+    _request.origin['text'] =
+      trip.request.origin.title + ' ' + trip.request.origin.description;
+    _request.destination['text'] =
+      trip.request.destination.title +
+      ' ' +
+      trip.request.destination.description;
+    const updated = await saveTrip(selectedTrip, _request);
+    console.log({ updated });
+    if (updated) {
+      closeModal();
 
-    if (confirmed) {
-      const _request = toJS(trip.request);
-      _request.origin['text'] =
-        trip.request.origin.title + ' ' + trip.request.origin.description;
-      _request.destination['text'] =
-        trip.request.destination.title +
-        ' ' +
-        trip.request.destination.description;
-      const updated = await saveTrip(selectedTrip, _request);
-      console.log({ updated });
-      if (updated) {
-        closeModal();
+      setToastStatus('success');
+      setToastMessage(t('tripWizard.tripScheduled'));
 
-        setToastStatus('success');
-        setToastMessage(t('tripWizard.tripScheduled'));
+      setHasSelectedPlan(false);
+      setSelectedTrip({});
 
-        setHasSelectedPlan(false);
-        setSelectedTrip({});
+      trip.create();
 
-        trip.create();
-
-        setStep(0);
-      }
+      setStep(0);
     }
   }
 
@@ -1255,16 +1151,14 @@ const Fourth = ({
         }}
 
       ></VerticalTripPlan>
-      <ConfirmDialog />
     </Stack>
   );
 };
 
-export const TripResults = observer(({ setStep, trip, trips, setSelectedTrip }) => {
+const TripResults = observer(({ setStep, trips, setSelectedTrip }) => {
   const { t } = useTranslation();
   return (
     <>
-      <ShuttleNotice notice={trip?.shuttleNotice} />
       {trips.length ? (
         trips.map((t, i) => (
           <TripCard
@@ -1282,106 +1176,12 @@ export const TripResults = observer(({ setStep, trip, trips, setSelectedTrip }) 
   );
 });
 
-// What the availability checks did to this search's plans: why a shuttle plan
-// the rider asked for is not on the list, and which shuttles we could not
-// confirm the hours of. Without this a rider who asked for a 2:45 arrival is
-// shown "No trips found" and has nothing to act on.
-const ShuttleNotice = observer(({ notice }) => {
-  const { t } = useTranslation();
-  if (!notice) return null;
-
-  const closed = notice.closed;
-  const availability = closed?.availability || null;
-  const hours = formatWindows(t, availability?.todayHours);
-  const next =
-    SCHEDULE_CLOSURES.indexOf(availability?.reason) !== -1
-      ? readNextService(t, availability?.nextAvailable)
-      : null;
-  const why = availability && CLOSURE_REASONS[availability.reason];
-
-  return (
-    <>
-      {closed && (
-        <Box textAlign={'left'} width={'100%'} data-testid="shuttle-plans-dropped">
-          <Text>
-            {t('tripWizard.shuttleClosedAtTime', {
-              service: t(closed.service.name),
-            })}
-          </Text>
-          {why === 'hours' && hours && (
-            <Text>{t('tripWizard.shuttleClosedHours', { hours })}</Text>
-          )}
-          {why === 'day' && <Text>{t('tripWizard.shuttleClosedDay')}</Text>}
-          {why === 'no-driver' && (
-            <Text>{t('tripWizard.shuttleClosedNoDriver')}</Text>
-          )}
-          {next && <Text>{t('tripWizard.shuttleClosedNext', next)}</Text>}
-        </Box>
-      )}
-      {(notice.unconfirmed || []).map(key => (
-        <Box
-          key={key}
-          textAlign={'left'}
-          width={'100%'}
-          data-testid="shuttle-hours-unconfirmed-plans"
-        >
-          <Text>
-            {t('tripWizard.shuttleHoursUnconfirmedFor', {
-              service: t(serviceName(key)),
-            })}
-          </Text>
-        </Box>
-      ))}
-    </>
-  );
-});
-
-// Stoppages that come from the published schedule, where the next scheduled
-// window is when the shuttle runs again. A driver on a break or a dispatcher
-// alert can stop service inside a window, and the check then names the window
-// already under way.
-const SCHEDULE_CLOSURES = ['outside_hours', 'day_not_scheduled'];
-
-// What to say about a closure beyond naming it. The check writes its own
-// sentence for each, but only in English.
-const CLOSURE_REASONS = {
-  outside_hours: 'hours',
-  day_not_scheduled: 'day',
-  'no-driver': 'no-driver',
-};
-
-const serviceName = key =>
-  PLAN_SHUTTLE_SERVICES.find(service => service.key === key)?.name || key;
-
 const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
   const { user } = useStore().authentication;
+  const tripModes = tripPlan.legs.reduce((acc, leg) => [...acc, leg.mode], []);
+  const tripModesSet = Array.from(new Set(tripModes));
   const wheelchair = user?.profile?.preferences?.wheelchair;
   const { t } = useTranslation();
-
-  // Create a unique list of modes with their details
-  const tripModesWithDetails = [];
-  const seenModes = new Set();
-
-  tripPlan.legs.forEach(leg => {
-    // Skip walking segments and placeholder modes
-    if (leg.mode === '___') return;
-
-    // Create a unique key for each mode/route combination
-    const modeKey = `${leg.mode}_${leg.route || ''}_${leg.routeShortName || ''}_${leg.agencyId || leg.providerId || ''}`;
-
-    if (!seenModes.has(modeKey)) {
-      seenModes.add(modeKey);
-      tripModesWithDetails.push({
-        mode: leg.mode,
-        route: leg.routeShortName || leg.route || leg.routeId,
-        agencyId: leg.agencyId,
-        providerId: leg.providerId,
-        agencyName: leg.agencyName,
-        routeLongName: leg.routeLongName,
-      });
-    }
-  });
-
   return (
     <Box key={index.toString() + tripPlan?.id} width="100%">
       <Card
@@ -1439,116 +1239,37 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
               {/* <StatHelpText>Stop</StatHelpText> */}
             </Stat>
           </Grid>
-          <Flex justifyContent={'flex-start'} mx={6} py={2} alignItems={'center'} flexWrap={'wrap'}>
-            {tripModesWithDetails.map((leg, i) => {
-              const modeName = leg.mode.toLowerCase();
-              const isShuttleUB = leg.agencyId?.toLowerCase().includes('ub') ||
-                                  leg.providerId?.toLowerCase().includes('ub') ||
-                                  modeName === 'ubshuttle';
-              const isShuttleHDS = (leg.agencyId?.toLowerCase().includes('nfta') ||
-                                   leg.providerId?.toLowerCase().includes('community') ||
-                                   modeName === 'hail') && modeName !== 'bus';
-
-              return (
-                <Box
-                  as="span"
-                  key={i.toString()}
-                  display="flex"
-                  alignItems="center"
-                >
-                  {CreateIcon(
-                    modeName === 'walk' && wheelchair
+          <Flex justifyContent={'flex-start'} mx={6} py={2}>
+            {tripModesSet.map((mode, i) => (
+              <Box
+                as="span"
+                key={i.toString()}
+                display="flex"
+                alignItems="center"
+              >
+                {mode !== '___' ? (
+                  CreateIcon(
+                    mode === 'WALK' && wheelchair
                       ? config.WHEELCHAIR.svg
-                      : config.MODES.find(m => m.id === modeName)?.svg || config.MODES[0].svg
-                  )}
+                      : config.MODES.find(m => m.id === mode.toLowerCase()).svg
+                  )
+                ) : (
+                  <Icon
+                    as={
+                      mode === 'WALK' && wheelchair
+                        ? config.WHEELCHAIR.webIcon
+                        : config.MODES.find(m => m.id === mode.toLowerCase())
+                          .webIcon
+                    }
+                    boxSize={6}
+                  />
+                )}
 
-                  {/* Add badges for different modes */}
-                  {(modeName === 'bus' || modeName === 'tram' || modeName === 'rail' ||
-                    leg.mode === 'BUS' || leg.mode === 'TRAM' || leg.mode === 'RAIL') && leg.route && (
-                    <Tooltip
-                      label={`${modeName === 'tram' ? 'Metro Rail' : modeName === 'rail' ? 'Rail' : 'Bus'} Route ${leg.route}${leg.routeLongName ? `: ${leg.routeLongName}` : ''}`}
-                      placement="top"
-                      hasArrow
-                    >
-                      <Badge
-                        colorScheme={modeName === 'tram' ? 'orange' : modeName === 'rail' ? 'purple' : 'blue'}
-                        fontSize="xs"
-                        px={1.5}
-                        py={0.5}
-                        borderRadius="full"
-                        ml={1}
-                        mr={2}
-                      >
-                        {leg.route}
-                      </Badge>
-                    </Tooltip>
-                  )}
-                  {modeName === 'car' && (
-                    <Tooltip label="Personal Vehicle" placement="top" hasArrow>
-                      <Badge
-                        colorScheme="cyan"
-                        fontSize="xs"
-                        px={1.5}
-                        py={0.5}
-                        borderRadius="full"
-                        ml={1}
-                        mr={2}
-                      >
-                        CAR
-                      </Badge>
-                    </Tooltip>
-                  )}
-                  {modeName === 'bicycle' && (
-                    <Tooltip label="Bicycle" placement="top" hasArrow>
-                      <Badge
-                        colorScheme="red"
-                        fontSize="xs"
-                        px={1.5}
-                        py={0.5}
-                        borderRadius="full"
-                        ml={1}
-                        mr={2}
-                      >
-                        BIKE
-                      </Badge>
-                    </Tooltip>
-                  )}
-                  {isShuttleUB && (
-                    <Tooltip label="Self-Driving Shuttle (AAL)" placement="top" hasArrow>
-                      <Badge
-                        colorScheme="purple"
-                        fontSize="xs"
-                        px={1.5}
-                        py={0.5}
-                        borderRadius="full"
-                        ml={1}
-                        mr={2}
-                      >
-                        AAL
-                      </Badge>
-                    </Tooltip>
-                  )}
-                  {isShuttleHDS && (
-                    <Tooltip label="Human-Driven Community Shuttle (NFTA)" placement="top" hasArrow>
-                      <Badge
-                        colorScheme="green"
-                        fontSize="xs"
-                        px={1.5}
-                        py={0.5}
-                        borderRadius="full"
-                        ml={1}
-                        mr={2}
-                      >
-                        NFTACS
-                      </Badge>
-                    </Tooltip>
-                  )}
-                  {i < tripModesWithDetails.length - 1 ? (
-                    <Icon as={FaCaretRight} boxSize={6} mr={2} />
-                  ) : null}
-                </Box>
-              );
-            })}
+                {i < tripModesSet.length - 1 ? (
+                  <Icon as={FaCaretRight} boxSize={6} mr={2} />
+                ) : null}
+              </Box>
+            ))}
           </Flex>
           <Flex alignItems={'center'} fontWeight="bold" px={2}>
             {formatters.datetime.asDuration(tripPlan.duration)}
@@ -1556,9 +1277,9 @@ const TripCard = ({ setStep, tripPlan, index, setSelectedTrip }) => {
             {tripPlan.legs.length > 1
               ? t('tripWizard.includesStops')
               : t('tripWizard.direct')}
-            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesWithDetails.length}{' '}
+            <Icon as={FaCircle} boxSize={2} mx={2} /> {tripModesSet.length}{' '}
             {t('tripWizard.mode')}
-            {tripModesWithDetails.length > 1 ? 's' : ''}
+            {tripModesSet.length > 1 ? 's' : ''}
           </Flex>
         </CardBody>
       </Card>

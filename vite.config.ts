@@ -19,22 +19,29 @@ export default defineConfig({
     },
   },
   plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
-  test: {
-    // Vitest runs the unit tests under src. The archive folder holds retired
-    // components, and TransitRoutes.test.jsx drives the page against live
-    // services through a wrapper that loads Cypress commands, so neither can
-    // run here.
-    include: ['src/**/*.test.{js,jsx,ts,tsx}'],
-    exclude: ['src/__tests__/TransitRoutes.test.jsx'],
+  esbuild: {
+    loader: 'jsx', // Remove this if you're not using JSX
+    include: [
+      // Business as usual for .jsx and .tsx files
+      'src/**/*.jsx',
+      'src/**/*.tsx',
+      'node_modules/**/*.jsx',
+      'node_modules/**/*.tsx',
+
+      // --- OR ---
+
+      // Add these lines to allow all .js files to contain JSX
+      'src/**/*.js',
+      'node_modules/**/*.js',
+
+      // Add these lines to allow all .ts files to contain JSX
+      'src/**/*.ts',
+      'node_modules/**/*.ts',
+    ],
+    exclude: [],
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-        '.ts': 'tsx',
-        '.jsx': 'jsx',
-        '.tsx': 'tsx',
-      },
-    },
+  test: {
+    globals: true,
+    environment: 'jsdom',
   },
 });

@@ -137,8 +137,6 @@ const authentication = {
     if (channel === 'email') {
       data.channelConfiguration = config.VERIFY.CHANNEL_CONFIGURATION;
       data.to = data.to.toLowerCase();
-    } else if (channel === 'sms' && !to.startsWith('+')) {
-      data.to = `+${to}`;
     }
     return fetch(`${config.SERVICES.auth.url}/verify`, {
       method: 'POST',
@@ -417,17 +415,7 @@ const authentication = {
         if (response.status === 200) {
           return true;
         }
-        // Handle specific error cases
-        const error = new Error();
-        error.status = response.status;
-        if (response.status === 400) {
-          error.message = 'Invalid or expired verification code';
-        } else if (response.status === 401) {
-          error.message = 'Verification code does not match this email address';
-        } else {
-          error.message = 'Unknown error resetting password';
-        }
-        throw error;
+        throw new Error({ message: 'Unknown error resetting password' });
       })
       .catch(err => {
         throw err;

@@ -429,11 +429,8 @@ const genLocales = () => {
         leaveBy: 'Leave At',
         arriveBy: 'Arrive By',
         modes: 'Modes of Transportation',
-        modesNote: 'Note: Walking/rolling options are provided for all trips.',
-        modesMessage: 'Transit schedules are subject to change and your trip may be updated after you have added it to your schedule.',
         selectTransportation: 'Schedule a Trip',
-        chatbot: 'Trip Planning Assistant',
-        chatbotPlaceholder: 'Tell me where you want to go...',
+        chatbot: 'Where To?',
         selectTrip: 'Select a Trip',
         leave: 'Leave',
         arrive: 'Arrive',
@@ -466,8 +463,7 @@ const genLocales = () => {
         arriveBy: 'Llegar antes de', //✅
         modes: 'Modos de Transporte', //✅
         selectTransportation: 'Programar un Viaje',
-        chatbot: 'Asistente de Planificación de Viajes', //✅
-        chatbotPlaceholder: 'Dime a dónde quieres ir...', //✅
+        chatbot: '¿A dónde?', //✅
         selectTrip: 'Seleccionar un Viaje', //✅
         leave: 'Salir',
         arrive: 'Llegar',
@@ -489,13 +485,13 @@ const genLocales = () => {
     },
     tripbot: {
       en: {
-        greeting: 'Hi! I can help you plan your trip. Just tell me where you want to go, like "I need to go to the BGMC reception desk" or "Take me to 100 High Street before 2PM". You can also tell me when you need to arrive or leave.',
+        greeting: 'Where To?',
         error1:
           'Sorry, the bot is experiencing issues. Please try again later.',
         error2: 'Sorry, I am having trouble. Can you try again?',
       },
       es: {
-        greeting: '¡Hola! Puedo ayudarte a planificar tu viaje. Solo dime a dónde quieres ir, como "Necesito ir a la recepción de BGMC" o "Llévame a 100 High Street antes de las 2PM". También puedes decirme cuándo necesitas llegar o salir.', //✅
+        greeting: '¿A dónde?', //✅
         error1:
           'Lo siento, el bot está experimentando problemas. Por favor, inténtelo de nuevo más tarde.', //✅
         error2:

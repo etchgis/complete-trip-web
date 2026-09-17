@@ -61,7 +61,7 @@ export const DependentsList = observer(() => {
       console.log({ result });
       if (status === 'approved') setToastStatus('Success');
       if (status === 'denied') setToastStatus('Info');
-      setToastMessage(t('settingsCaregivers.coordinatorRequestStatus', { status }));
+      setToastMessage(`Caregiver request ${status}.`);
     } catch (error) {
       console.log({ error });
       setToastMessage('An error occurred with the request.');

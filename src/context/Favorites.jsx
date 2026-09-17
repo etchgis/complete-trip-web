@@ -1,43 +1,26 @@
 // import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 
 import { makeAutoObservable, runInAction, toJS } from 'mobx';
-import { SavedLocation, SavedTrip, Coordinates, Profile } from '../types/UserProfile';
 
-class Location implements SavedLocation {
-  id: string;
-  title: string;
-  alias?: string;
-  description?: string;
-  distance?: string;
-  point: Coordinates;
-  text: string;
-  name?: string;
-  childKey?: string;
-  search?: string;
-  
-  constructor(obj: any) {
-    this.id = obj?.id || Date.now().toString();
-    this.title = obj?.title || '';
+class Location {
+  point = {};
+  constructor(obj) {
+    this.id = Date.now();
+    this.title = obj?.title;
     this.alias = obj?.alias;
-    this.name = obj?.name;
     this.description = obj?.description;
     this.distance = obj?.distance || null;
-    this.point = {
-      lat: obj?.point?.lat || 0,
-      lng: obj?.point?.lng || 0
-    };
-    this.text = obj?.text || (this.title + (this.description ? ', ' + this.description : ''));
-    this.childKey = obj?.childKey;
-    this.search = obj?.search;
+    this.point.lat = obj?.point?.lat || 0;
+    this.point.lng = obj?.point?.lng || 0;
+    this.text = this.title + ', ' + this.description;
   }
 }
 
 class Favorites {
-  locations: Location[] = [];
-  trips: SavedTrip[] = [];
-  rootStore: any;
+  locations = [];
+  trips = [];
 
-  constructor(rootStore: any) {
+  constructor(rootStore) {
     makeAutoObservable(this);
     this.rootStore = rootStore;
 
@@ -54,14 +37,14 @@ class Favorites {
     // }
   }
 
-  updateProperty = (name: string, value: any) => {
+  updateProperty = (name, value) => {
     runInAction(() => {
       this[name] = value;
     });
     return this.updateProfile();
   };
 
-  addLocation = (location: any) => {
+  addLocation = location => {
     const _location = new Location(location);
     const newLocation = { ..._location };
     console.log({ newLocation });
@@ -72,7 +55,7 @@ class Favorites {
     return newLocation.id;
   };
 
-  removeLocation = (id: string) => {
+  removeLocation = id => {
     runInAction(() => {
       var i = this.locations.findIndex(l => l.id === id);
       if (i > -1) {
@@ -118,18 +101,18 @@ class Favorites {
   };
 
   updateProfile = async () => {
-    const profile = toJS(this.rootStore.authentication.user.profile) as Profile;
+    const profile = toJS(this.rootStore.authentication.user.profile);
     return await this.rootStore.authentication.updateUserProfile(
       Object.assign(profile, { favorites: this.getAll() })
     );
     // return await this.rootStore.profile.updateProfile();
   };
 
-  hydrate = (profile: Profile) => {
+  hydrate = profile => {
     // console.log('Favorites hydrate', profile);
     if (profile.favorites) {
       runInAction(() => {
-        this.locations = (profile.favorites.locations || []).map((loc: any) => new Location(loc));
+        this.locations = profile.favorites.locations || [];
         this.trips = profile.favorites.trips || [];
       });
     }

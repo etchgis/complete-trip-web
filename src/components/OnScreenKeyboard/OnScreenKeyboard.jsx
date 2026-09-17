@@ -93,17 +93,14 @@ const OnScreenKeyboard = observer(() => {
     }
 
     // Check if address dropdown is open and handle space key to select an option
-    // We disable this because it conflicts with an intentional space. Instead, only accept
-    // space = select from a physical keyboard or Storm device.
-    // if (button === '{space}' && (activeInput === 'startAddress' || activeInput === 'endAddress' || activeInput === 'transitSearch')) {
-    //   const focusedOption = document.querySelector('[role="option"][aria-selected="true"], [role="option"]:focus');
-    //   if (focusedOption) {
-    //     // Simulate a click on the focused option
-    //     focusedOption.click();
-    //     return;
-    //   }
-    // }
-    // // Otherwise, insert a space character for typing
+    if (button === '{space}' && (activeInput === 'startAddress' || activeInput === 'endAddress' || activeInput === 'transitSearch')) {
+      const focusedOption = document.querySelector('[role="option"][aria-selected="true"], [role="option"]:focus');
+      if (focusedOption) {
+        // Simulate a click on the focused option
+        focusedOption.click();
+        return;
+      }
+    }
 
     let currentValue = inputAccumulator[activeInput] || '';
 

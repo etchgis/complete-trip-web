@@ -27,10 +27,10 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
   const { t } = useTranslation();
   const { inviteCode } = useStore().caregivers;
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, loggedIn, inTransaction, requireMFA, auth, reset, initialAuthComplete } =
+  const { user, loggedIn, inTransaction, requireMFA, auth, reset } =
     useStore().authentication;
 
-  const { ux } = useStore().uiStore;
+  const { isLoading, ux } = useStore().uiStore;
   // const { trips } = useStore().schedule;
 
   // const _trips = toJS(trips);
@@ -252,7 +252,7 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
         ></MFAVerify>
 
         {/* LOADER */}
-        <Loader isOpen={inTransaction}></Loader>
+        <Loader isOpen={inTransaction || isLoading}></Loader>
       </Flex>
       <Flex
         id="mobile-app"

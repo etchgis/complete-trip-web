@@ -164,6 +164,7 @@ export const MapComponent = observer(({ showMap }) => {
         style={{ height: '100%', flex: 1 }}
         id="map-container"
       />
+      <Loader isOpen={!mapIsLoaded && pathname === '/map'}></Loader>
     </>
   );
 });
