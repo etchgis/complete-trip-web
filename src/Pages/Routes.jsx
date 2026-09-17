@@ -2,7 +2,6 @@ import { Navigate, Routes as ReactRoutes, Route, useSearchParams } from 'react-r
 import { toJS, trace } from 'mobx';
 
 import CaregiverLink from './CaregiverLink';
-import Gleap from 'gleap';
 import Layout from './Layout';
 import Login from './Login';
 import Settings from './Settings';
@@ -22,6 +21,7 @@ import { LoginRegister } from '../components/LoginRegister/LoginRegister.jsx';
 import config from '../config.js';
 import { useState } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
+import { PublicTerms, PublicPrivacy } from './PublicLegal.jsx';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -31,7 +31,7 @@ export const Routes = observer(() => {
   ) {
     trace(false);
   }
-  const { user, loggedIn, auth, logout } = useStore().authentication;
+  const { user, loggedIn, auth, logout, refreshToken } = useStore().authentication;
   const { debug, setDebugMode, ui, setUI, setUX, ux } = useStore().uiStore;
   const {
     onClose: hideLogin,
@@ -47,25 +47,10 @@ export const Routes = observer(() => {
 
   if (debug) console.log('[routes] logged in:', loggedIn);
 
-  //GLEAP
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlParams.entries());
-    const { mode } = params;
-    if (mode === 'webapp') {
-      Gleap.initialize(import.meta.env.VITE_GLEAP);
-      const gleapDivs = document.querySelectorAll('.gleap-font');
-      if (gleapDivs.length > 0) {
-        gleapDivs.forEach(div => {
-          div.setAttribute('aria-hidden', 'true');
-        });
-      }
-    }
-  }, []);
-
   //INIT AUTH & USER
   useEffect(() => {
-    console.log('[routes]', { cachedUser: user?.refreshToken ? true : false }, { loggedIn });
+    const hasRefreshToken = user?.refreshToken || refreshToken;
+    console.log('[routes]', { cachedUser: hasRefreshToken ? true : false }, { loggedIn });
     console.log('[routes] checking for kiosk mode')
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
@@ -79,7 +64,7 @@ export const Routes = observer(() => {
     }
 
     (async () => {
-      if (user?.refreshToken && !loggedIn) {
+      if (hasRefreshToken && !loggedIn) {
         if (debug) console.log('[routes] checking for auth');
         try {
           await auth(); //any errors will be handled by auth()
@@ -209,6 +194,10 @@ export const Routes = observer(() => {
       {/* Callcenter shortcut */}
       <Route path="/callcenter" element={<CallCenterRoute />} />
 
+      {/* Public Legal Pages */}
+      <Route path="/terms" element={<PublicTerms />} />
+      <Route path="/privacy" element={<PublicPrivacy />} />
+
       {/* CAREGIVER LINK */}
       <Route
         path={'/caregiver'}
@@ -288,10 +277,10 @@ export const Routes = observer(() => {
             path="/settings/terms"
             element={<Layout children={<Settings view="terms" />} />}
           />
-          {/* <Route
+          <Route
             path="/settings/privacy"
             element={<Layout children={<Settings view="privacy" />} />}
-          /> */}
+          />
         </>
       ) : (
         <>

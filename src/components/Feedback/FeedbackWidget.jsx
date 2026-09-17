@@ -1,7 +1,12 @@
 import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
   Box,
   Button,
   Checkbox,
+  CloseButton,
   Divider,
   FormControl,
   Heading,
@@ -37,6 +42,7 @@ const FeedbackWidget = ({ showTitle }) => {
   const [feedbackText, setFeedbackText] = useState('');
 
   const { onOpen, onClose, isOpen } = useDisclosure();
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const popoverRef = useRef();
 
   const handleSubmitPress = async () => {
@@ -55,11 +61,57 @@ const FeedbackWidget = ({ showTitle }) => {
     setFeedbackText('');
     setSelectedCategory(config.FEEDBACK.categories[0]);
     setIncludeEmail(false);
+    onClose();
+    setShowConfirmation(true);
+    setTimeout(() => setShowConfirmation(false), 5000);
   }
 
   return (
-    <Tooltip label={t('sidebar.feedback')}>
-      <Box>
+    <Box position="relative">
+      {showConfirmation && (
+        <Box
+          position="absolute"
+          left={showTitle ? "100%" : "60px"}
+          top="0"
+          ml={2}
+          width="450px"
+          zIndex={1500}
+        >
+          <Alert
+            status="success"
+            variant="solid"
+            borderRadius="lg"
+            boxShadow="xl"
+            p={4}
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+          >
+            <Box display="flex" alignItems="center" width="100%" mb={3}>
+              <AlertIcon boxSize="24px" mr={3} />
+              <AlertTitle fontSize="xl" mb={0}>
+                {t('feedbackWidget.confirmationTitle')}
+              </AlertTitle>
+            </Box>
+            <AlertDescription fontSize="md" mb={3} pl={9}>
+              {t('feedbackWidget.confirmationMessage')}
+            </AlertDescription>
+            <Button
+              size="md"
+              variant="solid"
+              bg="white"
+              color="green.600"
+              _hover={{ bg: 'gray.100' }}
+              onClick={() => setShowConfirmation(false)}
+              alignSelf="flex-end"
+            >
+              {t('feedbackWidget.dismiss')}
+            </Button>
+          </Alert>
+        </Box>
+      )}
+      <Tooltip label={t('sidebar.feedback')}>
+        <Box>
         <Popover
           placement={showTitle ? 'bottom' : 'right-end'}
           isOpen={isOpen}
@@ -139,10 +191,7 @@ const FeedbackWidget = ({ showTitle }) => {
                   style={{
                     fontSize: '22px',
                   }}
-                  onClick={() => {
-                    handleSubmitPress();
-                    onClose();
-                  }}
+                  onClick={handleSubmitPress}
                   ref={popoverRef}
                 >
                   {t('global.submit')}
@@ -153,8 +202,9 @@ const FeedbackWidget = ({ showTitle }) => {
             {/* <PopoverFooter></PopoverFooter> */}
           </PopoverContent>
         </Popover>
-      </Box>
-    </Tooltip>
+        </Box>
+      </Tooltip>
+    </Box>
   );
 };
 

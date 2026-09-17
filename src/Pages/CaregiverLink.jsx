@@ -31,7 +31,7 @@ const CaregiverLink = observer(() => {
     validInvitedCaregiver,
   } = useStore().caregivers;
   const { user, loggedIn, inTransaction } = useStore().authentication;
-  const { isLoading, setToastMessage, setToastStatus } = useStore().uiStore;
+  const { setToastMessage, setToastStatus } = useStore().uiStore;
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -85,9 +85,12 @@ const CaregiverLink = observer(() => {
     } catch (error) {
       console.log({ error });
       setToastStatus('Error');
-      if (error?.message === 'invalid') {
+      if (error?.message?.startsWith('wrong-email:')) {
+        const invitedEmail = error.message.split(':')[1];
         setInviteCode(null);
-        setToastMessage(t('errors.unknown'));
+        setToastMessage(
+          `This invitation was sent to ${invitedEmail}. Please log in with that email address to accept this invitation.`
+        );
         navigate('/settings/profile'); //NOTE route the user here so they can see which email they are using
       } else {
         setToastMessage(t('settingsCaregivers.genericError'));
@@ -123,7 +126,7 @@ const CaregiverLink = observer(() => {
             p={4}
           >
             <Box width={'320px'} maxW={'100%'}>
-              {isLoading || inTransaction ? (
+              {inTransaction ? (
                 <></>
               ) : loggedIn ? (
                 <Box>

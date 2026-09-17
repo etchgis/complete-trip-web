@@ -14,6 +14,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  List,
+  ListItem,
   PinInput,
   PinInputField,
   Radio,
@@ -65,7 +67,6 @@ export const LoginRegister = observer(({ hideModal, verify, onVerificationComple
     if (!verify) return
     const forgotOptions = {
       email: verify.identity,
-      code: verify.code,
       method: 'email',
     }
     setForgotOptions(forgotOptions)
@@ -556,14 +557,13 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
     try {
       console.log({ method });
       const recovered = await recover(email, method);
-      if (!recovered || !recovered.code || !recovered.concealed)
+      if (!recovered || !recovered.concealed)
         throw new Error();
       console.log('recovered', recovered);
       setForgotOptions(current => ({
         ...current,
         email,
         method,
-        code: recovered.code,
         concealed: recovered.concealed,
         destination: recovered?.destination,
       }));
@@ -632,7 +632,6 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
   const [pin, setPin] = useState('');
-  const [code, setCode] = useState(options?.code);
   const { t } = useTranslation();
 
   // console.log({ options });
@@ -647,11 +646,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
 
       setInTransaction(true);
 
-      // TODO: Update API to remove need for /confirm endpoint
-      // const confirmed = await confirmUser(options.destination, pin);
-      // if (!confirmed) throw new Error('verify error');
-
-      const updated = await resetPassword(options.email, options.code, password);
+      const updated = await resetPassword(options.email, pin, password);
       if (!updated) throw new Error('password error');
       //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
       await auth(options.email, password, true);
@@ -704,9 +699,8 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
         onClick={async () => {
           setInTransaction(true);
           const recovered = await recover(options.email, options.method);
-          if (!recovered || !recovered.code || !recovered.concealed)
+          if (!recovered || !recovered.concealed)
             console.log('error with recover');
-          if (!options.code) setCode(recovered?.code);
           setInTransaction(false);
         }}
       >
@@ -943,6 +937,73 @@ const Terms = ({ hideTerms, agreedToTerms, termsChanged, agreedToConsent, consen
       <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line">
         {t('loginWizard.changesToTermsText')}
       </Text>
+
+      <Box mt={8} pt={6} borderTop="2px" borderColor="gray.300">
+        <Heading
+          as="h3"
+          size="md"
+          mb={4}
+          color={colorMode === 'light' ? 'brandDark' : 'brand'}
+        >
+          {t('shuttleTerms.allAccessLoop')}
+        </Heading>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.generalConduct')}
+          </Text>
+          <List as="ul" styleType="disc" spacing={3} pl={5} mt={2}>
+            {t('shuttleTerms.generalConductItems').map((item, index) => (
+              <ListItem key={index} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+                <Text fontWeight="bold">{item.title}</Text>
+                <Text>{item.text}</Text>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.automatedDriveWarnings')}
+          </Text>
+          <List as="ul" styleType="disc" spacing={3} pl={5} mt={2}>
+            {t('shuttleTerms.automatedDriveWarningsItems').map((item, index) => (
+              <ListItem key={index} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+                <Text fontWeight="bold">{item.title}</Text>
+                <Text>{item.text}</Text>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.mediaRelease')}
+          </Text>
+          <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} mt={2}>
+            {t('shuttleTerms.mediaReleaseText')}
+          </Text>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.serviceAnimals')}
+          </Text>
+          <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} whiteSpace="pre-line" mt={2}>
+            {t('shuttleTerms.serviceAnimalsText')}
+          </Text>
+        </Box>
+
+        <Box mb={4}>
+          <Text as={'b'} color={colorMode === 'light' ? 'gray.900' : 'gray.400'}>
+            {t('shuttleTerms.noFirearmsWeapons')}
+          </Text>
+          <Text color={colorMode === 'light' ? 'gray.900' : 'gray.400'} mt={2}>
+            {t('shuttleTerms.noFirearmsWeaponsText')}
+          </Text>
+        </Box>
+      </Box>
+
       <Divider />
       <Heading
         as="h2"

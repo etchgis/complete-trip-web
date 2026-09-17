@@ -5,7 +5,7 @@ export const CreateIcon = props => {
     <Icon
       viewBox={props?.viewBox || '0 0 512 512'}
       mr={2}
-      boxSize={'5'}
+      boxSize={props?.boxSize || '5'}
       display="inline-flex"
     >
       <path
@@ -14,6 +14,7 @@ export const CreateIcon = props => {
           props?.path ||
           'M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0'
         }
+        transform={props?.transform}
       />
     </Icon>
   );

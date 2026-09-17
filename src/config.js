@@ -1,5 +1,7 @@
-const API_ENV = 'stage';
-const ENV = 'stage';
+// Environment toggle - change this to switch between staging and production
+// Valid values: 'dev', 'stage', or 'prod'
+const API_ENV = 'prod';
+const ENV = 'prod';
 
 const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
@@ -30,6 +32,12 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -56,6 +64,12 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    assistant: {
+      // Comment out the next line when not developing the assistant locally
+      // url: 'http://localhost:3000/local/v3/chat',
+      url: 'https://staging.lambda.etch.app/assistant/v3/chat',
+      xApiKey: 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi',
+    },
   },
   stage: {
     admin: {
@@ -82,6 +96,12 @@ const API = {
       url: 'http://192.168.86.249:8082/plantrip',
       xApiKey: '',
     },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
     routes: {
       url: 'https://staging.lambda.etch.app/routes',
       xApiKey: 'kIAVhCZcQI3QExnHTQzDI1gHKLxF6KBm2jazpU2K',
@@ -104,6 +124,72 @@ const API = {
     otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
     otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
     geocode: 'https://mmapi.etch.app/geocode',
+    assistant: {
+      // Comment out the next line when not developing the assistant locally
+      // url: 'http://localhost:3000/local/v3/chat',
+      url: 'https://staging.lambda.etch.app/assistant/v3/chat',
+      xApiKey: 'yLrNscPcue6wga2Q8fijx4gqAkL6LHUvZkJi63Hi',
+    },
+  },
+  prod: {
+    admin: {
+      url: 'https://lambda.etch.app/admin',
+      xApiKey: '8dDef8HT608KF3yfzNrNbaMrTtkLLVvQ7okMDccD',
+    },
+    auth: {
+      url: 'https://lambda.etch.app/accounts',
+      xApiKey: '4qHPexG6u9idltk3rCEE9oyFMonnYtj4vVHICNP5',
+    },
+    trips: {
+      url: 'https://lambda.etch.app/trips',
+      xApiKey: 'yemqqBYsOD1rpDCnQmhusa8CSGEJTaH31mLnC0z4',
+    },
+    rides: {
+      url: 'https://lambda.etch.app/rides',
+      xApiKey: 'SHXJEVi2l3aDoNRcs4iwU6c5sYaIciKA25tRqY0M',
+    },
+    plans: {
+      url: 'https://api.etch.app/routeplans/plans',
+      xApiKey: '0lHZS75Dxzv94i2p4VMWkXS9jj5298pVaBwF0ypH',
+    },
+    plantrip: {
+      url: 'http://192.168.86.249:8082/plantrip',
+      xApiKey: '',
+    },
+    // The shuttle vehicle feed and the service availability check. There is
+    // only a production deployment, so every environment points at it.
+    skids: {
+      url: 'https://api.etch.app/skids',
+      xApiKey: '',
+    },
+    routes: {
+      url: 'https://lambda.etch.app/routes',
+      xApiKey: 'mTRo8TwY5h9RO40nEo8GE4cDShXWfTOJKwswkdh0',
+    },
+    verifications: {
+      url: 'https://lambda.etch.app/verifications',
+      xApiKey: 'ZicSjlQlPx1qdXNWWn5ut1fDV55DObGg2uoxLG8L',
+    },
+    caregivers: {
+      url: 'https://lambda.etch.app/caregivers',
+      xApiKey: 'Axed9jWEkk98ZSzIHn7gw6O2wb8AfCIP1GMSuvOT',
+    },
+    feedback: {
+      url: 'https://lambda.etch.app/feedback',
+      xApiKey: 'Dff0FvSOt34pHiPxutIvY80VhMoM3YVp4lpprOPl',
+    },
+    dispatch: 'https://nfta.etch.app/callcenter',
+    // Staging and production are separate API Gateway websocket APIs, so the
+    // host here differs from the staging one above, not just the stage name.
+    websocket: 'wss://vnc7cq5o24.execute-api.us-east-2.amazonaws.com/production',
+    streamsocket: 'wss://{org}.etch.app/services',
+    otp: 'https://ctp-otp.etch.app/otp/routers/default/plan',
+    otpGraphQL: 'https://ctp-otp.etch.app/otp/gtfs/v1',
+    geocode: 'https://mmapi.etch.app/geocode',
+    assistant: {
+      url: 'https://lambda.etch.app/assistant/v3/chat',
+      xApiKey: 'IYaw4ePgA137U741zVZnY56itMez14sh6Jw7kzrg',
+    },
   },
 };
 
@@ -191,36 +277,6 @@ const MODES = [
     },
   },
   {
-    id: 'car',
-    mode: 'car',
-    sort: 5,
-    label: 'Car',
-    icon: 'car',
-    type: 'car',
-    accessible: true,
-    color: '#3da9da',
-    api: '',
-    svg: {
-      path: 'M80 296C80 282.7 90.75 272 104 272C117.3 272 128 282.7 128 296C128 309.3 117.3 320 104 320C90.75 320 80 309.3 80 296zM432 296C432 309.3 421.3 320 408 320C394.7 320 384 309.3 384 296C384 282.7 394.7 272 408 272C421.3 272 432 282.7 432 296zM48.29 204.7L82.99 89.01C93.14 55.17 124.3 32 159.6 32H352.4C387.7 32 418.9 55.17 429 89.01L463.7 204.7C492.6 221.2 512 252.3 512 288V464C512 472.8 504.8 480 496 480C487.2 480 480 472.8 480 464V416H32V464C32 472.8 24.84 480 16 480C7.164 480 0 472.8 0 464V288C0 252.3 19.44 221.2 48.29 204.7zM85.33 192.6C88.83 192.2 92.39 192 96 192H416C419.6 192 423.2 192.2 426.7 192.6L398.4 98.21C392.3 77.9 373.6 64 352.4 64H159.6C138.4 64 119.7 77.9 113.6 98.21L85.33 192.6zM32 288V384H480V288C480 260.3 462.4 236.7 437.7 227.8L437.3 227.9L437.2 227.6C430.5 225.3 423.4 224 416 224H96C88.58 224 81.46 225.3 74.83 227.6L74.73 227.9L74.27 227.8C49.62 236.7 32 260.3 32 288V288z',
-      viewBox: '0 0 512 512',
-    },
-  },
-  {
-    id: 'bicycle',
-    mode: 'bicycle',
-    sort: 2,
-    label: 'Bike',
-    icon: 'bicycle',
-    type: 'bicyle',
-    accessible: false,
-    color: '#AF272F',
-    api: '',
-    svg: {
-      path: 'M347.2 32C356.1 32 364.3 36.94 368.4 44.82L466.1 232.1C480.1 226.9 496.2 224 512 224C582.7 224 640 281.3 640 352C640 422.7 582.7 480 512 480C441.3 480 384 422.7 384 352C384 308.6 405.6 270.2 438.7 247.1L417.5 206.7L334 359.7C331.2 364.8 325.9 368 320 368H255C247.1 431.1 193.3 480 128 480C57.31 480 0 422.7 0 352C0 281.3 57.31 223.1 128 223.1C142.9 223.1 157.2 226.5 170.5 231.2L197 178.2L166.9 128H112C103.2 128 96 120.8 96 112C96 103.2 103.2 96 112 96H176C181.6 96 186.8 98.95 189.7 103.8L223.5 160H392.9L342.3 64H304C295.2 64 288 56.84 288 48C288 39.16 295.2 32 304 32H347.2zM416 352C416 405 458.1 448 512 448C565 448 608 405 608 352C608 298.1 565 256 512 256C501.5 256 491.5 257.7 482.1 260.8L526.2 344.5C530.3 352.4 527.3 362 519.5 366.2C511.6 370.3 501.1 367.3 497.8 359.5L453.8 275.7C430.8 293.2 416 320.9 416 352V352zM156 260.2C147.2 257.5 137.8 256 127.1 256C74.98 256 31.1 298.1 31.1 352C31.1 405 74.98 448 127.1 448C175.6 448 215.1 413.4 222.7 368H133.2C118.9 368 109.6 352.1 116 340.2L156 260.2zM291.7 336L216.5 210.7L153.9 336H291.7zM242.7 192L319.3 319.8L389 192H242.7z',
-      viewBox: '0 0 640 512',
-    },
-  },
-  {
     id: 'bus',
     mode: 'bus',
     sort: 1,
@@ -238,7 +294,7 @@ const MODES = [
   {
     id: 'tram',
     mode: 'tram',
-    sort: 1,
+    sort: 2,
     label: 'Metro Rail',
     icon: 'bus-alt',
     type: 'transit',
@@ -253,7 +309,7 @@ const MODES = [
   {
     id: 'hail',
     mode: 'hail',
-    sort: 1,
+    sort: 3,
     label: 'Community Shuttle',
     icon: 'truck-front',
     type: 'transit',
@@ -262,6 +318,53 @@ const MODES = [
     api: '',
     svg: {
       path: 'M80 32C53.5 32 32 53.5 32 80V248.4c10.8-9.7 23.9-17 38.3-21l31.3-88.8c9-25.6 33.2-42.7 60.4-42.7H350c27.1 0 51.3 17.1 60.4 42.7l31.3 88.8c14.4 4 27.4 11.3 38.3 21V80c0-26.5-21.5-48-48-48H80zM32 320v48c0 26.5 21.5 48 48 48H432c26.5 0 48-21.5 48-48V320c0-35.3-28.7-64-64-64H96c-35.3 0-64 28.7-64 64zM0 320V80C0 35.8 35.8 0 80 0H432c44.2 0 80 35.8 80 80V320v48c0 26.2-12.6 49.4-32 64v64c0 8.8-7.2 16-16 16s-16-7.2-16-16V446.4c-5.2 1-10.5 1.6-16 1.6H80c-5.5 0-10.8-.6-16-1.6V496c0 8.8-7.2 16-16 16s-16-7.2-16-16V432C12.6 417.4 0 394.2 0 368V320zm105.4-96H406.6l-26.3-74.7C375.7 136.6 363.6 128 350 128H162c-13.6 0-25.7 8.6-30.2 21.3L105.4 224zM80 328a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zm328-24a24 24 0 1 1 0 48 24 24 0 1 1 0-48z',
+      viewBox: '0 0 512 512',
+    },
+  },
+  {
+    id: 'ubshuttle',
+    mode: 'ubshuttle',
+    sort: 4,
+    label: 'All Access Loop (Self Driving) Shuttle',
+    icon: 'van-shuttle',
+    type: 'transit',
+    accessible: true,
+    color: '#005BBB',
+    api: '',
+    svg: {
+      'path': 'M516 1105 c-49 -19 -106 -62 -106 -79 0 -21 27 -27 42 -9 23 28 111 63 158 63 47 0 135 -35 158 -63 15 -17 42 -12 42 7 0 17 -37 50 -79 71 -46 23 -165 29 -215 10z M555 1018 c-43 -16 -85 -47 -85 -63 0 -25 18 -26 55 -1 19 14 49 27 64 31 31 7 93 -14 123 -42 14 -13 21 -14 31 -4 42 42 -111 108 -188 79z M553 906 c-23 -20 -26 -27 -15 -38 10 -10 16 -10 30 0 38 27 46 27 84 0 14 -10 20 -10 30 0 11 11 8 18 -15 38 -36 31 -78 31 -114 0z M230 808 c-24 -13 -58 -40 -74 -61 l-31 -39 -3 -228 -3 -228 27 -21 c15 -11 37 -21 49 -21 13 0 39 -16 58 -35 27 -27 43 -35 72 -35 42 0 92 26 101 52 5 16 21 18 179 18 l173 0 35 -35 c29 -29 42 -35 77 -35 35 0 48 6 77 35 23 23 44 35 62 35 17 0 37 10 52 26 23 25 24 31 27 202 4 208 -5 267 -51 319 -63 71 -71 73 -447 73 -329 0 -337 0 -380 -22z m120 -137 l0 -120 -54 -11 c-30 -6 -73 -24 -95 -41 l-41 -29 0 95 c0 59 5 108 14 128 25 59 79 94 149 96 l27 1 0 -119z m240 -1 l0 -120 -100 0 -100 0 0 120 0 120 100 0 100 0 0 -120z m240 0 l0 -120 -100 0 -100 0 0 120 0 120 100 0 100 0 0 -120z m159 92 c56 -41 66 -66 71 -183 3 -60 4 -109 2 -109 -1 0 -20 13 -43 29 -22 17 -65 35 -95 41 l-54 11 0 121 0 121 48 -7 c26 -3 58 -14 71 -24z m-26 -278 c18 -10 47 -28 65 -42 31 -24 32 -27 32 -96 0 -74 -9 -96 -42 -96 -13 0 -18 8 -18 26 0 31 -46 80 -84 90 -14 3 -38 3 -52 0 -38 -10 -84 -59 -84 -90 l0 -26 -170 0 -170 0 0 26 c0 31 -46 80 -84 90 -14 3 -38 3 -52 0 -38 -10 -84 -59 -84 -90 0 -18 -5 -26 -18 -26 -32 0 -42 22 -42 95 0 68 1 72 32 96 80 60 66 58 416 59 281 0 327 -2 355 -16z m-589 -175 c51 -40 22 -129 -43 -129 -65 0 -96 89 -45 129 15 12 34 21 44 21 10 0 29 -9 44 -21z m554 5 c32 -22 45 -60 30 -87 -26 -50 -76 -61 -115 -25 -33 30 -31 80 3 107 32 25 52 26 82 5z',
+      'viewBox': '75 75 1100 1100',
+      'transform': 'translate(0, 1250) scale(1, -1)',
+      'boxSize': '6',
+    },
+  },
+  {
+    id: 'bicycle',
+    mode: 'bicycle',
+    sort: 5,
+    label: 'Bike',
+    icon: 'bicycle',
+    type: 'bicyle',
+    accessible: false,
+    color: '#AF272F',
+    api: '',
+    svg: {
+      path: 'M347.2 32C356.1 32 364.3 36.94 368.4 44.82L466.1 232.1C480.1 226.9 496.2 224 512 224C582.7 224 640 281.3 640 352C640 422.7 582.7 480 512 480C441.3 480 384 422.7 384 352C384 308.6 405.6 270.2 438.7 247.1L417.5 206.7L334 359.7C331.2 364.8 325.9 368 320 368H255C247.1 431.1 193.3 480 128 480C57.31 480 0 422.7 0 352C0 281.3 57.31 223.1 128 223.1C142.9 223.1 157.2 226.5 170.5 231.2L197 178.2L166.9 128H112C103.2 128 96 120.8 96 112C96 103.2 103.2 96 112 96H176C181.6 96 186.8 98.95 189.7 103.8L223.5 160H392.9L342.3 64H304C295.2 64 288 56.84 288 48C288 39.16 295.2 32 304 32H347.2zM416 352C416 405 458.1 448 512 448C565 448 608 405 608 352C608 298.1 565 256 512 256C501.5 256 491.5 257.7 482.1 260.8L526.2 344.5C530.3 352.4 527.3 362 519.5 366.2C511.6 370.3 501.1 367.3 497.8 359.5L453.8 275.7C430.8 293.2 416 320.9 416 352V352zM156 260.2C147.2 257.5 137.8 256 127.1 256C74.98 256 31.1 298.1 31.1 352C31.1 405 74.98 448 127.1 448C175.6 448 215.1 413.4 222.7 368H133.2C118.9 368 109.6 352.1 116 340.2L156 260.2zM291.7 336L216.5 210.7L153.9 336H291.7zM242.7 192L319.3 319.8L389 192H242.7z',
+      viewBox: '0 0 640 512',
+    },
+  },
+  {
+    id: 'car',
+    mode: 'car',
+    sort: 6,
+    label: 'Car',
+    icon: 'car',
+    type: 'car',
+    accessible: true,
+    color: '#3da9da',
+    api: '',
+    svg: {
+      path: 'M80 296C80 282.7 90.75 272 104 272C117.3 272 128 282.7 128 296C128 309.3 117.3 320 104 320C90.75 320 80 309.3 80 296zM432 296C432 309.3 421.3 320 408 320C394.7 320 384 309.3 384 296C384 282.7 394.7 272 408 272C421.3 272 432 282.7 432 296zM48.29 204.7L82.99 89.01C93.14 55.17 124.3 32 159.6 32H352.4C387.7 32 418.9 55.17 429 89.01L463.7 204.7C492.6 221.2 512 252.3 512 288V464C512 472.8 504.8 480 496 480C487.2 480 480 472.8 480 464V416H32V464C32 472.8 24.84 480 16 480C7.164 480 0 472.8 0 464V288C0 252.3 19.44 221.2 48.29 204.7zM85.33 192.6C88.83 192.2 92.39 192 96 192H416C419.6 192 423.2 192.2 426.7 192.6L398.4 98.21C392.3 77.9 373.6 64 352.4 64H159.6C138.4 64 119.7 77.9 113.6 98.21L85.33 192.6zM32 288V384H480V288C480 260.3 462.4 236.7 437.7 227.8L437.3 227.9L437.2 227.6C430.5 225.3 423.4 224 416 224H96C88.58 224 81.46 225.3 74.83 227.6L74.73 227.9L74.27 227.8C49.62 236.7 32 260.3 32 288V288z',
       viewBox: '0 0 512 512',
     },
   },
@@ -350,10 +453,14 @@ const FEEDBACK = {
   categories: ['scheduling', 'hds', 'sds', 'intersections', 'transit', 'outdoorNavigation', 'indoorNavigation', 'caregiver', 'accessibility', 'mapping', 'other']
 }
 
-const HDS_HOURS = {
-  start: [8, 0],
-  end: [17, 0]
-}
+// The NFTA Community Shuttle, the human driven shuttle riders book through
+// this app. Its hours, closures and driver duty come from the skids
+// availability check for this service, so they are never copied into the app.
+const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
+
+// The All Access Loop shuttle. A trip plan can ride it, so its hours and
+// closures come from the availability check for this service.
+const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
 
 const defaults = {
   ENV: ENV,
@@ -389,7 +496,8 @@ const defaults = {
   LANAGUAGES,
   NOTIFY_METHODS,
   FEEDBACK,
-  HDS_HOURS
+  HDS_SERVICE_ID,
+  UB_SHUTTLE_SERVICE_ID,
 };
 const config = { ...defaults };
 

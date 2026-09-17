@@ -88,8 +88,11 @@ export const SearchForm = observer(
           : [];
 
         items.forEach(item => {
+          // Only add locality if it's not already in the description
           if (item?.description && item?.locality) {
-            item.description += ', ' + item.locality;
+            if (!item.description.includes(item.locality)) {
+              item.description += ', ' + item.locality;
+            }
           }
           if (!item.description && item?.locality)
             item.description = item.locality;

@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 
@@ -34,8 +34,20 @@ export const MFAVerify = observer(
     const [verifyError, setVerifyError] = useState(false);
     const [stage, setStage] = useState(0);
     const [method, setMethod] = useState('');
+    const [isSuccessful, setIsSuccessful] = useState(false);
     // console.log({ requireMFA });
     const { t } = useTranslation();
+    
+    // Reset state when modal opens to ensure clean state
+    useEffect(() => {
+      if (isOpen) {
+        setStage(0);
+        setMethod('');
+        setVerifyError(false);
+        setIsSuccessful(false);
+      }
+    }, [isOpen]);
+
     const onComplete = async e => {
       const to = method === 'email' ? user?.email : user?.phone;
       const valid = await confirmUser(to, e);
@@ -43,8 +55,7 @@ export const MFAVerify = observer(
         setVerifyError(true);
         return;
       }
-      setStage(0);
-      setMethod('');
+      setIsSuccessful(true);
       onClose();
       callbackFn();
     };
@@ -54,12 +65,12 @@ export const MFAVerify = observer(
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          console.log(
-            '[mfa-verify] resetting auth store via closing MFA modal manually'
-          );
-          reset();
-          setStage(0);
-          setMethod('');
+          if (!isSuccessful) {
+            console.log(
+              '[mfa-verify] resetting auth store via closing MFA modal manually'
+            );
+            reset();
+          }
         }}
         size={'md'}
         scrollBehavior={'inside'}

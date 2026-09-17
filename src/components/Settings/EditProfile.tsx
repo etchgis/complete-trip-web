@@ -15,24 +15,29 @@ import { useRef } from 'react';
 import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import { Coordinates } from '../../types/UserProfile';
 
-export const EditProfile = ({ onClose }) => {
+interface EditProfileProps {
+  onClose: () => void;
+}
+
+export const EditProfile: React.FC<EditProfileProps> = ({ onClose }) => {
   const { user, updateUserProfile } = useStore().authentication;
 
   // Address
   const [_address, setAddress] = useState(user?.profile?.address?.text || '');
-  const [geocoderResult, setGeocoderResult] = useState({});
+  const [geocoderResult, setGeocoderResult] = useState<any>({});
   console.log(_address);
   console.log({ geocoderResult });
 
-  const [center, setCenter] = useState({ lat: null, lng: null });
+  const [center, setCenter] = useState<Partial<Coordinates>>({ lat: undefined, lng: undefined });
 
-  const firstName = useRef();
-  const lastName = useRef();
-  const email = useRef();
+  const firstName = useRef<HTMLInputElement>(null);
+  const lastName = useRef<HTMLInputElement>(null);
+  const email = useRef<HTMLInputElement>(null);
 
   const getUserLocation = () => {
-    const success = position => {
+    const success = (position: GeolocationPosition) => {
       // console.log(position);
       setCenter({
         lat: position.coords.latitude,
@@ -40,7 +45,7 @@ export const EditProfile = ({ onClose }) => {
       });
     };
 
-    const error = error => {
+    const error = (error: GeolocationPositionError) => {
       console.log(error);
     };
 
@@ -61,10 +66,10 @@ export const EditProfile = ({ onClose }) => {
     <Box>
       <Box
         as="form"
-        onSubmit={async e => {
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
-          const data = new FormData(e.target);
-          console.log(...data);
+          const data = new FormData(e.currentTarget);
+          console.log(Array.from(data.entries()));
           if (!geocoderResult?.title) {
             //TODO create an error here and show some validation message
             console.log('[edit profile] no address selected');
@@ -137,13 +142,14 @@ export const EditProfile = ({ onClose }) => {
             </FormControl>
           }
           <FormControl isRequired>
+            {/* @ts-ignore - AddressSearchForm is a JSX component */}
             <AddressSearchForm
               saveAddress={setAddress}
               center={center}
               defaultAddress={user?.profile?.address?.text || ''}
               setGeocoderResult={setGeocoderResult}
               label={t('settingsProfile.homeAddress')}
-            ></AddressSearchForm>
+            />
           </FormControl>
           <Button
             bg={'brand'}
