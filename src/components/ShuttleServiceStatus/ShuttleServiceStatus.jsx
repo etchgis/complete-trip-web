@@ -115,13 +115,18 @@ export const ShuttleServiceStatus = ({ status }) => {
   const badge = VERDICT_BADGES[verdict.state] || VERDICT_BADGES.unknown;
   const locationDetail = positionDetail(t, position);
   const hours = formatWindows(t, service.todayHours);
-  // When set, the schedule has service closed and this names when it resumes.
-  // It is the signal that no shuttle is out, so both the position block and the
-  // repeated hours footer are left off while it is showing.
-  const nextService =
-    SCHEDULE_STOPPAGES.indexOf(service.reason) !== -1
-      ? formatNextService(t, service.nextAvailable)
-      : null;
+  // Whether the schedule itself has service closed. This is what says no shuttle
+  // is out, so it is what hides the position block and the repeated hours footer.
+  // The next-service line below depends on the schedule also sending a usable
+  // next window, which it may not, so the closed state cannot be read off the
+  // formatted line: doing so would show a stale position whenever the window is
+  // missing or malformed.
+  const scheduleClosed = SCHEDULE_STOPPAGES.indexOf(service.reason) !== -1;
+  // When set, names when service resumes. Null when closed but the schedule sent
+  // no usable next window, in which case only the line is dropped, not the hide.
+  const nextService = scheduleClosed
+    ? formatNextService(t, service.nextAvailable)
+    : null;
 
   return (
     <Box data-testid="shuttle-service-status">
@@ -177,7 +182,7 @@ export const ShuttleServiceStatus = ({ status }) => {
           stale or missing position. It stays for every state where a shuttle is
           meant to be running, including a driver on break, so a waiting rider can
           still be told where it was. */}
-      {!nextService && (
+      {!scheduleClosed && (
         <>
           <Divider mt={2} mb={2} />
 
@@ -203,7 +208,7 @@ export const ShuttleServiceStatus = ({ status }) => {
           would only repeat it. It is kept for the running and mid-window states,
           where there is no next-service line and it tells the agent when today's
           service ends. */}
-      {hours && !nextService && (
+      {hours && !scheduleClosed && (
         <>
           <Divider mt={2} mb={2} />
           <Text fontSize={14} textAlign={'left'} data-testid="shuttle-scheduled-hours">
