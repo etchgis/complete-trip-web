@@ -6,9 +6,37 @@ import { CloseIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import rides from '../../services/transport/rides';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
+import config from '../../config';
+
+// How long the kiosk waits for the ride request before it stops waiting. The
+// request checks the rider's PIN, may book through the organization's booking
+// system and then creates the ride, so it is given longer than a read. Past
+// this the rider gets the screen back rather than a button that never comes
+// out of its loading state.
+export const RIDE_REQUEST_TIMEOUT_MS = 20000;
+
+// Thrown when the ride request has not answered in time. It says nothing about
+// whether the ride was created, which is the whole problem with it.
+const NO_ANSWER = Symbol('ride request did not answer');
+
+// What the rides service says when it refuses a booking. Anything else is
+// reported as an unknown failure rather than guessed at.
+const requestErrorMessage = (t, e) => {
+  const message = typeof e === 'string' ? e : e?.message;
+  return message === 'invalid pin' || message === 'user not found for this phone number'
+    ? t('tripWizard.popUpError')
+    : t('tripWizard.popUpUnknownError');
+};
+
+// True when the ride request came back as still-in-progress or with an unknown
+// outcome, so the same idempotency key can be retried instead of minting a new
+// one that could book a second ride.
+const isRetryable = (e) => e?.retryable === true;
 
 /**
  * Modal component for summoning a shuttle with PIN and phone verification
@@ -28,7 +56,10 @@ const ShuttleSummonModal = observer(({
   phone2,
   setPhone2,
   error,
-  setError
+  setError,
+  // How long to wait for the ride request. A caller only sets this to make a
+  // slow booking happen on demand.
+  requestTimeoutMs = RIDE_REQUEST_TIMEOUT_MS
 }) => {
   const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
   const { trip } = useStore();
@@ -38,6 +69,24 @@ const ShuttleSummonModal = observer(({
   const areaCodeRef = useRef(null);
   const phone1Ref = useRef(null);
   const phone2Ref = useRef(null);
+  // Set from the first tap on Summon Shuttle until the request is done, so more
+  // taps while it is out cannot send a second shuttle.
+  const [summoning, setSummoning] = useState(false);
+  const summoningRef = useRef(false);
+  // The phone number of a ride request that stopped answering. The server may
+  // have created that ride, so the rider is told before the button will book
+  // another one.
+  const [unconfirmed, setUnconfirmed] = useState(null);
+  // A new number every time the form opens. It stands for the rider at the
+  // kiosk right now. A ride request captures the value at the tap and a late
+  // reply only acts on the form when the number still matches, so an earlier
+  // rider's reply cannot touch a later rider's session.
+  const sessionRef = useRef(0);
+  // One idempotency key per booking intent. A fresh booking makes a new key; a
+  // "Try again anyway" retry of the same booking reuses it, so the server can
+  // tell a retry from a new ride and never books the same one twice. It is
+  // cleared once the booking resolves or the rider books a different number.
+  const intentKeyRef = useRef(null);
 
   useEffect(() => {
     if (ux !== 'kiosk' || !isOpen) return;
@@ -75,12 +124,19 @@ const ShuttleSummonModal = observer(({
   }, [activeInput, ux, isOpen]);
 
   const handleOpen = () => {
+    // A fresh session for the rider now opening the form.
+    sessionRef.current += 1;
+
     // Clear fields and set PIN as the active input when modal opens
     setPin('');
     setAreaCode('');
     setPhone1('');
     setPhone2('');
-    setError('');
+    // The button label and this warning both come from the unconfirmed state,
+    // so they are shown or hidden together. Reopening keeps the warning while
+    // that state stands, so the "Try again anyway" button always has its
+    // "we couldn't confirm your ride" explanation beside it.
+    setError(unconfirmed ? t('tripWizard.rideUnconfirmed') : '');
     setKeyboardActiveInput('pin');
 
     // TODO: make the keyboard type dynamic based on the input
@@ -88,8 +144,9 @@ const ShuttleSummonModal = observer(({
 
     if (pinInputRef.current) {
       // Focus the PIN field after a brief delay to ensure the modal is fully rendered
+      // The modal can close before this runs, which removes the field.
       setTimeout(() => {
-        pinInputRef.current.focus();
+        pinInputRef.current?.focus();
       }, 200);
     }
   };
@@ -100,12 +157,35 @@ const ShuttleSummonModal = observer(({
     }
   }, [isOpen]);
 
-  const handleSummonPress = () => {
+  const handleSummonPress = async () => {
+    if (summoningRef.current) return;
     if (pin.length !== 4 || areaCode.length !== 3 || phone1.length !== 3 || phone2.length !== 4) {
       setError(t('tripWizard.popUpError'));
+      return;
     }
-    else {
-      setError('');
+    const phone = `+1${areaCode}${phone1}${phone2}`;
+
+    summoningRef.current = true;
+    setSummoning(true);
+    setError('');
+    try {
+      // This creates a ride for right now, and the rider may have spent minutes
+      // on the destination, PIN and phone since tapping the shuttle, so the
+      // shuttle is checked again here. Only a check that says it is running
+      // lets the ride through. A failed or slow check, or a service with no
+      // hours on record, is refused as unconfirmed rather than as closed.
+      const verdict = await checkServiceAvailability(config.HDS_SERVICE_ID);
+      if (verdict !== 'available') {
+        setError(
+          t(
+            verdict === 'unavailable'
+              ? 'routeList.shuttleNotAvailableTimeFrame'
+              : 'tripWizard.shuttleUnconfirmed'
+          )
+        );
+        return;
+      }
+
       const organizationId = '3738f2ea-ddc0-4d86-9a8a-4f2ed531a486',
         driverId = null,
         datetime = Date.now(),
@@ -127,7 +207,18 @@ const ShuttleSummonModal = observer(({
           trip.request.destination.point.lat
         ]
       };
-      rides.request(
+      let timedOut = false;
+      let timer;
+      // The session that owns this request. If the form is closed and reopened
+      // the session changes, and any reply to this request is then ignored.
+      const session = sessionRef.current;
+      // Reuse the key from an unconfirmed attempt so a retry dedupes; otherwise
+      // start a new booking intent with a fresh key.
+      if (!intentKeyRef.current) {
+        intentKeyRef.current = uuidv4();
+      }
+      const idempotencyKey = intentKeyRef.current;
+      const requested = rides.request(
         organizationId,
         datetime,
         'leave',
@@ -135,23 +226,92 @@ const ShuttleSummonModal = observer(({
         dropoff,
         driverId,
         passengers,
-        `+1${areaCode}${phone1}${phone2}`,
-        pin
-      )
-        .then((result) => {
-          console.log('SUMMONED RESULT:', result);
+        phone,
+        pin,
+        idempotencyKey
+      );
+
+      // The reply can still arrive after we have stopped waiting for it, and
+      // it is the only thing that can say what became of the ride. A late
+      // success is the rider's ride, so it is shown as one; a late failure
+      // means no ride was created and the warning can go.
+      requested.then(
+        result => {
+          if (!timedOut || sessionRef.current !== session) return;
+          console.log('SUMMONED RESULT (late):', result);
+          setUnconfirmed(null);
+          intentKeyRef.current = null;
+          setError('');
           onSuccess();
-        })
-        .catch((e) => {
-          if (e === 'invalid pin' || e === 'user not found for this phone number') {
-            setError(t('tripWizard.popUpError'));
+        },
+        e => {
+          if (!timedOut || sessionRef.current !== session) return;
+          if (isRetryable(e)) {
+            // The booking may still be recording. Keep the warning and the key
+            // so a retry reuses it rather than creating a second ride.
+            setError(t('tripWizard.rideProcessing'));
+            return;
           }
-          else {
-            setError(t('tripWizard.popUpUnknownError'));
-          }
-        });
+          setUnconfirmed(null);
+          intentKeyRef.current = null;
+          setError(requestErrorMessage(t, e));
+        }
+      );
+
+      try {
+        const result = await Promise.race([
+          requested,
+          new Promise((resolve, reject) => {
+            timer = setTimeout(() => reject(NO_ANSWER), requestTimeoutMs);
+          }),
+        ]);
+        if (sessionRef.current !== session) return;
+        console.log('SUMMONED RESULT:', result);
+        setUnconfirmed(null);
+        intentKeyRef.current = null;
+        onSuccess();
+      } catch (e) {
+        if (sessionRef.current !== session) return;
+        if (e === NO_ANSWER) {
+          // The request may have created the ride before the reply was lost.
+          // Booking again without saying so would put the rider in two rides.
+          timedOut = true;
+          setUnconfirmed(phone);
+          setError(t('tripWizard.rideUnconfirmed'));
+        }
+        else if (isRetryable(e)) {
+          // A 409 or a dropped reply means the booking may still be recording.
+          // Keep the intent key and warn the rider so the next tap retries the
+          // same booking instead of creating a second ride.
+          setUnconfirmed(phone);
+          setError(t('tripWizard.rideProcessing'));
+        }
+        else {
+          setUnconfirmed(null);
+          intentKeyRef.current = null;
+          setError(requestErrorMessage(t, e));
+        }
+      } finally {
+        clearTimeout(timer);
+      }
+    } finally {
+      summoningRef.current = false;
+      setSummoning(false);
     }
   };
+
+  // The warning belongs to the number that was booked with. It stays through a
+  // close and reopen, which clears the fields, and only goes once another
+  // whole number has been typed in.
+  useEffect(() => {
+    const typed = `+1${areaCode}${phone1}${phone2}`;
+    if (unconfirmed && typed.length === 12 && typed !== unconfirmed) {
+      setUnconfirmed(null);
+      // A different number is a different booking, so the next tap starts a new
+      // intent with its own key.
+      intentKeyRef.current = null;
+    }
+  }, [unconfirmed, areaCode, phone1, phone2]);
 
   // Reset keyboard type to default when modal is closed
   useEffect(() => {
@@ -340,9 +500,14 @@ const ShuttleSummonModal = observer(({
             width={'100%'}
             type='button'
             onClick={handleSummonPress}
+            isLoading={summoning}
             data-test-id="summon-shuttle-button"
           >
-            {t('tripWizard.summonShuttle')}
+            {t(
+              unconfirmed
+                ? 'tripWizard.summonShuttleRetry'
+                : 'tripWizard.summonShuttle'
+            )}
           </Button>
         </VStack>
       </Box>
