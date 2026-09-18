@@ -532,8 +532,12 @@ describe('ShuttleServiceStatus', () => {
     cy.get('[data-testid="shuttle-location-detail"]').should('not.exist');
     cy.contains('Last known location').should('not.exist');
     cy.contains('Current location').should('not.exist');
-    // The footer must not reappear as a stand-in for the missing line.
-    cy.get('[data-testid="shuttle-scheduled-hours"]').should('not.exist');
+    // With no next-service line to carry them, the scheduled hours still show
+    // once under their own heading, as they do in the outside-hours case above.
+    cy.get('[data-testid="shuttle-scheduled-hours"]').should(
+      'have.text',
+      'Scheduled hours today: 10:30 AM - 2:30 PM'
+    );
   });
 
   it('keeps the location block while the service is running', () => {

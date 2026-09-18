@@ -205,10 +205,10 @@ export const ShuttleServiceStatus = ({ status }) => {
       )}
 
       {/* The next-service line already states today's window, so the footer
-          would only repeat it. It is kept for the running and mid-window states,
-          where there is no next-service line and it tells the agent when today's
-          service ends. */}
-      {hours && !scheduleClosed && (
+          would only repeat it and is hidden whenever that line shows. Otherwise
+          it states today's hours once - for the running and mid-window states,
+          and when the schedule is closed but sent no usable next window. */}
+      {hours && !nextService && (
         <>
           <Divider mt={2} mb={2} />
           <Text fontSize={14} textAlign={'left'} data-testid="shuttle-scheduled-hours">
