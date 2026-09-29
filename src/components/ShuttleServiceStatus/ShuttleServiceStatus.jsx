@@ -197,9 +197,14 @@ export const ShuttleServiceStatus = ({ status }) => {
             {locationText(t, position)}
           </Text>
           {locationDetail && (
-            <Text fontSize={14} textAlign={'left'} data-testid="shuttle-location-detail">
-              {locationDetail}
-            </Text>
+            <>
+              <Text mt={2} fontSize={16} textAlign={'left'} fontWeight={'bold'}>
+                {t('shuttleStatus.shuttleLocationLabel')}
+              </Text>
+              <Text fontSize={14} textAlign={'left'} data-testid="shuttle-location-detail">
+                {locationDetail}
+              </Text>
+            </>
           )}
         </>
       )}
@@ -211,8 +216,11 @@ export const ShuttleServiceStatus = ({ status }) => {
       {hours && !nextService && (
         <>
           <Divider mt={2} mb={2} />
+          <Text fontSize={16} textAlign={'left'} fontWeight={'bold'}>
+            {t('shuttleStatus.scheduledHoursLabel')}
+          </Text>
           <Text fontSize={14} textAlign={'left'} data-testid="shuttle-scheduled-hours">
-            {t('shuttleStatus.scheduledHours', { hours })}
+            {hours}
           </Text>
         </>
       )}
@@ -273,6 +281,12 @@ function positionDetail(t, position) {
   }
   const age = formatAge(t, position.ageMs);
   if (!age) return t(`shuttleStatus.${key}`);
+
+  // A reporting shuttle needs no explanation, just how fresh the position is,
+  // so this state skips the lead sentence the other states use.
+  if (position.state === 'reporting') {
+    return t('shuttleStatus.lastUpdatedAge', { age });
+  }
 
   // The wording says which clock produced the age, so an agent is never told a
   // position is fresh when all we know is when we last heard from the device.

@@ -609,7 +609,7 @@ export default function genLocales() {
         serviceUnknown: 'Service status unavailable',
 
         checkingDetail: 'Checking on the shuttle.',
-        serviceRunningDetail: 'The shuttle service is running now.',
+        serviceRunningDetail: 'The shuttle is currently operating.',
         serviceRunningNoContactDetail:
           'The service is inside its hours, but the shuttle is not reporting, so we cannot confirm a shuttle is on its way.',
         serviceRunningTrackingUnavailableDetail:
@@ -630,6 +630,7 @@ export default function genLocales() {
 
         currentLocation: 'Current location',
         lastKnownLocation: 'Last known location',
+        shuttleLocationLabel: 'Shuttle location',
         locationChecking: 'Looking for the shuttle.',
         locationUnavailable: 'Location unavailable right now.',
         noLocation: 'None reported in the last %{minutes} minutes.',
@@ -646,6 +647,7 @@ export default function genLocales() {
         positionUnreachableDetail:
           'We could not reach the shuttle tracking. The problem is on our side, not necessarily with the shuttle.',
 
+        lastUpdatedAge: 'Last updated: %{age}',
         contactAge: 'Last heard from %{age}.',
         reportedAge: 'Position taken %{age}.',
         observedAge:
@@ -671,7 +673,7 @@ export default function genLocales() {
         },
         durationOverADay: 'more than a day',
 
-        scheduledHours: 'Scheduled hours today: %{hours}',
+        scheduledHoursLabel: 'Scheduled hours',
         hoursWindow: '%{start} - %{end}',
         clockTime: '%{hour12}:%{minute} %{meridiem}',
         dateLocale: 'en-US',
@@ -689,7 +691,7 @@ export default function genLocales() {
         serviceUnknown: 'Estado del servicio no disponible',
 
         checkingDetail: 'Comprobando el estado del autobús.',
-        serviceRunningDetail: 'El servicio de autobús está en marcha ahora.',
+        serviceRunningDetail: 'El autobús está funcionando actualmente.',
         serviceRunningNoContactDetail:
           'El servicio está dentro de su horario, pero el autobús no está reportando, así que no podemos confirmar que haya un autobús en camino.',
         serviceRunningTrackingUnavailableDetail:
@@ -711,6 +713,7 @@ export default function genLocales() {
 
         currentLocation: 'Ubicación actual',
         lastKnownLocation: 'Última ubicación conocida',
+        shuttleLocationLabel: 'Ubicación del autobús',
         locationChecking: 'Buscando el autobús.',
         locationUnavailable: 'Ubicación no disponible en este momento.',
         noLocation: 'Ninguna reportada en los últimos %{minutes} minutos.',
@@ -728,6 +731,7 @@ export default function genLocales() {
         positionUnreachableDetail:
           'No pudimos comunicarnos con el seguimiento del autobús. El problema está de nuestro lado, no necesariamente en el autobús.',
 
+        lastUpdatedAge: 'Última actualización: hace %{age}',
         contactAge: 'Último contacto hace %{age}.',
         reportedAge: 'Posición tomada hace %{age}.',
         observedAge:
@@ -753,7 +757,7 @@ export default function genLocales() {
         },
         durationOverADay: 'más de un día',
 
-        scheduledHours: 'Horario programado hoy: %{hours}',
+        scheduledHoursLabel: 'Horario programado',
         hoursWindow: '%{start} - %{end}',
         clockTime: '%{hour}:%{minute}',
         dateLocale: 'es-US',
