@@ -82,9 +82,10 @@ describe('ShuttleServiceStatus', () => {
       'have.text',
       'Main St at Utica'
     );
+    cy.contains('Shuttle location').should('exist');
     cy.get('[data-testid="shuttle-location-detail"]').should(
       'contain.text',
-      'Last heard from less than a minute ago.'
+      'Last updated: less than a minute ago'
     );
   });
 
@@ -115,7 +116,7 @@ describe('ShuttleServiceStatus', () => {
       'Service scheduled - driver off duty'
     );
     cy.get('[data-testid="shuttle-service-detail"]')
-      .should('not.contain.text', 'running now')
+      .should('not.contain.text', 'currently operating')
       .and('contain.text', 'we cannot confirm a shuttle is on its way');
   });
 
@@ -151,10 +152,10 @@ describe('ShuttleServiceStatus', () => {
       .and('have.attr', 'data-tone', 'green');
     cy.get('[data-testid="shuttle-service-detail"]').should(
       'have.text',
-      'The shuttle service is running now.'
+      'The shuttle is currently operating.'
     );
     cy.get('[data-testid="shuttle-location-detail"]')
-      .should('contain.text', 'The shuttle is reporting.')
+      .should('contain.text', 'Last updated: less than a minute ago')
       .and('not.contain.text', 'off duty');
   });
 
@@ -171,7 +172,7 @@ describe('ShuttleServiceStatus', () => {
         .should('not.have.attr', 'data-tone', 'green')
         .and('not.have.attr', 'data-tone', 'blue');
       cy.get('[data-testid="shuttle-service-detail"]')
-        .should('not.contain.text', 'running now')
+        .should('not.contain.text', 'currently operating')
         .and('contain.text', 'we cannot confirm a shuttle is on its way');
     });
 
@@ -179,7 +180,7 @@ describe('ShuttleServiceStatus', () => {
     render(status({ position: { state: 'out-of-date', ageMs: 4 * 60000 } }));
     cy.get('[data-testid="shuttle-service-detail"]').should(
       'have.text',
-      'The shuttle service is running now.'
+      'The shuttle is currently operating.'
     );
   });
 
@@ -388,9 +389,10 @@ describe('ShuttleServiceStatus', () => {
       .and('not.contain.text', 'Operating hours:');
     cy.get('[data-testid="shuttle-service-notice"]').should('not.exist');
     // The hours belong on the card once, under their own heading.
+    cy.contains('Scheduled hours').should('exist');
     cy.get('[data-testid="shuttle-scheduled-hours"]').should(
       'have.text',
-      'Scheduled hours today: 10:30 AM - 2:30 PM'
+      '10:30 AM - 2:30 PM'
     );
   });
 
@@ -534,9 +536,10 @@ describe('ShuttleServiceStatus', () => {
     cy.contains('Current location').should('not.exist');
     // With no next-service line to carry them, the scheduled hours still show
     // once under their own heading, as they do in the outside-hours case above.
+    cy.contains('Scheduled hours').should('exist');
     cy.get('[data-testid="shuttle-scheduled-hours"]').should(
       'have.text',
-      'Scheduled hours today: 10:30 AM - 2:30 PM'
+      '10:30 AM - 2:30 PM'
     );
   });
 
@@ -568,9 +571,10 @@ describe('ShuttleServiceStatus', () => {
   it('shows the scheduled hours footer while the service is running', () => {
     render(status({ service: { state: 'running', todayHours: HOURS } }));
     cy.get('[data-testid="shuttle-next-service"]').should('not.exist');
+    cy.contains('Scheduled hours').should('exist');
     cy.get('[data-testid="shuttle-scheduled-hours"]').should(
       'have.text',
-      'Scheduled hours today: 10:30 AM - 2:30 PM'
+      '10:30 AM - 2:30 PM'
     );
   });
 
