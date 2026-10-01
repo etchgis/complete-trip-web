@@ -659,6 +659,8 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
     setInTransaction(true);
     try {
       await recover(options.email, options.method);
+      // The toast shows a pending error message ahead of this one, so clear it.
+      setErrorToastMessage(null);
       setToastStatus('Success');
       setToastMessage(t('resetPassword.codeResent'));
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
@@ -708,6 +710,9 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       await auth(options.email, password, true);
     } catch (error) {
       console.log('error', error);
+      // auth() may have set its own error message, which the toast would show
+      // ahead of this one.
+      setErrorToastMessage(null);
       setToastStatus('Success');
       setToastMessage(t('resetPassword.updatedPleaseLogin'));
       setInTransaction(false);
