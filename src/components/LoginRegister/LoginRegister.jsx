@@ -543,6 +543,18 @@ const CreateAccountOrLogin = ({
   );
 };
 
+// The message for a failed recover or reset call. A 429 or 503 means the same
+// thing however the request was made, so only other failures use fallbackKey.
+const recoveryErrorMessage = (error, t, fallbackKey) => {
+  if (error?.status === 429) return t('errors.tooManyAttempts');
+  if (error?.status === 503) return t('errors.channelUnavailable');
+  if (error?.status === 0) return t('errors.network');
+  return t(fallbackKey);
+};
+
+// Seconds before "Send Another Code" can be pressed again.
+const RESEND_COOLDOWN_SECONDS = 30;
+
 const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
   const { recover } = authentication;
@@ -555,23 +567,20 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
     e.preventDefault();
     setInTransaction(true);
     try {
-      console.log({ method });
+      // The reset view's copy is worded so it is right whether or not an
+      // account exists, so a missing concealed address is not an error.
       const recovered = await recover(email, method);
-      if (!recovered || !recovered.concealed)
-        throw new Error();
-      console.log('recovered', recovered);
       setForgotOptions(current => ({
         ...current,
         email,
         method,
-        concealed: recovered.concealed,
-        destination: recovered?.destination,
+        concealed: recovered?.concealed,
       }));
       setInTransaction(false);
       setActiveView('reset');
     } catch (error) {
       console.log('error', error);
-      setErrorToastMessage(t('errors.recover'));
+      setErrorToastMessage(recoveryErrorMessage(error, t, 'errors.recover'));
       setInTransaction(false);
       return;
     }
@@ -623,45 +632,97 @@ const ForgotPasswordView = ({ setForgotOptions, setActiveView, hideModal }) => {
 const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
   const { colorMode } = useColorMode();
 
-  const { confirmUser, auth, setInTransaction } = useStore().authentication;
+  const { auth, setInTransaction, setErrorToastMessage } =
+    useStore().authentication;
+  const { setToastMessage, setToastStatus } = useStore().uiStore;
   const { reset: resetPassword, recover } = authentication;
 
   const [verifyError, setVerifyError] = useState(false);
+  const [passwordInvalid, setPasswordInvalid] = useState(false);
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordsDontMatch, setPasswordsDontMatch] = useState(false);
   const [pin, setPin] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(
+    RESEND_COOLDOWN_SECONDS
+  );
   const { t } = useTranslation();
 
-  // console.log({ options });
-  // console.log({ pin });
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(s => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  const onResend = async () => {
+    setInTransaction(true);
+    try {
+      await recover(options.email, options.method);
+      setToastStatus('Success');
+      setToastMessage(t('resetPassword.codeResent'));
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    } catch (error) {
+      console.log('error', error);
+      setErrorToastMessage(recoveryErrorMessage(error, t, 'errors.recover'));
+    }
+    setInTransaction(false);
+  };
 
   const onSubmit = async e => {
     e.preventDefault();
 
+    if (password !== password2) return setPasswordsDontMatch(true);
+    // The same rules the checklist below shows. The service rejects a weaker
+    // password with the same 400 it uses for a bad code, so check here first.
+    if (
+      password.length < 8 ||
+      !hasUpperCase(password) ||
+      !hasLowerCase(password) ||
+      !hasNumber(password)
+    ) {
+      return setPasswordInvalid(true);
+    }
+    if (!pin || pin.length < 6) return setVerifyError(true);
+
+    setInTransaction(true);
     try {
-      if (password !== password2) return setPasswordsDontMatch(true);
-      if (!pin || pin.length < 6) return setVerifyError(true);
+      await resetPassword(options.email, pin, password, options.method);
+    } catch (error) {
+      console.log('error', error);
+      // Keep the new password so the user only has to fix the code.
+      if (error?.status === 400 || error?.status === 401) {
+        setVerifyError(true);
+        setPin('');
+      } else {
+        setErrorToastMessage(
+          recoveryErrorMessage(error, t, 'resetPassword.error')
+        );
+      }
+      setInTransaction(false);
+      return;
+    }
 
-      setInTransaction(true);
-
-      const updated = await resetPassword(options.email, pin, password);
-      if (!updated) throw new Error('password error');
-      //LOGIN USER SINCE THEY ALREADY COMPLETED AN MFA FOR THE FORGOT PASSWORD
+    // The code already proved the user owns the account, so sign them in.
+    try {
       await auth(options.email, password, true);
     } catch (error) {
-      setVerifyError(true);
-      setPassword('');
-      setPassword2('');
-      setPin('');
       console.log('error', error);
+      setToastStatus('Success');
+      setToastMessage(t('resetPassword.updatedPleaseLogin'));
       setInTransaction(false);
+      hideModal();
+      setTimeout(() => setActiveView('init'), 500);
     }
   };
 
   return (
     <Stack spacing={4} as="form" onSubmit={onSubmit}>
+      <Text mx={0}>
+        {options.concealed
+          ? t('resetPassword.sentTo', { destination: options.concealed })
+          : t('resetPassword.sentToAccount', { email: options.email })}
+      </Text>
       <Text fontWeight="bold" mx={0} mb={6}>
         {t('resetPassword.message')}
       </Text>
@@ -696,27 +757,27 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
       <Button
         variant={'link'}
         color="gray.600"
-        onClick={async () => {
-          setInTransaction(true);
-          const recovered = await recover(options.email, options.method);
-          if (!recovered || !recovered.concealed)
-            console.log('error with recover');
-          setInTransaction(false);
-        }}
+        isDisabled={resendCooldown > 0}
+        onClick={onResend}
       >
-        {t('resetPassword.resendCode')}
+        {resendCooldown > 0
+          ? t('resetPassword.resendCodeIn', { seconds: resendCooldown })
+          : t('resetPassword.resendCode')}
       </Button>
       {verifyError ? (
         <Text color="red.500">{t('resetPassword.invalidCode')}</Text>
       ) : (
         ''
       )}
-      <FormControl isRequired>
+      <FormControl isRequired isInvalid={passwordInvalid}>
         <FormLabel>{t('settingsPassword.newPassword')}</FormLabel>
         <InputGroup>
           <Input
             type={showPassword ? 'text' : 'password'}
-            onChange={e => setPassword(e.target.value)}
+            onChange={e => {
+              setPassword(e.target.value);
+              setPasswordInvalid(false);
+            }}
             value={password || ''}
             placeholder={t('settingsPassword.placeholder')}
             // pattern={
@@ -737,6 +798,7 @@ const ResetPasswordView = ({ options, setActiveView, hideModal }) => {
             </Button>
           </InputRightElement>
         </InputGroup>
+        <FormErrorMessage>{t('resetPassword.passwordRules')}</FormErrorMessage>
       </FormControl>
       <FormControl isRequired isInvalid={passwordsDontMatch}>
         <FormLabel>Retype New Password</FormLabel>

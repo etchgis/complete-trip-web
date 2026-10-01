@@ -168,6 +168,12 @@ export default function genLocales() {
       en: {
         unknown: 'Unknown Error',
         recover: 'Error sending code. Please try again.',
+        tooManyAttempts:
+          'Too many attempts. Please wait a few minutes and try again.',
+        channelUnavailable:
+          'Codes by text or phone call are not available right now. Please choose email.',
+        network:
+          'Could not reach the server. Check your connection and try again.',
         conflict: 'This email is already registered. Please login.',
         expired: 'Your session has expired. Please login.',
         pleaseSelectLocation: 'Please select a location from the list',
@@ -175,6 +181,12 @@ export default function genLocales() {
       es: {
         unknown: 'Error desconocido', //✅
         recover: 'Error al enviar el código. Por favor, inténtelo de nuevo.', //✅
+        tooManyAttempts:
+          'Demasiados intentos. Espere unos minutos e inténtelo de nuevo.',
+        channelUnavailable:
+          'Los códigos por mensaje de texto o llamada no están disponibles en este momento. Elija correo electrónico.',
+        network:
+          'No se pudo conectar con el servidor. Revise su conexión e inténtelo de nuevo.',
         conflict:
           'Este correo electrónico ya está registrado. Por favor inicie sesión.',
         expired: 'Su sesión ha caducado. Por favor, inicie sesión.',
@@ -514,13 +526,29 @@ export default function genLocales() {
     resetPassword: {
       en: {
         message: `Type in the 6-digit code. The code can also be pasted in the first box.`,
+        sentTo: 'If an account matches, a code is on its way to %{destination}.',
+        sentToAccount: 'If an account matches %{email}, a code is on its way.',
         resendCode: 'Send Another Code',
-        invalidCode: 'Invalid Code',
+        resendCodeIn: 'Send Another Code (%{seconds}s)',
+        codeResent: 'If an account matches, a new code is on its way.',
+        invalidCode:
+          'That code is wrong or has expired. Check it or send another code.',
+        passwordRules: 'Your new password must meet all four requirements below.',
+        error: 'Could not reset your password. Please try again.',
+        updatedPleaseLogin: 'Your password was updated. Please log in.',
       },
       es: {
         message: `Escriba el código de 6 dígitos. El código también se puede pegar en el primer cuadro.`,
+        sentTo: 'Si existe una cuenta, se está enviando un código a %{destination}.',
+        sentToAccount: 'Si existe una cuenta para %{email}, se está enviando un código.',
         resendCode: 'Enviar otro código',
-        invalidCode: 'Código inválido',
+        resendCodeIn: 'Enviar otro código (%{seconds}s)',
+        codeResent: 'Si existe una cuenta, se está enviando un código nuevo.',
+        invalidCode:
+          'El código es incorrecto o ha caducado. Revíselo o envíe otro código.',
+        passwordRules: 'Su nueva contraseña debe cumplir los cuatro requisitos a continuación.',
+        error: 'No se pudo restablecer su contraseña. Inténtelo de nuevo.',
+        updatedPleaseLogin: 'Su contraseña se actualizó. Por favor, inicie sesión.',
       },
     },
 

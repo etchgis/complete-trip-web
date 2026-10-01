@@ -358,13 +358,16 @@ const authentication = {
   },
 
   /**
-   *
+   * Asks the auth service to send a password reset code.
    * @param {String} email
-   * @param {'sms'|'voice'|'email'} mfa
-   * @returns
+   * @param {'sms'|'call'|'email'} mfa
+   * @returns {Promise<{concealed?: String}>} concealed is the masked address
+   * the code was sent to, when the service gives one
+   * @throws {Error} with `status` set to the HTTP status, or 0 for a network
+   * failure
    */
   recover(email, mfa) {
-    var data = {
+    const data = {
       username: email.toLowerCase(),
       mfa,
       sid: config.VERIFY.SID,
@@ -379,60 +382,79 @@ const authentication = {
         'Content-Type': 'application/json',
         'x-api-key': config.SERVICES.auth.xApiKey,
       },
-    })
-      .then(async response => {
-        const json = await response.json();
+    }).then(
+      async response => {
+        const json = await response.json().catch(() => ({}));
         if (response.status === 200) {
           return json;
         }
-        throw json?.message || json?.error.reason;
-      })
-      .catch(err => {
-        throw err;
-      });
+        // MIGRATION: older rural-mobility-auth deployments answer an unknown
+        // account with 401 "User does not exist". The UI treats that the same
+        // as a sent code, so it never tells a visitor whether an account
+        // exists. Once every auth deployment returns 200 for unknown accounts,
+        // remove this branch so a real 401 is reported as an error again.
+        if (
+          response.status === 401 &&
+          json?.error?.message === 'User does not exist'
+        ) {
+          return {};
+        }
+        throw httpError(response.status, json);
+      },
+      () => {
+        throw httpError(0);
+      }
+    );
   },
 
-  reset(email, code, newPassword) {
-    console.log(
-      '{services-transport-auth} resetting password',
-      email,
+  /**
+   * Sets a new password with a code from recover().
+   * @param {String} email
+   * @param {String} code
+   * @param {String} newPassword
+   * @param {'sms'|'call'|'email'} mfa the channel the code was sent through.
+   * The service checks SMS and call codes with Twilio and email codes itself,
+   * so it needs this to know which check to run.
+   * @returns {Promise<true>}
+   * @throws {Error} with `status` set to the HTTP status, or 0 for a network
+   * failure
+   */
+  reset(email, code, newPassword, mfa) {
+    const data = {
       code,
-      newPassword
-    );
-    const data = JSON.stringify({
-      code: code,
       username: email.toLowerCase(),
       password: newPassword,
-    });
-    console.log('{services-transport-auth} data', data);
+      mfa,
+      sid: config.VERIFY.SID,
+    };
     return fetch(`${config.SERVICES.auth.url}/reset`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': config.SERVICES.auth.xApiKey,
       },
-    })
-      .then(async response => {
+    }).then(
+      async response => {
         if (response.status === 200) {
           return true;
         }
-        // Handle specific error cases
-        const error = new Error();
-        error.status = response.status;
-        if (response.status === 400) {
-          error.message = 'Invalid or expired verification code';
-        } else if (response.status === 401) {
-          error.message = 'Verification code does not match this email address';
-        } else {
-          error.message = 'Unknown error resetting password';
-        }
-        throw error;
-      })
-      .catch(err => {
-        throw err;
-      });
+        const json = await response.json().catch(() => ({}));
+        throw httpError(response.status, json);
+      },
+      () => {
+        throw httpError(0);
+      }
+    );
   },
 };
+
+// An Error carrying the HTTP status and the service's message, so callers can
+// show a specific message for rate limits or an unavailable channel.
+function httpError(status, json) {
+  const error = new Error(json?.error?.message || json?.message || 'Request failed');
+  error.status = status;
+  return error;
+}
 
 export default authentication;
