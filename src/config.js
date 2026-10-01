@@ -1,7 +1,10 @@
-// Environment toggle - change this to switch between staging and production
-// Valid values: 'dev', 'stage', or 'prod'
-const API_ENV = 'prod';
-const ENV = 'prod';
+// Which backend this build talks to: 'dev', 'stage' or 'prod'. Set it per
+// Amplify app with the VITE_API_ENV build variable. It is not hardcoded here
+// because merging main into the stage branch used to carry 'prod' along and
+// point the staging site at production. Without the variable the build uses
+// production, the same as before.
+const API_ENV = import.meta.env.VITE_API_ENV || 'prod';
+const ENV = API_ENV;
 
 const CAREGIVER_SECRET =
   '{0E)u#xDi~t8(77:l-MPxA=#u$f)e7$t+yRc[7"g}%C&_wqa>Z2:"=9nU7iE1SW';
@@ -461,6 +464,10 @@ const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
 // The All Access Loop shuttle. A trip plan can ride it, so its hours and
 // closures come from the availability check for this service.
 const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
+
+if (!API[API_ENV]) {
+  throw new Error(`Unknown VITE_API_ENV "${API_ENV}"; use dev, stage or prod`);
+}
 
 const defaults = {
   ENV: ENV,
