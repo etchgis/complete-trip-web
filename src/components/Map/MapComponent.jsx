@@ -35,6 +35,7 @@ export const MapComponent = observer(({ showMap }) => {
     mapCache,
     setMapState,
     setMapGeolocation,
+    restoreAalData,
   } = useStore().mapStore;
   const { ux } = useStore().uiStore;
   const mapRef = useRef(null);
@@ -123,7 +124,10 @@ export const MapComponent = observer(({ showMap }) => {
             .addControl(mapControls.nav, 'top-right')
             // .addControl(mapControls.bookmarks, 'top-right')
             .on('load', initMap)
-            .on('style.load', mapLayers)
+            .on('style.load', e => {
+              mapLayers(e);
+              restoreAalData();
+            })
             .on('moveend', e => {
               // console.log('moveend');
               const { lng, lat } = e.target.getCenter();

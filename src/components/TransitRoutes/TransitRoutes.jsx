@@ -26,6 +26,7 @@ import { useLocation } from 'react-router-dom';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import useAalShuttle from '../../hooks/useAalShuttle';
 import useShuttleServiceStatus from '../../hooks/useShuttleServiceStatus';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
 
@@ -608,7 +609,8 @@ const StopTimesList = observer(({ stopClickHandler }) => {
 
 const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
   const { routes, stoptimes, routesLoading } = useStore().mapStore.mapState;
-  const { updateShuttle } = useStore().mapStore;
+  const { updateShuttle, updateAalRoute, updateAalVehicles } =
+    useStore().mapStore;
   const { debug } = useStore().uiStore;
   if (routes.length && debug) console.log(toJS(routes));
   const { t } = useTranslation();
@@ -658,6 +660,14 @@ const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
     tripId: SHUTTLE_TRIP_ID,
     organizationId: config.ORGANIZATION,
     onFeature: updateShuttle,
+  });
+
+  useAalShuttle({
+    enabled: ux === 'callcenter',
+    serviceId: config.UB_SHUTTLE_SERVICE_ID,
+    organizationId: config.ORGANIZATION,
+    onRoute: updateAalRoute,
+    onVehicles: updateAalVehicles,
   });
 
   return (

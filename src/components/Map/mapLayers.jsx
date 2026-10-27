@@ -46,6 +46,11 @@ export const mapLayers = e => {
       data: featureCollection([]),
     });
   }
+  ['aal-route', 'aal-stops', 'aal-live'].forEach(id => {
+    if (!map.getSource(id)) {
+      map.addSource(id, { type: 'geojson', data: featureCollection([]) });
+    }
+  });
   if (!map.getSource('nfta-community-shuttle')) {
     map.addSource('nfta-community-shuttle', {
       type: 'geojson',
@@ -178,6 +183,70 @@ export const mapLayers = e => {
       }
     },
     {
+      id: 'aal-route-outline',
+      type: 'line',
+      source: 'aal-route',
+      paint: {
+        'line-color': [
+          'case',
+          ['has', 'outlineColor'],
+          ['get', 'outlineColor'],
+          '#fff',
+        ],
+        'line-width': 10,
+        'line-opacity': 1,
+      },
+      layout: {
+        'line-join': 'round',
+      },
+    },
+    {
+      id: 'aal-route',
+      type: 'line',
+      source: 'aal-route',
+      paint: {
+        'line-color': [
+          'case',
+          ['has', 'routeColor'],
+          ['get', 'routeColor'],
+          '#121212',
+        ],
+        'line-width': 6,
+        'line-opacity': 1,
+      },
+      layout: {
+        'line-join': 'round',
+      },
+    },
+    {
+      id: 'aal-stops',
+      type: 'circle',
+      source: 'aal-stops',
+      paint: {
+        'circle-radius': 5,
+        'circle-stroke-width': 3.5,
+        'circle-stroke-color': [
+          'case',
+          ['has', 'routeColor'],
+          ['get', 'routeColor'],
+          '#121212',
+        ],
+        'circle-color': '#fff',
+        'circle-opacity': 1,
+      },
+    },
+    {
+      id: 'aal-live',
+      type: 'symbol',
+      source: 'aal-live',
+      layout: {
+        'icon-image': ['get', 'icon'],
+        'icon-size': 0.8,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+      },
+    },
+    {
       id: 'nfta-community-shuttle',
       type: 'line',
       source: 'nfta-community-shuttle',
@@ -197,7 +266,8 @@ export const mapLayers = e => {
     if (!map.getLayer(l.id)) {
       // console.log('[map] adding layer', l.id);
       const beforeLayer =
-        (l.id === 'stops' || l.id === 'buses-live' || l.id === 'shuttle-live') ? '' : 'road-label-simple';
+        (l.id === 'stops' || l.id === 'buses-live' || l.id === 'shuttle-live' ||
+         l.id === 'aal-stops' || l.id === 'aal-live') ? '' : 'road-label-simple';
       map.addLayer(l, beforeLayer);
     }
   });
