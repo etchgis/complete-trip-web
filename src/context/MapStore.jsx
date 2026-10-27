@@ -89,6 +89,8 @@ const NftaCommunityShuttle = {
   ]
 };
 
+const EMPTY_COLLECTION = { type: 'FeatureCollection', features: [] };
+
 class MapStore {
   map = null;
   mapStyle = 'DAY';
@@ -110,7 +112,9 @@ class MapStore {
   };
 
   constructor(rootStore) {
-    makeAutoObservable(this);
+    // The last AAL data is plain GeoJSON kept only to redraw after a style
+    // switch, so it is left out of MobX.
+    makeAutoObservable(this, { aalData: false });
     this.rootStore = rootStore;
 
     if (
@@ -134,6 +138,8 @@ class MapStore {
     this.getRoutes(lng, lat);
 
     this.map.getSource('nfta-community-shuttle').setData(NftaCommunityShuttle);
+    // AAL data that arrived before the map was ready is drawn now.
+    this.restoreAalData();
   };
 
   setMapState = (key, value) => {
@@ -312,6 +318,32 @@ class MapStore {
       this.map.getSource('shuttle-live').setData(featureCollection);
     }
   }
+
+  // Latest All Access Loop data, kept so it can be drawn again when a map
+  // style switch empties the sources.
+  aalData = { route: null, vehicles: null };
+
+  setSourceData = (id, data) => {
+    const source = this.map && this.map.getSource(id);
+    if (source) source.setData(data);
+  };
+
+  updateAalRoute = result => {
+    this.aalData.route = result;
+    this.setSourceData('aal-route', result ? result.route : EMPTY_COLLECTION);
+    this.setSourceData('aal-stops', result ? result.stops : EMPTY_COLLECTION);
+  };
+
+  updateAalVehicles = featureCollection => {
+    this.aalData.vehicles = featureCollection;
+    this.setSourceData('aal-live', featureCollection);
+  };
+
+  restoreAalData = () => {
+    const { route, vehicles } = this.aalData;
+    if (route) this.updateAalRoute(route);
+    if (vehicles) this.updateAalVehicles(vehicles);
+  };
 }
 
 export default MapStore;
