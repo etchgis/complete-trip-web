@@ -9,6 +9,7 @@ import { observer } from 'mobx-react-lite';
 import { theme } from '../../theme';
 import { toJS } from 'mobx';
 import { useStore } from '../../context/RootStore';
+import { isTabletKiosk } from '../../models/kiosk-layout';
 
 export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
   const mapRef = useRef(null);
@@ -160,6 +161,6 @@ export const TripPlanMap = observer(({ tripPlan, caregiver }) => {
     id="trip-plan-map"
     ref={mapContainer}
     style={{ flex: 1 }}
-    h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
+    h={isTabletKiosk ? undefined : ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
   />;
 });

@@ -4,6 +4,7 @@ import {
 import { CloseIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
 import useTranslation from '../../models/useTranslation';
+import { TABLET_SCREEN_HEIGHT, isTabletKiosk } from '../../models/kiosk-layout';
 
 /**
  * Modal component that displays shuttle success information with kiosk-specific directions
@@ -26,12 +27,12 @@ const ShuttleSuccessModal = observer(({
       top="0"
       left="0"
       width="100vw"
-      height="100vh"
+      height={isTabletKiosk ? TABLET_SCREEN_HEIGHT : '100vh'}
       display="flex"
       alignItems="center"
       justifyContent="center"
       zIndex={9999}
-      paddingTop="10vh"
+      paddingTop={isTabletKiosk ? 0 : '10vh'}
     >
       {/* Modal Backdrop */}
       <Box
@@ -54,7 +55,8 @@ const ShuttleSuccessModal = observer(({
         boxShadow="xl"
         position="relative"
         zIndex={10000}
-        overflow="hidden"
+        overflow={isTabletKiosk ? 'auto' : 'hidden'}
+        maxH={isTabletKiosk ? `calc(${TABLET_SCREEN_HEIGHT} - 16px)` : undefined}
       >
         {/* Header */}
         <Flex 
@@ -75,7 +77,7 @@ const ShuttleSuccessModal = observer(({
         </Flex>
 
         {/* Body */}
-        <Box padding="1.5rem">
+        <Box padding={isTabletKiosk ? '1rem' : '1.5rem'}>
           <VStack spacing={4} align="center">
             <Text
               color="green.600"

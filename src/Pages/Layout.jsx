@@ -18,6 +18,7 @@ import { useStore } from '../context/RootStore';
 import useTranslation from '../models/useTranslation';
 import config from '../config';
 import { getCurrentKioskConfig } from '../models/kiosk-definitions';
+import { TABLET_SCREEN_HEIGHT, isTabletKiosk, kioskHasOwnKeyboard } from '../models/kiosk-layout';
 
 // import { useEffect } from 'react';
 
@@ -120,7 +121,7 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
     <Flex
       direction="column"
     >
-      {ux === 'kiosk' &&
+      {ux === 'kiosk' && !isTabletKiosk &&
         <Flex
           height={`${kioskTopHeight}px`}
           justifyContent="center"
@@ -148,10 +149,10 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
       }
       <Flex
         id="app"
-        height={ux === 'kiosk' ? `calc(100vh - ${(kioskTopHeight + kioskBottomHeight + headerHeight)}px)` : 'auto'}
+        height={isTabletKiosk ? TABLET_SCREEN_HEIGHT : ux === 'kiosk' ? `calc(100vh - ${(kioskTopHeight + kioskBottomHeight + headerHeight)}px)` : 'auto'}
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
-        display={{ base: 'none', sm: 'flex' }}
+        display={isTabletKiosk ? 'flex' : { base: 'none', sm: 'flex' }}
       >
         {/* ERROR TOAST MESSAGE */}
         <ErrorToastMessage></ErrorToastMessage>
@@ -170,7 +171,7 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
         <Grid
           gridTemplateColumns={{ base: '1fr', lg: '80px 1fr' }}
           flex={1}
-          height={`calc(100vh - ${(kioskTopHeight + kioskBottomHeight)}px)`}
+          height={isTabletKiosk ? `calc(${TABLET_SCREEN_HEIGHT} - ${headerHeight}px)` : `calc(100vh - ${(kioskTopHeight + kioskBottomHeight)}px)`}
         >
           {/* SIDEBAR */}
           <ResponsiveSidebar
@@ -196,7 +197,7 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
           {/* KEYBOARD */}
         </Grid>
 
-        {ux === 'kiosk' && <Keyboard />}
+        {ux === 'kiosk' && !kioskHasOwnKeyboard && <Keyboard />}
 
         {/* MODALS */}
 
@@ -258,7 +259,7 @@ const Layout = observer(({ showMap, isHome, children, verify }) => {
         id="mobile-app"
         backgroundColor={colorMode === 'light' ? 'white' : 'gray.800'}
         flexDir="column"
-        display={{ base: 'flex', sm: 'none' }}
+        display={isTabletKiosk ? 'none' : { base: 'flex', sm: 'none' }}
         paddingY={20}
         paddingX={10}
       >

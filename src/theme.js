@@ -1,6 +1,7 @@
 import { StepsTheme as Steps } from 'chakra-ui-steps';
 import { extendTheme } from '@chakra-ui/react';
 import { useStore } from 'zustand';
+import { isTabletKiosk } from './models/kiosk-layout';
 
 const urlParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlParams.entries());
@@ -81,7 +82,7 @@ const customTheme = {
     Modal: {
       baseStyle: {
         dialog: {
-          top: mode === 'kiosk' ? '700px' : '0'
+          top: mode === 'kiosk' && !isTabletKiosk ? '700px' : '0'
         }
       }
     }

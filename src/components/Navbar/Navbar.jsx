@@ -6,6 +6,7 @@ import {
   Image,
   Stack,
   useColorModeValue,
+  Text,
 } from '@chakra-ui/react';
 import {
   ChevronRightIcon,
@@ -19,6 +20,8 @@ import { ColorModeSwitcher } from '../ColorModeSwitcher/ColorModeSwitcher';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
+import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import { isTabletKiosk } from '../../models/kiosk-layout';
 import { useNavigate } from 'react-router-dom';
 
 // import logo from '../../assets/images/logo.png';
@@ -100,7 +103,8 @@ export const Navbar = observer(
               <Icon as={ChevronRightIcon} ml={2} boxSize={6} />
             </Button>
 
-            <Box> </Box>
+            {/* A tablet has no banner, so the site name goes here instead. */}
+            {isTabletKiosk ? <Text fontWeight="bold">{getCurrentKioskConfig()?.displayName}</Text> : <Box> </Box>}
           </>
         )}
 
