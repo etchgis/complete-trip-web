@@ -68,6 +68,29 @@ const kioskDefinitions = {
     // ],
     showShuttle: true,
     showPublicTransit: true
+  },
+
+  // Tops on Jefferson Avenue
+  topsjefferson: {
+    displayName: "Tops Jefferson",
+    description: "Kiosk at the Tops on Jefferson Avenue",
+    location: {
+      lng: -78.852956,
+      lat: 42.90972
+    },
+    pickupPoint: {
+      lng: -78.852956,
+      lat: 42.90972
+    },
+    pickupDescription: "Front of the Tops store, under the Tops sign",
+    pickupAddress: "1275 Jefferson Ave, Buffalo, NY 14208",
+    kioskDirections: {
+      en: "Exit through the front doors of the store. Wait in front of the building. The shuttle will arrive there.",
+      es: "Salga por las puertas principales de la tienda. Espere frente al edificio. El transporte llegará allí."
+    },
+    pickupImagePath: "/stops/tops-jefferson-pickup.jpg",
+    showShuttle: true,
+    showPublicTransit: true
   }
 };
 
