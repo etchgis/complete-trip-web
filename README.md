@@ -27,6 +27,7 @@ Example kiosk URLs:
 ```
 https://completetrip.etch.app/map?mode=kiosk&kiosk=bgmclobby&location=-78.8664400,42.9005780
 https://completetrip.etch.app/map?mode=kiosk&kiosk=summerbest
+https://completetrip.etch.app/map?mode=kiosk&kiosk=topsjefferson
 ```
 
 #### Kiosk Parameters
