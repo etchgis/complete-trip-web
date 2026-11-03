@@ -10,6 +10,7 @@ import useTranslation from '../../models/useTranslation';
 import { useEffect, useState } from 'react';
 import useIntervalHook from '../../hooks/useIntervalHook';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import { isTabletKiosk } from '../../models/kiosk-layout';
 
 export const VerticalTripPlan = observer(
   ({
@@ -112,6 +113,7 @@ export const VerticalTripPlan = observer(
           id="vertical-trip-plan"
           flex={1}
           width={'100vw'}
+          minH={isTabletKiosk ? 0 : undefined}
           borderTop="solid thin lightgray"
           borderBottom="solid thin lightgray"
           borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
@@ -122,7 +124,8 @@ export const VerticalTripPlan = observer(
             borderRight="solid thin lightgray"
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
             w={{ base: ux === 'kiosk' ? '380px' : '100%', md: '380px' }}
-            h={ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
+            h={isTabletKiosk ? undefined : ux === 'kiosk' ? `calc(100vh - ${kioskTopHeight + kioskBottomHeight + headerHeight}px)` : ''}
+            minH={isTabletKiosk ? 0 : undefined}
             id="vertical-trip-plan-sidebar"
           >
             <Box

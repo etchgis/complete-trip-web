@@ -64,6 +64,7 @@ import useTranslation from '../../models/useTranslation';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { getKioskOrigin } from '../../models/kiosk-definitions';
+import { kioskHasOwnKeyboard } from '../../models/kiosk-layout';
 
 export const ScheduleTripModal = observer(
   ({ favoriteTrip, isOpen, onClose }) => {
@@ -182,7 +183,7 @@ export const ScheduleTripModal = observer(
         <ModalContent
           textAlign={'center'}
           pt={0}
-          pb={ux === 'kiosk' ? '180px' : '0'}
+          pb={ux === 'kiosk' && !kioskHasOwnKeyboard ? '180px' : '0'}
           data-testid="schedule-trip-modal--content"
           position="fixed"
         >
@@ -613,7 +614,7 @@ const First = observer(({ setStep, trip, isShuttle = false }) => {
           required={true}
           clearResult={true}
           inputName="endAddress"
-          autoFocus={ux === 'kiosk'}
+          autoFocus={ux === 'kiosk' && !kioskHasOwnKeyboard}
         />
 
         {(ux === 'webapp' || ux === 'callcenter') &&

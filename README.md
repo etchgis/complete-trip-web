@@ -51,5 +51,12 @@ Kiosk definitions are stored in `src/models/kiosk-definitions.js`. Each kiosk en
 - `defaultDestinations` - Common destinations from this kiosk
 - `showShuttle` - Whether to show shuttle options
 - `showPublicTransit` - Whether to show public transit options
+- `device` - The hardware at this site:
+  - `model` - The kiosk or phone model, for reference
+  - `screen` - `large` for a 1080x1920 portrait screen with the tall banner, or `tablet` for a smaller screen with no banner, where the app uses the full height
+  - `orientation` - How the screen is mounted, for reference
+  - `hasKeyboard` - `true` if the device supplies its own keyboard, `false` to show the on-screen keyboard
+
+A kiosk with no `device` block is treated as `large` with no keyboard of its own.
 
 To add a new kiosk definition, edit the `kioskDefinitions` object in the file.

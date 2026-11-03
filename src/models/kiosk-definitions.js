@@ -6,6 +6,12 @@
 const kioskDefinitions = {
   // Buffalo General Medical Center Lobby
   bgmclobby: {
+    device: {
+      model: "Redyref 43-inch indoor kiosk running Engage",
+      screen: "large",
+      orientation: "portrait",
+      hasKeyboard: false
+    },
     displayName: "Buffalo General Medical Center Lobby",
     description: "Main lobby kiosk at Buffalo General Medical Center",
     location: {
@@ -39,6 +45,12 @@ const kioskDefinitions = {
 
   // NFTA Summer-Best Light Rail Station
   summerbest: {
+    device: {
+      model: "Redyref 43-inch indoor kiosk running Engage",
+      screen: "large",
+      orientation: "portrait",
+      hasKeyboard: false
+    },
     displayName: "NFTA Summer-Best Station",
     description: "Light rail station kiosk at Summer-Best",
     location: {
@@ -72,6 +84,12 @@ const kioskDefinitions = {
 
   // Tops on Jefferson Avenue
   topsjefferson: {
+    device: {
+      model: "Samsung Galaxy Tab A11+ (SM-X230)",
+      screen: "tablet",
+      orientation: "portrait",
+      hasKeyboard: true
+    },
     displayName: "Tops Jefferson",
     description: "Kiosk at the Tops on Jefferson Avenue",
     location: {

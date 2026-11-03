@@ -8,12 +8,15 @@ import RootStore, { StoreProvider } from './context/RootStore';
 
 import App from './App';
 import React from 'react';
+import { applyTabletKioskViewport } from './models/kiosk-layout';
 
 // import { SaasProvider } from '@saas-ui/react';
 // import * as serviceWorker from './serviceWorker';
 // import reportWebVitals from './reportWebVitals';
 
 //TODO move to it's own file
+
+applyTabletKioskViewport();
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);

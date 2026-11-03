@@ -5,6 +5,7 @@ import TransitRoutes from '../components/TransitRoutes';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../context/RootStore';
 import { getKioskOrigin } from '../models/kiosk-definitions';
+import { isTabletKiosk } from '../models/kiosk-layout';
 
 const Map = observer(
   ({ showMap, isTripWizardOpen, openTripWizard, closeTripWizard }) => {
@@ -37,7 +38,7 @@ const Map = observer(
         flex={1}
         flexDir={'row'}
         id="map-view"
-        height={(ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : `calc(100vh - ${(kioskTopHeight + kioskBottomHeight + headerHeight)}px)`}
+        height={isTabletKiosk ? '100%' : (ux === 'webapp' || ux === 'callcenter') ? 'calc(100vh - 60px)' : `calc(100vh - ${(kioskTopHeight + kioskBottomHeight + headerHeight)}px)`}
         overflow={'hidden'}
         display={showMap ? 'flex' : 'none'}
       >

@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import rides from '../../services/transport/rides';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
+import { TABLET_SCREEN_HEIGHT, isTabletKiosk, kioskHasOwnKeyboard } from '../../models/kiosk-layout';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
 import config from '../../config';
 
@@ -61,7 +62,7 @@ const ShuttleSummonModal = observer(({
   // slow booking happen on demand.
   requestTimeoutMs = RIDE_REQUEST_TIMEOUT_MS
 }) => {
-  const { ux, activeInput, setKeyboardActiveInput, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
+  const { ux, activeInput, setKeyboardActiveInput, setKeyboardInputValue, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
   const { trip } = useStore();
   const { t } = useTranslation();
   
@@ -380,6 +381,51 @@ const ShuttleSummonModal = observer(({
 
   if (!isOpen) return null;
 
+  // A device with its own keyboard types straight into the fields, so each field
+  // stores its own digits and moves on to the next field when full.
+  const phoneFieldProps = (name, setValue, maxLength, nextName) => ({
+    ...(kioskHasOwnKeyboard
+      ? {
+          inputMode: 'numeric',
+          ...(name === 'pin' ? {} : { type: 'tel' }),
+          onChange: e => {
+            const digits = e.target.value.replace(/\D/g, '').slice(0, maxLength);
+            // The field must show the new digits right away, or the next key
+            // press would be added to the old value.
+            setValue(digits);
+            setKeyboardActiveInput(name);
+            setKeyboardInputValue(digits);
+            if (digits.length === maxLength && nextName) {
+              setKeyboardActiveInput(nextName);
+            }
+          },
+        }
+      : {}),
+    ...(isTabletKiosk
+      ? { letterSpacing: '2px', textAlign: 'center', px: 1 }
+      : {}),
+  });
+
+  // On a tablet the form fills the screen so it can scroll while the keyboard is open.
+  const tabletFormProps = isTabletKiosk
+    ? {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        transform: 'none',
+        h: TABLET_SCREEN_HEIGHT,
+        w: '100%',
+        paddingX: '24px',
+        paddingTop: '56px',
+        paddingBottom: '16px',
+        // Auto margins on the form center it without cutting off its top when it
+        // is taller than the space left by the keyboard.
+        alignItems: 'flex-start',
+        overflowY: 'auto',
+        borderRadius: 0,
+      }
+    : {};
+
   return (
     <Flex
       background={'white'}
@@ -397,6 +443,7 @@ const ShuttleSummonModal = observer(({
       justifyContent={'center'}
       borderRadius={'md'}
       boxShadow={'md'}
+      {...tabletFormProps}
     >
       <IconButton
         onClick={onClose}
@@ -408,9 +455,9 @@ const ShuttleSummonModal = observer(({
         variant={'ghost'}
         data-test-id="shuttle-modal-close"
       />
-      <Box>
+      <Box w={isTabletKiosk ? '100%' : undefined} maxW={isTabletKiosk ? '500px' : undefined} m={isTabletKiosk ? 'auto' : undefined}>
         <Text
-          style={{
+          style={isTabletKiosk ? { textAlign: 'center', color: 'red', marginBottom: '8px' } : {
             position: 'absolute',
             top: '40px',
             left: '70px',
@@ -441,6 +488,7 @@ const ShuttleSummonModal = observer(({
                 value={pin}
                 maxLength={4}
                 autoComplete='off'
+                {...phoneFieldProps('pin', setPin, 4, 'areaCode')}
               />
             </Center>
           </FormControl>
@@ -461,6 +509,7 @@ const ShuttleSummonModal = observer(({
                 value={areaCode}
                 maxLength={3}
                 autoComplete='off'
+                {...phoneFieldProps('areaCode', setAreaCode, 3, 'phone1')}
               />
               <Text mx={'10px'} fontSize={'28px'}>-</Text>
               <Input
@@ -476,6 +525,7 @@ const ShuttleSummonModal = observer(({
                 value={phone1}
                 maxLength={3}
                 autoComplete='off'
+                {...phoneFieldProps('phone1', setPhone1, 3, 'phone2')}
               />
               <Text mx={'10px'} fontSize={'28px'}>-</Text>
               <Input
@@ -491,6 +541,7 @@ const ShuttleSummonModal = observer(({
                 value={phone2}
                 maxLength={4}
                 autoComplete='off'
+                {...phoneFieldProps('phone2', setPhone2, 4)}
               />
             </Center>
           </FormControl>
