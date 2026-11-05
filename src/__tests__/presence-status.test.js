@@ -31,23 +31,77 @@ const verdictBody = (overrides = {}) => ({
   ...overrides,
 });
 
-describe('reasonKey', () => {
-  const copy = genLocales().presence.en;
-  const reasons = [
-    'no_shift_today', 'on_break', 'shift_ended', 'off_duty', 'no_gps',
-    'app_background', 'location_off', 'permission_denied', 'sharing_off:native',
-    'silent', 'signed_out',
-  ];
+// The English sentence for every reason the presence service can send. The
+// call center card, minitron and megatron each assert this same list, so a
+// reason reads the same in all three.
+const CANONICAL_SENTENCES = [
+  ['no_shift_today', 'No driver has started a shift today.'],
+  ['on_break', 'The driver is on a break.'],
+  ['shift_ended', 'The driver ended the shift.'],
+  ['off_duty', 'The driver marked themselves off duty.'],
+  ['no_gps', 'The tablet cannot get a GPS position.'],
+  ['app_background', 'The driver app is not on the tablet screen.'],
+  ['location_off', 'Location is turned off on the tablet.'],
+  ['permission_denied', 'The driver app is not allowed to use location.'],
+  ['silent', 'The tablet has stopped checking in.'],
+  ['signed_out', 'The driver is signed out of the app.'],
+  ['fix_stale', 'The tablet is checking in, but its GPS position is getting old.'],
+  ['checkins_missing', 'The tablet has stopped checking in and its GPS position is getting old.'],
+  ['evaluator_stale', 'Our system has not refreshed the tablet status recently, so we cannot tell.'],
+  ['db_unhealthy', 'Our system cannot read the tablet status right now.'],
+  ['receiver_unhealthy', 'Our system is not receiving tablet updates right now.'],
+  ['canary_failed', 'Our system failed its own check, so the tablet status cannot be trusted right now.'],
+  ['untrusted', 'The tablet is not signed in as a trusted device, so its status is not counted.'],
+  ['sharing_off:sleeping_app', 'The tablet has put the driver app to sleep.'],
+  ['sharing_off:service_stopped', 'The location service for the driver app has stopped on the tablet.'],
+  ['sharing_off:power_saver', 'Power saver on the tablet is limiting location sharing.'],
+  ['sharing_off:no_network', 'The tablet has no network connection.'],
+  ['sharing_off:mock_location', 'The tablet is sending a test location instead of a real one.'],
+  ['sharing_off:something_new', 'Location sharing is turned off on the tablet.'],
+  ['not_listed', 'Tablet status is not published for this vehicle.'],
+  ['brand_new_reason', 'The tablet is not reporting.'],
+];
 
-  test.each(reasons)('%s has its own short sentence', reason => {
-    const key = reasonKey(reason, 'not_live');
-    expect(key).not.toBe('reasonOther');
-    expect(copy[key]).toMatch(/\.$/);
+describe('reasonKey', () => {
+  const en = genLocales().presence.en;
+  const es = genLocales().presence.es;
+
+  test.each(CANONICAL_SENTENCES)('%s reads as the canonical sentence', (reason, sentence) => {
+    expect(en[reasonKey(reason, 'not_live')]).toBe(sentence);
+  });
+
+  test('every reason has a Spanish sentence of its own', () => {
+    CANONICAL_SENTENCES.forEach(([reason]) => {
+      const key = reasonKey(reason, 'not_live');
+      expect(es[key]).toBeTruthy();
+      if (key !== 'reasonOther') expect(es[key]).not.toBe(en[key]);
+    });
   });
 
   test('an unrecognized reason falls back to the state', () => {
     expect(reasonKey('brand_new', 'not_live')).toBe('reasonOther');
     expect(reasonKey(null, 'degraded')).toBe('detailDegraded');
+    expect(reasonKey('brand_new', 'unknown')).toBe('detailUnknown');
+  });
+});
+
+describe('at-risk ride reasons', () => {
+  const en = genLocales().presence.en;
+  const body = reason => ({ rides: [{ id: 'r1', datetime: iso(NOW), atRisk: { since: iso(NOW), reason } }] });
+
+  test.each([
+    ['no_live_vehicle', 'No shuttle tablet is reporting for this ride.'],
+    ['no_vehicle_accepted', 'No driver accepted this ride.'],
+    ['offer_declined', 'The driver declined this ride.'],
+    ['off_duty', 'The driver marked themselves off duty.'],
+  ])('%s reads as a sentence', (reason, sentence) => {
+    const ride = readMarkedRides(body(reason))[0].atRisk;
+    expect(ride.hasReason).toBe(true);
+    expect(en[ride.reasonKey]).toBe(sentence);
+  });
+
+  test('a reason the page does not know is left to the general sentence', () => {
+    expect(readMarkedRides(body('brand_new'))[0].atRisk.hasReason).toBe(false);
   });
 });
 
@@ -71,7 +125,7 @@ describe('readVerdict', () => {
     );
     expect(v.state).toBe('unknown');
     expect(v.side).toBe('ours');
-    expect(v.reason).toBeNull();
+    expect(v.reason).toBe('evaluator_stale');
   });
 
   test('leaves off device facts the tablet did not send', () => {

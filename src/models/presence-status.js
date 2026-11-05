@@ -6,9 +6,9 @@
  * decides liveness itself.
  */
 
-// The plain sentence for each not_live reason the service sends. A reason that
-// starts with "sharing_off:" carries the tablet's own detail after the colon,
-// which the call center does not need, so it maps to one sentence.
+// The plain sentence for each reason the service sends. The sharing_off reasons
+// name what the tablet reported after the colon; one that is not listed here
+// falls back to the general location sharing sentence.
 const REASON_KEYS = {
   no_shift_today: 'reasonNoShiftToday',
   on_break: 'reasonOnBreak',
@@ -19,8 +19,28 @@ const REASON_KEYS = {
   location_off: 'reasonLocationOff',
   permission_denied: 'reasonPermissionDenied',
   sharing_off: 'reasonSharingOff',
+  'sharing_off:sleeping_app': 'reasonSharingOffSleepingApp',
+  'sharing_off:service_stopped': 'reasonSharingOffServiceStopped',
+  'sharing_off:power_saver': 'reasonSharingOffPowerSaver',
+  'sharing_off:no_network': 'reasonSharingOffNoNetwork',
+  'sharing_off:mock_location': 'reasonSharingOffMockLocation',
   silent: 'reasonSilent',
   signed_out: 'reasonSignedOut',
+  fix_stale: 'reasonFixStale',
+  checkins_missing: 'reasonCheckinsMissing',
+  evaluator_stale: 'reasonEvaluatorStale',
+  db_unhealthy: 'reasonDbUnhealthy',
+  receiver_unhealthy: 'reasonReceiverUnhealthy',
+  canary_failed: 'reasonCanaryFailed',
+  untrusted: 'reasonUntrusted',
+  not_listed: 'reasonNotListed',
+};
+
+// Reasons autoscout puts on an at-risk ride besides the presence reasons.
+const RIDE_REASON_KEYS = {
+  no_live_vehicle: 'rideReasonNoLiveVehicle',
+  no_vehicle_accepted: 'rideReasonNoVehicleAccepted',
+  offer_declined: 'rideReasonOfferDeclined',
 };
 
 // What to say when the service sends a state with no reason we know.
@@ -60,12 +80,16 @@ const toMs = value => {
   return null;
 };
 
+// The key for a reason the page has a sentence for, or null.
+function knownReasonKey(reason) {
+  if (typeof reason !== 'string' || !reason) return null;
+  if (REASON_KEYS[reason]) return REASON_KEYS[reason];
+  if (reason.indexOf('sharing_off:') === 0) return REASON_KEYS.sharing_off;
+  return null;
+}
+
 export function reasonKey(reason, state) {
-  if (typeof reason === 'string' && reason) {
-    const base = reason.split(':')[0];
-    if (REASON_KEYS[base]) return REASON_KEYS[base];
-  }
-  return STATE_FALLBACK_KEYS[state] || 'reasonOther';
+  return knownReasonKey(reason) || STATE_FALLBACK_KEYS[state] || 'reasonOther';
 }
 
 /**
@@ -81,7 +105,7 @@ export function readVerdict(body, now) {
   const evaluatedAt = toMs(body.evaluatedAt);
   const stale = evaluatedAt !== null && now - evaluatedAt > VERDICT_STALE_MS;
   const state = stale ? 'unknown' : body.state;
-  const reason = stale ? null : body.reason || null;
+  const reason = stale ? 'evaluator_stale' : body.reason || null;
   const side = stale ? 'ours' : body.side === 'device' || body.side === 'ours' ? body.side : null;
   const lastHeardAt = toMs(body.lastHeardAt);
   const shift = body.shift && typeof body.shift === 'object' ? body.shift : null;
@@ -192,6 +216,11 @@ export function readTimeline(body) {
   return { shift, periods };
 }
 
+// The key for the reason on an at-risk ride, or null when there is none we know.
+function rideReasonKey(reason) {
+  return RIDE_REASON_KEYS[reason] || knownReasonKey(reason);
+}
+
 /**
  * The rides the card should mark. A ride is marked when autoscout says it is at
  * risk or the driver has not seen its notice. Anything else is left out.
@@ -210,8 +239,8 @@ export function readMarkedRides(body) {
         atRisk: atRisk
           ? {
             sinceMs: toMs(atRisk.since),
-            reasonKey: reasonKey(atRisk.reason, 'not_live'),
-            hasReason: !!(atRisk.reason && REASON_KEYS[String(atRisk.reason).split(':')[0]]),
+            reasonKey: rideReasonKey(atRisk.reason),
+            hasReason: rideReasonKey(atRisk.reason) !== null,
           }
           : null,
         unseen: unseen ? { sinceMs: toMs(ride.notice.since) } : null,
