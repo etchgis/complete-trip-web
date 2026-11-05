@@ -169,8 +169,8 @@ const LIVE_STATES = ['live', 'degraded'];
  *
  * Events are sorted by time. A shift event is `shift_start`, `break`, `resume`
  * or `shift_end`. A `state` event carries the verdict state the vehicle moved
- * into. Live and degraded both count as reporting, because the gate counts them
- * as open. A period with no end is still going on.
+ * into. Live and degraded both count as reporting, because the booking gate counts
+ * them as open. A period with no end is still going on.
  */
 export function readTimeline(body) {
   const raw = body && Array.isArray(body.events) ? body.events : null;

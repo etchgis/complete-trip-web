@@ -1,15 +1,5 @@
 import config from '../../config';
 
-/**
- * The driver tablet presence reads for the call center card.
- *
- * The presence service takes an org-scoped user token. The call center page
- * has no shuttle credentials of its own, so a token is sent when the agent is
- * signed in and the request goes without one otherwise.
- *
- * The rides read is the list of today's rides for the vehicle with their
- * at-risk and notice marks. It is off until an endpoint serves it.
- */
 // An error that keeps the HTTP status, so a caller can tell a vehicle that is
 // not listed (404) from one that could not be read.
 const requestError = (message, status) => {
@@ -41,6 +31,16 @@ const get = async (path, token) => {
   );
 };
 
+/**
+ * The driver tablet presence reads for the call center card.
+ *
+ * The presence service takes an org-scoped user token. The call center page
+ * has no shuttle credentials of its own, so a token is sent when the agent is
+ * signed in and the request goes without one otherwise.
+ *
+ * The rides read lists today's rides for the vehicle with their at-risk and
+ * notice marks. It is off until an endpoint serves it.
+ */
 const presence = {
   // Anonymous. Returns only state, reason, since, evaluatedAt, side and
   // lastHeardAt, so it is what a page that is not signed in reads.

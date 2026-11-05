@@ -102,7 +102,7 @@ describe('PresenceSection', () => {
     cy.screenshot('presence/device-side', { capture: 'viewport' });
   });
 
-  it('reuses the trained wording when the problem is on our side', () => {
+  it('reuses the existing card wording when the problem is on our side', () => {
     render(presenceState({
       verdict: verdictBody({ state: 'unknown', side: 'ours', evaluatedAt: iso(5) }),
     }));
