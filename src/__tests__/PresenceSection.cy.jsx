@@ -54,8 +54,9 @@ const ridesBody = [
   { id: 'r3', datetime: iso(-70), atRisk: null },
 ];
 
-const presenceState = ({ verdict = verdictBody(), timeline = timelineBody, rides = ridesBody, loading = false } = {}) => ({
+const presenceState = ({ verdict = verdictBody(), timeline = timelineBody, rides = ridesBody, loading = false, signedIn = true } = {}) => ({
   loading,
+  signedIn,
   verdict: verdict && readVerdict(verdict, NOW),
   timeline: timeline && readTimeline(timeline),
   rides: rides ? readMarkedRides(rides) : null,
@@ -77,7 +78,7 @@ describe('PresenceSection', () => {
     cy.get('[data-testid="presence-badge"]').should('have.text', 'Tablet reporting').and('have.attr', 'data-tone', 'green');
     cy.get('[data-testid="presence-reason"]').should('have.text', 'The tablet is sending its position.');
     cy.get('[data-testid="presence-last-heard"]').should('contain.text', 'Last heard from the tablet less than a minute ago.');
-    cy.get('[data-testid="presence-shift"]').should('have.text', 'Driver Pat, started 7:10 AM');
+    cy.get('[data-testid="presence-shift"]').should('have.text', 'Started 7:10 AM');
     cy.get('[data-testid="presence-device"]')
       .should('contain.text', 'App version 1.40.0')
       .and('contain.text', 'Location permission: precise')
@@ -171,5 +172,35 @@ describe('PresenceSection', () => {
     cy.get('[data-testid="shuttle-service-badge"]').should('have.text', 'Service running');
     cy.get('[data-testid="shuttle-service-status"]').next('[data-testid="presence-section"]').should('exist');
     cy.screenshot('presence/full-card', { capture: 'viewport' });
+  });
+
+  it('shows only the badge lines when not signed in', () => {
+    render(presenceState({
+      signedIn: false,
+      timeline: null,
+      rides: null,
+      verdict: verdictBody({ state: 'not_live', reason: 'silent', side: 'device', shift: undefined, device: undefined }),
+    }));
+    cy.get('[data-testid="presence-badge"]').should('have.attr', 'data-tone', 'red');
+    cy.get('[data-testid="presence-reason"]').should('exist');
+    cy.get('[data-testid="presence-since"]').should('exist');
+    cy.get('[data-testid="presence-last-heard"]').should('exist');
+    cy.get('[data-testid="presence-side"]').should('exist');
+    cy.get('[data-testid="presence-shift"]').should('not.exist');
+    cy.get('[data-testid="presence-device"]').should('not.exist');
+    cy.get('[data-testid="presence-timeline"]').should('not.exist');
+    cy.get('[data-testid="presence-rides"]').should('not.exist');
+  });
+
+  it('never shows the driver name', () => {
+    render(presenceState());
+    cy.get('[data-testid="presence-section"]').should('not.contain.text', 'Pat');
+  });
+
+  it('hides shift, details, timeline and rides when signed out even if sent', () => {
+    render(presenceState({ signedIn: false }));
+    cy.get('[data-testid="presence-shift"]').should('not.exist');
+    cy.get('[data-testid="presence-timeline"]').should('not.exist');
+    cy.get('[data-testid="presence-rides"]').should('not.exist');
   });
 });

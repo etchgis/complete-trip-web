@@ -57,7 +57,7 @@ describe('readVerdict', () => {
     expect(v.state).toBe('not_live');
     expect(v.side).toBe('device');
     expect(v.lastHeardMs).toBe(90000);
-    expect(v.shift.driver).toBe('Pat');
+    expect(v.shift.driver).toBeUndefined();
     expect(v.device.map(f => f.key)).toEqual([
       'factAppVersion', 'factLocation', 'factBattery', 'factNetwork', 'factPowerSaver',
     ]);

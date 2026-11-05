@@ -23,6 +23,12 @@ const get = async (path, token) => {
 };
 
 const presence = {
+  // Anonymous. Returns only state, reason, since, evaluatedAt, side and
+  // lastHeardAt, so it is what a page that is not signed in reads.
+  publicStatus(vehicleId) {
+    return get(`/presence/public/vehicles/${encodeURIComponent(vehicleId)}/status`, null);
+  },
+
   verdict(vehicleId, token) {
     return get(`/presence/vehicles/${encodeURIComponent(vehicleId)}/verdict`, token);
   },

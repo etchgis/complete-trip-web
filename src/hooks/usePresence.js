@@ -32,7 +32,7 @@ const startOfDay = (now, timeZone) => {
  * @param {string} options.vehicleId
  * @param {string} options.timeZone the time zone of the service day
  * @param {Function} [options.getToken] resolves the signed in agent's token
- * @returns {object} { loading, verdict, timeline, rides, now }
+ * @returns {object} { loading, verdict, timeline, rides, signedIn, now }
  */
 const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
   const [answer, setAnswer] = useState({
@@ -40,6 +40,7 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
     verdict: null,
     timeline: null,
     rides: null,
+    signedIn: false,
   });
   const [now, setNow] = useState(() => Date.now());
 
@@ -67,6 +68,22 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
       try {
         const token = getToken ? await attempt(getToken) : null;
         const at = Date.now();
+        if (!token) {
+          // Not signed in: only the anonymous status is read, so nothing
+          // about the shift, the tablet or the rides is requested.
+          const pub = await attempt(() => presence.publicStatus(vehicleId));
+          if (canceled) return;
+          const readAt = Date.now();
+          setAnswer({
+            loading: false,
+            verdict: readVerdict(pub, readAt),
+            timeline: null,
+            rides: null,
+            signedIn: false,
+          });
+          setNow(readAt);
+          return;
+        }
         const from = startOfDay(at, timeZone);
         const [verdict, timeline, rides] = await Promise.all([
           attempt(() => presence.verdict(vehicleId, token)),
@@ -80,6 +97,7 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
           verdict: readVerdict(verdict, readAt),
           timeline: readTimeline(timeline),
           rides: rides ? readMarkedRides(rides) : null,
+          signedIn: true,
         });
         setNow(readAt);
       } finally {

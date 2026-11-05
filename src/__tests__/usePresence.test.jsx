@@ -9,12 +9,14 @@ import config from '../config';
 const verdict = vi.fn();
 const timeline = vi.fn();
 const rides = vi.fn();
+const publicStatus = vi.fn();
 
 vi.mock('../services/transport/presence', () => ({
   default: {
     verdict: (...a) => verdict(...a),
     timeline: (...a) => timeline(...a),
     rides: (...a) => rides(...a),
+    publicStatus: (...a) => publicStatus(...a),
   },
 }));
 
@@ -22,7 +24,7 @@ const options = (overrides = {}) => ({
   enabled: true,
   vehicleId: 'v1',
   timeZone: 'America/New_York',
-  getToken: undefined,
+  getToken: () => 'tok',
   ...overrides,
 });
 
@@ -45,6 +47,18 @@ describe('the presence flag', () => {
 });
 
 describe('usePresence', () => {
+  test('reads only the anonymous status when not signed in', async () => {
+    publicStatus.mockResolvedValue({ state: 'not_live', reason: 'silent', evaluatedAt: Date.now() });
+    const { result } = renderHook(() => usePresence(options({ getToken: () => null })));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(publicStatus).toHaveBeenCalledWith('v1');
+    expect(verdict).not.toHaveBeenCalled();
+    expect(timeline).not.toHaveBeenCalled();
+    expect(rides).not.toHaveBeenCalled();
+    expect(result.current.signedIn).toBe(false);
+    expect(result.current.verdict.state).toBe('not_live');
+  });
+
   test('reads each answer on its own so one failure leaves the rest', async () => {
     verdict.mockResolvedValue({ state: 'live', evaluatedAt: Date.now() });
     timeline.mockRejectedValue(new Error('down'));

@@ -98,7 +98,6 @@ export function readVerdict(body, now) {
     lastHeardMs: lastHeardAt === null ? null : Math.max(0, now - lastHeardAt),
     shift: shift
       ? {
-        driver: shift.rosterDriverId || null,
         startedMs: toMs(shift.startedAt),
         state: shift.state || null,
       }

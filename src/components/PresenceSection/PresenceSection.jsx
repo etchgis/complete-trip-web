@@ -22,7 +22,7 @@ export const PresenceSection = ({ presence, timeZone }) => {
   const { t } = useTranslation();
   if (!presence) return null;
 
-  const { loading, verdict, timeline, rides, now } = presence;
+  const { loading, verdict, timeline, rides, signedIn, now } = presence;
   const at = ms => clock(t, ms, timeZone);
 
   return (
@@ -80,14 +80,18 @@ export const PresenceSection = ({ presence, timeZone }) => {
             </Text>
           )}
 
-          <Text mt={2} fontSize={16} textAlign={'left'} fontWeight={'bold'}>
-            {t('presence.shiftLabel')}
-          </Text>
-          <Text fontSize={14} textAlign={'left'} data-testid="presence-shift">
-            {shiftText(t, verdict.shift, at)}
-          </Text>
+          {signedIn && (
+            <>
+              <Text mt={2} fontSize={16} textAlign={'left'} fontWeight={'bold'}>
+                {t('presence.shiftLabel')}
+              </Text>
+              <Text fontSize={14} textAlign={'left'} data-testid="presence-shift">
+                {shiftText(t, verdict.shift, at)}
+              </Text>
+            </>
+          )}
 
-          {verdict.device && verdict.device.length > 0 && (
+          {signedIn && verdict.device && verdict.device.length > 0 && (
             <>
               <Text mt={2} fontSize={16} textAlign={'left'} fontWeight={'bold'}>
                 {t('presence.deviceLabel')}
@@ -107,6 +111,8 @@ export const PresenceSection = ({ presence, timeZone }) => {
         </>
       )}
 
+      {signedIn && (
+      <>
       <Text mt={2} fontSize={16} textAlign={'left'} fontWeight={'bold'}>
         {t('presence.timelineLabel')}
       </Text>
@@ -123,8 +129,10 @@ export const PresenceSection = ({ presence, timeZone }) => {
           ))
         )}
       </Box>
+      </>
+      )}
 
-      {rides && rides.length > 0 && (
+      {signedIn && rides && rides.length > 0 && (
         <>
           <Text mt={2} fontSize={16} textAlign={'left'} fontWeight={'bold'}>
             {t('presence.ridesLabel')}
@@ -172,12 +180,6 @@ export const PresenceSection = ({ presence, timeZone }) => {
 function shiftText(t, shift, at) {
   if (!shift) return t('presence.noShift');
   if (shift.startedMs === null) return t('presence.noShift');
-  if (shift.driver) {
-    return t('presence.shiftDriverStarted', {
-      driver: shift.driver,
-      time: at(shift.startedMs),
-    });
-  }
   return t('presence.shiftStarted', { time: at(shift.startedMs) });
 }
 
