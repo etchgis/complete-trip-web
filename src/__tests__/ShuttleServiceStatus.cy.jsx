@@ -336,7 +336,7 @@ describe('ShuttleServiceStatus', () => {
   });
 
   it('does not raise the alarm for a parked shuttle the feed still serves', () => {
-    // A position more than a minute old that the feed still serves.
+    // The feed still serves a position that is more than a minute old.
     render(status({ position: { state: 'out-of-date', ageMs: 4 * 60000 } }));
     cy.get('[data-testid="shuttle-service-badge"]')
       .should('have.text', 'Service running - position 4 min old')

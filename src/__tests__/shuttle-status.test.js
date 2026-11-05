@@ -694,7 +694,7 @@ describe('deriveVerdict', () => {
   });
 
   test('a parked shuttle the feed still serves is not reported as lost', () => {
-    // A position more than a minute old that the feed still serves.
+    // The feed still serves a position that is more than a minute old.
     const parked = deriveStatus({
       poll: poll({
         availability: readAvailability(available()),
@@ -786,7 +786,7 @@ describe('deriveVerdict', () => {
   });
 });
 
-describe('a service stopped for want of a driver', () => {
+describe('a service with no driver on duty', () => {
   const noDriver = readAvailability({
     isAvailable: false,
     reason: 'service_alert',
@@ -852,7 +852,7 @@ describe('the card copy', () => {
     expect(copy.es.serviceNoDriverDetail).not.toMatch(/fuera de servicio/);
   });
 
-  test('says an out of date position may be lost signal, not a stop', () => {
+  test('says an out of date position may mean lost signal', () => {
     expect(copy.en.positionOutOfDateDetail).toBe(
       'The shuttle has not sent a new position for over a minute. It normally reports at least every 30 seconds, even when stopped, so it may have lost signal.'
     );
