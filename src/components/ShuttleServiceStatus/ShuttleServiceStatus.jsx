@@ -302,7 +302,7 @@ function positionDetail(t, position) {
 // An age as a point in the past, such as "8 minutes ago" or "2 hrs 5 min ago".
 // Past an hour it is built from the same duration the badge shows, so the two
 // always agree.
-function formatAge(t, ageMs) {
+export function formatAge(t, ageMs) {
   const parts = describeAge(ageMs);
   if (!parts) return null;
   if (parts.unit === 'moment') return t('shuttleStatus.ageMoment');

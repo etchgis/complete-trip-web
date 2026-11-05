@@ -9,11 +9,13 @@ import {
   Text,
   useColorMode,
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import AddressSearchForm from '../AddressSearchForm';
 import AlertModal from '../AlertModal';
 import ShuttleServiceStatus from '../ShuttleServiceStatus';
+import PresenceSection from '../PresenceSection/PresenceSection';
+import usePresence from '../../hooks/usePresence';
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import config from '../../config';
 import debounce from '../../utils/debounce';
@@ -662,6 +664,21 @@ const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
     onFeature: updateShuttle,
   });
 
+  // The driver tablet sections are off until the presence service is live.
+  const { authentication } = useStore();
+  const getPresenceToken = useCallback(
+    () => (authentication.loggedIn ? authentication.fetchToken() : null),
+    [authentication]
+  );
+  const presenceOn =
+    ux === 'callcenter' && !!config.PRESENCE.enabled && !!config.PRESENCE.vehicleId;
+  const presence = usePresence({
+    enabled: presenceOn,
+    vehicleId: config.PRESENCE.vehicleId,
+    timeZone: config.PRESENCE.timeZone,
+    getToken: getPresenceToken,
+  });
+
   useAalShuttle({
     enabled: ux === 'callcenter',
     serviceId: config.UB_SHUTTLE_SERVICE_ID,
@@ -727,6 +744,12 @@ const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
                     <>
                       <Divider mt={2} mb={2} />
                       <ShuttleServiceStatus status={shuttleStatus} />
+                      {presenceOn && (
+                        <PresenceSection
+                          presence={presence}
+                          timeZone={config.PRESENCE.timeZone}
+                        />
+                      )}
                     </>
                   )}
                 </Box>
