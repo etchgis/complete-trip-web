@@ -464,10 +464,14 @@ const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
 
 // Driver tablet presence on the call center card. Off until the presence
 // service is deployed. The vehicle is the Community Shuttle vehicle the
-// presence service knows by this id.
+// presence service knows by this id. The service is routed at the gateway as
+// /presence/*, on api.etch.app in production and api-stage.etch.app otherwise.
+// ridesEnabled turns on the "rides to watch" list. It stays off because no
+// endpoint lists a vehicle's rides with their at-risk marks yet.
 const PRESENCE = {
   enabled: false,
-  url: 'https://api.etch.app',
+  ridesEnabled: false,
+  url: API_ENV === 'prod' ? 'https://api.etch.app' : 'https://api-stage.etch.app',
   vehicleId: '',
   timeZone: 'America/New_York',
 };
