@@ -92,6 +92,12 @@ export const MapComponent = observer(({ showMap }) => {
             center: [location.lng, location.lat],
           };
         }
+      } else if (ux === 'callcenter') {
+        // Call center agents work far from the service area, so the map
+        // always opens on it instead of on the agent's own location.
+        userLocation = location
+          ? { center: location.split(',').map(l => +l) }
+          : undefined;
       } else {
         // For non-kiosk modes, try to get user location if no location in URL
         userLocation = location
