@@ -16,6 +16,11 @@ export const AAL_POLL_INTERVAL_MS = 5000;
 const ROUTE_BACKOFF_FACTOR = 2;
 export const AAL_MAX_ROUTE_BACKOFF_MS = 60 * 1000;
 
+// The vendor feed sometimes answers with no vehicle for a few seconds while the
+// shuttle is running. The last position stays on the map until the feed has
+// had no vehicle for this long.
+export const AAL_EMPTY_GRACE_MS = 60 * 1000;
+
 const EMPTY_VEHICLES = { type: 'FeatureCollection', features: [] };
 
 /**
@@ -29,7 +34,8 @@ const EMPTY_VEHICLES = { type: 'FeatureCollection', features: [] };
  * @param {Function} [options.onRoute] receives { route, stops } once the route
  *   is known
  * @param {Function} [options.onVehicles] receives a FeatureCollection of the
- *   vehicles, empty when the service answered and nothing is running
+ *   vehicles, empty once the service has answered with no vehicle for
+ *   AAL_EMPTY_GRACE_MS
  * @returns {object} { route, vehicles, loading, error }
  */
 const useAalShuttle = ({
@@ -62,6 +68,8 @@ const useAalShuttle = ({
     let routeLoaded = false;
     let routeFailures = 0;
     let routeNextAttemptAt = 0;
+    // When an answer last had a vehicle in it, or null if none has yet.
+    let lastSeenAt = null;
 
     const callHandler = (ref, value) => {
       const handler = ref.current;
@@ -121,6 +129,14 @@ const useAalShuttle = ({
         answered.map(r => r.value).filter(Boolean)
       );
       setError(null);
+      if (features.features.length > 0) {
+        lastSeenAt = Date.now();
+      } else if (
+        lastSeenAt !== null &&
+        Date.now() - lastSeenAt < AAL_EMPTY_GRACE_MS
+      ) {
+        return;
+      }
       setVehicles(features);
       callHandler(vehicleHandlerRef, features);
     };
