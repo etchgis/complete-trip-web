@@ -462,6 +462,16 @@ const HDS_SERVICE_ID = '5da89172-056f-47c9-bef9-adf408bb587e';
 // closures come from the availability check for this service.
 const UB_SHUTTLE_SERVICE_ID = 'a931ba8e-d18b-4b29-9de9-6df61ff1fa02';
 
+// Driver tablet presence on the call center card. Off until the presence
+// service is deployed. The vehicle is the Community Shuttle vehicle the
+// presence service knows by this id.
+const PRESENCE = {
+  enabled: false,
+  url: 'https://api.etch.app',
+  vehicleId: '',
+  timeZone: 'America/New_York',
+};
+
 const defaults = {
   ENV: ENV,
   DEBUG: false,
@@ -496,6 +506,7 @@ const defaults = {
   LANAGUAGES,
   NOTIFY_METHODS,
   FEEDBACK,
+  PRESENCE,
   HDS_SERVICE_ID,
   UB_SHUTTLE_SERVICE_ID,
 };
