@@ -5,6 +5,7 @@ import { useListBox, useOption } from 'react-aria';
 
 import { CheckIcon } from '@chakra-ui/icons';
 import { useStore } from '../../context/RootStore';
+import { kioskHasOwnKeyboard } from '../../models/kiosk-layout';
 
 export function ListBox(props) {
   const { ux } = useStore().uiStore;
@@ -12,9 +13,11 @@ export function ListBox(props) {
   let { listBoxRef = ref, state } = props;
   let { listBoxProps } = useListBox(props, state, listBoxRef);
 
-  // Focus first item when results appear (only in kiosk mode)
+  // Focus first item when results appear on kiosks that use the on-screen
+  // keyboard. A device with its own keyboard closes it when the address field
+  // loses focus, so there the rider keeps typing and taps a result instead.
   React.useEffect(() => {
-    if (ux === 'kiosk' && state.isOpen && state.collection.size > 0) {
+    if (ux === 'kiosk' && !kioskHasOwnKeyboard && state.isOpen && state.collection.size > 0) {
       const firstKey = state.collection.getFirstKey();
       if (firstKey && !state.selectionManager.focusedKey) {
         state.selectionManager.setFocusedKey(firstKey);
@@ -78,7 +81,8 @@ function Option({ item, state, index }) {
   // Scroll into view when focused
   React.useEffect(() => {
     if (isFocused && ref.current) {
-      ref.current.focus();
+      // Moving focus here would close the device's own keyboard.
+      if (!kioskHasOwnKeyboard) ref.current.focus();
       ref.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
   }, [isFocused]);
