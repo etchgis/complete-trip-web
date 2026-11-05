@@ -18,6 +18,7 @@ import { Popover } from './Popover';
 import { observer } from 'mobx-react-lite';
 import { useComboBoxState } from 'react-stately';
 import { useStore } from '../../context/RootStore';
+import { kioskHasOwnKeyboard } from '../../models/kiosk-layout';
 
 export { Item, Section } from 'react-stately';
 
@@ -89,6 +90,9 @@ export const Autocomplete = observer(props => {
     console.log('[autocomplete] clearing input with setKeyboardInputValue');
     ui.setKeyboardActiveInput(props.inputName);
     ui.setKeyboardInputValue('');
+    // Keep the field focused so the device's own keyboard stays open for the
+    // new address.
+    if (kioskHasOwnKeyboard) inputRef.current?.focus();
   };
 
   return (
@@ -122,6 +126,9 @@ export const Autocomplete = observer(props => {
             <IconButton
               aria-label="clear input"
               onClick={clearInput}
+              // On a device with its own keyboard, pressing the button must not
+              // take focus from the field, or the keyboard closes.
+              onMouseDown={kioskHasOwnKeyboard ? e => e.preventDefault() : undefined}
               icon={<CloseIcon />}
               size="sm"
               variant={'ghost'}
