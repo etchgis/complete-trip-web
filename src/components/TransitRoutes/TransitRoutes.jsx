@@ -677,6 +677,7 @@ const RouteList = observer(({ routeClickHandler, checkingShuttle = false }) => {
     vehicleId: config.PRESENCE.vehicleId,
     timeZone: config.PRESENCE.timeZone,
     getToken: getPresenceToken,
+    ridesEnabled: !!config.PRESENCE.ridesEnabled,
   });
 
   useAalShuttle({

@@ -32,9 +32,10 @@ const startOfDay = (now, timeZone) => {
  * @param {string} options.vehicleId
  * @param {string} options.timeZone the time zone of the service day
  * @param {Function} [options.getToken] resolves the signed in agent's token
+ * @param {boolean} [options.ridesEnabled] whether to read the marked rides
  * @returns {object} { loading, verdict, timeline, rides, signedIn, now }
  */
-const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
+const usePresence = ({ enabled, vehicleId, timeZone, getToken, ridesEnabled = false }) => {
   const [answer, setAnswer] = useState({
     loading: true,
     verdict: null,
@@ -58,6 +59,20 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
       }
     };
 
+    // The anonymous status. A vehicle that is not on the allowlist answers 404,
+    // which reads as "not listed" rather than as a failure.
+    const readPublic = async () => {
+      try {
+        return await presence.publicStatus(vehicleId);
+      } catch (e) {
+        if (e && e.status === 404) {
+          return { state: 'unknown', reason: 'not_listed', side: null };
+        }
+        console.warn('[presence] request failed', e);
+        return null;
+      }
+    };
+
     const tick = async () => {
       if (document.visibilityState === 'hidden') return;
       if (inFlight) {
@@ -68,10 +83,8 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
       try {
         const token = getToken ? await attempt(getToken) : null;
         const at = Date.now();
-        if (!token) {
-          // Not signed in: only the anonymous status is read, so nothing
-          // about the shift, the tablet or the rides is requested.
-          const pub = await attempt(() => presence.publicStatus(vehicleId));
+        const publicOnly = async () => {
+          const pub = await readPublic();
           if (canceled) return;
           const readAt = Date.now();
           setAnswer({
@@ -82,15 +95,26 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
             signedIn: false,
           });
           setNow(readAt);
+        };
+        if (!token) {
+          // Not signed in: only the anonymous status is read, so nothing
+          // about the shift, the tablet or the rides is requested.
+          await publicOnly();
           return;
         }
         const from = startOfDay(at, timeZone);
         const [verdict, timeline, rides] = await Promise.all([
           attempt(() => presence.verdict(vehicleId, token)),
           attempt(() => presence.timeline(vehicleId, from, at, token)),
-          attempt(() => presence.rides(vehicleId, token)),
+          ridesEnabled ? attempt(() => presence.rides(vehicleId, token)) : null,
         ]);
         if (canceled) return;
+        if (!verdict) {
+          // The token was not accepted or the read failed; the anonymous
+          // status still says whether the tablet is reporting.
+          await publicOnly();
+          return;
+        }
         const readAt = Date.now();
         setAnswer({
           loading: false,
@@ -111,7 +135,7 @@ const usePresence = ({ enabled, vehicleId, timeZone, getToken }) => {
       canceled = true;
       clearInterval(id);
     };
-  }, [enabled, vehicleId, timeZone, getToken]);
+  }, [enabled, vehicleId, timeZone, getToken, ridesEnabled]);
 
   return { ...answer, now };
 };

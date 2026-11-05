@@ -63,11 +63,39 @@ describe('usePresence', () => {
     verdict.mockResolvedValue({ state: 'live', evaluatedAt: Date.now() });
     timeline.mockRejectedValue(new Error('down'));
     rides.mockResolvedValue({ rides: [] });
-    const { result } = renderHook(() => usePresence(options()));
+    const { result } = renderHook(() => usePresence(options({ ridesEnabled: true })));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.verdict.state).toBe('live');
     expect(result.current.timeline).toBeNull();
     expect(result.current.rides).toEqual([]);
+  });
+
+  test('does not read the rides unless they are turned on', async () => {
+    verdict.mockResolvedValue({ state: 'live', evaluatedAt: Date.now() });
+    timeline.mockResolvedValue({ events: [] });
+    const { result } = renderHook(() => usePresence(options()));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(rides).not.toHaveBeenCalled();
+    expect(result.current.rides).toBeNull();
+  });
+
+  test('falls back to the anonymous status when the signed in read is refused', async () => {
+    verdict.mockRejectedValue(Object.assign(new Error('role may not read presence'), { status: 403 }));
+    timeline.mockRejectedValue(new Error('403'));
+    publicStatus.mockResolvedValue({ state: 'live', evaluatedAt: Date.now() });
+    const { result } = renderHook(() => usePresence(options()));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(publicStatus).toHaveBeenCalledWith('v1');
+    expect(result.current.verdict.state).toBe('live');
+    expect(result.current.signedIn).toBe(false);
+  });
+
+  test('reads a vehicle that is not on the allowlist as not listed', async () => {
+    publicStatus.mockRejectedValue(Object.assign(new Error('no status for this vehicle'), { status: 404 }));
+    const { result } = renderHook(() => usePresence(options({ getToken: () => null })));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.verdict.state).toBe('unknown');
+    expect(result.current.verdict.reason).toBe('not_listed');
   });
 
   test('sends the signed in agent token', async () => {
