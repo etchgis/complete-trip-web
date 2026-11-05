@@ -12,8 +12,8 @@ import useTranslation from '../../models/useTranslation';
 const VERDICT_BADGES = {
   loading: { key: 'stateChecking', colorScheme: 'gray' },
   running: { key: 'serviceRunning', colorScheme: 'green' },
-  // The shuttle is still on the feed but standing still, which is what a stop
-  // or a layover looks like. Worth saying, not worth alarming anyone over.
+  // The shuttle is still on the feed but its position is over a minute old.
+  // Worth saying, not worth alarming anyone over.
   'running-position-old': { key: 'serviceRunningPositionOld', colorScheme: 'blue' },
   // The schedule says the shuttle is out but it has dropped off the feed, so
   // the badge stops being the reassuring half of that on its own.
