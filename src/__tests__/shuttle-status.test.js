@@ -694,8 +694,7 @@ describe('deriveVerdict', () => {
   });
 
   test('a parked shuttle the feed still serves is not reported as lost', () => {
-    // The driver app sends nothing while the vehicle stands still, so every
-    // stop longer than a minute produces a stale position.
+    // A position more than a minute old that the feed still serves.
     const parked = deriveStatus({
       poll: poll({
         availability: readAvailability(available()),
@@ -787,6 +786,53 @@ describe('deriveVerdict', () => {
   });
 });
 
+describe('a service stopped for want of a driver', () => {
+  const noDriver = readAvailability({
+    isAvailable: false,
+    reason: 'service_alert',
+    activeAlert: { id: 'driver-off-duty-flex-1' },
+    todayHours: [{ start: '10:30', end: '14:30' }],
+  });
+
+  const positions = {
+    reporting: poll({ vehicle: readVehicle(feedWith(driverVehicle())) }),
+    'out-of-date': poll({
+      vehicle: readVehicle(feedWith(driverVehicle({ ageSeconds: 120 }))),
+    }),
+    'no-contact': poll({
+      vehicle: readVehicle(feedWith(driverVehicle({ ageSeconds: 600 }))),
+    }),
+    'off-duty': poll({
+      vehicle: readVehicle(
+        feedWith(driverVehicle({ ageSeconds: 30, onDuty: false }))
+      ),
+    }),
+    'no-report': poll({ vehicle: null }),
+    unreachable: poll({ vehicleFeedOk: false }),
+  };
+
+  test('reads the driver duty alert as the no-driver reason', () => {
+    expect(noDriver.running).toBe(false);
+    expect(noDriver.reason).toBe('no-driver');
+  });
+
+  Object.keys(positions).forEach(expected => {
+    test(`shows no driver on duty over a ${expected} position`, () => {
+      const status = deriveStatus({
+        poll: { ...positions[expected], availability: noDriver },
+        history: {},
+        now: NOW,
+      });
+      expect(status.position.state).toBe(expected);
+      expect(status.service.state).toBe('no-driver');
+      expect(deriveVerdict(status.service, status.position)).toEqual({
+        state: 'no-driver',
+        ageMs: null,
+      });
+    });
+  });
+});
+
 describe('the card copy', () => {
   const copy = genLocales().shuttleStatus;
 
@@ -797,6 +843,21 @@ describe('the card copy', () => {
 
   test('says the same things in both languages', () => {
     expect(Object.keys(copy.es).sort()).toEqual(Object.keys(copy.en).sort());
+  });
+
+  test('does not say a driver marked themselves off duty when none is on duty', () => {
+    expect(copy.en.serviceNoDriverDetail).toBe(
+      'The service is inside its hours, but no driver is on duty.'
+    );
+    expect(copy.es.serviceNoDriverDetail).not.toMatch(/fuera de servicio/);
+  });
+
+  test('says an out of date position may be lost signal, not a stop', () => {
+    expect(copy.en.positionOutOfDateDetail).toBe(
+      'The shuttle has not sent a new position for over a minute. It normally reports at least every 30 seconds, even when stopped, so it may have lost signal.'
+    );
+    expect(copy.es.positionOutOfDateDetail).toContain('30 segundos');
+    expect(copy.es.positionOutOfDateDetail).not.toMatch(/mientras est\u00e1 detenido/);
   });
 
   test('does not tell a Spanish speaking rider the shift is over', () => {
