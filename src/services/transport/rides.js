@@ -6,15 +6,20 @@ import config from '../../config';
 // with this key is still being processed, and a dropped connection or an
 // unreadable reply leaves the ride's outcome unknown; both are retryable
 // because the key lets the server dedupe the retry. Any other answer is a
-// definitive refusal.
+// definitive refusal. A refusal from the service gate also carries its `code`.
 export class RideRequestError extends Error {
-  constructor(message, { status = null, retryable = false } = {}) {
+  constructor(message, { status = null, retryable = false, code = null } = {}) {
     super(message);
     this.name = 'RideRequestError';
     this.status = status;
     this.retryable = retryable;
+    this.code = code;
   }
 }
+
+// 409 codes that mean the service refused the booking for good: no driver is on
+// duty, or the service is closed. They are not "still processing".
+export const GATE_REFUSAL_CODES = ['NO_DRIVER_ON_DUTY', 'SERVICE_CLOSED'];
 
 const rides = {
 
@@ -63,7 +68,16 @@ const rides = {
       // A 409 means a request with the same key is still being processed.
       // Retrying with that key resolves to its ride once it records, so the
       // caller is told to keep the key rather than treat this as a failure.
+      // A 409 with a gate refusal code is final instead: it carries the
+      // rider-facing message and the same key must not be retried.
       if (response.status === 409) {
+        const refusal = await response.json().catch(() => null);
+        if (GATE_REFUSAL_CODES.includes(refusal?.code)) {
+          throw new RideRequestError(refusal.message, {
+            status: 409,
+            code: refusal.code,
+          });
+        }
         throw new RideRequestError('ride request still processing', {
           status: 409,
           retryable: true,
