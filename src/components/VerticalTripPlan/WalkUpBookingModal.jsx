@@ -15,6 +15,7 @@ import { isWalkUpDemoActive } from '../../models/kiosk-walkup';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
 import config from '../../config';
 import DemoBanner, { DEMO_BANNER_HEIGHT } from './DemoBanner';
+import { BigKeyboardStyles, bigFormProps, getSizes } from './walkUpLayout';
 
 // Two minutes with no touch on any of these screens clears what was typed and
 // closes the form, so the next person at a shared device starts fresh.
@@ -74,15 +75,6 @@ export const formatPhone = digits => {
 
 export const isEmailShaped = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-const buttonSize = {
-  minH: isTabletKiosk ? '56px' : '64px',
-  fontSize: '20px',
-  w: '100%',
-  whiteSpace: 'normal',
-  h: 'auto',
-  py: 2,
-};
-
 // A check-screen row: the part before the first colon is bold.
 const Row = ({ text }) => {
   const i = text.indexOf(': ');
@@ -95,36 +87,50 @@ const Row = ({ text }) => {
   );
 };
 
-const ActionButton = ({ primary, ...props }) => (
-  <Button variant={primary ? 'brand' : 'outline'} type="button" {...buttonSize} {...props} />
-);
+const ActionButton = ({ primary, ...props }) => {
+  const sz = getSizes();
+  return (
+    <Button
+      variant={primary ? 'brand' : 'outline'}
+      type="button"
+      minH={sz.buttonH}
+      fontSize={sz.button}
+      w="100%"
+      whiteSpace="normal"
+      h="auto"
+      py={2}
+      {...props}
+    />
+  );
+};
 
 // A labeled text box with a hint and an error that screen readers can reach.
 const Field = ({ id, label, hint, error, inputRef, ...inputProps }) => {
   const { t } = useTranslation();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
+  const sz = getSizes();
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
   return (
-    <Box w="100%" mb={4}>
-      <Text as="label" htmlFor={id} display="block" fontSize="20px" fontWeight="bold" mb={1}>
+    <Box w="100%" mb={sz.fieldGap}>
+      <Text as="label" htmlFor={id} display="block" fontSize={sz.label} fontWeight="bold" mb={sz.big ? 2 : 1}>
         {label}
       </Text>
       <Input
         id={id}
         ref={inputRef}
         size="lg"
-        fontSize="20px"
-        minH={isTabletKiosk ? '56px' : '64px'}
+        fontSize={sz.input}
+        minH={sz.inputH}
         isInvalid={Boolean(error)}
         aria-describedby={describedBy || undefined}
         autoComplete="off"
         {...inputProps}
       />
-      {hint && <Text id={hintId} fontSize="18px" color="gray.700" mt={1}>{hint}</Text>}
+      {hint && <Text id={hintId} fontSize={sz.hint} color="gray.700" mt={sz.big ? 2 : 1}>{hint}</Text>}
       <Box id={errorId} role="alert" minH={error ? undefined : 0}>
         {error && (
-          <Text color="red.600" fontSize="lg" fontWeight="bold" mt={1}>
+          <Text color="red.600" fontSize={sz.error} fontWeight="bold" mt={sz.big ? 2 : 1}>
             <WarningIcon mr={2} aria-label={t('walkUp.error')} />
             {error}
           </Text>
@@ -496,7 +502,13 @@ const WalkUpBookingModal = observer(({
   const destination = trip?.request?.destination;
   const placeText = [kioskConfig?.displayName, kioskConfig?.pickupDescription].filter(Boolean).join(', ');
 
-  const tabletProps = isTabletKiosk
+  const sz = getSizes();
+  const bannerHeight = isWalkUpDemoActive() ? DEMO_BANNER_HEIGHT : 0;
+  // While the form is open on a large screen the on-screen keyboard is taller,
+  // so its keys are easy to hit, and the form fills the space above it.
+  const bigKeyboard = sz.big && usesKeyboardStore;
+
+  const compactProps = isTabletKiosk
     ? {
         position: 'fixed',
         top: 0,
@@ -505,7 +517,7 @@ const WalkUpBookingModal = observer(({
         h: TABLET_SCREEN_HEIGHT,
         w: '100%',
         paddingX: '24px',
-        paddingTop: `${56 + (isWalkUpDemoActive() ? DEMO_BANNER_HEIGHT : 0)}px`,
+        paddingTop: `${56 + bannerHeight}px`,
         paddingBottom: '16px',
         alignItems: 'flex-start',
         overflowY: 'auto',
@@ -528,6 +540,10 @@ const WalkUpBookingModal = observer(({
         borderRadius: 'md',
       };
 
+  const bigProps = bigFormProps(bannerHeight, bigKeyboard);
+
+  const tabletProps = sz.big ? bigProps : compactProps;
+
   const titles = {
     choose: t('walkUp.chooseTitle'),
     name: t('walkUp.nameTitle'),
@@ -539,7 +555,7 @@ const WalkUpBookingModal = observer(({
   };
 
   const heading = (
-    <Heading as="h2" id="walkup-heading" size="lg" ref={headingRef} tabIndex={-1} mb={3} sx={{ '&:focus, &:focus-visible': { outline: 'none !important', boxShadow: 'none !important' } }}>
+    <Heading as="h2" id="walkup-heading" size="lg" fontSize={sz.heading} lineHeight={sz.big ? 1.15 : undefined} ref={headingRef} tabIndex={-1} mb={sz.big ? 6 : 3} sx={{ '&:focus, &:focus-visible': { outline: 'none !important', boxShadow: 'none !important' } }}>
       {titles[step]}
     </Heading>
   );
@@ -554,15 +570,15 @@ const WalkUpBookingModal = observer(({
         return (
           <>
             {heading}
-            <Text fontSize="20px" mb={4}>{t('walkUp.chooseHint')}</Text>
-            <VStack spacing={4} w="100%">
-              <ActionButton primary onClick={() => setStep('name')} data-test-id="walkup-use-name">
+            <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.chooseHint')}</Text>
+            <VStack spacing={sz.big ? sz.gap + 2 : sz.gap} w="100%">
+              <ActionButton primary minH={sz.chooseH} onClick={() => setStep('name')} data-test-id="walkup-use-name">
                 <Box>
                   <Text>{t('walkUp.useNamePhone')}</Text>
-                  <Text fontSize="md" fontWeight="normal">{t('walkUp.noAccountNeeded')}</Text>
+                  <Text fontSize={sz.big ? sz.hint : 'md'} fontWeight="normal" mt={sz.big ? 2 : 0}>{t('walkUp.noAccountNeeded')}</Text>
                 </Box>
               </ActionButton>
-              <ActionButton onClick={() => { reset(); onChoosePin(); }} data-test-id="walkup-use-pin">{t('walkUp.havePin')}</ActionButton>
+              <ActionButton minH={sz.chooseH} onClick={() => { reset(); onChoosePin(); }} data-test-id="walkup-use-pin">{t('walkUp.havePin')}</ActionButton>
               <ActionButton variant="ghost" onClick={closeAll} data-test-id="walkup-back">{t('walkUp.back')}</ActionButton>
             </VStack>
           </>
@@ -574,11 +590,11 @@ const WalkUpBookingModal = observer(({
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitName(); } }}
           >
             {heading}
-            <Text fontSize="20px" mb={4}>{t('walkUp.nameHint')}</Text>
+            <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.nameHint')}</Text>
             <Field label={t('walkUp.firstName')} error={errors.first} {...fieldProps('first', { autoComplete: 'off' })} />
             <Field label={t('walkUp.lastName')} error={errors.last} {...fieldProps('last')} />
             <Field label={t('walkUp.phone')} hint={t('walkUp.phoneHint')} error={errors.phone} {...fieldProps('phone')} />
-            <VStack spacing={4} w="100%">
+            <VStack spacing={sz.gap} w="100%">
               <ActionButton primary onClick={submitName} data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
               <ActionButton onClick={() => setStep('choose')} data-test-id="walkup-back">{t('walkUp.back')}</ActionButton>
             </VStack>
@@ -591,9 +607,9 @@ const WalkUpBookingModal = observer(({
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitEmail(); } }}
           >
             {heading}
-            <Text fontSize="20px" mb={4}>{t('walkUp.appText')}</Text>
+            <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.appText')}</Text>
             <Field label={t('walkUp.email')} hint={t('walkUp.emailConsent')} error={errors.email} {...fieldProps('email')} />
-            <VStack spacing={4} w="100%">
+            <VStack spacing={sz.gap} w="100%">
               <ActionButton primary onClick={submitEmail} data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
               <ActionButton
                 onClick={() => { setField('email', ''); if (usesKeyboardStore) { setKeyboardActiveInput(KEYBOARD_NAMES.email); setKeyboardInputValue(''); } setErrors({}); goCheck(); }}
@@ -610,26 +626,26 @@ const WalkUpBookingModal = observer(({
         return (
           <Box w="100%">
             {heading}
-            <VStack align="stretch" spacing={2} fontSize="20px" mb={4}>
+            <VStack align="stretch" spacing={sz.rowGap} fontSize={sz.body} mb={sz.gap}>
               <Row text={t('walkUp.rowPickup', { place: placeText })} />
               <Row text={t('walkUp.rowGoingTo', { place: destination?.title || '' })} />
               <Row text={t('walkUp.rowName', { name: `${values.first.trim()} ${values.last.trim()}` })} />
               <Row text={t('walkUp.rowPhone', { phone: formatPhone(values.phone) })} />
               <Row text={email ? t('walkUp.rowAppSend', { email }) : t('walkUp.rowAppNo')} />
             </VStack>
-            <Text fontSize="20px" mb={4}>{t('walkUp.checkNote')}</Text>
-            <Box role="alert" aria-live="assertive" mb={3}>
+            <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.checkNote')}</Text>
+            <Box role="alert" aria-live="assertive" mb={sz.big ? 4 : 3}>
               {notice && (
-                <Text color="red.600" fontSize="lg" fontWeight="bold">
+                <Text color="red.600" fontSize={sz.error} fontWeight="bold">
                   <WarningIcon mr={2} aria-label={t('walkUp.error')} />
                   {notice}
                 </Text>
               )}
             </Box>
-            <Box role="status" aria-live="polite" fontSize="20px" fontWeight="bold" mb={3}>
+            <Box role="status" aria-live="polite" fontSize={sz.body} fontWeight="bold" mb={sz.big ? 4 : 3}>
               {calling ? t('walkUp.calling') : ''}
             </Box>
-            <VStack spacing={4} w="100%">
+            <VStack spacing={sz.gap} w="100%">
               <ActionButton primary onClick={callShuttle} isDisabled={calling} isLoading={calling} data-test-id="walkup-call">
                 {retryAnyway ? t('tripWizard.summonShuttleRetry') : t('walkUp.callShuttle')}
               </ActionButton>
@@ -644,8 +660,8 @@ const WalkUpBookingModal = observer(({
         return (
           <Box w="100%">
             {heading}
-            <Text role="alert" fontSize="20px" mb={6}>{gateText}</Text>
-            <VStack spacing={4} w="100%">
+            <Text role="alert" fontSize={sz.body} mb={sz.gap + 2}>{gateText}</Text>
+            <VStack spacing={sz.gap} w="100%">
               <ActionButton primary onClick={closeAll} data-test-id="walkup-other-ways">{t('walkUp.seeOtherWays')}</ActionButton>
               <ActionButton onClick={startOver} data-test-id="walkup-start-over">{t('walkUp.startOver')}</ActionButton>
             </VStack>
@@ -656,10 +672,10 @@ const WalkUpBookingModal = observer(({
         return (
           <Box w="100%">
             {heading}
-            <Box role="alert" mb={6}>
-              <Text fontSize="20px">{t(`walkUp.${text}`)}</Text>
+            <Box role="alert" mb={sz.gap + 2}>
+              <Text fontSize={sz.body}>{t(`walkUp.${text}`)}</Text>
               {problem === 'couldNot' && helpPhone?.display && (
-                <Text fontSize="20px" mt={3}>
+                <Text fontSize={sz.body} mt={sz.big ? 5 : 3}>
                   {t('walkUp.helpPhone')}{' '}
                   <Link
                     href={`tel:${helpPhone.tel}`}
@@ -668,8 +684,8 @@ const WalkUpBookingModal = observer(({
                     fontWeight="bold"
                     textDecoration="underline"
                     display="inline-block"
-                    minH={isTabletKiosk ? '56px' : '64px'}
-                    lineHeight={isTabletKiosk ? '56px' : '64px'}
+                    minH={sz.inputH}
+                    lineHeight={sz.inputH}
                     data-test-id="walkup-help-phone"
                   >
                     {helpPhone.display}
@@ -677,7 +693,7 @@ const WalkUpBookingModal = observer(({
                 </Text>
               )}
             </Box>
-            <VStack spacing={4} w="100%">
+            <VStack spacing={sz.gap} w="100%">
               {problem !== 'wait' && (
                 <ActionButton primary onClick={() => (problem === 'couldNot' ? setStep('name') : goCheck())} data-test-id="walkup-try-again">
                   {t('walkUp.tryAgain')}
@@ -696,6 +712,7 @@ const WalkUpBookingModal = observer(({
   return (
     <>
       <DemoBanner />
+      {bigKeyboard && <BigKeyboardStyles />}
       <Flex
         ref={dialogRef}
         role="dialog"
@@ -714,11 +731,12 @@ const WalkUpBookingModal = observer(({
           top={isWalkUpDemoActive() ? `${DEMO_BANNER_HEIGHT + 16}px` : 4}
           right={4}
           variant="ghost"
-          minW={isTabletKiosk ? '56px' : '64px'}
-          minH={isTabletKiosk ? '56px' : '64px'}
+          minW={sz.close}
+          minH={sz.close}
+          fontSize={sz.big ? '28px' : undefined}
           data-test-id="walkup-close"
         />
-        <Box w="100%" maxW="560px" mx="auto" mt={isTabletKiosk ? 6 : 0}>
+        <Box w="100%" maxW={sz.maxW} mx="auto" mt={sz.big ? 14 : isTabletKiosk ? 6 : 0}>
           {body()}
         </Box>
       </Flex>
