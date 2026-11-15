@@ -106,7 +106,7 @@ export const ConfirmDialogModal = ({
           </AlertDialogHeader>
 
           <AlertDialogBody tabIndex={0} py={6}>
-            <Text fontSize="md" color={useColorModeValue('gray.700', 'gray.300')}>
+            <Text fontSize="md" whiteSpace="pre-line" color={useColorModeValue('gray.700', 'gray.300')}>
               {message || 'Are you sure you want to proceed with this action?'}
             </Text>
             {verifyText ? (
