@@ -14,3 +14,11 @@ describe('delete account text', () => {
     expect(es.confirmDeleteMessage).toMatch(/no se puede deshacer/);
   });
 });
+
+describe('privacy contact', () => {
+  test('the privacy text uses the support address, not the placeholder', () => {
+    const { en } = genLocales().settingsPrivacy;
+    expect(en.content).toContain('support@etchgis.com');
+    expect(en.content).not.toContain('example.com');
+  });
+});

@@ -5,6 +5,7 @@ import {
   Divider,
   Heading,
   IconButton,
+  Link,
   List,
   ListItem,
   Stack,
@@ -361,7 +362,8 @@ export const PrivacyPolicy = () => {
           <Text>
             You have the right to access and control your personal information. You
             can request access to your information, update your information, or ask
-            us to delete it by contacting us at privacy@example.com.
+            us to delete it by contacting us at
+            <Link href="mailto:support@etchgis.com" textDecoration="underline">support@etchgis.com</Link>.
           </Text>
           <Text>
             You can also control the use of cookies and other technologies through
@@ -389,7 +391,8 @@ export const PrivacyPolicy = () => {
         </Heading>
         <Text>
           If you have any questions or concerns about this Privacy Policy or our
-          privacy practices, please contact us at privacy@example.com.
+          privacy practices, please contact us at
+          <Link href="mailto:support@etchgis.com" textDecoration="underline">support@etchgis.com</Link>.
         </Text>
       </Box>
     </Stack>

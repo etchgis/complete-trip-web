@@ -1294,7 +1294,7 @@ export default function genLocales() {
         
         Information Control
         
-        You have the right to access and control your personal information. You can request access to your information, update your information, or ask us to delete it by contacting us at privacy@example.com.
+        You have the right to access and control your personal information. You can request access to your information, update your information, or ask us to delete it by contacting us at support@etchgis.com.
         
         You can also control the use of cookies and other technologies through your browser settings.
         
@@ -1304,7 +1304,7 @@ export default function genLocales() {
         
         Contact Us
         
-        If you have any questions or concerns about this Privacy Policy or our privacy practices, please contact us at privacy@example.com.`,
+        If you have any questions or concerns about this Privacy Policy or our privacy practices, please contact us at support@etchgis.com.`,
       },
       es: {
         title: 'Política de Privacidad',
