@@ -103,6 +103,8 @@ const WalkUpBookingModal = observer(({
   onClose,
   onSuccess,
   onChoosePin,
+  // Kept so the caller can pass the same layout numbers it gives the PIN form.
+  // eslint-disable-next-line no-unused-vars
   kioskBottomHeight = 255,
   headerHeight = 60,
   requestTimeoutMs,
@@ -431,10 +433,12 @@ const WalkUpBookingModal = observer(({
       }
     : {
         position: 'absolute',
-        top: `${kioskBottomHeight + headerHeight + 20}px`,
+        // Taller than the PIN form so every screen fits without scrolling; it
+        // starts just under the header and the demo banner.
+        top: `${headerHeight + 10}px`,
         left: '50%',
-        transform: 'translate(-50%, -50%)',
-        h: '620px',
+        transform: 'translateX(-50%)',
+        h: '820px',
         w: '700px',
         paddingX: '40px',
         paddingTop: '70px',
@@ -455,7 +459,7 @@ const WalkUpBookingModal = observer(({
   };
 
   const heading = (
-    <Heading as="h2" size="lg" ref={headingRef} tabIndex={-1} mb={3} outline="none">
+    <Heading as="h2" id="walkup-heading" size="lg" ref={headingRef} tabIndex={-1} mb={3} _focus={{ outline: 'none' }} _focusVisible={{ outline: 'none' }}>
       {titles[step]}
     </Heading>
   );
@@ -597,7 +601,7 @@ const WalkUpBookingModal = observer(({
       <Flex
         role="dialog"
         aria-modal="true"
-        aria-label={titles[step]}
+        aria-labelledby="walkup-heading"
         background="white"
         zIndex={3}
         boxShadow="md"
@@ -608,7 +612,7 @@ const WalkUpBookingModal = observer(({
           aria-label={t('global.close')}
           icon={<CloseIcon />}
           pos="absolute"
-          top={4}
+          top={isWalkUpDemoActive() ? `${DEMO_BANNER_HEIGHT + 16}px` : 4}
           right={4}
           variant="ghost"
           minW={isTabletKiosk ? '56px' : '64px'}
