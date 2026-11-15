@@ -110,7 +110,7 @@ export const VerticalTripPlan = observer(
           extraLines={successLines}
         />
 
-        {ux === 'kiosk' &&
+        {ux === 'kiosk' && isWalkUpAvailable(getCurrentKioskConfig()) &&
           <WalkUpBookingModal
             isOpen={showWalkUp}
             onClose={() => setShowWalkUp(false)}

@@ -5,7 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import UIStore from '../context/UIStore';
 import { StoreProvider } from '../context/RootStore';
-import WalkUpBookingModal, { WALKUP_IDLE_MS } from '../components/VerticalTripPlan/WalkUpBookingModal';
+import WalkUpBookingModal, { WALKUP_IDLE_MS, clearPendingBooking } from '../components/VerticalTripPlan/WalkUpBookingModal';
 import { RideRequestError } from '../services/transport/rideRequestError';
 
 const requestWalkUp = vi.fn();
@@ -76,6 +76,7 @@ beforeEach(() => {
   onClose = vi.fn();
   onSuccess = vi.fn();
   onChoosePin = vi.fn();
+  clearPendingBooking();
   requestWalkUp.mockReset();
   verdict.mockReset();
   verdict.mockResolvedValue('available');
@@ -288,5 +289,80 @@ describe('idle', () => {
     click('Close');
     expect(onClose).toHaveBeenCalled();
     expect(store.uiStore.getKeyboardInputValue('walkUpFirst')).toBe('');
+  });
+});
+
+describe('booking key and leftovers', () => {
+  test('close and reopen after no answer reuses the key for the same details', async () => {
+    requestWalkUp.mockImplementationOnce(() => new Promise(() => {})).mockResolvedValueOnce({ id: 'r1' });
+    const view = renderModal({ requestTimeoutMs: 30 });
+    goToCheck();
+    click('Call the shuttle');
+    await screen.findByText(/could not confirm your ride/);
+    click('Close');
+    view.rerender(<div />);
+    cleanup();
+    renderModal({ requestTimeoutMs: 30 });
+    goToCheck();
+    click('Call the shuttle');
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(requestWalkUp.mock.calls[1][0].idempotencyKey).toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
+  });
+
+  test('different details get a new key', async () => {
+    requestWalkUp.mockRejectedValue(new RideRequestError('boom', { status: 503, retryable: true }));
+    renderModal();
+    goToCheck();
+    click('Call the shuttle');
+    await screen.findByText(/still being booked/);
+    click('Change something');
+    type('Last name', 'Perez');
+    click('Next');
+    click('Skip');
+    click(/Try again anyway|Call the shuttle/);
+    await waitFor(() => expect(requestWalkUp).toHaveBeenCalledTimes(2));
+    expect(requestWalkUp.mock.calls[1][0].idempotencyKey).not.toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
+  });
+
+  test('a definitive refusal clears the key', async () => {
+    requestWalkUp
+      .mockRejectedValueOnce(new RideRequestError('x', { status: 400 }))
+      .mockResolvedValueOnce({ id: 'r1' });
+    renderModal();
+    goToCheck();
+    click('Call the shuttle');
+    await screen.findByRole('heading', { name: 'We could not book this ride' });
+    click('Try again');
+    click('Next');
+    click('Skip');
+    click('Call the shuttle');
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(requestWalkUp.mock.calls[1][0].idempotencyKey).not.toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
+  });
+
+  test('a generic failure keeps the key', async () => {
+    requestWalkUp
+      .mockRejectedValueOnce(new RideRequestError('x', { status: 418 }))
+      .mockResolvedValueOnce({ id: 'r1' });
+    renderModal();
+    goToCheck();
+    click('Call the shuttle');
+    await screen.findByRole('heading', { name: 'Something went wrong' });
+    click('Try again');
+    click('Call the shuttle');
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(requestWalkUp.mock.calls[1][0].idempotencyKey).toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
+  });
+
+  test('I have a PIN wipes what was typed, including the keyboard store', () => {
+    renderModal();
+    goToNameScreen();
+    fillName();
+    expect(store.uiStore.getKeyboardInputValue('walkUpPhone')).toBe('7165550123');
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    click('I have a PIN');
+    expect(onChoosePin).toHaveBeenCalled();
+    expect(store.uiStore.getKeyboardInputValue('walkUpFirst')).toBe('');
+    expect(store.uiStore.getKeyboardInputValue('walkUpPhone')).toBe('');
   });
 });

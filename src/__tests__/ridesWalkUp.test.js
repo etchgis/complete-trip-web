@@ -50,6 +50,11 @@ describe('rides.requestWalkUp', () => {
     await expect(call()).rejects.toMatchObject({ status: 409, retryable: true });
   });
 
+  test('a 5xx may have booked, so it is retryable', async () => {
+    vi.stubGlobal('fetch', reply(504, {}));
+    await expect(call()).rejects.toMatchObject({ status: 504, retryable: true });
+  });
+
   test('without a credential nothing is sent', async () => {
     localStorage.clear();
     const fetchSpy = vi.fn();

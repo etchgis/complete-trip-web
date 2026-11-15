@@ -23,6 +23,35 @@ export const WALKUP_REQUEST_TIMEOUT_MS = 20000;
 
 const NO_ANSWER = Symbol('walk-up request did not answer');
 
+// How long a booking key is reused for the same rider and trip.
+export const BOOKING_KEY_MAX_AGE_MS = 10 * 60 * 1000;
+
+// The key of the last booking whose outcome is not known. It lives outside the
+// form on purpose: closing or idling the form wipes what was typed, but a rider
+// who comes back and books the same trip must still get the same key, or a ride
+// that was booked but never confirmed would be booked a second time. It holds a
+// one-way digest of the details, never the name or the phone number.
+let pendingBooking = null;
+
+export const clearPendingBooking = () => {
+  pendingBooking = null;
+};
+
+// A small one-way digest (cyrb53). It is not for security; it only lets us tell
+// whether two bookings are the same without keeping what was typed.
+const digest = text => {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+};
+
 const EMPTY = { first: '', last: '', phone: '', email: '' };
 
 // The names the on-screen keyboard stores each field under.
@@ -126,8 +155,7 @@ const WalkUpBookingModal = observer(({
   const headingRef = useRef(null);
   const fieldRefs = { first: useRef(null), last: useRef(null), phone: useRef(null), email: useRef(null) };
   const sessionRef = useRef(0);
-  const intentKeyRef = useRef(null);
-  const intentSigRef = useRef(null);
+  const dialogRef = useRef(null);
   const sendingRef = useRef(false);
   const idleTimerRef = useRef(null);
 
@@ -142,8 +170,6 @@ const WalkUpBookingModal = observer(({
 
   const reset = () => {
     sessionRef.current += 1;
-    intentKeyRef.current = null;
-    intentSigRef.current = null;
     setStep('choose');
     setValues(EMPTY);
     setErrors({});
@@ -204,6 +230,33 @@ const WalkUpBookingModal = observer(({
   useEffect(() => {
     if (isOpen && headingRef.current) headingRef.current.focus();
   }, [step, isOpen]);
+
+  // Keep Tab inside the form while it is open.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const trap = e => {
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+      const items = Array.from(
+        dialogRef.current.querySelectorAll('button, input, a[href], [tabindex]')
+      ).filter(el => !el.disabled && el.tabIndex >= 0);
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const current = document.activeElement;
+      if (!dialogRef.current.contains(current)) {
+        e.preventDefault();
+        first.focus();
+      } else if (e.shiftKey && (current === first || !items.includes(current))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && current === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  }, [isOpen]);
 
   // Idle timer.
   useEffect(() => {
@@ -287,18 +340,21 @@ const WalkUpBookingModal = observer(({
     setStep('check');
   };
 
+  // The booking key is dropped only when the server definitely refused the
+  // ride. Any other failure may have booked it, so the key stays for a retry.
   const showFailure = e => {
-    intentKeyRef.current = null;
-    intentSigRef.current = null;
     setRetryAnyway(false);
     setNotice(null);
     if (GATE_REFUSAL_CODES.includes(e?.code) && e.message) {
+      clearPendingBooking();
       setGateText(e.message);
       setStep('gate');
     } else if (e?.status === 429 || e?.code === 'TRY_LATER') {
+      clearPendingBooking();
       setProblem('wait');
       setStep('problem');
     } else if (e?.status === 400) {
+      clearPendingBooking();
       setProblem('couldNot');
       setStep('problem');
     } else {
@@ -309,8 +365,7 @@ const WalkUpBookingModal = observer(({
 
   const finishBooked = () => {
     const hasEmail = Boolean(values.email.trim());
-    intentKeyRef.current = null;
-    intentSigRef.current = null;
+    clearPendingBooking();
     reset();
     setKeyboardType('default');
     onSuccess({ hasEmail });
@@ -353,12 +408,14 @@ const WalkUpBookingModal = observer(({
       };
       // One key per booking. A retry of the same booking reuses it; a change to
       // who or where is a different booking and gets a new one.
-      const signature = JSON.stringify({ ...request, language: undefined });
-      if (!intentKeyRef.current || intentSigRef.current !== signature) {
-        intentKeyRef.current = uuidv4();
-        intentSigRef.current = signature;
+      const sig = digest(JSON.stringify([
+        request.firstName, request.lastName, request.phone, request.dropoff,
+      ]));
+      const now = Date.now();
+      if (!pendingBooking || pendingBooking.sig !== sig || now - pendingBooking.ts > BOOKING_KEY_MAX_AGE_MS) {
+        pendingBooking = { sig, key: uuidv4(), ts: now };
       }
-      request.idempotencyKey = intentKeyRef.current;
+      request.idempotencyKey = pendingBooking.key;
 
       let timedOut = false;
       let timer;
@@ -482,7 +539,7 @@ const WalkUpBookingModal = observer(({
                   <Text fontSize="md" fontWeight="normal">{t('walkUp.noAccountNeeded')}</Text>
                 </Box>
               </ActionButton>
-              <ActionButton onClick={onChoosePin} data-test-id="walkup-use-pin">{t('walkUp.havePin')}</ActionButton>
+              <ActionButton onClick={() => { reset(); onChoosePin(); }} data-test-id="walkup-use-pin">{t('walkUp.havePin')}</ActionButton>
               <ActionButton variant="ghost" onClick={closeAll} data-test-id="walkup-back">{t('walkUp.back')}</ActionButton>
             </VStack>
           </>
@@ -599,6 +656,7 @@ const WalkUpBookingModal = observer(({
     <>
       <DemoBanner />
       <Flex
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="walkup-heading"

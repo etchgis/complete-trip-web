@@ -130,6 +130,11 @@ const rides = {
       if (response.status === 401) {
         throw new RideRequestError('device not trusted', { status: 401, code: 'DEVICE_NOT_TRUSTED' });
       }
+      // A server error or gateway timeout may have come after the ride was
+      // created, so the caller keeps the same key and may retry.
+      if (response.status >= 500) {
+        throw new RideRequestError('ride request failed', { status: response.status, retryable: true });
+      }
       const json = await response.json().catch(() => null);
       throw new RideRequestError(json?.message || json?.error?.message, { status: response.status });
     }).catch((err) => {
