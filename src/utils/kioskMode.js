@@ -1,11 +1,18 @@
-// True when the address has ?mode=kiosk. Shared devices in stores are
-// stationary, so this is checked before anything asks for the device location.
-export const isKioskMode = () =>
-  new URLSearchParams(window.location.search).get('mode') === 'kiosk';
+const addressMode = () =>
+  new URLSearchParams(window.location.search).get('mode');
+
+// Remembered when the page loads, so moving to an address without the query
+// string does not turn a shared device back into a normal one.
+const loadedAsKiosk = addressMode() === 'kiosk';
+
+// True when the page was loaded with ?mode=kiosk, or the address has it now.
+// Shared devices in stores are stationary, so this is checked before anything
+// asks for the device location.
+export const isKioskMode = () => loadedAsKiosk || addressMode() === 'kiosk';
 
 // The starting screen mode, decided from the address so nothing renders in the
 // wrong mode while the page is starting up.
 export const initialUx = () => {
-  const mode = new URLSearchParams(window.location.search).get('mode');
-  return mode === 'kiosk' || mode === 'callcenter' ? mode : 'webapp';
+  if (isKioskMode()) return 'kiosk';
+  return addressMode() === 'callcenter' ? 'callcenter' : 'webapp';
 };
