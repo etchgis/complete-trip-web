@@ -340,6 +340,16 @@ const WalkUpBookingModal = observer(({
     setStep('check');
   };
 
+  // The steps are plain containers, not forms, because the trip plan around this
+  // modal is already inside a form, and a submit here would submit that one and
+  // reload the kiosk page. Next and the Enter key call these instead.
+  const submitName = () => {
+    if (checkName()) setStep('app');
+  };
+  const submitEmail = () => {
+    if (checkEmail()) goCheck();
+  };
+
   // The booking key is dropped only when the server definitely refused the
   // ride. Any other failure may have booked it, so the key stays for a retry.
   const showFailure = e => {
@@ -546,10 +556,9 @@ const WalkUpBookingModal = observer(({
         );
       case 'name':
         return (
-          <form
-            style={{ width: '100%' }}
-            noValidate
-            onSubmit={e => { e.preventDefault(); if (checkName()) setStep('app'); }}
+          <Box
+            w="100%"
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitName(); } }}
           >
             {heading}
             <Text fontSize="20px" mb={4}>{t('walkUp.nameHint')}</Text>
@@ -557,30 +566,29 @@ const WalkUpBookingModal = observer(({
             <Field label={t('walkUp.lastName')} error={errors.last} {...fieldProps('last')} />
             <Field label={t('walkUp.phone')} hint={t('walkUp.phoneHint')} error={errors.phone} {...fieldProps('phone')} />
             <VStack spacing={4} w="100%">
-              <ActionButton primary type="submit" data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
+              <ActionButton primary onClick={submitName} data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
               <ActionButton onClick={() => setStep('choose')} data-test-id="walkup-back">{t('walkUp.back')}</ActionButton>
             </VStack>
-          </form>
+          </Box>
         );
       case 'app':
         return (
-          <form
-            style={{ width: '100%' }}
-            noValidate
-            onSubmit={e => { e.preventDefault(); if (checkEmail()) goCheck(); }}
+          <Box
+            w="100%"
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitEmail(); } }}
           >
             {heading}
             <Text fontSize="20px" mb={4}>{t('walkUp.appText')}</Text>
             <Field label={t('walkUp.email')} hint={t('walkUp.emailConsent')} error={errors.email} {...fieldProps('email')} />
             <VStack spacing={4} w="100%">
-              <ActionButton primary type="submit" data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
+              <ActionButton primary onClick={submitEmail} data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
               <ActionButton
                 onClick={() => { setField('email', ''); if (usesKeyboardStore) { setKeyboardActiveInput(KEYBOARD_NAMES.email); setKeyboardInputValue(''); } setErrors({}); goCheck(); }}
                 data-test-id="walkup-skip"
               >{t('walkUp.skip')}</ActionButton>
               <ActionButton onClick={() => { setErrors({}); setStep('name'); }} data-test-id="walkup-back">{t('walkUp.back')}</ActionButton>
             </VStack>
-          </form>
+          </Box>
         );
       case 'check':
       case 'calling': {

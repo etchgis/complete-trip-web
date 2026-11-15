@@ -114,6 +114,18 @@ describe('name and phone', () => {
     expect(screen.getByLabelText('First name').getAttribute('aria-invalid')).toBe('true');
   });
 
+  test('the steps use no form, so Next cannot submit a form around the modal', () => {
+    const { container } = renderModal();
+    goToNameScreen();
+    expect(container.querySelector('form')).toBeNull();
+    type('First name', 'Maria');
+    type('Last name', 'Lopez');
+    type('Phone number', '7165550123');
+    fireEvent.keyDown(screen.getByLabelText('Phone number'), { key: 'Enter' });
+    expect(screen.getByText('Do you want the app?')).toBeTruthy();
+    expect(container.querySelector('form')).toBeNull();
+  });
+
   test('phone is digits only, at most 10, shown formatted', () => {
     renderModal();
     goToNameScreen();
