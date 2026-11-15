@@ -17,6 +17,9 @@ import { isWalkUpDemoActive } from '../../models/kiosk-walkup';
 import { DEMO_TIMEOUT_MS } from '../../services/transport/demoRides';
 import DemoBanner from './DemoBanner';
 
+// Large touch targets, used when the form is opened from the name and phone choice.
+const bigButton = { minH: isTabletKiosk ? '56px' : '64px', fontSize: '20px' };
+
 // How long the kiosk waits for the ride request before it stops waiting. The
 // request checks the rider's PIN, may book through the organization's booking
 // system and then creates the ride, so it is given longer than a read. Past
@@ -482,7 +485,7 @@ const ShuttleSummonModal = observer(({
           }}
         >{error}</Text>
         <VStack>
-          <Heading as="h2" size="md" tabIndex={-1}>{t('walkUp.pinTitle')}</Heading>
+          <Heading as="h2" size={onBack ? 'lg' : 'md'} tabIndex={-1} sx={{ '&:focus, &:focus-visible': { outline: 'none !important', boxShadow: 'none !important' } }}>{t('walkUp.pinTitle')}</Heading>
           <Text
             fontSize={'xl'}
             mb={'10px'}
@@ -569,6 +572,7 @@ const ShuttleSummonModal = observer(({
             variant={'brand'}
             width={'100%'}
             type='button'
+            {...(onBack ? bigButton : {})}
             onClick={handleSummonPress}
             isLoading={summoning}
             data-test-id="summon-shuttle-button"
@@ -583,6 +587,7 @@ const ShuttleSummonModal = observer(({
             <Button
               width={'100%'}
               type='button'
+              {...bigButton}
               onClick={onBack}
               data-test-id="summon-back-button"
             >

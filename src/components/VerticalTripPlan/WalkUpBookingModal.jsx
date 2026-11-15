@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Box, Button, Flex, Heading, IconButton, Input, Text, VStack
+  Box, Button, Flex, Heading, IconButton, Input, Link, Text, VStack
 } from '@chakra-ui/react';
 import { CloseIcon, WarningIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
@@ -83,6 +83,18 @@ const buttonSize = {
   py: 2,
 };
 
+// A check-screen row: the part before the first colon is bold.
+const Row = ({ text }) => {
+  const i = text.indexOf(': ');
+  if (i < 0) return <Text>{text}</Text>;
+  return (
+    <Text>
+      <Text as="span" fontWeight="bold">{text.slice(0, i + 1)}</Text>
+      {text.slice(i + 1)}
+    </Text>
+  );
+};
+
 const ActionButton = ({ primary, ...props }) => (
   <Button variant={primary ? 'brand' : 'outline'} type="button" {...buttonSize} {...props} />
 );
@@ -109,7 +121,7 @@ const Field = ({ id, label, hint, error, inputRef, ...inputProps }) => {
         autoComplete="off"
         {...inputProps}
       />
-      {hint && <Text id={hintId} fontSize="md" mt={1}>{hint}</Text>}
+      {hint && <Text id={hintId} fontSize="18px" color="gray.700" mt={1}>{hint}</Text>}
       <Box id={errorId} role="alert" minH={error ? undefined : 0}>
         {error && (
           <Text color="red.600" fontSize="lg" fontWeight="bold" mt={1}>
@@ -480,6 +492,7 @@ const WalkUpBookingModal = observer(({
   if (!isOpen) return null;
 
   const kioskConfig = getCurrentKioskConfig();
+  const helpPhone = config.CALL_CENTER_PHONE;
   const destination = trip?.request?.destination;
   const placeText = [kioskConfig?.displayName, kioskConfig?.pickupDescription].filter(Boolean).join(', ');
 
@@ -505,7 +518,7 @@ const WalkUpBookingModal = observer(({
         top: `${headerHeight + 10}px`,
         left: '50%',
         transform: 'translateX(-50%)',
-        h: '820px',
+        h: '700px',
         w: '700px',
         paddingX: '40px',
         paddingTop: '70px',
@@ -526,7 +539,7 @@ const WalkUpBookingModal = observer(({
   };
 
   const heading = (
-    <Heading as="h2" id="walkup-heading" size="lg" ref={headingRef} tabIndex={-1} mb={3} _focus={{ outline: 'none' }} _focusVisible={{ outline: 'none' }}>
+    <Heading as="h2" id="walkup-heading" size="lg" ref={headingRef} tabIndex={-1} mb={3} sx={{ '&:focus, &:focus-visible': { outline: 'none !important', boxShadow: 'none !important' } }}>
       {titles[step]}
     </Heading>
   );
@@ -598,11 +611,11 @@ const WalkUpBookingModal = observer(({
           <Box w="100%">
             {heading}
             <VStack align="stretch" spacing={2} fontSize="20px" mb={4}>
-              <Text>{t('walkUp.rowPickup', { place: placeText })}</Text>
-              <Text>{t('walkUp.rowGoingTo', { place: destination?.title || '' })}</Text>
-              <Text>{t('walkUp.rowName', { name: `${values.first.trim()} ${values.last.trim()}` })}</Text>
-              <Text>{t('walkUp.rowPhone', { phone: formatPhone(values.phone) })}</Text>
-              <Text>{email ? t('walkUp.rowAppSend', { email }) : t('walkUp.rowAppNo')}</Text>
+              <Row text={t('walkUp.rowPickup', { place: placeText })} />
+              <Row text={t('walkUp.rowGoingTo', { place: destination?.title || '' })} />
+              <Row text={t('walkUp.rowName', { name: `${values.first.trim()} ${values.last.trim()}` })} />
+              <Row text={t('walkUp.rowPhone', { phone: formatPhone(values.phone) })} />
+              <Row text={email ? t('walkUp.rowAppSend', { email }) : t('walkUp.rowAppNo')} />
             </VStack>
             <Text fontSize="20px" mb={4}>{t('walkUp.checkNote')}</Text>
             <Box role="alert" aria-live="assertive" mb={3}>
@@ -643,7 +656,27 @@ const WalkUpBookingModal = observer(({
         return (
           <Box w="100%">
             {heading}
-            <Text role="alert" fontSize="20px" mb={6}>{t(`walkUp.${text}`)}</Text>
+            <Box role="alert" mb={6}>
+              <Text fontSize="20px">{t(`walkUp.${text}`)}</Text>
+              {problem === 'couldNot' && helpPhone?.display && (
+                <Text fontSize="20px" mt={3}>
+                  {t('walkUp.helpPhone')}{' '}
+                  <Link
+                    href={`tel:${helpPhone.tel}`}
+                    aria-label={t('walkUp.helpPhoneLabel', { phone: helpPhone.display })}
+                    color="blue.700"
+                    fontWeight="bold"
+                    textDecoration="underline"
+                    display="inline-block"
+                    minH={isTabletKiosk ? '56px' : '64px'}
+                    lineHeight={isTabletKiosk ? '56px' : '64px'}
+                    data-test-id="walkup-help-phone"
+                  >
+                    {helpPhone.display}
+                  </Link>
+                </Text>
+              )}
+            </Box>
             <VStack spacing={4} w="100%">
               {problem !== 'wait' && (
                 <ActionButton primary onClick={() => (problem === 'couldNot' ? setStep('name') : goCheck())} data-test-id="walkup-try-again">
@@ -685,7 +718,7 @@ const WalkUpBookingModal = observer(({
           minH={isTabletKiosk ? '56px' : '64px'}
           data-test-id="walkup-close"
         />
-        <Box w="100%" maxW="560px" m="auto" mt={isTabletKiosk ? 'auto' : 0}>
+        <Box w="100%" maxW="560px" mx="auto" mt={isTabletKiosk ? 6 : 0}>
           {body()}
         </Box>
       </Flex>

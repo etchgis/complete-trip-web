@@ -5,6 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import UIStore from '../context/UIStore';
 import { StoreProvider } from '../context/RootStore';
+import config from '../config';
 import WalkUpBookingModal, { WALKUP_IDLE_MS, clearPendingBooking } from '../components/VerticalTripPlan/WalkUpBookingModal';
 import { RideRequestError } from '../services/transport/rideRequestError';
 
@@ -54,6 +55,8 @@ const renderModal = (props = {}) =>
 
 const type = (label, value) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
+// A check-screen row has a bold label and the value in separate elements.
+const rowText = text => screen.getByText((_, el) => el.tagName === 'P' && el.textContent === text);
 const click = name => fireEvent.click(screen.getByRole('button', { name }));
 
 const goToNameScreen = () => click(/Use my name and phone number/);
@@ -151,7 +154,7 @@ describe('email', () => {
     click('Next');
     expect(screen.getByRole('heading', { name: 'Do you want the app?' })).toBeTruthy();
     click('Skip');
-    expect(screen.getByText('App link: No')).toBeTruthy();
+    expect(rowText('App link: No')).toBeTruthy();
   });
 
   test('a bad email shows an error', () => {
@@ -171,7 +174,7 @@ describe('email', () => {
     click('Next');
     type(/Email/, 'ana@example.com');
     click('Next');
-    expect(screen.getByText('App link: Send to ana@example.com')).toBeTruthy();
+    expect(rowText('App link: Send to ana@example.com')).toBeTruthy();
   });
 });
 
@@ -179,9 +182,9 @@ describe('check screen', () => {
   test('repeats what was typed with a formatted phone', () => {
     renderModal();
     goToCheck();
-    expect(screen.getByText('Name: Ana Diaz')).toBeTruthy();
-    expect(screen.getByText('Phone: (716) 555-0123')).toBeTruthy();
-    expect(screen.getByText('Going to: Tops')).toBeTruthy();
+    expect(rowText('Name: Ana Diaz')).toBeTruthy();
+    expect(rowText('Phone: (716) 555-0123')).toBeTruthy();
+    expect(rowText('Going to: Tops')).toBeTruthy();
   });
 });
 
@@ -217,6 +220,40 @@ describe('calling the shuttle', () => {
     goToCheck();
     click('Call the shuttle');
     expect(await screen.findByRole('heading', { name: 'We could not book this ride' })).toBeTruthy();
+  });
+
+  test('the could-not-book screen has a tap-to-call link for the Call Center', async () => {
+    requestWalkUp.mockRejectedValue(new RideRequestError('invalid pin', { status: 400 }));
+    renderModal();
+    goToCheck();
+    click('Call the shuttle');
+    const link = await screen.findByRole('link', { name: 'Call the Call Center at 716-888-4600' });
+    expect(link.getAttribute('href')).toBe('tel:+17168884600');
+    expect(link.textContent).toBe('716-888-4600');
+  });
+
+  test('the phone line is left out when no number is set', async () => {
+    const saved = config.CALL_CENTER_PHONE;
+    config.CALL_CENTER_PHONE = { display: '', tel: '' };
+    try {
+      requestWalkUp.mockRejectedValue(new RideRequestError('invalid pin', { status: 400 }));
+      renderModal();
+      goToCheck();
+      click('Call the shuttle');
+      await screen.findByRole('heading', { name: 'We could not book this ride' });
+      expect(screen.queryByRole('link')).toBeNull();
+    } finally {
+      config.CALL_CENTER_PHONE = saved;
+    }
+  });
+
+  test('the phone line is only on the could-not-book screen', async () => {
+    requestWalkUp.mockRejectedValue(new RideRequestError('too many', { status: 429, code: 'TRY_LATER' }));
+    renderModal();
+    goToCheck();
+    click('Call the shuttle');
+    await screen.findByRole('heading', { name: 'Please wait' });
+    expect(screen.queryByRole('link')).toBeNull();
   });
 
   test('a 429 shows Please wait', async () => {

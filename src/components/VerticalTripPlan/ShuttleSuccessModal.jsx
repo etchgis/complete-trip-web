@@ -3,6 +3,8 @@ import {
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
+import DemoBanner from './DemoBanner';
+import { isWalkUpDemoActive } from '../../models/kiosk-walkup';
 import useTranslation from '../../models/useTranslation';
 import { TABLET_SCREEN_HEIGHT, isTabletKiosk } from '../../models/kiosk-layout';
 
@@ -34,8 +36,9 @@ const ShuttleSuccessModal = observer(({
       alignItems="center"
       justifyContent="center"
       zIndex={9999}
-      paddingTop={isTabletKiosk ? 0 : '10vh'}
+      paddingTop={isTabletKiosk ? (isWalkUpDemoActive() ? '56px' : 0) : '10vh'}
     >
+      <DemoBanner />
       {/* Modal Backdrop */}
       <Box
         position="fixed"
@@ -58,7 +61,7 @@ const ShuttleSuccessModal = observer(({
         position="relative"
         zIndex={10000}
         overflow={isTabletKiosk ? 'auto' : 'hidden'}
-        maxH={isTabletKiosk ? `calc(${TABLET_SCREEN_HEIGHT} - 16px)` : undefined}
+        maxH={isTabletKiosk ? `calc(${TABLET_SCREEN_HEIGHT} - ${isWalkUpDemoActive() ? 72 : 16}px)` : undefined}
       >
         {/* Header */}
         <Flex 
@@ -132,7 +135,7 @@ const ShuttleSuccessModal = observer(({
           borderTopColor="gray.200"
           justifyContent="flex-end"
         >
-          <Button colorScheme="blue" onClick={onClose}>
+          <Button colorScheme="blue" onClick={onClose} minH={isTabletKiosk ? '56px' : undefined} fontSize={isTabletKiosk ? '20px' : undefined}>
             {t('global.close')}
           </Button>
         </Flex>
