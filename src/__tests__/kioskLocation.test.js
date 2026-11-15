@@ -6,13 +6,14 @@ const getCurrentPosition = vi.fn((ok) =>
   ok({ coords: { latitude: 1, longitude: 2, accuracy: 3 } })
 );
 
-const openAddress = search => window.history.replaceState({}, '', `/${search}`);
+const openAddress = (search, path = '/') =>
+  window.history.replaceState({}, '', `${path}${search}`);
 
 describe('location lookup and mode', () => {
   // The mode is remembered when the module loads, so each test loads it fresh.
   let getLocation, initialUx, isKioskMode;
-  const load = async search => {
-    openAddress(search);
+  const load = async (search, path) => {
+    openAddress(search, path);
     vi.resetModules();
     ({ getLocation } = await import('../utils/getLocation'));
     ({ initialUx, isKioskMode } = await import('../utils/kioskMode'));
@@ -57,5 +58,11 @@ describe('location lookup and mode', () => {
     expect(initialUx()).toBe('callcenter');
     await load('');
     expect(initialUx()).toBe('webapp');
+  });
+
+  test('the call center route starts in call center mode with no query', async () => {
+    await load('', '/callcenter');
+    expect(initialUx()).toBe('callcenter');
+    expect(isKioskMode()).toBe(false);
   });
 });

@@ -14,5 +14,8 @@ export const isKioskMode = () => loadedAsKiosk || addressMode() === 'kiosk';
 // wrong mode while the page is starting up.
 export const initialUx = () => {
   if (isKioskMode()) return 'kiosk';
-  return addressMode() === 'callcenter' ? 'callcenter' : 'webapp';
+  const callcenterPath = window.location.pathname.startsWith('/callcenter');
+  return callcenterPath || addressMode() === 'callcenter'
+    ? 'callcenter'
+    : 'webapp';
 };

@@ -22,6 +22,7 @@ import config from '../config.js';
 import { useState } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 import { PublicTerms, PublicPrivacy } from './PublicLegal.jsx';
+import { initialUx } from '../utils/kioskMode';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -40,9 +41,9 @@ export const Routes = observer(() => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
-    const { debug, mode } = params;
+    const { debug } = params;
     if (debug) setDebugMode(debug === 'true' ? true : false);
-    setUX(mode === 'kiosk' ? 'kiosk' : mode === 'callcenter' ? 'callcenter' : 'webapp');
+    setUX(initialUx());
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
