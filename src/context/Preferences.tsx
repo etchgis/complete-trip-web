@@ -96,11 +96,12 @@ class Preferences implements PreferencesType {
 
   updateProfile = () => {
     const profile = this.rootStore.authentication?.user?.profile;
+    // Start from the stored preferences so a setting this screen does not manage
+    // (such as the booking PIN) is sent back unchanged instead of being dropped.
     const update = {
       ...profile,
-      preferences: this.getAll(),
+      preferences: { ...profile?.preferences, ...this.getAll() },
     };
-    console.log('{preferences.updateProfile}', update);
     this.rootStore.authentication.updateUserProfile(update);
   };
 
