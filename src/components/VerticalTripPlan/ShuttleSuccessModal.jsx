@@ -15,7 +15,9 @@ const ShuttleSuccessModal = observer(({
   successMessage, 
   kioskInfo, 
   timerStarted, 
-  secondsLeft 
+  secondsLeft,
+  // Optional extra sentences shown under the success message.
+  extraLines = []
 }) => {
   const { t } = useTranslation();
 
@@ -87,6 +89,10 @@ const ShuttleSuccessModal = observer(({
             >
               {successMessage}
             </Text>
+
+            {extraLines.map(line => (
+              <Text key={line} fontSize="lg" textAlign="center">{line}</Text>
+            ))}
 
             {kioskInfo && (
               <VStack spacing={4} align="center" padding="15px" border="1px solid #e2e8f0" borderRadius="md" background="#f8f9fa" width="100%">

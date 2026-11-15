@@ -1,6 +1,6 @@
 import {
   Box, Button, Center, Flex, FormControl, FormLabel,
-  IconButton, Input, Text, VStack
+  Heading, IconButton, Input, Text, VStack
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
@@ -13,6 +13,9 @@ import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 import { TABLET_SCREEN_HEIGHT, isTabletKiosk, kioskHasOwnKeyboard } from '../../models/kiosk-layout';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
 import config from '../../config';
+import { isWalkUpDemoActive } from '../../models/kiosk-walkup';
+import { DEMO_TIMEOUT_MS } from '../../services/transport/demoRides';
+import DemoBanner from './DemoBanner';
 
 // How long the kiosk waits for the ride request before it stops waiting. The
 // request checks the rider's PIN, may book through the organization's booking
@@ -62,7 +65,9 @@ const ShuttleSummonModal = observer(({
   setError,
   // How long to wait for the ride request. A caller only sets this to make a
   // slow booking happen on demand.
-  requestTimeoutMs = RIDE_REQUEST_TIMEOUT_MS
+  requestTimeoutMs = isWalkUpDemoActive() ? DEMO_TIMEOUT_MS : RIDE_REQUEST_TIMEOUT_MS,
+  // Optional. When given, a Back button returns to the screen that opened this form.
+  onBack
 }) => {
   const { ux, activeInput, setKeyboardActiveInput, setKeyboardInputValue, getKeyboardInputValue, onScreenKeyboardInput, setKeyboardType } = useStore().uiStore;
   const { trip } = useStore();
@@ -347,6 +352,11 @@ const ShuttleSummonModal = observer(({
         }
 
         // Add the close button to focusable elements
+        const backButton = document.querySelector('[data-test-id="summon-back-button"]');
+        if (backButton) {
+          focusableElements.push(backButton);
+        }
+
         const closeButton = document.querySelector('[data-test-id="shuttle-modal-close"]');
         if (closeButton) {
           focusableElements.push(closeButton);
@@ -429,6 +439,8 @@ const ShuttleSummonModal = observer(({
     : {};
 
   return (
+    <>
+    <DemoBanner />
     <Flex
       background={'white'}
       position={'absolute'}
@@ -436,7 +448,7 @@ const ShuttleSummonModal = observer(({
       top={`${kioskBottomHeight + headerHeight + 20}px`}
       left="50%"
       transform="translate(-50%, -50%)"
-      h="500px"
+      h="560px"
       w="700px"
       paddingX={'40px'}
       paddingTop={'110px'}
@@ -459,6 +471,7 @@ const ShuttleSummonModal = observer(({
       />
       <Box w={isTabletKiosk ? '100%' : undefined} maxW={isTabletKiosk ? '500px' : undefined} m={isTabletKiosk ? 'auto' : undefined}>
         <Text
+          role="alert"
           style={isTabletKiosk ? { textAlign: 'center', color: 'red', marginBottom: '8px' } : {
             position: 'absolute',
             top: '40px',
@@ -469,6 +482,7 @@ const ShuttleSummonModal = observer(({
           }}
         >{error}</Text>
         <VStack>
+          <Heading as="h2" size="md" tabIndex={-1}>{t('walkUp.pinTitle')}</Heading>
           <Text
             fontSize={'xl'}
             mb={'10px'}
@@ -503,6 +517,7 @@ const ShuttleSummonModal = observer(({
                 w={'82px'}
                 letterSpacing={'10px'}
                 name="areaCode"
+                aria-label={t('walkUp.areaCode')}
                 inputName="areaCode"
                 ref={areaCodeRef}
                 onFocus={() => {
@@ -519,6 +534,7 @@ const ShuttleSummonModal = observer(({
                 w={'82px'}
                 letterSpacing={'10px'}
                 name="phone1"
+                aria-label={t('walkUp.phoneFirst')}
                 inputName="phone1"
                 ref={phone1Ref}
                 onFocus={() => {
@@ -535,6 +551,7 @@ const ShuttleSummonModal = observer(({
                 w={'100px'}
                 letterSpacing={'10px'}
                 name="phone2"
+                aria-label={t('walkUp.phoneLast')}
                 inputName="phone2"
                 ref={phone2Ref}
                 onFocus={() => {
@@ -562,9 +579,20 @@ const ShuttleSummonModal = observer(({
                 : 'tripWizard.summonShuttle'
             )}
           </Button>
+          {onBack && (
+            <Button
+              width={'100%'}
+              type='button'
+              onClick={onBack}
+              data-test-id="summon-back-button"
+            >
+              {t('walkUp.back')}
+            </Button>
+          )}
         </VStack>
       </Box>
     </Flex>
+    </>
   );
 });
 
