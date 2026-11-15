@@ -176,8 +176,9 @@ export const Routes = observer(() => {
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
-      <Route path={'/:url(/+)'} element={<Navigate to={'/map'} />} />
-      <Route path={'/'} element={<Navigate to={'/map'} />} />
+      {/* Redirects to the map keep the address options, such as ?mode=kiosk. */}
+      <Route path={'/:url(/+)'} element={<Navigate to={`/map${window.location.search}`} />} />
+      <Route path={'/'} element={<Navigate to={`/map${window.location.search}`} />} />
 
       {/* STYLE GUIDE */}
       <Route
@@ -290,7 +291,7 @@ export const Routes = observer(() => {
           />
           <Route path={'/trips'} element={<Layout children={<Login />} />} /> */}
           <Route path="/settings/*" element={<Layout children={<Login />} />} />
-          <Route path="*" element={<Navigate to="/map" />} />
+          <Route path="*" element={<Navigate to={`/map${window.location.search}`} />} />
         </>
       )}
     </ReactRoutes>

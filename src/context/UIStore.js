@@ -1,6 +1,7 @@
 import { PersistStoreMap, makePersistable } from 'mobx-persist-store';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { set } from 'lodash';
+import { initialUx } from '../utils/kioskMode';
 
 class UIStore {
   mode = 'light';
@@ -9,7 +10,7 @@ class UIStore {
   toastStatus = '';
   toastTitle = '';
   debug = false;
-  ux = 'webapp'; //kiosk, webapp, callcenter
+  ux = initialUx(); //kiosk, webapp, callcenter
   onScreenKeyboardInput = {
     transitSearch: '',
     startAddress: '',
@@ -45,7 +46,8 @@ class UIStore {
     )
       makePersistable(this, {
         name: 'UIStore',
-        properties: ['mode', 'debug', 'ui', 'ux'],
+        // ux is not saved: it always comes from the address, so a saved value cannot override it.
+        properties: ['mode', 'debug', 'ui'],
         storage: localStorage,
       });
   }

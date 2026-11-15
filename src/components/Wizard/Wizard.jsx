@@ -31,6 +31,7 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { toJS } from 'mobx';
+import { isKioskMode } from '../../utils/kioskMode';
 
 export const Wizard = observer(({ hideModal }) => {
   const { loggedIn, reset } = useStore().authentication;
@@ -337,6 +338,7 @@ const HomeAddress = observer(({ index }) => {
       console.log(error);
     };
 
+    if (isKioskMode()) return;
     navigator.geolocation.getCurrentPosition(success, error, {
       enableHighAccuracy: true,
       timeout: 10000,

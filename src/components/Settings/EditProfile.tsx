@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { Coordinates } from '../../types/UserProfile';
+import { isKioskMode } from '../../utils/kioskMode';
 
 interface EditProfileProps {
   onClose: () => void;
@@ -49,6 +50,7 @@ export const EditProfile: React.FC<EditProfileProps> = ({ onClose }) => {
       console.log(error);
     };
 
+    if (isKioskMode()) return;
     navigator.geolocation.getCurrentPosition(success, error, {
       enableHighAccuracy: true,
       timeout: 10000,
