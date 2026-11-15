@@ -75,7 +75,7 @@ const Field = ({ id, label, hint, error, inputRef, ...inputProps }) => {
         size="lg"
         fontSize="20px"
         minH={isTabletKiosk ? '56px' : '64px'}
-        aria-invalid={error ? 'true' : undefined}
+        isInvalid={Boolean(error)}
         aria-describedby={describedBy || undefined}
         autoComplete="off"
         {...inputProps}
