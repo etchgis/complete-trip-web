@@ -15,6 +15,7 @@ import {
 import { useRef, useState } from 'react';
 import { WarningIcon, InfoIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import useTranslation from '../../models/useTranslation';
+import { phraseMatches } from '../../utils/phraseMatch';
 
 const iconMap = {
   warning: WarningIcon,
@@ -57,7 +58,7 @@ export const ConfirmDialogModal = ({
   const IconComponent = iconMap[iconType] || WarningIcon;
 
   const handleConfirm = () => {
-    if (verifyText && text.toLowerCase() !== verifyText.toLowerCase()) {
+    if (verifyText && !phraseMatches(text, verifyText)) {
       return;
     }
     onConfirm();
@@ -119,19 +120,19 @@ export const ConfirmDialogModal = ({
                   placeholder={verifyText}
                   onChange={e => setText(e.target.value)}
                   borderColor={
-                    text && text.toLowerCase() !== verifyText.toLowerCase()
+                    text && !phraseMatches(text, verifyText)
                       ? 'red.300'
-                      : text.toLowerCase() === verifyText.toLowerCase()
+                      : phraseMatches(text, verifyText)
                       ? 'green.300'
                       : 'gray.300'
                   }
                   focusBorderColor={
-                    text.toLowerCase() === verifyText.toLowerCase()
+                    phraseMatches(text, verifyText)
                       ? 'green.500'
                       : 'blue.500'
                   }
                   _hover={{
-                    borderColor: text && text.toLowerCase() !== verifyText.toLowerCase()
+                    borderColor: text && !phraseMatches(text, verifyText)
                       ? 'red.400'
                       : 'gray.400',
                   }}
@@ -155,7 +156,7 @@ export const ConfirmDialogModal = ({
               isLoading={isLoading}
               loadingText="Processing..."
               isDisabled={
-                verifyText && text.toLowerCase() !== verifyText?.toLowerCase()
+                verifyText && !phraseMatches(text, verifyText)
               }
               _hover={{
                 transform: 'translateY(-1px)',

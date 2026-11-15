@@ -1019,6 +1019,8 @@ export default function genLocales() {
         editProfile: 'Edit Profile',
         deleteAccount: 'Delete Account',
         deleteMyAccount: 'Delete My Account',
+        deletePhrase: 'DELETE MY ACCOUNT',
+        deletePhraseMessage: "Type 'DELETE MY ACCOUNT'",
         confirmDeleteMessage:
           'This removes your sign-in account. You will need to make a new account to use the app again.\n\nThe transit agency keeps your rider profile (name, phone, address, and trip settings), your rides, and your planned trips. Agency staff can still see them. To ask the agency to delete them, contact the agency.\n\nThis cannot be undone.',
         homeAddress: 'Home Address',
@@ -1028,6 +1030,8 @@ export default function genLocales() {
         editProfile: 'Editar Perfil',
         deleteAccount: 'Eliminar cuenta',
         deleteMyAccount: 'Eliminar mi cuenta',
+        deletePhrase: 'ELIMINAR MI CUENTA',
+        deletePhraseMessage: "Escribe 'ELIMINAR MI CUENTA'",
         confirmDeleteMessage:
           'Esto elimina tu cuenta de acceso. Tendrás que crear una cuenta nueva para volver a usar la aplicación.\n\nLa agencia de transporte conserva tu perfil de pasajero (nombre, teléfono, dirección y preferencias de viaje), tus viajes y tus viajes planeados. El personal de la agencia todavía puede verlos. Para pedir que la agencia los elimine, comunícate con la agencia.\n\nEsto no se puede deshacer.',
         homeAddress: 'Dirección del hogar', //✅

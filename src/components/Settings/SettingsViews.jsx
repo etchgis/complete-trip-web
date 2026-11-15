@@ -69,8 +69,8 @@ export const ProfileInformation = observer(({ action }) => {
           maxWidth={'200px'}
           confirmFn={deleteFn}
           buttonText={t('settingsProfile.deleteAccount')}
-          verifyText="DELETE MY ACCOUNT"
-          verifyMessage={"Type 'DELETE MY ACCOUNT'"}
+          verifyText={t('settingsProfile.deletePhrase')}
+          verifyMessage={t('settingsProfile.deletePhraseMessage')}
           message={t('settingsProfile.confirmDeleteMessage')}
         />
       </Stack>
