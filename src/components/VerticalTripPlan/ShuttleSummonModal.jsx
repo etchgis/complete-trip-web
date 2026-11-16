@@ -30,6 +30,8 @@ const NO_ANSWER = Symbol('ride request did not answer');
 export const requestErrorMessage = (t, e) => {
   // A gate refusal carries text written for the rider, so it is shown as is.
   if (GATE_REFUSAL_CODES.includes(e?.code) && e.message) return e.message;
+  // The rides service answers 429 when a phone or an address has made too many tries.
+  if (e?.status === 429) return t('tripWizard.popUpTooManyTries');
   const message = typeof e === 'string' ? e : e?.message;
   return message === 'invalid pin' || message === 'user not found for this phone number'
     ? t('tripWizard.popUpError')

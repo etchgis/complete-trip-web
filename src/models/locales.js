@@ -811,6 +811,7 @@ export default function genLocales() {
         popUpPhone: "Phone",
         popUpError: "You must provide a valid PIN and phone number.",
         popUpUnknownError: "An unknown error occurred. Please try again.",
+        popUpTooManyTries: "Too many tries. Please wait and try again later.",
         rideUnconfirmed:
           "We couldn't confirm your ride was booked. Please check before trying again.",
         rideProcessing:
@@ -883,6 +884,7 @@ export default function genLocales() {
         popUpPhone: "Teléfono", //✅
         popUpError: "Debe proporcionar un PIN válido y un número de teléfono.", //✅
         popUpUnknownError: "Un error desconocido ocurrió. Inténtalo de nuevo.", //✅
+        popUpTooManyTries: "Demasiados intentos. Espera un poco e inténtalo de nuevo más tarde.",
         rideUnconfirmed:
           'No pudimos confirmar que tu viaje fue reservado. Por favor verifica antes de intentarlo de nuevo.',
         rideProcessing:
