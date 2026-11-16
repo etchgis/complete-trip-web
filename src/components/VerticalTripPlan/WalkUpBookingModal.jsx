@@ -142,7 +142,7 @@ const Field = ({ id, label, hint, error, inputRef, ...inputProps }) => {
 
 /**
  * Walk-up booking at a shared kiosk: choose how to book, then type a name and
- * phone number, check the ride and call the shuttle. Nothing typed is kept once
+ * phone number, confirm the ride and summon the shuttle. Nothing typed is kept once
  * the form closes.
  */
 const WalkUpBookingModal = observer(({
