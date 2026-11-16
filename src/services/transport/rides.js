@@ -1,29 +1,15 @@
 import config from '../../config';
+import { GATE_REFUSAL_CODES, RideRequestError } from './rideRequestError';
+import { getKioskDeviceCredential, isWalkUpDemoActive } from '../../models/kiosk-walkup';
+import { demoPinRequest, demoWalkUpRequest } from './demoRides';
 
-// Raised when the ride request does not come back as a created ride. It carries
-// the HTTP status when the server answered, and `retryable` says whether the
-// caller may send the same idempotency key again. A 409 means another request
-// with this key is still being processed, and a dropped connection or an
-// unreadable reply leaves the ride's outcome unknown; both are retryable
-// because the key lets the server dedupe the retry. Any other answer is a
-// definitive refusal. A refusal from the service gate also carries its `code`.
-export class RideRequestError extends Error {
-  constructor(message, { status = null, retryable = false, code = null } = {}) {
-    super(message);
-    this.name = 'RideRequestError';
-    this.status = status;
-    this.retryable = retryable;
-    this.code = code;
-  }
-}
-
-// 409 codes that mean the service refused the booking for good: no driver is on
-// duty, or the service is closed. They are not "still processing".
-export const GATE_REFUSAL_CODES = ['NO_DRIVER_ON_DUTY', 'SERVICE_CLOSED'];
+export { RideRequestError, GATE_REFUSAL_CODES };
 
 const rides = {
 
   request(organizationId, datetime, direction, pickup, dropoff, driverId, passengers, phone, pin, idempotencyKey) {
+    // Demo kiosk pages get canned answers and send nothing.
+    if (isWalkUpDemoActive()) return demoPinRequest({ phone, pin, idempotencyKey });
     const body = {
       organization: organizationId,
       passengers: passengers || 1,
@@ -91,6 +77,67 @@ const rides = {
       // A definitive refusal is passed through unchanged. Anything else is a
       // dropped connection or a reply we could not read, which leaves the
       // ride's outcome unknown, so it is marked retryable with the same key.
+      if (err instanceof RideRequestError) throw err;
+      throw new RideRequestError(err?.message, { retryable: true });
+    });
+  },
+
+  // Books a ride for a rider at a trusted shared kiosk, using a name and phone
+  // number instead of a PIN.
+  //
+  // NOT BUILT YET: the rides service has no /kiosk/request route today, so a
+  // real call would fail. The switch that offers this flow must stay off
+  // outside the demo. The Bearer device credential is what the server would
+  // trust; the x-api-key is sent only because the gateway requires it, and it
+  // is public, so it proves nothing about the caller.
+  requestWalkUp({ firstName, lastName, phone, email, dropoff, passengers, language, idempotencyKey }) {
+    if (isWalkUpDemoActive()) return demoWalkUpRequest({ phone, idempotencyKey });
+    const credential = getKioskDeviceCredential();
+    if (!credential) {
+      return Promise.reject(new RideRequestError('device not trusted', { status: 401, code: 'DEVICE_NOT_TRUSTED' }));
+    }
+    const body = {
+      firstName,
+      lastName,
+      phone,
+      dropoff,
+      passengers: passengers || 1,
+      language,
+    };
+    if (email) body.email = email;
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': config.SERVICES.rides.xApiKey,
+      Authorization: `Bearer ${credential}`,
+    };
+    if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
+    return fetch(`${config.SERVICES.rides.url}/kiosk/request`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers,
+    }).then(async (response) => {
+      if (response.status === 200) return response.json();
+      if (response.status === 409) {
+        const refusal = await response.json().catch(() => null);
+        if (GATE_REFUSAL_CODES.includes(refusal?.code)) {
+          throw new RideRequestError(refusal.message, { status: 409, code: refusal.code });
+        }
+        throw new RideRequestError('ride request still processing', { status: 409, retryable: true });
+      }
+      if (response.status === 429) {
+        throw new RideRequestError('too many requests', { status: 429, code: 'TRY_LATER' });
+      }
+      if (response.status === 401) {
+        throw new RideRequestError('device not trusted', { status: 401, code: 'DEVICE_NOT_TRUSTED' });
+      }
+      // A server error or gateway timeout may have come after the ride was
+      // created, so the caller keeps the same key and may retry.
+      if (response.status >= 500) {
+        throw new RideRequestError('ride request failed', { status: response.status, retryable: true });
+      }
+      const json = await response.json().catch(() => null);
+      throw new RideRequestError(json?.message || json?.error?.message, { status: response.status });
+    }).catch((err) => {
       if (err instanceof RideRequestError) throw err;
       throw new RideRequestError(err?.message, { retryable: true });
     });

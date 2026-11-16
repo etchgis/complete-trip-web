@@ -498,6 +498,9 @@ const defaults = {
   FEEDBACK,
   HDS_SERVICE_ID,
   UB_SHUTTLE_SERVICE_ID,
+  // The Call Center number shown on the Help page and on the kiosk "could not
+  // book" screen. `tel` is the dialing form, `display` is what people read.
+  CALL_CENTER_PHONE: { display: '716-888-4600', tel: '+17168884600' },
 };
 const config = { ...defaults };
 

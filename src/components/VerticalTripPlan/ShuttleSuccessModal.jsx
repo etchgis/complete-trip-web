@@ -3,8 +3,14 @@ import {
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
+import DemoBanner, { DEMO_BANNER_HEIGHT } from './DemoBanner';
+import { isWalkUpDemoActive } from '../../models/kiosk-walkup';
 import useTranslation from '../../models/useTranslation';
 import { TABLET_SCREEN_HEIGHT, isTabletKiosk } from '../../models/kiosk-layout';
+import { getSizes } from './walkUpLayout';
+
+// Space between the top of the screen (or the demo banner) and the box on the large screen.
+const LARGE_TOP_GAP = 24;
 
 /**
  * Modal component that displays shuttle success information with kiosk-specific directions
@@ -15,11 +21,19 @@ const ShuttleSuccessModal = observer(({
   successMessage, 
   kioskInfo, 
   timerStarted, 
-  secondsLeft 
+  secondsLeft,
+  // Optional extra sentences shown under the success message.
+  extraLines = []
 }) => {
   const { t } = useTranslation();
 
   if (!isOpen) return null;
+
+  // Bigger text and buttons on the shared tablet and the large shared screen.
+  const sz = getSizes();
+  // On the large screen the box stays above the 255 pixel on-screen keyboard.
+  const bigLarge = sz.big && !isTabletKiosk;
+  const bannerHeight = isWalkUpDemoActive() ? DEMO_BANNER_HEIGHT : 0;
 
   return (
     <Box
@@ -29,11 +43,12 @@ const ShuttleSuccessModal = observer(({
       width="100vw"
       height={isTabletKiosk ? TABLET_SCREEN_HEIGHT : '100vh'}
       display="flex"
-      alignItems="center"
+      alignItems={bigLarge ? 'flex-start' : 'center'}
       justifyContent="center"
       zIndex={9999}
-      paddingTop={isTabletKiosk ? 0 : '10vh'}
+      paddingTop={bigLarge ? `${LARGE_TOP_GAP + bannerHeight}px` : isTabletKiosk ? (isWalkUpDemoActive() ? '56px' : 0) : '10vh'}
     >
+      <DemoBanner />
       {/* Modal Backdrop */}
       <Box
         position="fixed"
@@ -48,15 +63,16 @@ const ShuttleSuccessModal = observer(({
 
       {/* Modal Container */}
       <Box
-        width="90%"
-        maxWidth="500px"
+        width={sz.big ? '92%' : '90%'}
+        maxWidth={sz.big ? sz.maxW : '500px'}
         bg="white"
         borderRadius="md"
         boxShadow="xl"
         position="relative"
         zIndex={10000}
         overflow={isTabletKiosk ? 'auto' : 'hidden'}
-        maxH={isTabletKiosk ? `calc(${TABLET_SCREEN_HEIGHT} - 16px)` : undefined}
+        maxH={isTabletKiosk ? `calc(${TABLET_SCREEN_HEIGHT} - ${isWalkUpDemoActive() ? 72 : 16}px)` : bigLarge ? `calc(100vh - ${LARGE_TOP_GAP + bannerHeight + 255 + 16}px)` : undefined}
+        overflowY={bigLarge ? 'auto' : undefined}
       >
         {/* Header */}
         <Flex 
@@ -66,9 +82,12 @@ const ShuttleSuccessModal = observer(({
           alignItems="center"
           justifyContent="space-between"
         >
-          <Heading size="md">{t('tripWizard.popUpSuccessModalTitle')}</Heading>
+          <Heading size="md" fontSize={sz.big ? sz.label : undefined}>{t('tripWizard.popUpSuccessModalTitle')}</Heading>
           <IconButton
-            size="sm"
+            size={sz.big ? 'lg' : 'sm'}
+            minW={sz.big ? sz.close : undefined}
+            minH={sz.big ? sz.close : undefined}
+            fontSize={sz.big ? '28px' : undefined}
             variant="ghost"
             icon={<CloseIcon />}
             onClick={onClose}
@@ -77,32 +96,37 @@ const ShuttleSuccessModal = observer(({
         </Flex>
 
         {/* Body */}
-        <Box padding={isTabletKiosk ? '1rem' : '1.5rem'}>
-          <VStack spacing={4} align="center">
+        <Box padding={sz.big ? '1.5rem' : isTabletKiosk ? '1rem' : '1.5rem'}>
+          <VStack spacing={sz.big ? 6 : 4} align="center">
             <Text
               color="green.600"
-              fontSize="xl"
+              fontSize={sz.big ? sz.title : 'xl'}
+              lineHeight={sz.big ? 1.2 : undefined}
               fontWeight="bold"
               textAlign="center"
             >
               {successMessage}
             </Text>
 
+            {extraLines.map(line => (
+              <Text key={line} fontSize={sz.big ? sz.body : 'lg'} textAlign="center">{line}</Text>
+            ))}
+
             {kioskInfo && (
-              <VStack spacing={4} align="center" padding="15px" border="1px solid #e2e8f0" borderRadius="md" background="#f8f9fa" width="100%">
+              <VStack spacing={sz.big ? 5 : 4} align="center" padding={sz.big ? '24px' : '15px'} border="1px solid #e2e8f0" borderRadius="md" background="#f8f9fa" width="100%">
                 <Text
-                  fontSize="lg"
+                  fontSize={sz.big ? sz.body : 'lg'}
                   fontWeight="bold"
                 >{t('tripWizard.popUpDirectionsTitle')}</Text>
                 
-                <Text textAlign="center">{kioskInfo.kioskDirections && kioskInfo.kioskDirections[t.language || 'en']}</Text>
+                <Text textAlign="center" fontSize={sz.big ? sz.body : undefined}>{kioskInfo.kioskDirections && kioskInfo.kioskDirections[t.language || 'en']}</Text>
                 
                 {kioskInfo.pickupImagePath && (
                   <>
-                    <Text fontSize="md" mb={1}>{t('tripWizard.popUpDirectionsImage')}</Text>
+                    <Text fontSize={sz.big ? sz.hint : 'md'} mb={1}>{t('tripWizard.popUpDirectionsImage')}</Text>
                     <Box
                       width="90%"
-                      height="200px"
+                      height={sz.big ? sz.imageH : '200px'}
                       backgroundImage={`url(${kioskInfo.pickupImagePath})`}
                       backgroundSize="cover"
                       backgroundPosition="center"
@@ -113,7 +137,7 @@ const ShuttleSuccessModal = observer(({
               </VStack>
             )}
 
-            <Text fontSize="lg" fontWeight="bold" mt={4}>
+            <Text fontSize={sz.big ? sz.body : 'lg'} fontWeight="bold" mt={4}>
               {timerStarted ? t('tripWizard.timeRemaining', { count: secondsLeft }) : ''}
             </Text>
           </VStack>
@@ -126,7 +150,7 @@ const ShuttleSuccessModal = observer(({
           borderTopColor="gray.200"
           justifyContent="flex-end"
         >
-          <Button colorScheme="blue" onClick={onClose}>
+          <Button colorScheme="blue" onClick={onClose} minH={sz.big ? sz.buttonH : isTabletKiosk ? '56px' : undefined} fontSize={sz.big ? sz.button : isTabletKiosk ? '20px' : undefined} px={sz.big ? 12 : undefined}>
             {t('global.close')}
           </Button>
         </Flex>

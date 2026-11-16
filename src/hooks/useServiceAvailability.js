@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import config from '../config';
 import { readAvailability } from '../models/shuttle-status';
 import shuttle from '../services/transport/shuttle';
+import { isWalkUpDemoActive } from '../models/kiosk-walkup';
 
 // How long a screen waits for the availability check before treating it as
 // unanswered. Each caller decides what an unanswered check means for it.
@@ -74,6 +75,10 @@ export const readServiceAvailability = async (
   at,
   { timeoutMs = AVAILABILITY_CHECK_TIMEOUT_MS } = {}
 ) => {
+  // The demo kiosk always shows the shuttle as running and asks nothing.
+  if (isWalkUpDemoActive() && serviceId === config.HDS_SERVICE_ID) {
+    return { verdict: 'available', availability: null };
+  }
   let timer;
   try {
     const timeout = new Promise((resolve, reject) => {

@@ -107,6 +107,7 @@ const kioskDefinitions = {
       es: "Salga por las puertas principales de la tienda. Espere frente al edificio. El transporte llegará allí."
     },
     pickupImagePath: "/stops/tops-jefferson-pickup.jpg",
+    walkUpBooking: true,
     showShuttle: true,
     showPublicTransit: true
   }

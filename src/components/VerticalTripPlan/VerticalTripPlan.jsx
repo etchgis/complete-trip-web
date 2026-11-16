@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Stack, Text, useColorMode, useDisclosure } from '@chakra-ui/react';
 import ShuttleSuccessModal from './ShuttleSuccessModal';
 import ShuttleSummonModal from './ShuttleSummonModal';
+import WalkUpBookingModal from './WalkUpBookingModal';
 
 import { TripPlanMap } from './TripPlanMap';
 import { TripPlanSchedule } from './TripPlanSchedule';
@@ -11,6 +12,7 @@ import { useEffect, useState } from 'react';
 import useIntervalHook from '../../hooks/useIntervalHook';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 import { isTabletKiosk } from '../../models/kiosk-layout';
+import { isWalkUpAvailable } from '../../models/kiosk-walkup';
 
 export const VerticalTripPlan = observer(
   ({
@@ -33,6 +35,8 @@ export const VerticalTripPlan = observer(
     const [error, setError] = useState('');
     const [shuttleSuccess, setShuttleSuccess] = useState(false);
     const [showSummon, setShowSummon] = useState(false);
+    const [showWalkUp, setShowWalkUp] = useState(false);
+    const [successLines, setSuccessLines] = useState([]);
     const [timerStarted, setTimerStarted] = useState(false);
     const [secondsLeft, setSecondsLeft] = useState(20);
     const [kioskInfo, setKioskInfo] = useState(null);
@@ -51,7 +55,22 @@ export const VerticalTripPlan = observer(
     );
 
     const handleSummonShuttle = () => {
-      setShowSummon(true);
+      // When this kiosk can book by name and phone, the rider first picks how.
+      // Otherwise the PIN form opens directly, as it always has.
+      if (isWalkUpAvailable(getCurrentKioskConfig())) {
+        setShowWalkUp(true);
+      } else {
+        setShowSummon(true);
+      }
+    }
+
+    const handleWalkUpSuccess = ({ hasEmail }) => {
+      setSuccessLines([
+        t('walkUp.successName'),
+        ...(hasEmail ? [t('walkUp.successEmail')] : []),
+      ]);
+      setShowWalkUp(false);
+      handleShuttleSummonSuccess();
     }
 
 
@@ -88,7 +107,22 @@ export const VerticalTripPlan = observer(
           kioskInfo={kioskInfo}
           timerStarted={timerStarted}
           secondsLeft={secondsLeft}
+          extraLines={successLines}
         />
+
+        {ux === 'kiosk' && isWalkUpAvailable(getCurrentKioskConfig()) &&
+          <WalkUpBookingModal
+            isOpen={showWalkUp}
+            onClose={() => setShowWalkUp(false)}
+            onSuccess={handleWalkUpSuccess}
+            onChoosePin={() => {
+              setShowWalkUp(false);
+              setShowSummon(true);
+            }}
+            kioskBottomHeight={kioskBottomHeight}
+            headerHeight={headerHeight}
+          />
+        }
 
         {ux === 'kiosk' &&
           <ShuttleSummonModal
@@ -107,6 +141,10 @@ export const VerticalTripPlan = observer(
             setPhone2={setPhone2}
             error={error}
             setError={setError}
+            onBack={isWalkUpAvailable(getCurrentKioskConfig()) ? () => {
+              setShowSummon(false);
+              setShowWalkUp(true);
+            } : undefined}
           />
         }
         <Flex

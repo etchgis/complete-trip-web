@@ -9,6 +9,7 @@ import {
   Text,
   UnorderedList,
 } from "@chakra-ui/react";
+import config from "../config";
 
 const Help = () => {
   return (
@@ -53,11 +54,11 @@ const Help = () => {
         <p aria-label="Call Center Phone">
           Phone:{" "}
           <a
-            href="tel:+17168884600"
+            href={`tel:${config.CALL_CENTER_PHONE.tel}`}
             style={{ color: "dodgerblue" }}
-            aria-label="716-888-4600"
+            aria-label={config.CALL_CENTER_PHONE.display}
           >
-            716-888-4600
+            {config.CALL_CENTER_PHONE.display}
           </a>
         </p>
         <br />
