@@ -93,7 +93,7 @@ afterEach(() => {
 describe('screen A', () => {
   test('shows both ways to book and a Back button', () => {
     renderModal();
-    expect(screen.getByRole('heading', { name: 'Call the shuttle' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Summon the shuttle' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Use my name and phone number/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'I have a PIN' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
@@ -188,12 +188,12 @@ describe('check screen', () => {
   });
 });
 
-describe('calling the shuttle', () => {
+describe('summoning the shuttle', () => {
   test('success reports whether an email was given', async () => {
     requestWalkUp.mockResolvedValue({ id: 'r1' });
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await waitFor(() => expect(onSuccess).toHaveBeenCalledWith({ hasEmail: false }));
     const sent = requestWalkUp.mock.calls[0][0];
     expect(sent.phone).toBe('+17165550123');
@@ -207,7 +207,7 @@ describe('calling the shuttle', () => {
     );
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     expect(await screen.findByRole('heading', { name: 'The shuttle cannot come right now' })).toBeTruthy();
     expect(screen.getByText('The NFTA Community Shuttle is closed at that time.')).toBeTruthy();
     click('See other ways to go');
@@ -218,7 +218,7 @@ describe('calling the shuttle', () => {
     requestWalkUp.mockRejectedValue(new RideRequestError('invalid pin', { status: 400 }));
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     expect(await screen.findByRole('heading', { name: 'We could not book this ride' })).toBeTruthy();
   });
 
@@ -226,7 +226,7 @@ describe('calling the shuttle', () => {
     requestWalkUp.mockRejectedValue(new RideRequestError('invalid pin', { status: 400 }));
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     const link = await screen.findByRole('link', { name: 'Call the Call Center at 716-888-4600' });
     expect(link.getAttribute('href')).toBe('tel:+17168884600');
     expect(link.textContent).toBe('716-888-4600');
@@ -239,7 +239,7 @@ describe('calling the shuttle', () => {
       requestWalkUp.mockRejectedValue(new RideRequestError('invalid pin', { status: 400 }));
       renderModal();
       goToCheck();
-      click('Call the shuttle');
+      click('Summon Shuttle');
       await screen.findByRole('heading', { name: 'We could not book this ride' });
       expect(screen.queryByRole('link')).toBeNull();
     } finally {
@@ -251,7 +251,7 @@ describe('calling the shuttle', () => {
     requestWalkUp.mockRejectedValue(new RideRequestError('too many', { status: 429, code: 'TRY_LATER' }));
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await screen.findByRole('heading', { name: 'Please wait' });
     expect(screen.queryByRole('link')).toBeNull();
   });
@@ -260,7 +260,7 @@ describe('calling the shuttle', () => {
     requestWalkUp.mockRejectedValue(new RideRequestError('too many', { status: 429, code: 'TRY_LATER' }));
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     expect(await screen.findByRole('heading', { name: 'Please wait' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
   });
@@ -269,8 +269,8 @@ describe('calling the shuttle', () => {
     verdict.mockResolvedValue('unavailable');
     renderModal();
     goToCheck();
-    click('Call the shuttle');
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Call the shuttle' })).toBeTruthy());
+    click('Summon Shuttle');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Summon Shuttle' })).toBeTruthy());
     expect(requestWalkUp).not.toHaveBeenCalled();
   });
 
@@ -280,7 +280,7 @@ describe('calling the shuttle', () => {
       .mockResolvedValueOnce({ id: 'r1' });
     renderModal({ requestTimeoutMs: 30 });
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     expect(await screen.findByText('We could not confirm your ride. Please check before you try again.')).toBeTruthy();
     click('Try again anyway');
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
@@ -294,9 +294,9 @@ describe('calling the shuttle', () => {
       .mockResolvedValueOnce({ id: 'r1' });
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     expect(await screen.findByText(/still being booked/)).toBeTruthy();
-    click(/Try again anyway|Call the shuttle/);
+    click(/Try again anyway|Summon Shuttle/);
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
   });
@@ -312,7 +312,7 @@ describe('idle', () => {
       vi.advanceTimersByTime(WALKUP_IDLE_MS + 10);
     });
     expect(onClose).toHaveBeenCalled();
-    expect(screen.getByRole('heading', { name: 'Call the shuttle' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Summon the shuttle' })).toBeTruthy();
     goToNameScreen();
     expect(screen.getByLabelText('First name').value).toBe('');
     expect(screen.getByLabelText('Phone number').value).toBe('');
@@ -346,14 +346,14 @@ describe('booking key and leftovers', () => {
     requestWalkUp.mockImplementationOnce(() => new Promise(() => {})).mockResolvedValueOnce({ id: 'r1' });
     const view = renderModal({ requestTimeoutMs: 30 });
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await screen.findByText(/could not confirm your ride/);
     click('Close');
     view.rerender(<div />);
     cleanup();
     renderModal({ requestTimeoutMs: 30 });
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
   });
@@ -362,13 +362,13 @@ describe('booking key and leftovers', () => {
     requestWalkUp.mockRejectedValue(new RideRequestError('boom', { status: 503, retryable: true }));
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await screen.findByText(/still being booked/);
     click('Change something');
     type('Last name', 'Perez');
     click('Next');
     click('Skip');
-    click(/Try again anyway|Call the shuttle/);
+    click(/Try again anyway|Summon Shuttle/);
     await waitFor(() => expect(requestWalkUp).toHaveBeenCalledTimes(2));
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).not.toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
   });
@@ -379,12 +379,12 @@ describe('booking key and leftovers', () => {
       .mockResolvedValueOnce({ id: 'r1' });
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await screen.findByRole('heading', { name: 'We could not book this ride' });
     click('Try again');
     click('Next');
     click('Skip');
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).not.toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
   });
@@ -395,10 +395,10 @@ describe('booking key and leftovers', () => {
       .mockResolvedValueOnce({ id: 'r1' });
     renderModal();
     goToCheck();
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await screen.findByRole('heading', { name: 'Something went wrong' });
     click('Try again');
-    click('Call the shuttle');
+    click('Summon Shuttle');
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
   });
