@@ -459,10 +459,12 @@ const LOST_POSITION = ['no-contact', 'no-report'];
  * verdict says both halves at once rather than letting the reassuring half
  * stand alone as the only colored thing on the card.
  *
- * A position the feed is still serving but that has not changed in over a
- * minute is not that alarm. The driver app does not report while the vehicle
- * is standing still, so every layover, timed stop and long red light produces
- * one. The verdict only notes how old the position is.
+ * A position that is over a minute old but still on the feed does not raise
+ * that warning. The verdict only notes how old the position is.
+ *
+ * A service the check reports as unavailable because no driver is on duty
+ * always gets the no-driver verdict. Only a running service is ever
+ * questioned by the position.
  *
  * When the page could not reach the vehicle feed it cannot see the shuttle at
  * all, so the verdict says the tracking is unavailable rather than repeating

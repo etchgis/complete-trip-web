@@ -22,6 +22,7 @@ import config from '../config.js';
 import { useState } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 import { PublicTerms, PublicPrivacy } from './PublicLegal.jsx';
+import { initialUx } from '../utils/kioskMode';
 
 export const Routes = observer(() => {
   //add trace if env is development
@@ -40,9 +41,9 @@ export const Routes = observer(() => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlParams.entries());
-    const { debug, mode } = params;
+    const { debug } = params;
     if (debug) setDebugMode(debug === 'true' ? true : false);
-    setUX(mode === 'kiosk' ? 'kiosk' : mode === 'callcenter' ? 'callcenter' : 'webapp');
+    setUX(initialUx());
   }, [setDebugMode, setUI, setUX]);
 
   if (debug) console.log('[routes] logged in:', loggedIn);
@@ -176,8 +177,9 @@ export const Routes = observer(() => {
   return (
     <ReactRoutes>
       {/* Redirect all trailing slashes */}
-      <Route path={'/:url(/+)'} element={<Navigate to={'/map'} />} />
-      <Route path={'/'} element={<Navigate to={'/map'} />} />
+      {/* Redirects to the map keep the address options, such as ?mode=kiosk. */}
+      <Route path={'/:url(/+)'} element={<Navigate to={`/map${window.location.search}`} />} />
+      <Route path={'/'} element={<Navigate to={`/map${window.location.search}`} />} />
 
       {/* STYLE GUIDE */}
       <Route
@@ -290,7 +292,7 @@ export const Routes = observer(() => {
           />
           <Route path={'/trips'} element={<Layout children={<Login />} />} /> */}
           <Route path="/settings/*" element={<Layout children={<Login />} />} />
-          <Route path="*" element={<Navigate to="/map" />} />
+          <Route path="*" element={<Navigate to={`/map${window.location.search}`} />} />
         </>
       )}
     </ReactRoutes>

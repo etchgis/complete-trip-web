@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { cleanup, renderHook } from '@testing-library/react';
 
-import useAalShuttle, { AAL_POLL_INTERVAL_MS } from '../hooks/useAalShuttle';
+import useAalShuttle, {
+  AAL_EMPTY_GRACE_MS,
+  AAL_POLL_INTERVAL_MS,
+} from '../hooks/useAalShuttle';
 
 const route = vi.fn();
 const vehiclePosition = vi.fn();
@@ -148,6 +151,39 @@ describe('useAalShuttle', () => {
 
     expect(opts.onVehicles).toHaveBeenCalledTimes(1);
     expect(opts.onVehicles.mock.calls[0][0].features).toEqual([]);
+  });
+
+  test('a short run of empty answers keeps the last position', async () => {
+    const opts = options();
+    renderHook(o => useAalShuttle(o), { initialProps: opts });
+    await settle();
+    expect(opts.onVehicles).toHaveBeenCalledTimes(1);
+
+    vehiclePosition.mockResolvedValue({});
+    await vi.advanceTimersByTimeAsync(AAL_POLL_INTERVAL_MS * 3);
+    expect(vehiclePosition).toHaveBeenCalledTimes(4);
+    expect(opts.onVehicles).toHaveBeenCalledTimes(1);
+
+    vehiclePosition.mockResolvedValue(vehicleJson(-78.87, 42.9));
+    await vi.advanceTimersByTimeAsync(AAL_POLL_INTERVAL_MS);
+    expect(opts.onVehicles).toHaveBeenCalledTimes(2);
+    expect(
+      opts.onVehicles.mock.calls[1][0].features[0].geometry.coordinates
+    ).toEqual([-78.87, 42.9]);
+  });
+
+  test('empty answers for the whole grace period clear the marker', async () => {
+    const opts = options();
+    renderHook(o => useAalShuttle(o), { initialProps: opts });
+    await settle();
+
+    vehiclePosition.mockResolvedValue({});
+    await vi.advanceTimersByTimeAsync(AAL_EMPTY_GRACE_MS - AAL_POLL_INTERVAL_MS);
+    expect(opts.onVehicles).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(AAL_POLL_INTERVAL_MS * 2);
+    expect(opts.onVehicles.mock.calls.length).toBeGreaterThan(1);
+    expect(opts.onVehicles.mock.calls[1][0].features).toEqual([]);
   });
 
   test('unmounting clears the marker and stops polling', async () => {

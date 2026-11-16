@@ -8,7 +8,7 @@ import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import rides from '../../services/transport/rides';
+import rides, { GATE_REFUSAL_CODES } from '../../services/transport/rides';
 import { getCurrentKioskConfig } from '../../models/kiosk-definitions';
 import { TABLET_SCREEN_HEIGHT, isTabletKiosk, kioskHasOwnKeyboard } from '../../models/kiosk-layout';
 import { checkServiceAvailability } from '../../hooks/useServiceAvailability';
@@ -27,7 +27,9 @@ const NO_ANSWER = Symbol('ride request did not answer');
 
 // What the rides service says when it refuses a booking. Anything else is
 // reported as an unknown failure rather than guessed at.
-const requestErrorMessage = (t, e) => {
+export const requestErrorMessage = (t, e) => {
+  // A gate refusal carries text written for the rider, so it is shown as is.
+  if (GATE_REFUSAL_CODES.includes(e?.code) && e.message) return e.message;
   const message = typeof e === 'string' ? e : e?.message;
   return message === 'invalid pin' || message === 'user not found for this phone number'
     ? t('tripWizard.popUpError')

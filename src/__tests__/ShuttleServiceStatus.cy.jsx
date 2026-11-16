@@ -192,8 +192,78 @@ describe('ShuttleServiceStatus', () => {
     );
     cy.get('[data-testid="shuttle-service-detail"]').should(
       'contain.text',
-      'every driver has marked themselves off duty'
+      'The service is inside its hours, but no driver is on duty.'
     );
+  });
+
+  describe('when no driver is on duty', () => {
+    const NO_DRIVER_ALERT = {
+      isAvailable: false,
+      reason: 'service_alert',
+      activeAlert: { id: 'driver-off-duty-flex-1' },
+      todayHours: HOURS,
+    };
+    const noDriverFromFeed = vehicles => {
+      const now = Date.now();
+      return deriveStatus({
+        poll: {
+          availability: readAvailability(NO_DRIVER_ALERT),
+          vehicleFeedOk: true,
+          vehicle: readVehicle({ vehicles }),
+          title: 'Main St at Utica',
+          requestedAt: now,
+        },
+        history: {},
+        now,
+      });
+    };
+    const OFF_DUTY_CLAIM = 'marked themselves off duty';
+
+    it('does not claim the driver went off duty when the tablet went quiet', () => {
+      render(
+        noDriverFromFeed([{ vehicleId: 'v1', coordinates: [-78.86, 42.89], ageSeconds: 600 }])
+      );
+      cy.get('[data-testid="shuttle-service-badge"]').should(
+        'have.text',
+        'No driver on duty'
+      );
+      cy.get('[data-testid="shuttle-location-detail"]')
+        .should('contain.text', 'The shuttle has stopped reporting.')
+        .and('contain.text', 'Last heard from 10 minutes ago.')
+        .and('not.contain.text', OFF_DUTY_CLAIM);
+      cy.contains(OFF_DUTY_CLAIM).should('not.exist');
+    });
+
+    it('does not claim the driver went off duty when nothing was reported', () => {
+      render(noDriverFromFeed([]));
+      cy.get('[data-testid="shuttle-location-detail"]')
+        .should('contain.text', 'The shuttle has not reported in the last 5 minutes.')
+        .and('not.contain.text', OFF_DUTY_CLAIM);
+      cy.contains(OFF_DUTY_CLAIM).should('not.exist');
+    });
+
+    it('says the driver went off duty when the latest report says so', () => {
+      render(noDriverFromFeed([offDutyReport(30)]));
+      cy.get('[data-testid="shuttle-location-detail"]').should(
+        'contain.text',
+        'The driver has marked themselves off duty.'
+      );
+    });
+
+    it('never shows a running badge, whatever the position says', () => {
+      [
+        [{ vehicleId: 'v1', coordinates: [-78.86, 42.89], ageSeconds: 10 }],
+        [{ vehicleId: 'v1', coordinates: [-78.86, 42.89], ageSeconds: 120 }],
+        [{ vehicleId: 'v1', coordinates: [-78.86, 42.89], ageSeconds: 600 }],
+        [offDutyReport(30)],
+        [],
+      ].forEach(vehicles => {
+        render(noDriverFromFeed(vehicles));
+        cy.get('[data-testid="shuttle-service-badge"]')
+          .should('have.text', 'No driver on duty')
+          .and('have.attr', 'data-tone', 'red');
+      });
+    });
   });
 
   it('keeps the last known location with its age when contact is lost', () => {
@@ -266,15 +336,14 @@ describe('ShuttleServiceStatus', () => {
   });
 
   it('does not raise the alarm for a parked shuttle the feed still serves', () => {
-    // The driver app sends nothing while the vehicle stands still, so every
-    // layover produces a position more than a minute old.
+    // The feed still serves a position that is more than a minute old.
     render(status({ position: { state: 'out-of-date', ageMs: 4 * 60000 } }));
     cy.get('[data-testid="shuttle-service-badge"]')
       .should('have.text', 'Service running - position 4 min old')
       .and('have.attr', 'data-tone', 'blue');
     cy.get('[data-testid="shuttle-location-detail"]').should(
       'contain.text',
-      'It does not send one while standing still'
+      'It normally reports at least every 30 seconds, even when stopped, so it may have lost signal.'
     );
   });
 

@@ -617,7 +617,7 @@ export default function genLocales() {
         serviceScheduledDriverOffDutyDetail:
           'The service is inside its hours, but the driver has marked themselves off duty and no other shuttle is reporting, so we cannot confirm a shuttle is on its way.',
         serviceNoDriverDetail:
-          'The service is inside its hours, but every driver has marked themselves off duty.',
+          'The service is inside its hours, but no driver is on duty.',
         serviceNotRunningDetail: 'The shuttle service is not running now.',
         serviceOutsideHoursDetail:
           'The shuttle service is outside its operating hours right now.',
@@ -638,7 +638,7 @@ export default function genLocales() {
 
         positionReportingDetail: 'The shuttle is reporting.',
         positionOutOfDateDetail:
-          'The shuttle has not sent a new position for over a minute. It does not send one while standing still, so it may be waiting at a stop or in traffic.',
+          'The shuttle has not sent a new position for over a minute. It normally reports at least every 30 seconds, even when stopped, so it may have lost signal.',
         positionOffDutyDetail: 'The driver has marked themselves off duty.',
         positionNoContactDetail:
           'The shuttle has stopped reporting. It may be parked, out of coverage, or its tablet may be off.',
@@ -699,7 +699,7 @@ export default function genLocales() {
         serviceScheduledDriverOffDutyDetail:
           'El servicio está dentro de su horario, pero el conductor se ha marcado como fuera de servicio y ningún otro autobús está reportando, así que no podemos confirmar que haya un autobús en camino.',
         serviceNoDriverDetail:
-          'El servicio está dentro de su horario, pero todos los conductores se han marcado como fuera de servicio.',
+          'El servicio está dentro de su horario, pero no hay ningún conductor de turno.',
         serviceNotRunningDetail:
           'El servicio de autobús no está en marcha ahora.',
         serviceOutsideHoursDetail:
@@ -721,7 +721,7 @@ export default function genLocales() {
 
         positionReportingDetail: 'El autobús está reportando.',
         positionOutOfDateDetail:
-          'El autobús no ha enviado una posición nueva en más de un minuto. No la envía mientras está detenido, así que puede estar esperando en una parada o en el tráfico.',
+          'El autobús no ha enviado una posición nueva en más de un minuto. Normalmente reporta al menos cada 30 segundos, incluso cuando está detenido, así que puede haber perdido la señal.',
         positionOffDutyDetail:
           'El conductor se ha marcado como fuera de servicio.',
         positionNoContactDetail:
