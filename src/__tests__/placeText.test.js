@@ -88,6 +88,26 @@ describe('prepareSearchRow', () => {
     ).toBe('Tops, 1275 Jefferson Avenue, Buffalo, NY 14208');
   });
 
+  test('adds the town when only the place name mentions it', () => {
+    expect(
+      row({
+        title: 'Buffalo General Medical Center',
+        description: '100 High Street',
+        locality: 'Buffalo',
+      })
+    ).toBe('Buffalo General Medical Center, 100 High Street, Buffalo');
+  });
+
+  test('does not add the town after a full address left in the title', () => {
+    expect(
+      row({
+        title: 'Carlton St, Buffalo, NY 14203, United States',
+        description: 'Carlton St, Buffalo, NY 14203',
+        locality: 'Buffalo',
+      })
+    ).toBe('Carlton St, Buffalo, NY 14203');
+  });
+
   test('adds the town only when the row does not name it', () => {
     expect(
       row({ title: 'Tops', description: '3500 Main Street', locality: 'Amherst' })

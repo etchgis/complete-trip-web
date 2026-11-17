@@ -50,9 +50,10 @@ export function prepareSearchRow(item) {
   const tidy = tidyPlaceText(item.title, item.description);
   item.title = tidy.title;
   item.description = tidy.description;
-  // Only add the town if the row does not already name it.
-  const shown = (item.title + ', ' + item.description).toLowerCase();
-  if (item.locality && !shown.includes(item.locality.toLowerCase())) {
+  // Add the town unless the description names it. When the description was
+  // only a repeat of the title, the title holds the full address, so check it.
+  const where = (item.description || item.title).toLowerCase();
+  if (item.locality && !where.includes(item.locality.toLowerCase())) {
     item.description = item.description
       ? item.description + ', ' + item.locality
       : item.locality;
