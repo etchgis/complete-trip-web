@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import config from '../../config';
 import { observer } from 'mobx-react-lite';
+import { prepareSearchRow } from '../../utils/placeText';
 import { useAsyncList } from 'react-stately';
 import { useStore } from '../../context/RootStore';
 import useTranslation from '../../models/useTranslation';
@@ -88,24 +89,14 @@ export const SearchForm = observer(
           : [];
 
         items.forEach(item => {
-          // Only add locality if it's not already in the description
-          if (item?.description && item?.locality) {
-            if (!item.description.includes(item.locality)) {
-              item.description += ', ' + item.locality;
-            }
-          }
-          if (!item.description && item?.locality)
-            item.description = item.locality;
           if (
             !item.childKey ||
             !item.title ||
-            !item.description ||
-            keys.includes(item.childKey)
+            keys.includes(item.childKey) ||
+            !prepareSearchRow(item)
           )
             return;
           keys.push(item.childKey);
-          item['name'] = item?.title + ', ' + item?.description;
-          item['text'] = item?.title + ', ' + item?.description;
           unique.push(item);
         });
 
