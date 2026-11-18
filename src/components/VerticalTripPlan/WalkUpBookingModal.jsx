@@ -572,13 +572,13 @@ const WalkUpBookingModal = observer(({
             {heading}
             <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.chooseHint')}</Text>
             <VStack spacing={sz.big ? sz.gap + 2 : sz.gap} w="100%">
-              <ActionButton primary minH={sz.chooseH} onClick={() => setStep('name')} data-test-id="walkup-use-name">
+              <ActionButton primary minH={sz.chooseH} onClick={() => { reset(); onChoosePin(); }} data-test-id="walkup-use-pin">{t('walkUp.havePin')}</ActionButton>
+              <ActionButton minH={sz.chooseH} onClick={() => setStep('name')} data-test-id="walkup-use-name">
                 <Box>
                   <Text>{t('walkUp.useNamePhone')}</Text>
                   <Text fontSize={sz.big ? sz.hint : 'md'} fontWeight="normal" mt={sz.big ? 2 : 0}>{t('walkUp.noAccountNeeded')}</Text>
                 </Box>
               </ActionButton>
-              <ActionButton minH={sz.chooseH} onClick={() => { reset(); onChoosePin(); }} data-test-id="walkup-use-pin">{t('walkUp.havePin')}</ActionButton>
               <ActionButton variant="ghost" onClick={closeAll} data-test-id="walkup-back">{t('walkUp.back')}</ActionButton>
             </VStack>
           </>

@@ -87,6 +87,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
   vi.useRealTimers();
 });
 
@@ -97,6 +98,26 @@ describe('screen A', () => {
     expect(screen.getByRole('button', { name: /Use my name and phone number/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'I have a PIN' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
+  });
+
+  test('the PIN button is first, then name and phone, then Back', () => {
+    renderModal();
+    const names = screen.getAllByRole('button').map(b => b.textContent);
+    const pin = names.findIndex(n => n === 'I have a PIN');
+    const namePhone = names.findIndex(n => n.startsWith('Use my name and phone number'));
+    const back = names.findIndex(n => n === 'Back');
+    expect(pin).toBeGreaterThanOrEqual(0);
+    expect(pin).toBeLessThan(namePhone);
+    expect(namePhone).toBeLessThan(back);
+  });
+
+  test('the choices are in the same order in Spanish', () => {
+    store.uiStore.ui = { ...store.uiStore.ui, language: 'es' };
+    renderModal();
+    const names = screen.getAllByRole('button').map(b => b.textContent);
+    expect(names.findIndex(n => n === 'Tengo un PIN')).toBeLessThan(
+      names.findIndex(n => n.startsWith('Usar mi nombre y teléfono'))
+    );
   });
 
   test('I have a PIN hands over to the PIN form', () => {
