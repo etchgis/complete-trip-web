@@ -71,7 +71,7 @@ const goToCheck = () => {
   goToNameScreen();
   fillName();
   click('Next');
-  click('Skip');
+  click('No thanks');
 };
 
 beforeEach(() => {
@@ -168,13 +168,13 @@ describe('name and phone', () => {
 });
 
 describe('email', () => {
-  test('is optional: Skip goes to the check screen with no app link', () => {
+  test('is optional: No thanks goes to the check screen with no app link', () => {
     renderModal();
     goToNameScreen();
     fillName();
     click('Next');
     expect(screen.getByRole('heading', { name: 'Do you want the app?' })).toBeTruthy();
-    click('Skip');
+    click('No thanks');
     expect(screen.getByRole('heading', { name: 'Confirm your ride' })).toBeTruthy();
     expect(screen.queryByText(/App link/)).toBeNull();
   });
@@ -187,10 +187,10 @@ describe('email', () => {
   };
   const nextButton = () => screen.queryByRole('button', { name: 'Next' });
 
-  test('Next is hidden and Skip shows while the email is empty', () => {
+  test('Next is hidden and No thanks shows while the email is empty', () => {
     goToEmailScreen();
     expect(nextButton()).toBeNull();
-    expect(screen.getByRole('button', { name: 'Skip' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'No thanks' })).toBeTruthy();
   });
 
   test('Next stays hidden while the email is not valid', () => {
@@ -222,10 +222,10 @@ describe('email', () => {
     expect(nextButton()).toBeNull();
   });
 
-  test('Enter on the Skip button skips instead of submitting the email', () => {
+  test('Enter on the No thanks button skips instead of submitting the email', () => {
     goToEmailScreen();
     type(/Email/, 'nope');
-    fireEvent.keyDown(screen.getByRole('button', { name: 'Skip' }), { key: 'Enter' });
+    fireEvent.keyDown(screen.getByRole('button', { name: 'No thanks' }), { key: 'Enter' });
     expect(screen.queryByText('This email does not look right. Check it or leave it blank.')).toBeNull();
   });
 
@@ -438,7 +438,7 @@ describe('booking key and leftovers', () => {
     click('Change something');
     type('Last name', 'Perez');
     click('Next');
-    click('Skip');
+    click('No thanks');
     click(/Try again anyway|Summon Shuttle/);
     await waitFor(() => expect(requestWalkUp).toHaveBeenCalledTimes(2));
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).not.toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
@@ -454,7 +454,7 @@ describe('booking key and leftovers', () => {
     await screen.findByRole('heading', { name: 'We could not book this ride' });
     click('Try again');
     click('Next');
-    click('Skip');
+    click('No thanks');
     click('Summon Shuttle');
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(requestWalkUp.mock.calls[1][0].idempotencyKey).not.toBe(requestWalkUp.mock.calls[0][0].idempotencyKey);
