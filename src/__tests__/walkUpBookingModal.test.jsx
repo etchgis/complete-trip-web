@@ -222,6 +222,13 @@ describe('email', () => {
     expect(nextButton()).toBeNull();
   });
 
+  test('Enter on the Skip button skips instead of submitting the email', () => {
+    goToEmailScreen();
+    type(/Email/, 'nope');
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Skip' }), { key: 'Enter' });
+    expect(screen.queryByText('This email does not look right. Check it or leave it blank.')).toBeNull();
+  });
+
   test('Enter on a bad email still shows the error', () => {
     goToEmailScreen();
     type(/Email/, 'nope');

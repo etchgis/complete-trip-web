@@ -591,7 +591,7 @@ const WalkUpBookingModal = observer(({
         return (
           <Box
             w="100%"
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitName(); } }}
+            onKeyDown={e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); submitName(); } }}
           >
             {heading}
             <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.nameHint')}</Text>
@@ -608,7 +608,7 @@ const WalkUpBookingModal = observer(({
         return (
           <Box
             w="100%"
-            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitEmail(); } }}
+            onKeyDown={e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); submitEmail(); } }}
           >
             {heading}
             <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.appText')}</Text>
