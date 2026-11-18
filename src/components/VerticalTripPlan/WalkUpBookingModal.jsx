@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Box, Button, Flex, Heading, IconButton, Input, Link, Text, VStack
+  Box, Button, Flex, Heading, IconButton, Input, Link, Text, VStack, VisuallyHidden
 } from '@chakra-ui/react';
 import { CloseIcon, WarningIcon } from '@chakra-ui/icons';
 import { observer } from 'mobx-react-lite';
@@ -342,6 +342,10 @@ const WalkUpBookingModal = observer(({
     return true;
   };
 
+  // True when a valid email is typed. Same rule as checkEmail, but an empty
+  // box does not count: Next is for sending the link, Skip is for no email.
+  const emailReady = values.email.trim() !== '' && isEmailShaped(values.email.trim());
+
   const checkEmail = () => {
     const email = values.email.trim();
     if (email && !isEmailShaped(email)) {
@@ -610,7 +614,16 @@ const WalkUpBookingModal = observer(({
             <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.appText')}</Text>
             <Field label={t('walkUp.email')} hint={t('walkUp.emailConsent')} error={errors.email} {...fieldProps('email')} />
             <VStack spacing={sz.gap} w="100%">
-              <ActionButton primary onClick={submitEmail} data-test-id="walkup-next">{t('walkUp.next')}</ActionButton>
+              {/* Next only shows once the email is valid. It keeps its space while
+                  hidden so Skip never moves, and visibility hidden also removes it
+                  from the Tab order and from screen readers. */}
+              <ActionButton
+                primary
+                onClick={submitEmail}
+                visibility={emailReady ? 'visible' : 'hidden'}
+                data-test-id="walkup-next"
+              >{t('walkUp.next')}</ActionButton>
+              <VisuallyHidden role="status" aria-live="polite">{emailReady ? t('walkUp.nextReady') : ''}</VisuallyHidden>
               <ActionButton
                 onClick={() => { setField('email', ''); if (usesKeyboardStore) { setKeyboardActiveInput(KEYBOARD_NAMES.email); setKeyboardInputValue(''); } setErrors({}); goCheck(); }}
                 data-test-id="walkup-skip"

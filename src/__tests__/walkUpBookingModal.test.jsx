@@ -178,13 +178,53 @@ describe('email', () => {
     expect(rowText('App link: No')).toBeTruthy();
   });
 
-  test('a bad email shows an error', () => {
+  const goToEmailScreen = () => {
     renderModal();
     goToNameScreen();
     fillName();
     click('Next');
+  };
+  const nextButton = () => screen.queryByRole('button', { name: 'Next' });
+
+  test('Next is hidden and Skip shows while the email is empty', () => {
+    goToEmailScreen();
+    expect(nextButton()).toBeNull();
+    expect(screen.getByRole('button', { name: 'Skip' })).toBeTruthy();
+  });
+
+  test('Next stays hidden while the email is not valid', () => {
+    goToEmailScreen();
     type(/Email/, 'nope');
-    click('Next');
+    expect(nextButton()).toBeNull();
+    type(/Email/, 'ana@example');
+    expect(nextButton()).toBeNull();
+  });
+
+  test('Next shows with a valid email and is announced politely once', () => {
+    goToEmailScreen();
+    type(/Email/, 'ana@example.com');
+    expect(nextButton()).toBeTruthy();
+    const note = screen.getByText('The Next button is ready.');
+    expect(note.getAttribute('aria-live')).toBe('polite');
+    expect(document.activeElement).not.toBe(nextButton());
+  });
+
+  test('Next goes away again when the email is cleared or made invalid', () => {
+    goToEmailScreen();
+    type(/Email/, 'ana@example.com');
+    expect(nextButton()).toBeTruthy();
+    type(/Email/, '');
+    expect(nextButton()).toBeNull();
+    expect(screen.queryByText('The Next button is ready.')).toBeNull();
+    type(/Email/, 'ana@example.com');
+    type(/Email/, 'ana@');
+    expect(nextButton()).toBeNull();
+  });
+
+  test('Enter on a bad email still shows the error', () => {
+    goToEmailScreen();
+    type(/Email/, 'nope');
+    fireEvent.keyDown(screen.getByLabelText(/Email/), { key: 'Enter' });
     expect(screen.getByText('This email does not look right. Check it or leave it blank.')).toBeTruthy();
   });
 
