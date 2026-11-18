@@ -635,7 +635,6 @@ const WalkUpBookingModal = observer(({
       case 'check':
       case 'calling': {
         const calling = step === 'calling';
-        const email = values.email.trim();
         return (
           <Box w="100%">
             {heading}
@@ -644,7 +643,6 @@ const WalkUpBookingModal = observer(({
               <Row text={t('walkUp.rowGoingTo', { place: destination?.title || '' })} />
               <Row text={t('walkUp.rowName', { name: `${values.first.trim()} ${values.last.trim()}` })} />
               <Row text={t('walkUp.rowPhone', { phone: formatPhone(values.phone) })} />
-              <Row text={email ? t('walkUp.rowAppSend', { email }) : t('walkUp.rowAppNo')} />
             </VStack>
             <Text fontSize={sz.body} mb={sz.gap}>{t('walkUp.checkNote')}</Text>
             <Box role="alert" aria-live="assertive" mb={sz.big ? 4 : 3}>

@@ -175,7 +175,8 @@ describe('email', () => {
     click('Next');
     expect(screen.getByRole('heading', { name: 'Do you want the app?' })).toBeTruthy();
     click('Skip');
-    expect(rowText('App link: No')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Confirm your ride' })).toBeTruthy();
+    expect(screen.queryByText(/App link/)).toBeNull();
   });
 
   const goToEmailScreen = () => {
@@ -235,7 +236,9 @@ describe('email', () => {
     click('Next');
     type(/Email/, 'ana@example.com');
     click('Next');
-    expect(rowText('App link: Send to ana@example.com')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Confirm your ride' })).toBeTruthy();
+    expect(screen.queryByText(/App link/)).toBeNull();
+    expect(screen.queryByText(/ana@example.com/)).toBeNull();
   });
 });
 
